@@ -30,11 +30,17 @@
     <ClCompile Include="..\Core\JWMonsters.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\Core\JWFont.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\MapEditor\JWTileMapSelector.cpp">
       <Filter>/MapEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\tinyxml2.cpp">
+      <Filter>Dependency</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWBMFontParser.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWFont.cpp">
+      <Filter>CoreBase</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -69,11 +75,17 @@
     <ClInclude Include="..\Core\JWMonsters.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\Core\JWFont.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\MapEditor\JWTileMapSelector.h">
       <Filter>/MapEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependency\tinyxml2.h">
+      <Filter>Dependency</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWBMFontParser.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWFont.h">
+      <Filter>CoreBase</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -85,6 +97,9 @@
     </Filter>
     <Filter Include="/MapEditor">
       <UniqueIdentifier>{a594f8c4-c43b-4f4c-a283-eb4b7ba16b6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependency">
+      <UniqueIdentifier>{1895b450-6f4d-4167-9eee-0eca55a030a6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -31,7 +31,7 @@ JWMonster::JWMonster()
 
 auto JWMonster::Create(JWWindow* pJWWindow, WSTRING BaseDir, JWMap* pMap)->EError
 {
-	if (DX_SUCCEEDED(JWLife::Create(pJWWindow, BaseDir, pMap)))
+	if (JW_SUCCEEDED(JWLife::Create(pJWWindow, BaseDir, pMap)))
 	{
 		m_HPFrame = new JWImage;
 		m_HPFrame->Create(pJWWindow, BaseDir);
@@ -53,8 +53,8 @@ auto JWMonster::Create(JWWindow* pJWWindow, WSTRING BaseDir, JWMap* pMap)->EErro
 
 void JWMonster::Destroy()
 {
-	DX_DESTROY(m_HPFrame);
-	DX_DESTROY(m_HPBar);
+	JW_DESTROY(m_HPFrame);
+	JW_DESTROY(m_HPBar);
 }
 
 void JWMonster::SetUIPosition(D3DXVECTOR2 Position)

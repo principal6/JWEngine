@@ -31,7 +31,7 @@ JWLife::JWLife()
 
 auto JWLife::Create(JWWindow* pJWWindow, WSTRING BaseDir, JWMap* pMap)->EError
 {
-	if (DX_SUCCEEDED(JWImage::Create(pJWWindow, BaseDir)))
+	if (JW_SUCCEEDED(JWImage::Create(pJWWindow, BaseDir)))
 	{
 		if (nullptr == (m_pMap = pMap))
 			return EError::NULLPTR_MAP;

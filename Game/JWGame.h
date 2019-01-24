@@ -2,12 +2,12 @@
 
 #include "../CoreBase/JWWindow.h"
 #include "../CoreBase/JWInput.h"
+#include "../CoreBase/JWFont.h"
 #include "../Core/JWBackground.h"
 #include "../Core/JWLife.h"
 #include "../Core/JWMonsters.h"
 #include "../Core/JWEffect.h"
 #include "../Core/JWMap.h"
-#include "../Core/JWFont.h"
 
 namespace JWENGINE
 {
@@ -57,6 +57,7 @@ namespace JWENGINE
 		void JWGame::DrawMonsters();
 		void JWGame::DrawSprite();
 		void JWGame::DrawEffects();
+		void JWGame::DrawFont();
 
 		void JWGame::DrawAllBase();
 
@@ -87,7 +88,7 @@ namespace JWENGINE
 		UNIQUE_PTR<JWLife> m_Sprite;
 		UNIQUE_PTR<JWMonsterManager> m_MonsterManager;
 		UNIQUE_PTR<JWEffect> m_EffectManager;
-		UNIQUE_PTR<JWFont> m_FontManager;
+		UNIQUE_PTR<JWFont> m_Font;
 
 		WSTRING m_BaseDir;
 		HWND m_hMainWnd;

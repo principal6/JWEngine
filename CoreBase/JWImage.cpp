@@ -61,9 +61,9 @@ void JWImage::Destroy()
 
 	ClearVertexAndIndexData();
 
-	DX_RELEASE(m_pTexture);
-	DX_RELEASE(m_pIndexBuffer);
-	DX_RELEASE(m_pVertexBuffer);
+	JW_RELEASE(m_pTexture);
+	JW_RELEASE(m_pIndexBuffer);
+	JW_RELEASE(m_pVertexBuffer);
 }
 
 void JWImage::ClearVertexAndIndexData()

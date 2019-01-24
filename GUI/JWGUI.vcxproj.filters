@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="CoreBase">
+      <UniqueIdentifier>{5ee23b4a-c15b-435c-ae58-d6233f15c5b5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\CoreBase\JWCommon.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWImage.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWInput.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWLine.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWWindow.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="JWGUI.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\CoreBase\JWImage.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWInput.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWLine.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWWindow.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_main.cpp" />
+    <ClCompile Include="JWGUI.cpp" />
+  </ItemGroup>
+</Project>

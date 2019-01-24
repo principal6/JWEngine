@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JWGame", "Game\JWGame.vcxpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JWMapEditor", "MapEditor\JWMapEditor.vcxproj", "{C069A9C5-7CC1-4E4C-A680-BA0573274629}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JWGUI", "GUI\JWGUI.vcxproj", "{75ACD63E-6E6C-4595-ADC7-8272D085CEF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{C069A9C5-7CC1-4E4C-A680-BA0573274629}.Release|x64.Build.0 = Release|x64
 		{C069A9C5-7CC1-4E4C-A680-BA0573274629}.Release|x86.ActiveCfg = Release|Win32
 		{C069A9C5-7CC1-4E4C-A680-BA0573274629}.Release|x86.Build.0 = Release|Win32
+		{75ACD63E-6E6C-4595-ADC7-8272D085CEF0}.Debug|x64.ActiveCfg = Debug|x64
+		{75ACD63E-6E6C-4595-ADC7-8272D085CEF0}.Debug|x64.Build.0 = Debug|x64
+		{75ACD63E-6E6C-4595-ADC7-8272D085CEF0}.Debug|x86.ActiveCfg = Debug|Win32
+		{75ACD63E-6E6C-4595-ADC7-8272D085CEF0}.Debug|x86.Build.0 = Debug|Win32
+		{75ACD63E-6E6C-4595-ADC7-8272D085CEF0}.Release|x64.ActiveCfg = Release|x64
+		{75ACD63E-6E6C-4595-ADC7-8272D085CEF0}.Release|x64.Build.0 = Release|x64
+		{75ACD63E-6E6C-4595-ADC7-8272D085CEF0}.Release|x86.ActiveCfg = Release|Win32
+		{75ACD63E-6E6C-4595-ADC7-8272D085CEF0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

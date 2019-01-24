@@ -47,7 +47,7 @@ auto JWTileMapSelector::Create(JWWindow* pTileSelectorWindow, JWWindow* pMapWind
 	// Create tile selector image
 	if (m_TileSelector = MAKE_UNIQUE(JWImage)())
 	{
-		if (DX_FAILED(m_TileSelector->Create(m_pTileSelectorWindow, BaseDir)))
+		if (JW_FAILED(m_TileSelector->Create(m_pTileSelectorWindow, BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 	}
 	m_TileSelector->SetTexture(SEL_FN);
@@ -58,7 +58,7 @@ auto JWTileMapSelector::Create(JWWindow* pTileSelectorWindow, JWWindow* pMapWind
 	// Map selector's texture will be set when SetMapInfo() is called
 	if (m_MapSelector = MAKE_UNIQUE(JWImage)())
 	{
-		if (DX_FAILED(m_MapSelector->Create(m_pMapWIndow, BaseDir)))
+		if (JW_FAILED(m_MapSelector->Create(m_pMapWIndow, BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 	}
 	m_MapSelector->SetAlpha(SEL_ALPHA);

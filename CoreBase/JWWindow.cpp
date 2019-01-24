@@ -5,8 +5,8 @@ using namespace JWENGINE;
 // Static member variable
 int JWWindow::ms_ChildWindowCount = 0;
 
-// Window procedure for Game Window
-LRESULT CALLBACK GameWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
+// Base window procedure for Game window
+LRESULT CALLBACK JWENGINE::GameWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
 	switch (Message)
 	{
@@ -170,8 +170,8 @@ PRIVATE void JWWindow::UpdateRenderRect()
 
 void JWWindow::Destroy()
 {
-	DX_RELEASE(m_pDevice);
-	DX_RELEASE(m_pD3D);
+	JW_RELEASE(m_pDevice);
+	JW_RELEASE(m_pD3D);
 }
 
 void JWWindow::UseVerticalScrollbar()

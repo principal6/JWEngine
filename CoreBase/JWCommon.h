@@ -41,15 +41,16 @@
 
 namespace JWENGINE
 {
-	#define DX_SUCCEEDED(func) (func == EError::OK)
-	#define DX_FAILED(func) (func != EError::OK)
-	#define DX_DESTROY(obj) {if(obj) {obj->Destroy(); delete obj; obj = nullptr;}}
-	#define DX_DESTROY_SMART(obj) {if(obj) {obj->Destroy();}}
-	#define DX_RELEASE(obj) {if(obj) {obj->Release(); obj = nullptr;}}
+	#define JW_SUCCEEDED(func) (func == EError::OK)
+	#define JW_FAILED(func) (func != EError::OK)
+	#define JW_DESTROY(obj) {if(obj) {obj->Destroy(); delete obj; obj = nullptr;}}
+	#define JW_DESTROY_SMART(obj) {if(obj) {obj->Destroy();}}
+	#define JW_RELEASE(obj) {if(obj) {obj->Release(); obj = nullptr;}}
 
 	using CINT = const int;
 
 	static constexpr int MAX_FILE_LEN = 260;
+	static constexpr int MAX_LINE_LEN = 1024;
 
 	// @warning: This value must be 256 for Direct Input
 	static constexpr int NUM_KEYS = 256;
@@ -66,15 +67,21 @@ namespace JWENGINE
 		/** No error */
 		OK,
 
-		/** Base creation */
+		/** Win32Api, DirectX */
 		WINAPIWINDOW_NOT_CREATED,
 		DIRECTX_NOT_CREATED,
+		TEXTURE_NOT_CREATED,
+		VERTEX_BUFFER_NOT_CREATED,
+		INDEX_BUFFER_NOT_CREATED,
+		VERTEX_BUFFER_NOT_LOCKED,
+		INDEX_BUFFER_NOT_LOCKED,
 
 		/** Core creation */
 		WINDOW_NOT_CREATED,
 		IMAGE_NOT_CREATED,
 		INPUT_NOT_CREATED,
 		LINE_NOT_CREATED,
+		FONT_NOT_CREATED,
 
 		/** Sub-class creation */
 		LIFE_NOT_CREATED,
@@ -82,7 +89,6 @@ namespace JWENGINE
 		SPRITE_NOT_CREATED,
 		MONSTERMANAGER_NOT_CREATED,
 		EFFECTMANAGER_NOT_CREATED,
-		FONTMANAGER_NOT_CREATED,
 		OBJECT_NOT_CREATED,
 		TILESELECTOR_NOT_CREATED,
 
@@ -91,6 +97,13 @@ namespace JWENGINE
 		NULLPTR_WINDOW,
 		NULLPTR_MAP,
 		NULLPTR_MAP_INFO,
+
+		/** Null (no data) */
+		NULL_VERTEX,
+		NULL_INDEX,
+
+		/** Not enough buffer */
+		BUFFER_NOT_ENOUGH,
 	};
 
 	struct STextureUV
@@ -138,15 +151,22 @@ namespace JWENGINE
 	{
 		*Color = (Alpha << 24) | ((*Color << 8) >> 8);
 	}
+
 	inline void SetColorXRGB(DWORD* Color, DWORD XRGB)
 	{
 		*Color = ((*Color >> 24) << 24) | ((XRGB << 8) >> 8);
 	}
+
 	inline auto GetColorR(DWORD Color)->BYTE { return ((Color << 8) >> 24); }
+
 	inline auto GetColorG(DWORD Color)->BYTE { return ((Color << 16) >> 24); }
+
 	inline auto GetColorB(DWORD Color)->BYTE { return ((Color << 24) >> 24); }
+
 	inline auto GetColorAlpha(DWORD Color)->BYTE { return (Color >> 24); }
+
 	inline auto GetColorXRGB(DWORD Color)->DWORD { return ((Color << 8) >> 8); }
+
 	inline auto ConvertIntToWSTRING(int In)->WSTRING
 	{
 		WSTRING Result;

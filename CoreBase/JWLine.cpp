@@ -37,8 +37,8 @@ void JWLine::Destroy()
 	m_Vertices.clear();
 	m_Indices.clear();
 
-	DX_RELEASE(m_pIB);
-	DX_RELEASE(m_pVB);
+	JW_RELEASE(m_pIB);
+	JW_RELEASE(m_pVB);
 }
 
 void JWLine::AddLine(D3DXVECTOR2 StartPos, D3DXVECTOR2 Length, DWORD Color)

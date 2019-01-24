@@ -128,8 +128,8 @@ PRIVATE void JWMap::ClearAllData()
 
 void JWMap::Destroy()
 {
-	DX_RELEASE(m_pTextureMove);
-	DX_RELEASE(m_pVBMove);
+	JW_RELEASE(m_pTextureMove);
+	JW_RELEASE(m_pVBMove);
 
 	JWImage::Destroy();
 }

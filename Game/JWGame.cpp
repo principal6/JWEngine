@@ -31,7 +31,7 @@ auto JWGame::Create(int Width, int Height)->EError
 	// Create base (window and initialize Direct3D9)
 	if (m_Window = MAKE_UNIQUE(JWWindow)())
 	{
-		if (DX_FAILED(m_Window->CreateGameWindow(WINDOW_X, WINDOW_Y, Width, Height)))
+		if (JW_FAILED(m_Window->CreateGameWindow(WINDOW_X, WINDOW_Y, Width, Height)))
 			return EError::WINDOW_NOT_CREATED;
 
 		// Set main window handle
@@ -42,49 +42,49 @@ auto JWGame::Create(int Width, int Height)->EError
 	if (m_Input = MAKE_UNIQUE(JWInput)())
 	{
 		// Pass main window's handle to JWInput
-		if (DX_FAILED(m_Input->Create(m_Window->GethWnd(), m_Window->GethInstance())))
+		if (JW_FAILED(m_Input->Create(m_Window->GethWnd(), m_Window->GethInstance())))
 			return EError::INPUT_NOT_CREATED;
 	}
 
-	// Create font manager object
-	if (m_FontManager = MAKE_UNIQUE(JWFont)())
+	// Create font object
+	if (m_Font = MAKE_UNIQUE(JWFont)())
 	{
-		if (DX_FAILED(m_FontManager->Create(m_Window.get())))
-			return EError::FONTMANAGER_NOT_CREATED;
+		if (JW_FAILED(m_Font->Create(m_Window.get(), m_BaseDir)))
+			return EError::FONT_NOT_CREATED;
 	}
 
 	// Create image object
 	if (m_Background = MAKE_UNIQUE(JWBackground)())
 	{
-		if (DX_FAILED(m_Background->Create(m_Window.get(), m_BaseDir)))
+		if (JW_FAILED(m_Background->Create(m_Window.get(), m_BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 	}
 	
 	// Create map object
 	if (m_Map = MAKE_UNIQUE(JWMap)())
 	{
-		if (DX_FAILED(m_Map->Create(m_Window.get(), m_BaseDir)))
+		if (JW_FAILED(m_Map->Create(m_Window.get(), m_BaseDir)))
 			return EError::MAP_NOT_CREATED;
 	}
 	
 	// Create sprite object
 	if (m_Sprite = MAKE_UNIQUE(JWLife)())
 	{
-		if (DX_FAILED(m_Sprite->Create(m_Window.get(), m_BaseDir, m_Map.get())))
+		if (JW_FAILED(m_Sprite->Create(m_Window.get(), m_BaseDir, m_Map.get())))
 			return EError::SPRITE_NOT_CREATED;
 	}
 
 	// Create monster manager object
 	if (m_MonsterManager = MAKE_UNIQUE(JWMonsterManager)())
 	{
-		if (DX_FAILED(m_MonsterManager->Create(m_Window.get(), m_BaseDir, m_Map.get())))
+		if (JW_FAILED(m_MonsterManager->Create(m_Window.get(), m_BaseDir, m_Map.get())))
 			return EError::MONSTERMANAGER_NOT_CREATED;
 	}
 
 	// Create effect manager object
 	if (m_EffectManager = MAKE_UNIQUE(JWEffect)())
 	{
-		if (DX_FAILED(m_EffectManager->Create(m_Window.get(), m_BaseDir, m_Map.get())))
+		if (JW_FAILED(m_EffectManager->Create(m_Window.get(), m_BaseDir, m_Map.get())))
 			return EError::EFFECTMANAGER_NOT_CREATED;
 	}
 
@@ -131,8 +131,10 @@ void JWGame::Run()
 			TranslateMessage(&m_MSG);
 			DispatchMessage(&m_MSG);
 		}
-		
-		MainLoop();
+		else
+		{
+			MainLoop();
+		}
 	}
 
 	Destroy();
@@ -227,14 +229,14 @@ void JWGame::DetectInput()
 
 void JWGame::Destroy()
 {
-	DX_DESTROY_SMART(m_FontManager);
-	DX_DESTROY_SMART(m_EffectManager);
-	DX_DESTROY_SMART(m_MonsterManager);
-	DX_DESTROY_SMART(m_Sprite);
-	DX_DESTROY_SMART(m_Map);
-	DX_DESTROY_SMART(m_Background);
-	DX_DESTROY_SMART(m_Input);
-	DX_DESTROY_SMART(m_Window);
+	JW_DESTROY_SMART(m_Font);
+	JW_DESTROY_SMART(m_EffectManager);
+	JW_DESTROY_SMART(m_MonsterManager);
+	JW_DESTROY_SMART(m_Sprite);
+	JW_DESTROY_SMART(m_Map);
+	JW_DESTROY_SMART(m_Background);
+	JW_DESTROY_SMART(m_Input);
+	JW_DESTROY_SMART(m_Window);
 }
 
 void JWGame::SetBackground(WSTRING TextureFN)
@@ -283,8 +285,8 @@ auto JWGame::SpawnMonster(WSTRING MonsterName, D3DXVECTOR2 GlobalPosition)->JWMo
 
 auto JWGame::GetFontObject()->JWFont*
 {
-	assert(m_FontManager);
-	return m_FontManager.get();
+	assert(m_Font);
+	return m_Font.get();
 }
 
 auto JWGame::GetSpriteObject()->JWLife*
@@ -341,6 +343,12 @@ void JWGame::DrawEffects()
 		m_EffectManager->DrawBoundingBox();
 }
 
+void JWGame::DrawFont()
+{
+	assert(m_Font);
+	m_Font->Draw();
+}
+
 void JWGame::DrawAllBase()
 {
 	DrawBackground();
@@ -348,4 +356,5 @@ void JWGame::DrawAllBase()
 	DrawMonsters();
 	DrawSprite();
 	DrawEffects();
+	DrawFont();
 }

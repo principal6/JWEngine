@@ -342,7 +342,7 @@ auto JWMapEditor::Create(int Width, int Height)->EError
 	// Create parent window
 	if (ms_WindowParent = MAKE_UNIQUE(JWWindow)())
 	{
-		if (DX_FAILED(ms_WindowParent->CreateParentWindow(WINDOW_X, WINDOW_Y, Width, Height,
+		if (JW_FAILED(ms_WindowParent->CreateParentWindow(WINDOW_X, WINDOW_Y, Width, Height,
 			D3DCOLOR_XRGB(50, 50, 80), ParentWindowProc, MAKEINTRESOURCE(IDR_MENU1))))
 			return EError::WINDOW_NOT_CREATED;
 
@@ -365,7 +365,7 @@ auto JWMapEditor::Create(int Width, int Height)->EError
 		GetClientRect(m_hWndMain, &tempRect);
 		tempRect = GetLeftChildPositionAndSizeFromParent(tempRect);
 		
-		if (DX_FAILED(ms_WindowLeft->CreateChildWindow(m_hWndMain, tempRect.left, tempRect.top, tempRect.right, tempRect.bottom,
+		if (JW_FAILED(ms_WindowLeft->CreateChildWindow(m_hWndMain, tempRect.left, tempRect.top, tempRect.right, tempRect.bottom,
 			D3DCOLOR_XRGB(160, 160, 160), LeftChildWindowProc)))
 			return EError::WINDOW_NOT_CREATED;
 
@@ -376,19 +376,19 @@ auto JWMapEditor::Create(int Width, int Height)->EError
 	// Create tile image objects
 	if (ms_TileImage = MAKE_UNIQUE(JWImage)())
 	{
-		if (DX_FAILED(ms_TileImage->Create(ms_WindowLeft.get(), m_BaseDir)))
+		if (JW_FAILED(ms_TileImage->Create(ms_WindowLeft.get(), m_BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 	}
 	if (ms_MoveImage = MAKE_UNIQUE(JWImage)())
 	{
-		if (DX_FAILED(ms_MoveImage->Create(ms_WindowLeft.get(), m_BaseDir)))
+		if (JW_FAILED(ms_MoveImage->Create(ms_WindowLeft.get(), m_BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 	}
 
 	// Create tile background
 	if (ms_TileBG = MAKE_UNIQUE(JWImage)())
 	{
-		if (DX_FAILED(ms_TileBG->Create(ms_WindowLeft.get(), m_BaseDir)))
+		if (JW_FAILED(ms_TileBG->Create(ms_WindowLeft.get(), m_BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		ms_TileBG->SetXRGB(D3DCOLOR_XRGB(20, 20, 120));
 	}
@@ -403,7 +403,7 @@ auto JWMapEditor::Create(int Width, int Height)->EError
 		GetClientRect(m_hWndMain, &tempRect);
 		tempRect = GetRightChildPositionAndSizeFromParent(tempRect);
 
-		if (DX_FAILED(ms_WindowRight->CreateChildWindow(m_hWndMain, tempRect.left, tempRect.top, tempRect.right, tempRect.bottom,
+		if (JW_FAILED(ms_WindowRight->CreateChildWindow(m_hWndMain, tempRect.left, tempRect.top, tempRect.right, tempRect.bottom,
 			D3DCOLOR_XRGB(200, 200, 200), RightChildWindowProc)))
 			return EError::WINDOW_NOT_CREATED;
 
@@ -414,14 +414,14 @@ auto JWMapEditor::Create(int Width, int Height)->EError
 	// Create map object
 	if (ms_Map = MAKE_UNIQUE(JWMap)())
 	{
-		if (DX_FAILED(ms_Map->Create(ms_WindowRight.get(), m_BaseDir)))
+		if (JW_FAILED(ms_Map->Create(ms_WindowRight.get(), m_BaseDir)))
 			return EError::MAP_NOT_CREATED;
 	}
 
 	// Create map background
 	if (ms_MapBG = MAKE_UNIQUE(JWImage)())
 	{
-		if (DX_FAILED(ms_MapBG->Create(ms_WindowRight.get(), m_BaseDir)))
+		if (JW_FAILED(ms_MapBG->Create(ms_WindowRight.get(), m_BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		ms_MapBG->SetXRGB(D3DCOLOR_XRGB(20, 20, 80));
 	}
@@ -429,7 +429,7 @@ auto JWMapEditor::Create(int Width, int Height)->EError
 	// Create map-tile selector
 	if (ms_MapTileSelector = MAKE_UNIQUE(JWTileMapSelector)())
 	{
-		if (DX_FAILED(ms_MapTileSelector->Create(ms_WindowLeft.get(), ms_WindowRight.get(), m_BaseDir)))
+		if (JW_FAILED(ms_MapTileSelector->Create(ms_WindowLeft.get(), ms_WindowRight.get(), m_BaseDir)))
 			return EError::TILESELECTOR_NOT_CREATED;
 	}
 
@@ -500,16 +500,16 @@ PRIVATE void JWMapEditor::MainLoop()
 
 PRIVATE void JWMapEditor::Destroy()
 {
-	DX_DESTROY_SMART(ms_MapTileSelector);
+	JW_DESTROY_SMART(ms_MapTileSelector);
 
-	DX_DESTROY_SMART(ms_MapBG);
-	DX_DESTROY_SMART(ms_Map);
+	JW_DESTROY_SMART(ms_MapBG);
+	JW_DESTROY_SMART(ms_Map);
 	
-	DX_DESTROY_SMART(ms_TileBG);
-	DX_DESTROY_SMART(ms_TileImage);
-	DX_DESTROY_SMART(ms_MoveImage);
+	JW_DESTROY_SMART(ms_TileBG);
+	JW_DESTROY_SMART(ms_TileImage);
+	JW_DESTROY_SMART(ms_MoveImage);
 
-	DX_DESTROY_SMART(ms_WindowLeft);
-	DX_DESTROY_SMART(ms_WindowRight);
-	DX_DESTROY_SMART(ms_WindowParent);
+	JW_DESTROY_SMART(ms_WindowLeft);
+	JW_DESTROY_SMART(ms_WindowRight);
+	JW_DESTROY_SMART(ms_WindowParent);
 }

@@ -65,6 +65,7 @@ namespace JWENGINE
 		auto JWWindow::CreateChildWindow(HWND hWndParent, CINT X, CINT Y, CINT Width, CINT Height,
 			DWORD Color, WNDPROC Proc)->EError;
 		void JWWindow::Destroy();
+		void JWWindow::GameWindowHandleMessage();
 
 		// Scrollbars
 		void JWWindow::UseVerticalScrollbar();
@@ -102,6 +103,8 @@ namespace JWENGINE
 		auto JWWindow::OnMouseMove()->bool;
 
 	private:
+		friend LRESULT CALLBACK GameWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
+
 		auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, CINT X, CINT Y, CINT Width, CINT Height,
 			EWindowStyle WindowStyle, DWORD BackColor, WNDPROC Proc, LPCWSTR MenuName = nullptr, HWND hWndParent = nullptr)->HWND;
 		auto JWWindow::InitializeDirectX()->int;

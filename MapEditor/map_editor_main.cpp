@@ -13,7 +13,7 @@ int main()
 
 	static JWMapEditor myMapEditor;
 
-	if (DX_SUCCEEDED(myMapEditor.Create(800, 600)))
+	if (JW_SUCCEEDED(myMapEditor.Create(800, 600)))
 	{
 		myMapEditor.Run();
 	}	

@@ -15,8 +15,12 @@ int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	if (DX_FAILED(g_MyGame.Create(800, 600)))
+	if (JW_FAILED(g_MyGame.Create(800, 600)))
 		return -1;
+
+	g_MyGame.GetFontObject()->MakeFont(L"megt20all.fnt");
+	g_MyGame.GetFontObject()->SetXRGB(D3DCOLOR_ARGB(255, 0, 100, 50));
+	g_MyGame.GetFontObject()->SetText(L"화살표 키: 이동, 점프 / Ctrl: 물리 공격 / Alt: 마법 공격 / B: 바운딩 박스 토글");
 
 	g_MyGame.SetBackground(L"colored_talltrees.png");
 
@@ -46,9 +50,6 @@ int main()
 		->AddEffectType(EEffectType::Still, SAnimationData(EAnimationID::Effect, 0, 63),
 			D3DXVECTOR2(80.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f), 15);
 
-	g_MyGame.GetFontObject()
-		->MakeFont(EFontID::Debug, L"굴림", 14, true);
-
 	g_MyGame.SetRenderFunction(Render);
 	g_MyGame.SetKeyboardFunction(Keyboard);
 
@@ -59,11 +60,7 @@ int main()
 
 void Render()
 {
-	g_MyGame.GetFontObject()
-		->SelectFontByID(EFontID::Debug)
-		->SetFontColor(D3DCOLOR_ARGB(255, 0, 100, 50))
-		->Draw(0, 5, L"화살표 키: 이동, 점프 / Ctrl: 물리 공격 / Alt: 마법 공격")
-		->Draw(0, 25, L"B: 바운딩 박스 토글");
+	
 }
 
 void Keyboard(DWORD Key)
