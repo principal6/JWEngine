@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="map_editor_main.cpp" />
+    <ClCompile Include="JWMapEditor.cpp" />
+    <ClCompile Include="JWTileMapSelector.cpp" />
+    <ClCompile Include="..\Core\JWMap.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWImage.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWInput.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWLine.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWWindow.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h">
+      <Filter>리소스</Filter>
+    </ClInclude>
+    <ClInclude Include="JWMapEditor.h" />
+    <ClInclude Include="JWTileMapSelector.h" />
+    <ClInclude Include="..\Core\JWMap.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWCommon.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWImage.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWInput.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWLine.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWWindow.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="리소스">
+      <UniqueIdentifier>{4ee979aa-f146-4ba6-ac02-99627c41a066}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CoreBase">
+      <UniqueIdentifier>{aa8a370c-506e-46a6-8adc-e5784e11b046}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{2415cd3d-10d7-48e1-9d3c-e73a7aa88963}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="JWMapEditor.rc">
+      <Filter>리소스</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
