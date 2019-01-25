@@ -37,32 +37,32 @@ namespace JWENGINE
 
 		auto MakeFont(WSTRING FileName_FNT)->EError;
 
-		auto SetText(WSTRING MultilineText)->EError;
+		auto SetSize(D3DXVECTOR2 Size)->EError;
 		auto SetPosition(D3DXVECTOR2 Offset)->EError;
 		auto SetFontAlpha(BYTE Alpha)->EError;
 		auto SetFontXRGB(DWORD Color)->EError;
 		auto SetBackgroundAlpha(BYTE Alpha)->EError;
 		auto SetBackgroundXRGB(DWORD Color)->EError;
-		
 		void SetHorizontalAlignment(EHorizontalAlignment Alignment);
 		void SetVerticalAlignment(EVerticalAlignment Alignment);
-		void SetBoxSize(D3DXVECTOR2 Size);
-
+		auto SetText(WSTRING MultilineText)->EError;
+		
 		void Draw() const;
 
 	private:
+		static auto GetImageStringLineLength(WSTRING LineText)->size_t;
+
 		void ClearString();
 		void ClearVertexAndIndexData();
 
 		auto CreateVertexBuffer()->EError;
 		auto CreateIndexBuffer()->EError;
-		auto CreateTexture(WSTRING FileName)->EError;
-
 		auto UpdateVertexBuffer()->EError;
 		auto UpdateIndexBuffer()->EError;
 
+		auto CreateTexture(WSTRING FileName)->EError;
+
 		void AddChar(wchar_t CharID, wchar_t CharIDPrev, wchar_t Character, int XOffsetBase = 0, int YOffsetBase = 0);
-		auto GetLineImageLength(WSTRING LineText)->size_t;
 
 	private:
 		static const DWORD DEFAULT_COLOR_FONT = D3DCOLOR_XRGB(255, 255, 255);

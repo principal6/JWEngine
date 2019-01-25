@@ -61,7 +61,7 @@ void Render()
 	g_MyGame.GetFontObject()->SetHorizontalAlignment(EHorizontalAlignment::Left);
 	g_MyGame.GetFontObject()->SetVerticalAlignment(EVerticalAlignment::Top);
 	g_MyGame.GetFontObject()->SetText(L"화살표 키: 이동, 점프\nCtrl: 물리 공격\nAlt: 마법 공격\nB: 바운딩 박스 토글");
-	g_MyGame.GetFontObject()->SetBoxSize(D3DXVECTOR2(160, 80));
+	g_MyGame.GetFontObject()->SetSize(D3DXVECTOR2(160, 80));
 }
 
 void Keyboard(DWORD Key)
