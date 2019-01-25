@@ -6,7 +6,7 @@ using namespace JWENGINE;
 int JWWindow::ms_ChildWindowCount = 0;
 
 // Base window procedure for Game window
-LRESULT CALLBACK JWENGINE::GameWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK GameWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
 	switch (Message)
 	{
@@ -39,6 +39,18 @@ JWWindow::JWWindow()
 auto JWWindow::CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError
 {
 	if (CreateWINAPIWindow(L"Game", X, Y, Width, Height, EWindowStyle::OverlappedWindow, m_BGColor, GameWindowProc)
+		== nullptr)
+		return EError::WINAPIWINDOW_NOT_CREATED;
+
+	if (InitializeDirectX() == -1)
+		return EError::DIRECTX_NOT_CREATED;
+
+	return EError::OK;
+}
+
+auto JWWindow::CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError
+{
+	if (CreateWINAPIWindow(L"GUI", X, Y, Width, Height, EWindowStyle::OverlappedWindow, Color, Proc)
 		== nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 

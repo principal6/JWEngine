@@ -8,6 +8,12 @@
     <Filter Include="CoreBase">
       <UniqueIdentifier>{5ee23b4a-c15b-435c-ae58-d6233f15c5b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{9aea3a85-724b-45c9-bc4f-05e1af10da14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependency">
+      <UniqueIdentifier>{79bd3b7d-c9a2-407c-843a-f00c968d7244}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CoreBase\JWCommon.h">
@@ -26,6 +32,15 @@
       <Filter>CoreBase</Filter>
     </ClInclude>
     <ClInclude Include="JWGUI.h" />
+    <ClInclude Include="..\CoreBase\JWBMFontParser.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWFont.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependency\tinyxml2.h">
+      <Filter>Dependency</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWImage.cpp">
@@ -42,5 +57,14 @@
     </ClCompile>
     <ClCompile Include="gui_main.cpp" />
     <ClCompile Include="JWGUI.cpp" />
+    <ClCompile Include="..\CoreBase\JWBMFontParser.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWFont.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\tinyxml2.cpp">
+      <Filter>Dependency</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

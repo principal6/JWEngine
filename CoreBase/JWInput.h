@@ -16,23 +16,23 @@ namespace JWENGINE
 		JWInput();
 		~JWInput() {};
 
-		auto JWInput::Create(HWND hWnd, HINSTANCE hInstance)->EError;
-		void JWInput::Destroy();
+		auto Create(HWND hWnd, HINSTANCE hInstance)->EError;
+		void Destroy();
 
-		auto JWInput::OnKeyDown(DWORD DIK_KeyCode)->bool;
-		auto JWInput::OnKeyUp(DWORD DIK_KeyCode)->bool;
-		auto JWInput::OnMouseMove()->DIMOUSESTATE2;
-		auto JWInput::OnMouseButtonDown(int button)->bool;
-		auto JWInput::OnMouseButtonUp(int button)->bool;
+		auto OnKeyDown(DWORD DIK_KeyCode)->bool;
+		auto OnKeyUp(DWORD DIK_KeyCode)->bool;
+		auto OnMouseMove()->DIMOUSESTATE2;
+		auto OnMouseButtonDown(int button)->bool;
+		auto OnMouseButtonUp(int button)->bool;
 
-		auto JWInput::GetMouseButtonDown(int button)->bool;
-		auto JWInput::GetKeyState(DWORD DIK_KeyCode) const->bool;
-		void JWInput::GetAllKeyState(bool* Keys);
+		auto GetMouseButtonDown(int button)->bool;
+		auto GetKeyState(DWORD DIK_KeyCode) const->bool;
+		void GetAllKeyState(bool* Keys);
 
 	private:
-		bool JWInput::CreateMouseDevice(DWORD dwFlags);
-		bool JWInput::CreateKeyboardDevice(DWORD dwFlags);
-		bool JWInput::CheckMouseButton(int button);
+		bool CreateMouseDevice(DWORD dwFlags);
+		bool CreateKeyboardDevice(DWORD dwFlags);
+		bool CheckMouseButton(int button);
 
 	private:
 		HWND m_hWnd;

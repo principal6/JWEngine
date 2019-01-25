@@ -1,10 +1,7 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <Windows.h>
-#include "../Dependency/tinyxml2.h"
 #include "JWCommon.h"
+#include "../Dependency/tinyxml2.h"
 
 namespace JWENGINE
 {

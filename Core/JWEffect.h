@@ -1,11 +1,13 @@
 #pragma once
 
-#include "../CoreBase/JWCommon.h"
+#include "../CoreBase/JWImage.h"
 
 namespace JWENGINE
 {
 	// ***
 	// *** Forward declaration ***
+	class JWWindow;
+	class JWMap;
 	class JWMonsterManager;
 	// ***
 

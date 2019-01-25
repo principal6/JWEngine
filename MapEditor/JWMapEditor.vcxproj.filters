@@ -19,6 +19,15 @@
     <ClCompile Include="..\CoreBase\JWWindow.cpp">
       <Filter>CoreBase</Filter>
     </ClCompile>
+    <ClCompile Include="..\CoreBase\JWBMFontParser.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWFont.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\tinyxml2.cpp">
+      <Filter>Dependency</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -44,6 +53,15 @@
     <ClInclude Include="..\CoreBase\JWWindow.h">
       <Filter>CoreBase</Filter>
     </ClInclude>
+    <ClInclude Include="..\CoreBase\JWBMFontParser.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWFont.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependency\tinyxml2.h">
+      <Filter>Dependency</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="리소스">
@@ -54,6 +72,9 @@
     </Filter>
     <Filter Include="Core">
       <UniqueIdentifier>{2415cd3d-10d7-48e1-9d3c-e73a7aa88963}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependency">
+      <UniqueIdentifier>{8786ba68-f5a2-4edb-982d-da66c0f2e242}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

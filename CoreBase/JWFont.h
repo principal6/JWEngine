@@ -1,6 +1,5 @@
 #pragma once
 
-#include "JWCommon.h"
 #include "JWBMFontParser.h"
 
 namespace JWENGINE
@@ -18,30 +17,30 @@ namespace JWENGINE
 		JWFont();
 		~JWFont() {};
 
-		auto JWFont::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError;
-		void JWFont::Destroy();
+		auto Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError;
+		void Destroy();
 
-		auto JWFont::MakeFont(WSTRING FileName_FNT)->EError;
+		auto MakeFont(WSTRING FileName_FNT)->EError;
 
-		auto JWFont::SetText(WSTRING Text)->EError;
-		auto JWFont::SetPosition(D3DXVECTOR2 Offset)->EError;
-		auto JWFont::SetAlpha(BYTE Alpha)->EError;
-		auto JWFont::SetXRGB(DWORD Color)->EError;
+		auto SetText(WSTRING Text)->EError;
+		auto SetPosition(D3DXVECTOR2 Offset)->EError;
+		auto SetAlpha(BYTE Alpha)->EError;
+		auto SetXRGB(DWORD Color)->EError;
 
-		void JWFont::Draw() const;
+		void Draw() const;
 
 	private:
-		void JWFont::ClearString();
-		void JWFont::ClearVertexAndIndexData();
+		void ClearString();
+		void ClearVertexAndIndexData();
 
-		auto JWFont::CreateVertexBuffer()->EError;
-		auto JWFont::CreateIndexBuffer()->EError;
-		auto JWFont::CreateTexture(WSTRING FileName)->EError;
+		auto CreateVertexBuffer()->EError;
+		auto CreateIndexBuffer()->EError;
+		auto CreateTexture(WSTRING FileName)->EError;
 
-		auto JWFont::UpdateVertexBuffer()->EError;
-		auto JWFont::UpdateIndexBuffer()->EError;
+		auto UpdateVertexBuffer()->EError;
+		auto UpdateIndexBuffer()->EError;
 
-		void JWFont::AddChar(wchar_t CharID, wchar_t Character);
+		void AddChar(wchar_t CharID, wchar_t Character);
 
 	private:
 		JWWindow* m_pJWWindow;

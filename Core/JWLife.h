@@ -10,35 +10,6 @@ namespace JWENGINE
 	class JWMap;
 	// ***
 
-	enum class EAnimationDirection
-	{
-		Left,
-		Right,
-	};
-
-	enum class EAnimationID
-	{
-		Idle,
-		Walk,
-		Jumping,
-		Falling,
-		Landing,
-		Attack1,
-		Attack2,
-		Attack3,
-
-		Effect,
-	};
-
-	struct SAnimationData
-	{
-		EAnimationID AnimID;
-		int FrameS, FrameE;
-
-		SAnimationData() : FrameS(0), FrameE(0) {};
-		SAnimationData(EAnimationID _AnimID, int StartFrame, int EndFrame) : AnimID(_AnimID), FrameS(StartFrame), FrameE(EndFrame) {};
-	};
-
 	class JWLife : public JWImage
 	{
 	public:

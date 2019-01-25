@@ -29,26 +29,26 @@ namespace JWENGINE
 		JWLine() {};
 		~JWLine() {};
 
-		auto JWLine::Create(LPDIRECT3DDEVICE9 pD3DDev)->EError;
-		void JWLine::CreateMax(LPDIRECT3DDEVICE9 pD3DDev);
-		void JWLine::Clear();
-		void JWLine::Destroy();
+		auto Create(LPDIRECT3DDEVICE9 pD3DDev)->EError;
+		void CreateMax(LPDIRECT3DDEVICE9 pD3DDev);
+		void Clear();
+		void Destroy();
 
-		void JWLine::AddLine(D3DXVECTOR2 StartPos, D3DXVECTOR2 Length, DWORD Color);
-		void JWLine::AddBox(D3DXVECTOR2 StartPos, D3DXVECTOR2 Size, DWORD Color);
-		void JWLine::AddEnd();
+		void AddLine(D3DXVECTOR2 StartPos, D3DXVECTOR2 Length, DWORD Color);
+		void AddBox(D3DXVECTOR2 StartPos, D3DXVECTOR2 Size, DWORD Color);
+		void AddEnd();
 
-		void JWLine::SetBoxPosition(D3DXVECTOR2 StartPos, D3DXVECTOR2 Size);
+		void SetBoxPosition(D3DXVECTOR2 StartPos, D3DXVECTOR2 Size);
 
-		void JWLine::UpdateVB();
-		void JWLine::UpdateIB();
-		void JWLine::Draw() const;
+		void UpdateVB();
+		void UpdateIB();
+		void Draw() const;
 
 	private:
-		void JWLine::CreateVB();
-		void JWLine::CreateIB();
-		void JWLine::CreateVBMax();
-		void JWLine::CreateIBMax();
+		void CreateVB();
+		void CreateIB();
+		void CreateVBMax();
+		void CreateIBMax();
 
 	private:
 		static LPDIRECT3DDEVICE9 ms_pDevice;

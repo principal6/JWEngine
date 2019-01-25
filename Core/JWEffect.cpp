@@ -1,6 +1,7 @@
+#include "JWEffect.h"
+#include "../CoreBase/JWWindow.h"
 #include "JWMap.h"
 #include "JWMonsters.h"
-#include "JWEffect.h"
 
 using namespace JWENGINE;
 

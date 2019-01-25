@@ -59,61 +59,60 @@ namespace JWENGINE
 		JWWindow();
 		~JWWindow() {};
 
-		auto JWWindow::CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError;
-		auto JWWindow::CreateParentWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color,
+		auto CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError;
+		auto CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError;
+		auto CreateParentWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color,
 			WNDPROC Proc, LPCWSTR MenuName)->EError;
-		auto JWWindow::CreateChildWindow(HWND hWndParent, CINT X, CINT Y, CINT Width, CINT Height,
+		auto CreateChildWindow(HWND hWndParent, CINT X, CINT Y, CINT Width, CINT Height,
 			DWORD Color, WNDPROC Proc)->EError;
-		void JWWindow::Destroy();
-		void JWWindow::GameWindowHandleMessage();
+		void Destroy();
 
 		// Scrollbars
-		void JWWindow::UseVerticalScrollbar();
-		void JWWindow::UseHorizontalScrollbar();
-		void JWWindow::SetVerticalScrollbarRange(int Max);
-		void JWWindow::SetHorizontalScrollbarRange(int Max);
-		auto JWWindow::GetVerticalScrollbarPosition()->int;
-		auto JWWindow::GetHorizontalScrollbarPosition()->int;
+		void UseVerticalScrollbar();
+		void UseHorizontalScrollbar();
+		void SetVerticalScrollbarRange(int Max);
+		void SetHorizontalScrollbarRange(int Max);
+		auto GetVerticalScrollbarPosition()->int;
+		auto GetHorizontalScrollbarPosition()->int;
 
-		void JWWindow::SetWindowCaption(WSTRING Caption);
-		void JWWindow::SetBackgroundColor(D3DCOLOR color);
-		void JWWindow::Resize(RECT Rect);
+		void SetWindowCaption(WSTRING Caption);
+		void SetBackgroundColor(D3DCOLOR color);
+		void Resize(RECT Rect);
 
-		void JWWindow::BeginRender() const;
-		void JWWindow::EndRender() const;
+		// Render
+		void BeginRender() const;
+		void EndRender() const;
 
-		auto JWWindow::GetDevice() const->LPDIRECT3DDEVICE9;
-		auto JWWindow::GethWnd() const->HWND;
-		auto JWWindow::GethInstance() const->HINSTANCE;
-		auto JWWindow::GetWindowData()->SWindowData*;
-		auto JWWindow::GetMouseData()->SMouseData*;
-		auto JWWindow::GetRenderRect()->RECT;
+		auto GetDevice() const->LPDIRECT3DDEVICE9;
+		auto GethWnd() const->HWND;
+		auto GethInstance() const->HINSTANCE;
+		auto GetWindowData()->SWindowData*;
+		auto GetMouseData()->SMouseData*;
+		auto GetRenderRect()->RECT;
 
 		// Dialog
-		void JWWindow::SetDlgBase();
-		auto JWWindow::OpenFileDlg(LPCWSTR Filter)->BOOL;
-		auto JWWindow::SaveFileDlg(LPCWSTR Filter)->BOOL;
-		auto JWWindow::GetDlgFileName()->WSTRING;
-		auto JWWindow::GetDlgFileTitle()->WSTRING;
+		void SetDlgBase();
+		auto OpenFileDlg(LPCWSTR Filter)->BOOL;
+		auto SaveFileDlg(LPCWSTR Filter)->BOOL;
+		auto GetDlgFileName()->WSTRING;
+		auto GetDlgFileTitle()->WSTRING;
 
 		// Editor message handler
-		void JWWindow::EditorChildWindowMessageHandler(UINT Message, WPARAM wParam, LPARAM lParam);
-		auto JWWindow::IsMouseLeftButtonPressed() const->bool;
-		auto JWWindow::IsMouseRightButtonPressed() const->bool;
-		auto JWWindow::OnMouseMove()->bool;
+		void EditorChildWindowMessageHandler(UINT Message, WPARAM wParam, LPARAM lParam);
+		auto IsMouseLeftButtonPressed() const->bool;
+		auto IsMouseRightButtonPressed() const->bool;
+		auto OnMouseMove()->bool;
 
 	private:
-		friend LRESULT CALLBACK GameWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
-
-		auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, CINT X, CINT Y, CINT Width, CINT Height,
+		auto CreateWINAPIWindow(const wchar_t* Name, CINT X, CINT Y, CINT Width, CINT Height,
 			EWindowStyle WindowStyle, DWORD BackColor, WNDPROC Proc, LPCWSTR MenuName = nullptr, HWND hWndParent = nullptr)->HWND;
-		auto JWWindow::InitializeDirectX()->int;
-		void JWWindow::SetDirect3DParameters();
-		void JWWindow::UpdateRenderRect();
+		auto InitializeDirectX()->int;
+		void SetDirect3DParameters();
+		void UpdateRenderRect();
 
-		void JWWindow::SetWindowData(int Width, int Height);
-		void JWWindow::UpdateVerticalScrollbarPosition();
-		void JWWindow::UpdateHorizontalScrollbarPosition();
+		void SetWindowData(int Width, int Height);
+		void UpdateVerticalScrollbarPosition();
+		void UpdateHorizontalScrollbarPosition();
 
 	private:
 		static const int VERTICAL_SCROLL_BAR_WIDTH = 20;

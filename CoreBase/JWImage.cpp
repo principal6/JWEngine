@@ -61,6 +61,8 @@ void JWImage::Destroy()
 
 	ClearVertexAndIndexData();
 
+	m_BoundingBoxLine.Destroy();
+
 	JW_RELEASE(m_pTexture);
 	JW_RELEASE(m_pIndexBuffer);
 	JW_RELEASE(m_pVertexBuffer);

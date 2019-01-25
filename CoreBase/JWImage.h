@@ -53,47 +53,47 @@ namespace JWENGINE
 		JWImage();
 		virtual ~JWImage() {};
 
-		virtual auto JWImage::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError;
-		virtual void JWImage::Destroy();
+		virtual auto Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError;
+		virtual void Destroy();
 
-		virtual void JWImage::Draw();
-		virtual void JWImage::DrawBoundingBox();
+		virtual void Draw();
+		virtual void DrawBoundingBox();
 
-		virtual void JWImage::FlipHorizontal();
-		virtual void JWImage::FlipVertical();
+		virtual void FlipHorizontal();
+		virtual void FlipVertical();
 
 		// @warning: SetSize() is used publicly only in Map Editor
-		virtual void JWImage::SetSize(D3DXVECTOR2 Size);
+		virtual void SetSize(D3DXVECTOR2 Size);
 		
-		virtual void JWImage::SetPosition(D3DXVECTOR2 Position);
-		virtual void JWImage::SetPositionCentered(D3DXVECTOR2 Position);
-		virtual void JWImage::SetTexture(WSTRING FileName);
-		virtual auto JWImage::SetAlpha(BYTE Alpha)->JWImage*;
-		virtual auto JWImage::SetXRGB(DWORD Color)->JWImage*;;
-		virtual auto JWImage::SetScale(D3DXVECTOR2 Scale)->JWImage*;
-		virtual auto JWImage::SetVisibleRange(D3DXVECTOR2 Range)->JWImage*;
-		virtual auto JWImage::SetAtlasUV(D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 Size,
+		virtual void SetPosition(D3DXVECTOR2 Position);
+		virtual void SetPositionCentered(D3DXVECTOR2 Position);
+		virtual void SetTexture(WSTRING FileName);
+		virtual auto SetAlpha(BYTE Alpha)->JWImage*;
+		virtual auto SetXRGB(DWORD Color)->JWImage*;;
+		virtual auto SetScale(D3DXVECTOR2 Scale)->JWImage*;
+		virtual auto SetVisibleRange(D3DXVECTOR2 Range)->JWImage*;
+		virtual auto SetAtlasUV(D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 Size,
 			bool bSetSize = true)->JWImage*;
-		virtual auto JWImage::SetUVRange(float u1, float u2, float v1, float v2)->JWImage*;
-		virtual auto JWImage::SetBoundingBox(D3DXVECTOR2 ExtraSize)->JWImage*;
-		virtual auto JWImage::SetBoundingBoxColor(DWORD Color)->JWImage*;
+		virtual auto SetUVRange(float u1, float u2, float v1, float v2)->JWImage*;
+		virtual auto SetBoundingBox(D3DXVECTOR2 ExtraSize)->JWImage*;
+		virtual auto SetBoundingBoxColor(DWORD Color)->JWImage*;
 
-		virtual auto JWImage::GetSize() const->D3DXVECTOR2;
-		virtual auto JWImage::GetScaledSize() const->D3DXVECTOR2;;
-		virtual auto JWImage::GetPosition() const->D3DXVECTOR2;
-		virtual auto JWImage::GetCenterPosition() const->D3DXVECTOR2;
-		virtual auto JWImage::GetBoundingBox() const->SBoundingBox;
+		virtual auto GetSize() const->D3DXVECTOR2;
+		virtual auto GetScaledSize() const->D3DXVECTOR2;;
+		virtual auto GetPosition() const->D3DXVECTOR2;
+		virtual auto GetCenterPosition() const->D3DXVECTOR2;
+		virtual auto GetBoundingBox() const->SBoundingBox;
 
-		virtual auto JWImage::IsTextureLoaded() const->bool;
+		virtual auto IsTextureLoaded() const->bool;
 
 	protected:
-		virtual void JWImage::ClearVertexAndIndexData();
-		virtual void JWImage::CreateVertexBuffer();
-		virtual void JWImage::CreateIndexBuffer();
-		virtual void JWImage::UpdateVertexBuffer();
-		virtual void JWImage::UpdateIndexBuffer();
-		virtual void JWImage::UpdateVertexData();
-		virtual void JWImage::UpdateVertexData(float u1, float v1, float u2, float v2);
+		virtual void ClearVertexAndIndexData();
+		virtual void CreateVertexBuffer();
+		virtual void CreateIndexBuffer();
+		virtual void UpdateVertexBuffer();
+		virtual void UpdateIndexBuffer();
+		virtual void UpdateVertexData();
+		virtual void UpdateVertexData(float u1, float v1, float u2, float v2);
 
 	protected:
 		static const int VISIBLE_RANGE_NOT_SET = -1;
