@@ -11,16 +11,21 @@ JWFont::JWFont()
 	m_pIndexBuffer = nullptr;
 	m_pTexture = nullptr;
 
+	// Set default alignment
+	m_HorizontalAlignment = EHorizontalAlignment::Left;
+	m_VerticalAlignment = EVerticalAlignment::Bottom;
+
 	ClearString();
 }
 
 void JWFont::ClearString()
 {
-	memset(m_String, 0, MAX_LINE_LEN);
-	memset(m_StringCharID, 0, MAX_LINE_LEN);
-	m_StringLen = 0;
-	m_StringCharLen = 0;
-	m_StringCharAdvance = 0;
+	m_StringLines.clear();
+
+	m_ImageStringLength = 0;
+	m_bIsStringLineFirstChar = true;
+	m_ImageStringXAdvance = 0;
+	m_ImageStringYAdvance = 0;
 }
 
 void JWFont::ClearVertexAndIndexData()
@@ -38,6 +43,11 @@ auto JWFont::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError
 	m_pDevice = pJWWindow->GetDevice();
 	m_BaseDir = BaseDir;
 
+	// Create box
+	m_pBox = new JWImage;
+	m_pBox->Create(m_pJWWindow, m_BaseDir);
+	m_pBox->SetXRGB(DEFAULT_BG_COLOR);
+
 	ClearVertexAndIndexData();
 
 	return EError::OK;
@@ -49,6 +59,8 @@ void JWFont::Destroy()
 
 	ClearVertexAndIndexData();
 	ClearString();
+
+	JW_DESTROY(m_pBox);
 
 	JW_RELEASE(m_pTexture);
 	JW_RELEASE(m_pIndexBuffer);
@@ -64,13 +76,13 @@ auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
 
 	if (Parse(NewFileName))
 	{
-		// MakeOutter rectangles with max size (MAX_LINE_LEN)
-		for (UINT i = 0; i < MAX_LINE_LEN; i++)
+		// MakeOutter rectangles with max size (MAX_TEXT_LEN)
+		for (UINT i = 0; i < MAX_TEXT_LEN; i++)
 		{
-			m_Vertices.push_back(SVertexImage(0, 0, 0, 0));
-			m_Vertices.push_back(SVertexImage(0, 0, 1, 0));
-			m_Vertices.push_back(SVertexImage(0, 0, 0, 1));
-			m_Vertices.push_back(SVertexImage(0, 0, 1, 1));
+			m_Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0));
+			m_Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0));
+			m_Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1));
+			m_Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1));
 			m_Indices.push_back(SIndex3(i * 4, i * 4 + 1, i * 4 + 3));
 			m_Indices.push_back(SIndex3(i * 4, i * 4 + 3, i * 4 + 2));
 		}
@@ -173,83 +185,191 @@ auto JWFont::UpdateIndexBuffer()->EError
 	return EError::NULL_INDEX;
 }
 
-auto JWFont::SetText(WSTRING Text)->EError
+auto JWFont::SetText(WSTRING MultilineText)->EError
 {
-	if (Text.size() > MAX_LINE_LEN)
+	if (!MultilineText.size())
+		return EError::NULL_STRING;
+
+	if (MultilineText.length() > MAX_TEXT_LEN)
 		return EError::BUFFER_NOT_ENOUGH;
 
 	ClearString();
-
-	wcscpy_s(m_String, Text.c_str());
-	m_StringLen = Text.length();
-
-	size_t Offset = 0;
-	wchar_t Character = 0;
-	wchar_t CharID = 0;
-
-	// MakeOutter text images from the text string
-	for (size_t i = 0; i < m_StringLen; i++)
+	
+	int iterator_prev = 0;
+	for (int iterator = 0; iterator <= MultilineText.length(); iterator++)
 	{
-		Character = m_String[i];
-
-		// Find corresponding char item in m_FontData.Chars
-		for (size_t j = 0; j < m_FontData.Chars.size(); j++)
+		// Check new line('\n') and string end
+		if ((MultilineText[iterator] == L'\n') || iterator == MultilineText.length())
 		{
-			if (m_FontData.Chars[j].ID == Character)
+			m_StringLines.push_back(MultilineText.substr(iterator_prev, iterator - iterator_prev));
+			iterator_prev = iterator + 1;
+		}
+	}
+
+	int XPositionOffset = 0;
+	int YPositionOffset = 0;
+	m_ImageStringYAdvance = 0;
+
+	switch (m_VerticalAlignment)
+	{
+	case JWENGINE::EVerticalAlignment::Top:
+		break;
+	case JWENGINE::EVerticalAlignment::Middle:
+		YPositionOffset = static_cast<int>(m_pBox->GetSize().y / 2.0f
+			- static_cast<float>(m_FontData.Info.Size * m_StringLines.size()) / 2.0f);
+		break;
+	case JWENGINE::EVerticalAlignment::Bottom:
+		YPositionOffset = static_cast<int>(m_pBox->GetSize().y
+			- static_cast<float>(m_FontData.Info.Size * m_StringLines.size()));
+		break;
+	default:
+		break;
+	}
+
+	for (int iterator = 0; iterator < m_StringLines.size(); iterator++)
+	{
+		switch (m_HorizontalAlignment)
+		{
+		case JWENGINE::EHorizontalAlignment::Left:
+			break;
+		case JWENGINE::EHorizontalAlignment::Center:
+			XPositionOffset = static_cast<int>(m_pBox->GetSize().x / 2.0f
+				- (static_cast<float>(GetLineImageLength(m_StringLines[iterator])) / 2.0f));
+			break;
+		case JWENGINE::EHorizontalAlignment::Right:
+			XPositionOffset = static_cast<int>(m_pBox->GetSize().x
+				- static_cast<float>(GetLineImageLength(m_StringLines[iterator])));
+			break;
+		default:
+			break;
+		}
+		
+		wchar_t CharID = 0;
+		wchar_t CharIDPrev = 0;
+		int Kerning = 0;
+
+		// MakeOutter text images from the text string
+		for (size_t i = 0; i < m_StringLines[iterator].length(); i++)
+		{
+			// Find corresponding wchar_t item in m_FontData.CharMap (std::map structure)
+			CharID = static_cast<wchar_t>(m_FontData.CharMap.find(m_StringLines[iterator][i])->second);
+			Kerning = 0;
+
+			if (i)
 			{
-				CharID = static_cast<wchar_t>(j);
-				break;
+				// Use kerning since 2nd letter
+				auto iterator_kerning = m_FontData.KerningMap.find(std::make_pair(CharIDPrev, CharID));
+
+				// Set kerning value only if the key exists
+				if (iterator_kerning != m_FontData.KerningMap.end())
+				{
+					Kerning = iterator_kerning->second;
+					m_ImageStringXAdvance += Kerning;
+				}
 			}
+
+			// Add wchar_t to the text (in vertex)
+			AddChar(CharID, CharIDPrev, m_StringLines[iterator][i], XPositionOffset, YPositionOffset);
+
+			CharIDPrev = CharID;
 		}
 
-		// Null end is not used in image string
-		if (Character)
-			AddChar(CharID, Character);
+		// New line setting
+		m_bIsStringLineFirstChar = true;
+		m_ImageStringXAdvance = 0;
+		m_ImageStringYAdvance += m_FontData.Info.Size;
 	}
 
 	UpdateVertexBuffer();
 
+	//m_MultilineString;
 	return EError::OK;
 }
 
-void JWFont::AddChar(wchar_t CharID, wchar_t Character)
+auto JWFont::GetLineImageLength(WSTRING LineText)->size_t
 {
-	size_t vertexID = m_StringCharLen * 4;
+	if (!LineText.length())
+		return 0;
+
+	size_t Result = 0;
+	wchar_t currentChar = 0;
+	wchar_t CharID = 0;
+	wchar_t CharIDPrev = 0;
+	int Kerning = 0;
+
+	for(size_t iterator = 0; iterator < LineText.length(); iterator++)
+	{
+		currentChar = LineText[iterator];
+		CharID = static_cast<wchar_t>(m_FontData.CharMap.find(currentChar)->second);
+		Result += m_FontData.Chars[CharID].XOffset;
+
+		if (iterator)
+		{
+			// Sum previous letter's x advance since 2nd letter
+			Result += m_FontData.Chars[CharIDPrev].XAdvance;
+
+			// Use kerning since 2nd letter
+			auto iterator_kerning = m_FontData.KerningMap.find(std::make_pair(CharIDPrev, CharID));
+
+			// Set kerning value only if the key exists
+			if (iterator_kerning != m_FontData.KerningMap.end())
+			{
+				Kerning = iterator_kerning->second;
+				Result += Kerning;
+			}
+
+			if (iterator == LineText.length() - 1)
+			{
+				// If it's the last letter, and XAdvance for the last time
+				Result += m_FontData.Chars[CharID].XAdvance;
+			}
+		}
+
+		CharIDPrev = CharID;
+	}
+
+	return Result;
+}
+
+void JWFont::AddChar(wchar_t CharID, wchar_t CharIDPrev, wchar_t Character, int XOffsetBase, int YOffsetBase)
+{
+	size_t vertexID = m_ImageStringLength * 4;
 
 	float u1 = static_cast<float>(m_FontData.Chars[CharID].X) / static_cast<float>(m_FontData.Common.ScaleW);
 	float v1 = static_cast<float>(m_FontData.Chars[CharID].Y) / static_cast<float>(m_FontData.Common.ScaleH);
 	float u2 = u1 + static_cast<float>(m_FontData.Chars[CharID].Width) / static_cast<float>(m_FontData.Common.ScaleW);
 	float v2 = v1 + static_cast<float>(m_FontData.Chars[CharID].Height) / static_cast<float>(m_FontData.Common.ScaleH);
 
-	int xoffset = m_FontData.Chars[CharID].XOffset;
-	int yoffset = m_FontData.Chars[CharID].YOffset;
-
-	if (m_StringCharLen)
+	if (m_bIsStringLineFirstChar)
 	{
-		int prevCharID = m_StringCharID[m_StringCharLen - 1];
-		m_StringCharAdvance += m_FontData.Chars[prevCharID].XAdvance;
+		m_bIsStringLineFirstChar = false;
+	}
+	else
+	{
+		m_ImageStringXAdvance += m_FontData.Chars[CharIDPrev].XAdvance;
 	}
 
-	UINT sizex = m_FontData.Chars[CharID].Width;
-	UINT sizey = m_FontData.Chars[CharID].Height;
+	float x1 = static_cast<float>(XOffsetBase) + static_cast<float>(m_ImageStringXAdvance) +
+		static_cast<float>(m_FontData.Chars[CharID].XOffset);
+	float x2 = x1 + static_cast<float>(m_FontData.Chars[CharID].Width);
 
-	float x1 = static_cast<float>(m_StringCharAdvance) + static_cast<float>(xoffset);
-	float x2 = x1 + static_cast<float>(sizex);
-	float y1 = static_cast<float>(yoffset);
-	float y2 = y1 + static_cast<float>(sizey);
+	float y1 = static_cast<float>(YOffsetBase) + static_cast<float>(m_ImageStringYAdvance) +
+		static_cast<float>(m_FontData.Chars[CharID].YOffset);
+	float y2 = y1 + static_cast<float>(m_FontData.Chars[CharID].Height);
 
 	m_Vertices[vertexID] = SVertexImage(x1, y1, m_Vertices[vertexID].color, u1, v1);
 	m_Vertices[vertexID + 1] = SVertexImage(x2, y1, m_Vertices[vertexID + 1].color, u2, v1);
 	m_Vertices[vertexID + 2] = SVertexImage(x1, y2, m_Vertices[vertexID + 2].color, u1, v2);
 	m_Vertices[vertexID + 3] = SVertexImage(x2, y2, m_Vertices[vertexID + 3].color, u2, v2);
 
-	m_StringCharID[m_StringCharLen] = CharID;
-
-	m_StringCharLen++;
+	m_ImageStringLength++;
 }
 
 auto JWFont::SetPosition(D3DXVECTOR2 Offset)->EError
 {
+	// Set box position
+	m_pBox->SetPosition(Offset);
+
 	if (m_Vertices.size())
 	{
 		// Set position as offset
@@ -273,7 +393,7 @@ auto JWFont::SetPosition(D3DXVECTOR2 Offset)->EError
 	return EError::NULL_VERTEX;
 }
 
-auto JWFont::SetAlpha(BYTE Alpha)->EError
+auto JWFont::SetFontAlpha(BYTE Alpha)->EError
 {
 	if (m_Vertices.size())
 	{
@@ -283,11 +403,12 @@ auto JWFont::SetAlpha(BYTE Alpha)->EError
 		}
 
 		UpdateVertexBuffer();
+		return EError::OK;
 	}
 	return EError::NULL_VERTEX;
 }
 
-auto JWFont::SetXRGB(DWORD Color)->EError
+auto JWFont::SetFontXRGB(DWORD Color)->EError
 {
 	if (m_Vertices.size())
 	{
@@ -297,12 +418,54 @@ auto JWFont::SetXRGB(DWORD Color)->EError
 		}
 
 		UpdateVertexBuffer();
+		return EError::OK;
 	}
 	return EError::NULL_VERTEX;
 }
 
+auto JWFont::SetBackgroundAlpha(BYTE Alpha)->EError
+{
+	if (m_pBox)
+	{
+		m_pBox->SetAlpha(Alpha);
+		return EError::OK;
+	}
+
+	return EError::NULLPTR_IMAGE;
+}
+
+auto JWFont::SetBackgroundXRGB(DWORD Color)->EError
+{
+	if (m_pBox)
+	{
+		m_pBox->SetXRGB(Color);
+		return EError::OK;
+	}
+
+	return EError::NULLPTR_IMAGE;
+}
+
+void JWFont::SetHorizontalAlignment(EHorizontalAlignment Alignment)
+{
+	m_HorizontalAlignment = Alignment;
+}
+
+void JWFont::SetVerticalAlignment(EVerticalAlignment Alignment)
+{
+	m_VerticalAlignment = Alignment;
+}
+
+void JWFont::SetBoxSize(D3DXVECTOR2 Size)
+{
+	// Set box size
+	m_pBox->SetSize(Size);
+}
+
 void JWFont::Draw() const
 {
+	// Draw box
+	m_pBox->Draw();
+
 	// Set alpha blending on
 	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
 	m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);

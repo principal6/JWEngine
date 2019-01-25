@@ -188,6 +188,9 @@ auto JWBMFontParser::Parse(WSTRING FileName)->bool
 			tempChar.Chnl = tempAttr->UnsignedValue();
 			m_FontData.Chars.push_back(tempChar);
 
+			// map Chars
+			m_FontData.CharMap.insert(std::make_pair(static_cast<wchar_t>(tempChar.ID), m_FontData.Chars.size() - 1));
+			
 			tempElement = tempElement->NextSiblingElement();
 		}
 
@@ -213,6 +216,9 @@ auto JWBMFontParser::Parse(WSTRING FileName)->bool
 				tempAttr = tempAttr->Next();
 				tempKerning.Amount = tempAttr->IntValue();
 				m_FontData.Kernings.push_back(tempKerning);
+
+				// Map Kernings
+				m_FontData.KerningMap.insert(std::make_pair(std::make_pair(tempKerning.First, tempKerning.Second), tempKerning.Amount));
 
 				tempElement = tempElement->NextSiblingElement();
 			}

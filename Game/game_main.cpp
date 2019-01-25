@@ -19,9 +19,7 @@ int main()
 		return -1;
 
 	g_MyGame.GetFontObject()->MakeFont(L"megt20all.fnt");
-	g_MyGame.GetFontObject()->SetXRGB(D3DCOLOR_ARGB(255, 0, 100, 50));
-	g_MyGame.GetFontObject()->SetText(L"화살표 키: 이동, 점프 / Ctrl: 물리 공격 / Alt: 마법 공격 / B: 바운딩 박스 토글");
-
+	g_MyGame.GetFontObject()->SetBackgroundAlpha(150);
 	g_MyGame.SetBackground(L"colored_talltrees.png");
 
 	g_MyGame.LoadMap(L"map01.jwm");
@@ -60,7 +58,10 @@ int main()
 
 void Render()
 {
-	
+	g_MyGame.GetFontObject()->SetHorizontalAlignment(EHorizontalAlignment::Left);
+	g_MyGame.GetFontObject()->SetVerticalAlignment(EVerticalAlignment::Top);
+	g_MyGame.GetFontObject()->SetText(L"화살표 키: 이동, 점프\nCtrl: 물리 공격\nAlt: 마법 공격\nB: 바운딩 박스 토글");
+	g_MyGame.GetFontObject()->SetBoxSize(D3DXVECTOR2(160, 80));
 }
 
 void Keyboard(DWORD Key)

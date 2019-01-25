@@ -103,6 +103,9 @@ namespace JWENGINE
 			VECTOR<BMPage> Pages;
 			VECTOR<BMChar> Chars;
 			VECTOR<BMKerning> Kernings;
+
+			std::map<wchar_t, size_t> CharMap;
+			std::map<std::pair<UINT, UINT>, int> KerningMap;
 		};
 
 	protected:

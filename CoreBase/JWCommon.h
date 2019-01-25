@@ -7,6 +7,7 @@
 #include <cassert>
 #include <vector>
 #include <memory>
+#include <map>
 //#include <string>
 
 #pragma comment (lib, "d3dx9.lib")
@@ -51,7 +52,7 @@ namespace JWENGINE
 	using CINT = const int;
 
 	static constexpr int MAX_FILE_LEN = 260;
-	static constexpr int MAX_LINE_LEN = 1024;
+	static constexpr int MAX_TEXT_LEN = 1024;
 
 	// @warning: This value must be 256 for Direct Input
 	static constexpr int NUM_KEYS = 256;
@@ -98,10 +99,12 @@ namespace JWENGINE
 		NULLPTR_WINDOW,
 		NULLPTR_MAP,
 		NULLPTR_MAP_INFO,
+		NULLPTR_IMAGE,
 
 		/** Null (no data) */
 		NULL_VERTEX,
 		NULL_INDEX,
+		NULL_STRING,
 
 		/** Not enough buffer */
 		BUFFER_NOT_ENOUGH,
