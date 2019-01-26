@@ -4,8 +4,6 @@
 
 namespace JWENGINE
 {
-	// JWFont is created per each JWWindow
-
 	// ***
 	// *** Forward declaration ***
 	class JWWindow;
@@ -55,6 +53,7 @@ namespace JWENGINE
 		void ClearString();
 		void ClearVertexAndIndexData();
 
+		auto CreateMaxVertexIndexForFont()->EError;
 		auto CreateVertexBuffer()->EError;
 		auto CreateIndexBuffer()->EError;
 		auto UpdateVertexBuffer()->EError;
@@ -68,6 +67,8 @@ namespace JWENGINE
 		static const DWORD DEFAULT_COLOR_FONT = D3DCOLOR_XRGB(255, 255, 255);
 		static const DWORD DEFAULT_COLOR_BOX = D3DCOLOR_ARGB(0, 180, 180, 180);
 
+		static LPDIRECT3DTEXTURE9 ms_pTexture;
+
 		JWWindow* m_pJWWindow;
 		VECTOR<JWImage*> m_pBox;
 		WSTRING m_BaseDir;
@@ -75,7 +76,6 @@ namespace JWENGINE
 		LPDIRECT3DDEVICE9 m_pDevice;
 		LPDIRECT3DVERTEXBUFFER9 m_pVertexBuffer;
 		LPDIRECT3DINDEXBUFFER9 m_pIndexBuffer;
-		LPDIRECT3DTEXTURE9 m_pTexture;
 
 		VECTOR<SVertexImage> m_Vertices;
 		VECTOR<SIndex3> m_Indices;

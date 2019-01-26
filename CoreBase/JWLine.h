@@ -39,16 +39,18 @@ namespace JWENGINE
 		void AddEnd();
 
 		void SetBoxPosition(D3DXVECTOR2 StartPos, D3DXVECTOR2 Size);
+		void SetAlpha(BYTE Alpha);
+		void SetXRGB(DWORD Color);
 
-		void UpdateVB();
-		void UpdateIB();
+		void UpdateVertexBuffer();
+		void UpdateIndexBuffer();
 		void Draw() const;
 
 	private:
-		void CreateVB();
-		void CreateIB();
-		void CreateVBMax();
-		void CreateIBMax();
+		void CreateVertexBuffer();
+		void CreateIndexBuffer();
+		void CreateVertexBufferMax();
+		void CreateIndexBufferMax();
 
 	private:
 		static LPDIRECT3DDEVICE9 ms_pDevice;

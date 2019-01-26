@@ -2,24 +2,11 @@
 
 using namespace JWENGINE;
 
-// Base window procedure for GUI window
-LRESULT CALLBACK GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
+auto JWGUI::Create(JWWindow* pWindow)->EError
 {
-	switch (Message)
-	{
-	case WM_SYSCOMMAND:
-		if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) // Disable Alt key
-			return 0;
-		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
-	}
-	return(DefWindowProc(hWnd, Message, wParam, lParam));
-}
+	if (nullptr == (m_pWindow = pWindow))
+		return EError::NULLPTR_WINDOW;
 
-auto JWGUI::Create()->EError
-{
 	// Set base directory
 	wchar_t tempDir[MAX_FILE_LEN]{};
 	GetCurrentDirectoryW(MAX_FILE_LEN, tempDir);
@@ -28,18 +15,25 @@ auto JWGUI::Create()->EError
 
 	std::wcout << m_BaseDir.c_str() << std::endl;
 
-	// Create base (window and initialize Direct3D9)
-	if (m_Window = MAKE_UNIQUE(JWWindow)())
-	{
-		m_Window->CreateGUIWindow(0, 100, 800, 600, D3DCOLOR_XRGB(0, 120, 255), GUIWindowProc);
-	}
+	AddControl(EControlType::Button, L"ABCDE", D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50));
+	AddControl(EControlType::Button, L"가나다라", D3DXVECTOR2(20, 0), D3DXVECTOR2(100, 50));
+	AddControl(EControlType::Button, L"가나다라", D3DXVECTOR2(40, 0), D3DXVECTOR2(100, 50));
+	AddControl(EControlType::Button, L"가나다라", D3DXVECTOR2(60, 0), D3DXVECTOR2(100, 50));
+	AddControl(EControlType::Button, L"가나다라", D3DXVECTOR2(80, 0), D3DXVECTOR2(100, 50));
+	AddControl(EControlType::Button, L"가나다라", D3DXVECTOR2(100, 0), D3DXVECTOR2(100, 50));
 
 	return EError::OK;
 }
 
 void JWGUI::Destroy()
 {
-	JW_DESTROY_SMART(m_Window);
+	for (JWControl* iterator : m_Controls)
+	{
+		JW_DESTROY(iterator);
+	}
+	m_Controls.clear();
+	
+	m_pWindow = nullptr;
 }
 
 void JWGUI::Run()
@@ -62,19 +56,59 @@ void JWGUI::Run()
 	Destroy();
 }
 
-void JWGUI::HandleMessage()
+auto JWGUI::AddControl(EControlType Type, WSTRING Text, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+{
+	m_Controls.push_back(new JWButton);
+	if (JW_FAILED(m_Controls[m_Controls.size() - 1]->Create(m_pWindow, m_BaseDir, Position, Size)))
+		return EError::CONTROL_NOT_CREATED;
+	m_Controls[m_Controls.size() - 1]->SetText(Text, D3DCOLOR_ARGB(255, 0, 0, 0));
+
+	return EError::OK;
+}
+
+PRIVATE void JWGUI::HandleMessage()
 {
 	switch (m_MSG.message)
 	{
+	case WM_MOUSEMOVE:
+		m_MouseData.MousePosition.x = GET_X_LPARAM(m_MSG.lParam);
+		m_MouseData.MousePosition.y = GET_Y_LPARAM(m_MSG.lParam);
+		break;
 	case WM_LBUTTONDOWN:
-
+		m_MouseData.MouseDownPosition.x = GET_X_LPARAM(m_MSG.lParam);
+		m_MouseData.MouseDownPosition.y = GET_Y_LPARAM(m_MSG.lParam);
+		m_MouseData.bMouseLeftButtonPressed = true;
+		break;
+	case WM_LBUTTONUP:
+		m_MouseData.MouseUpPosition.x = GET_X_LPARAM(m_MSG.lParam);
+		m_MouseData.MouseUpPosition.y = GET_Y_LPARAM(m_MSG.lParam);
+		m_MouseData.bMouseLeftButtonPressed = false;
 		break;
 	default:
 		break;
 	}
 }
 
-void JWGUI::MainLoop()
+PRIVATE void JWGUI::MainLoop()
 {
+	m_pWindow->BeginRender();
 
+	for (JWControl* iterator : m_Controls)
+	{
+		iterator->Update(m_MouseData);
+	}
+
+
+
+	Draw();
+
+	m_pWindow->EndRender();
+}
+
+PRIVATE void JWGUI::Draw()
+{
+	for (JWControl* iterator : m_Controls)
+	{
+		iterator->Draw();
+	}
 }

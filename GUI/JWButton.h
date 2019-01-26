@@ -7,7 +7,6 @@ namespace JWENGINE
 	// ***
 	// *** Forward declaration ***
 	class JWImage;
-	class JWFont;
 	// ***
 
 	class JWButton final : public JWControl
@@ -16,11 +15,13 @@ namespace JWENGINE
 		JWButton() {};
 		~JWButton() {};
 
-		auto Create(JWWindow* pWindow, WSTRING BaseDir)->EError override;
+		auto Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError override;
 		void Destroy() override;
+
+		void Update(const SMouseData& MouseData) override;
+		void Draw() override;
 
 	private:
 		JWImage* m_pImage;
-		JWFont* m_pFont;
 	};
 };

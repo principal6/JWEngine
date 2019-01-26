@@ -5,8 +5,8 @@ using namespace JWENGINE;
 // Static member variable
 int JWWindow::ms_ChildWindowCount = 0;
 
-// Base window procedure for Game window
-LRESULT CALLBACK GameWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
+// Base window procedure for Game/GUI window
+LRESULT CALLBACK BaseWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
 	switch (Message)
 	{
@@ -38,7 +38,7 @@ JWWindow::JWWindow()
 
 auto JWWindow::CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError
 {
-	if (CreateWINAPIWindow(L"Game", X, Y, Width, Height, EWindowStyle::OverlappedWindow, m_BGColor, GameWindowProc)
+	if (CreateWINAPIWindow(L"Game", X, Y, Width, Height, EWindowStyle::OverlappedWindow, m_BGColor, BaseWindowProc)
 		== nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 
@@ -48,9 +48,12 @@ auto JWWindow::CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError
 	return EError::OK;
 }
 
-auto JWWindow::CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError
+auto JWWindow::CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color)->EError
 {
-	if (CreateWINAPIWindow(L"GUI", X, Y, Width, Height, EWindowStyle::OverlappedWindow, Color, Proc)
+	// Set DirectX clear color
+	m_BGColor = Color;
+
+	if (CreateWINAPIWindow(L"GUI", X, Y, Width, Height, EWindowStyle::OverlappedWindow, Color, BaseWindowProc)
 		== nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 

@@ -52,7 +52,7 @@ namespace JWENGINE
 	using CINT = const int;
 
 	static constexpr int MAX_FILE_LEN = 260;
-	static constexpr int MAX_TEXT_LEN = 16384;
+	static constexpr int MAX_TEXT_LEN = 512;
 
 	// @warning: This value must be 256 for Direct Input
 	static constexpr int NUM_KEYS = 256;
@@ -86,14 +86,19 @@ namespace JWENGINE
 		LINE_NOT_CREATED,
 		FONT_NOT_CREATED,
 
-		/** Sub-class creation */
+		/** Game creation */
 		LIFE_NOT_CREATED,
 		MAP_NOT_CREATED,
 		SPRITE_NOT_CREATED,
 		MONSTERMANAGER_NOT_CREATED,
 		EFFECTMANAGER_NOT_CREATED,
 		OBJECT_NOT_CREATED,
+
+		/** Map editor creation */
 		TILESELECTOR_NOT_CREATED,
+
+		/** GUI creation */
+		CONTROL_NOT_CREATED,
 
 		/** Null pointer */
 		NULLPTR_DEVICE,
@@ -101,6 +106,7 @@ namespace JWENGINE
 		NULLPTR_MAP,
 		NULLPTR_MAP_INFO,
 		NULLPTR_IMAGE,
+		NULLPTR_FONT,
 
 		/** Null (no data) */
 		NULL_VERTEX,
@@ -131,6 +137,18 @@ namespace JWENGINE
 		Effect,
 	};
 
+	struct SMouseData
+	{
+		POINT MousePosition;
+		POINT MouseDownPosition;
+		POINT MouseUpPosition;
+		bool bMouseLeftButtonPressed;
+		bool bMouseRightButtonPressed;
+		bool bOnMouseMove;
+
+		SMouseData() : bMouseLeftButtonPressed(false), bOnMouseMove(false) {};
+	};
+
 	struct SAnimationData
 	{
 		EAnimationID AnimID;
@@ -143,6 +161,34 @@ namespace JWENGINE
 			bool SetStartFrameEverytime = false) :
 			AnimID(_AnimID), FrameS(StartFrame), FrameE(EndFrame), bForceCycle(ForceCycle),
 			bSetStartFrameEverytime(SetStartFrameEverytime) {};
+	};
+
+	struct SVertexImage
+	{
+		FLOAT x, y, z, rhw;
+		DWORD color;
+		FLOAT u, v;
+
+		SVertexImage() :
+			x(0), y(0), z(0), rhw(1), color(0xFFFFFFFF), u(0), v(0) {};
+		SVertexImage(float _x, float _y, float _u, float _v) :
+			x(_x), y(_y), z(0), rhw(1), color(0xFFFFFFFF), u(_u), v(_v) {};
+		SVertexImage(float _x, float _y, DWORD _color) :
+			x(_x), y(_y), z(0), rhw(1), color(_color), u(0), v(0) {};
+		SVertexImage(float _x, float _y, DWORD _color, float _u, float _v) :
+			x(_x), y(_y), z(0), rhw(1), color(_color), u(_u), v(_v) {};
+		SVertexImage(float _x, float _y, float _z, float _rhw, DWORD _color, float _u, float _v) :
+			x(_x), y(_y), z(_z), rhw(_rhw), color(_color), u(_u), v(_v) {};
+	};
+
+	struct SIndex3
+	{
+		WORD _0, _1, _2;
+
+		SIndex3() :
+			_0(0), _1(0), _2(0) {};
+		SIndex3(int ID0, int ID1, int ID2) :
+			_0(ID0), _1(ID1), _2(ID2) {};
 	};
 
 	struct STextureUV

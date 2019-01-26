@@ -26,8 +26,8 @@ void JWLine::Clear()
 void JWLine::CreateMax(LPDIRECT3DDEVICE9 pD3DDev)
 {
 	Create(pD3DDev);
-	CreateVBMax();
-	CreateIBMax();
+	CreateVertexBufferMax();
+	CreateIndexBufferMax();
 }
 
 void JWLine::Destroy()
@@ -60,10 +60,10 @@ void JWLine::AddBox(D3DXVECTOR2 StartPos, D3DXVECTOR2 Size, DWORD Color)
 
 void JWLine::AddEnd()
 {
-	CreateVB();
-	CreateIB();
-	UpdateVB();
-	UpdateIB();
+	CreateVertexBuffer();
+	CreateIndexBuffer();
+	UpdateVertexBuffer();
+	UpdateIndexBuffer();
 }
 
 void JWLine::SetBoxPosition(D3DXVECTOR2 StartPos, D3DXVECTOR2 Size)
@@ -88,10 +88,34 @@ void JWLine::SetBoxPosition(D3DXVECTOR2 StartPos, D3DXVECTOR2 Size)
 	m_Vertices[7].x = StartPos.x + Size.x;
 	m_Vertices[7].y = StartPos.y + Size.y;
 	
-	UpdateVB();
+	UpdateVertexBuffer();
 }
 
-void JWLine::CreateVB()
+void JWLine::SetAlpha(BYTE Alpha)
+{
+	if (m_Vertices.size())
+	{
+		for (SVertexLine& iterator : m_Vertices)
+		{
+			SetColorAlpha(&iterator.color, Alpha);
+		}
+		UpdateVertexBuffer();
+	}
+}
+
+void JWLine::SetXRGB(DWORD Color)
+{
+	if (m_Vertices.size())
+	{
+		for (SVertexLine& iterator : m_Vertices)
+		{
+			SetColorXRGB(&iterator.color, Color);
+		}
+		UpdateVertexBuffer();
+	}
+}
+
+void JWLine::CreateVertexBuffer()
 {
 	if (m_pVB)
 	{
@@ -103,7 +127,7 @@ void JWLine::CreateVB()
 		return;
 }
 
-void JWLine::CreateIB()
+void JWLine::CreateIndexBuffer()
 {
 	if (m_pIB)
 	{
@@ -115,7 +139,7 @@ void JWLine::CreateIB()
 		return;
 }
 
-void JWLine::CreateVBMax()
+void JWLine::CreateVertexBufferMax()
 {
 	if (m_pVB)
 	{
@@ -127,7 +151,7 @@ void JWLine::CreateVBMax()
 		return;
 }
 
-void JWLine::CreateIBMax()
+void JWLine::CreateIndexBufferMax()
 {
 	if (m_pIB)
 	{
@@ -139,7 +163,7 @@ void JWLine::CreateIBMax()
 		return;
 }
 
-void JWLine::UpdateVB()
+void JWLine::UpdateVertexBuffer()
 {
 	if (m_Vertices.size() > 0)
 	{
@@ -152,7 +176,7 @@ void JWLine::UpdateVB()
 	}
 }
 
-void JWLine::UpdateIB()
+void JWLine::UpdateIndexBuffer()
 {
 	if (m_Indices.size() > 0)
 	{

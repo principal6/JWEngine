@@ -10,34 +10,6 @@ namespace JWENGINE
 	class JWWindow;
 	// ***
 
-	struct SVertexImage
-	{
-		FLOAT x, y, z, rhw;
-		DWORD color;
-		FLOAT u, v;
-
-		SVertexImage() :
-			x(0), y(0), z(0), rhw(1), color(0xFFFFFFFF), u(0), v(0) {};
-		SVertexImage(float _x, float _y, float _u, float _v) :
-			x(_x), y(_y), z(0), rhw(1), color(0xFFFFFFFF), u(_u), v(_v) {};
-		SVertexImage(float _x, float _y, DWORD _color) :
-			x(_x), y(_y), z(0), rhw(1), color(_color), u(0), v(0) {};
-		SVertexImage(float _x, float _y, DWORD _color, float _u, float _v) :
-			x(_x), y(_y), z(0), rhw(1), color(_color), u(_u), v(_v) {};
-		SVertexImage(float _x, float _y, float _z, float _rhw, DWORD _color, float _u, float _v) :
-			x(_x), y(_y), z(_z), rhw(_rhw), color(_color), u(_u), v(_v) {};
-	};
-
-	struct SIndex3
-	{
-		WORD _0, _1, _2;
-
-		SIndex3() :
-			_0(0), _1(0), _2(0) {};
-		SIndex3(int ID0, int ID1, int ID2) :
-			_0(ID0), _1(ID1), _2(ID2) {};
-	};
-
 	struct SBoundingBox
 	{
 		D3DXVECTOR2 PositionOffset;
@@ -69,14 +41,15 @@ namespace JWENGINE
 		virtual void SetPositionCentered(D3DXVECTOR2 Position);
 		virtual void SetTexture(WSTRING FileName);
 		virtual auto SetAlpha(BYTE Alpha)->JWImage*;
-		virtual auto SetXRGB(DWORD Color)->JWImage*;;
+		virtual auto SetXRGB(DWORD Color)->JWImage*;
 		virtual auto SetScale(D3DXVECTOR2 Scale)->JWImage*;
 		virtual auto SetVisibleRange(D3DXVECTOR2 Range)->JWImage*;
 		virtual auto SetAtlasUV(D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 Size,
 			bool bSetSize = true)->JWImage*;
 		virtual auto SetUVRange(float u1, float u2, float v1, float v2)->JWImage*;
 		virtual auto SetBoundingBox(D3DXVECTOR2 ExtraSize)->JWImage*;
-		virtual auto SetBoundingBoxColor(DWORD Color)->JWImage*;
+		virtual auto SetBoundingBoxAlpha(BYTE Alpha)->JWImage*;
+		virtual auto SetBoundingBoxXRGB(DWORD XRGB)->JWImage*;
 
 		virtual auto GetSize() const->D3DXVECTOR2;
 		virtual auto GetScaledSize() const->D3DXVECTOR2;

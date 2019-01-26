@@ -152,6 +152,10 @@ void JWImage::Draw()
 		m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 		m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 	}
+	else
+	{
+		m_pDevice->SetTexture(0, nullptr);
+	}
 
 	m_pDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(SVertexImage));
 	m_pDevice->SetFVF(D3DFVF_TEXTURE);
@@ -341,10 +345,17 @@ auto JWImage::SetBoundingBox(D3DXVECTOR2 ExtraSize)->JWImage*
 	return this;
 }
 
-auto JWImage::SetBoundingBoxColor(DWORD Color)->JWImage*
+auto JWImage::SetBoundingBoxAlpha(BYTE Alpha)->JWImage*
 {
-	JWImage::m_BoundingBoxColor = Color;
+	SetColorAlpha(&m_BoundingBoxColor, Alpha);
+	m_BoundingBoxLine.SetAlpha(Alpha);
+	return this;
+}
 
+auto JWImage::SetBoundingBoxXRGB(DWORD XRGB)->JWImage*
+{
+	SetColorXRGB(&m_BoundingBoxColor, XRGB);
+	m_BoundingBoxLine.SetXRGB(XRGB);
 	return this;
 }
 

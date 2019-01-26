@@ -4,16 +4,17 @@
 
 using namespace JWENGINE;
 
+LPDIRECT3DTEXTURE9 JWFont::ms_pTexture;
+
 JWFont::JWFont()
 {
 	m_pDevice = nullptr;
 	m_pVertexBuffer = nullptr;
 	m_pIndexBuffer = nullptr;
-	m_pTexture = nullptr;
 
 	// Set default alignment
 	m_HorizontalAlignment = EHorizontalAlignment::Left;
-	m_VerticalAlignment = EVerticalAlignment::Bottom;
+	m_VerticalAlignment = EVerticalAlignment::Top;
 
 	ClearString();
 }
@@ -56,7 +57,7 @@ void JWFont::Destroy()
 	ClearVertexAndIndexData();
 	ClearText();
 
-	JW_RELEASE(m_pTexture);
+	JW_RELEASE(ms_pTexture);
 	JW_RELEASE(m_pIndexBuffer);
 	JW_RELEASE(m_pVertexBuffer);
 }
@@ -68,32 +69,49 @@ auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
 	NewFileName += ASSET_DIR;
 	NewFileName += FileName_FNT;
 
-	if (Parse(NewFileName))
+	if (m_FontData.bFontCreated)
 	{
-		// MakeOutter rectangles with max size (MAX_TEXT_LEN)
-		for (UINT i = 0; i < MAX_TEXT_LEN; i++)
+		// Font already exists, no need to parse again
+		return CreateMaxVertexIndexForFont();
+	}
+	else
+	{
+		// Font not yet created, then create one
+		if (Parse(NewFileName))
 		{
-			m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0));
-			m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0));
-			m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1));
-			m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1));
-			m_Indices.emplace_back(SIndex3(i * 4, i * 4 + 1, i * 4 + 3));
-			m_Indices.emplace_back(SIndex3(i * 4, i * 4 + 3, i * 4 + 2));
+			if (JW_SUCCEEDED(CreateMaxVertexIndexForFont()))
+			{
+				// JWFont will always use only one page in the BMFont, whose ID is '0'
+				if (JW_FAILED(CreateTexture(m_FontData.Pages[0].File)))
+					return EError::TEXTURE_NOT_CREATED;
+			}
 		}
+	}
+	
+	return EError::FONT_NOT_CREATED;
+}
 
-		CreateVertexBuffer();
-		CreateIndexBuffer();
-		UpdateVertexBuffer();
-		UpdateIndexBuffer();
-
-		// JWFont will always use only one page in the BMFont, whose ID is '0'
-		if (JW_FAILED(CreateTexture(m_FontData.Pages[0].File)))
-			return EError::TEXTURE_NOT_CREATED;
-
-		return EError::OK;
+PRIVATE auto JWFont::CreateMaxVertexIndexForFont()->EError
+{
+	// MakeOutter rectangles with max size (MAX_TEXT_LEN)
+	for (UINT i = 0; i < MAX_TEXT_LEN; i++)
+	{
+		m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0));
+		m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0));
+		m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1));
+		m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1));
+		m_Indices.emplace_back(SIndex3(i * 4, i * 4 + 1, i * 4 + 3));
+		m_Indices.emplace_back(SIndex3(i * 4, i * 4 + 3, i * 4 + 2));
 	}
 
-	return EError::FONT_NOT_CREATED;
+	CreateVertexBuffer();
+	CreateIndexBuffer();
+	UpdateVertexBuffer();
+	UpdateIndexBuffer();
+
+	m_FontData.bFontCreated = true;
+
+	return EError::OK;
 }
 
 PRIVATE auto JWFont::CreateVertexBuffer()->EError
@@ -160,10 +178,10 @@ PRIVATE auto JWFont::UpdateIndexBuffer()->EError
 
 PRIVATE auto JWFont::CreateTexture(WSTRING FileName)->EError
 {
-	if (m_pTexture)
+	if (ms_pTexture)
 	{
-		m_pTexture->Release();
-		m_pTexture = nullptr;
+		ms_pTexture->Release();
+		ms_pTexture = nullptr;
 	}
 
 	WSTRING NewFileName;
@@ -173,7 +191,7 @@ PRIVATE auto JWFont::CreateTexture(WSTRING FileName)->EError
 
 	// Craete texture without color key
 	if (FAILED(D3DXCreateTextureFromFileExW(m_pDevice, NewFileName.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &m_pTexture)))
+		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &ms_pTexture)))
 		return EError::TEXTURE_NOT_CREATED;
 
 	return EError::OK;
@@ -420,10 +438,10 @@ void JWFont::Draw() const
 	m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	m_pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
-	if (m_pTexture)
+	if (ms_pTexture)
 	{
 		// Texture exists
-		m_pDevice->SetTexture(0, m_pTexture);
+		m_pDevice->SetTexture(0, ms_pTexture);
 
 		// Texture alpha * Diffuse alpha
 		m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
@@ -441,4 +459,6 @@ void JWFont::Draw() const
 	m_pDevice->SetIndices(m_pIndexBuffer);
 	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
 		static_cast<int>(m_Vertices.size()), 0, static_cast<int>(m_Indices.size()));
+	
+	m_pDevice->SetTexture(0, nullptr);
 }

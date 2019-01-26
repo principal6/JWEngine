@@ -42,17 +42,6 @@ namespace JWENGINE
 		SWindowData() : WindowWidth(0), WindowHeight(0), WindowHalfWidth(0), WindowHalfHeight(0) {};
 	};
 
-	struct SMouseData
-	{
-		POINT MousePosition;
-		POINT MouseDownPosition;
-		bool bMouseLeftButtonPressed;
-		bool bMouseRightButtonPressed;
-		bool bOnMouseMove;
-
-		SMouseData() : bMouseLeftButtonPressed(false), bOnMouseMove(false) {};
-	};
-
 	class JWWindow final
 	{
 	public:
@@ -60,7 +49,7 @@ namespace JWENGINE
 		~JWWindow() {};
 
 		auto CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError;
-		auto CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError;
+		auto CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color)->EError;
 		auto CreateParentWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color,
 			WNDPROC Proc, LPCWSTR MenuName)->EError;
 		auto CreateChildWindow(HWND hWndParent, CINT X, CINT Y, CINT Width, CINT Height,

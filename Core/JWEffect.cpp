@@ -237,8 +237,8 @@ void JWEffect::Update()
 		}
 	}
 
-	m_BoundingBoxLine.UpdateVB();
-	m_BoundingBoxLine.UpdateIB();
+	m_BoundingBoxLine.UpdateVertexBuffer();
+	m_BoundingBoxLine.UpdateIndexBuffer();
 
 	JWImage::UpdateVertexBuffer();
 	JWImage::UpdateIndexBuffer();
