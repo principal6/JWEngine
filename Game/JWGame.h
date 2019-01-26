@@ -31,9 +31,6 @@ namespace JWENGINE
 		void JWGame::Run();
 		void JWGame::Shutdown();
 
-		void JWGame::MainLoop();
-		void JWGame::DetectInput();
-
 		void JWGame::SetBackground(WSTRING TextureFN);
 
 		auto JWGame::SpriteCreate(WSTRING TextureFN, POINT UnitSize, int numCols, int numRows, float Scale = 1.0f)->JWLife*;
@@ -51,6 +48,9 @@ namespace JWENGINE
 
 	private:
 		void JWGame::Destroy();
+
+		void JWGame::MainLoop();
+		void JWGame::DetectInput();
 
 		void JWGame::DrawBackground();
 		void JWGame::DrawMap();
@@ -75,7 +75,6 @@ namespace JWENGINE
 		int m_FPS;
 		int m_KeyPressCount;
 		int m_KeyToggleCount;
-		bool m_bSpriteWalking;
 		bool m_bDrawBoundingBoxes;
 
 		PF_RENDER m_pfRender;

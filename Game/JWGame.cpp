@@ -14,7 +14,6 @@ JWGame::JWGame()
 	m_FPS = 0;
 	m_KeyPressCount = 0;
 	m_KeyToggleCount = 0;
-	m_bSpriteWalking = false;
 	m_bDrawBoundingBoxes = false;
 }
 
@@ -148,7 +147,7 @@ void JWGame::Shutdown()
 	}
 }
 
-void JWGame::MainLoop()
+PRIVATE void JWGame::MainLoop()
 {
 	DetectInput();
 
@@ -206,10 +205,8 @@ void JWGame::MainLoop()
 	//Sleep(100);
 }
 
-void JWGame::DetectInput()
+PRIVATE void JWGame::DetectInput()
 {
-	m_bSpriteWalking = false;
-
 	m_Input->GetAllKeyState(m_Keys);
 
 	for (int i = 0; i < NUM_KEYS; i++)
@@ -219,11 +216,6 @@ void JWGame::DetectInput()
 			if (m_pfKeyboard)
 				m_pfKeyboard(i);
 		}
-	}
-
-	if ((!m_bSpriteWalking) && (!m_Sprite->IsBeingAnimated()))
-	{
-		m_Sprite->SetAnimation(EAnimationID::Idle);
 	}
 }
 
@@ -254,8 +246,6 @@ auto JWGame::SpriteCreate(WSTRING TextureFN, POINT UnitSize, int numCols, int nu
 void JWGame::SpriteWalk(EAnimationDirection Direction)
 {
 	assert(m_Sprite);
-
-	m_bSpriteWalking = true;
 	m_Sprite->Walk(Direction);
 }
 

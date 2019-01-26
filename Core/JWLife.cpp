@@ -17,9 +17,8 @@ JWLife::JWLife()
 	m_AnimDir = EAnimationDirection::Right;
 	m_CurrAnimID = EAnimationID::Idle;
 	m_CurrFrameID = 0;
-	m_AnimCount = 0;
-	m_bBeingAnimated = false;
-	m_bRepeating = false;
+	m_bAnimated = false;
+	m_bShouldRepeatAnimation = false;
 
 	m_UnitSize = D3DXVECTOR2(0.0f, 0.0f);
 
@@ -64,7 +63,7 @@ PRIVATE void JWLife::SetNumRowsAndCols(POINT UnitSize, int numCols, int numRows)
 	m_UnitSize.x = static_cast<float>(UnitSize.x);
 	m_UnitSize.y = static_cast<float>(UnitSize.y);
 	
-	// Below we calculate automatically the life's size IAW/ the texture size and cols and rows
+	// Below we calculate automatically the unit's size IAW/ the texture size and cols and rows
 	// but this way, we always adjust the unit size proportional to the texture sheet size,
 	// which is an unnecessary work if we just set absolute unit size like above
 
@@ -77,7 +76,94 @@ PRIVATE void JWLife::SetNumRowsAndCols(POINT UnitSize, int numCols, int numRows)
 	SetFrame(0);
 }
 
-void JWLife::SetFrame(int FrameID)
+auto JWLife::AddAnimation(SAnimationData Value)->JWLife*
+{
+	int AnimIDInt = static_cast<int>(Value.AnimID);
+
+	m_AnimData.push_back(Value);
+
+	// Pair AnimID with m_AnimData's index
+	m_AnimDataMap.insert(std::make_pair(AnimIDInt, m_AnimData.size() - 1));
+
+	return this;
+}
+
+void JWLife::SetAnimation(EAnimationID AnimID, bool bForceSet, bool bShouldRepeat)
+{
+	// If AnimID is not in the m_AnimData, then exit the function
+	auto iterator_AnimDataMap = m_AnimDataMap.find(static_cast<int>(AnimID));
+	if (iterator_AnimDataMap == m_AnimDataMap.end())
+		return;
+
+	size_t AnimDataIndex = iterator_AnimDataMap->second;
+	bool bShouldSetAnimation = false;
+	bool bShouldSetStartFrame = false;
+
+	if (m_bAnimated)
+	{
+		// It was animated before
+		if (m_CurrAnimID != AnimID)
+		{
+			// we're setting a new animation
+			// then, we should set animation!
+			bShouldSetAnimation = true;
+			bShouldSetStartFrame = true;
+		}
+		else
+		{
+			// we're setting the same animation as the previous one
+			bShouldSetAnimation = true;
+			bShouldSetStartFrame = m_AnimData[m_CurrAnimDataIndex].bSetStartFrameEverytime;
+		}
+	}
+	else
+	{
+		// It wasn't animated before
+		if (m_CurrAnimID != AnimID)
+		{
+			// we're setting a new animation
+			if (m_AnimData[m_CurrAnimDataIndex].bForceCycle)
+			{
+				// but the previous animation has a forced cycle
+				// so, ignore this SetAnimation()
+				bShouldSetAnimation = false;
+
+				if (bForceSet)
+				{
+					// But this SetAnimation() is forced
+					// then should set animation!
+					bShouldSetAnimation = true;
+					bShouldSetStartFrame = true;
+				}
+			}
+			else
+			{
+				// the previous animation doesn't have its cycle forced
+				// then should set animation!
+				bShouldSetAnimation = true;
+				bShouldSetStartFrame = true;
+			}
+		}
+	}
+
+	if (bShouldSetAnimation)
+	{
+		m_CurrAnimID = AnimID;
+		m_CurrAnimDataIndex = AnimDataIndex;
+
+		if (bShouldSetStartFrame)
+		{
+			m_CurrFrameID = m_AnimData[AnimDataIndex].FrameS;
+		}
+
+		m_bShouldRepeatAnimation = bShouldRepeat;
+		m_bAnimated = false;
+
+		SetFrame(m_CurrFrameID);
+	}
+}
+
+PRIVATE void JWLife::SetFrame(int FrameID)
 {
 	if ((m_SheetRows == 0) || (m_SheetCols == 0))
 		return;
@@ -99,44 +185,39 @@ void JWLife::SetFrame(int FrameID)
 	}
 }
 
-auto JWLife::AddAnimation(EAnimationID AnimID, int StartFrame, int EndFrame)->JWLife*
-{
-	m_AnimData.push_back(SAnimationData(AnimID, StartFrame, EndFrame));
-
-	return this;
-}
-
-void JWLife::SetAnimation(EAnimationID AnimID, bool bCanInterrupt, bool bForcedSet, bool bRepeating)
-{
-	int AnimIDInt = static_cast<int>(AnimID);
-
-	if (AnimIDInt > m_AnimData.size())
-		return;
-
-	if ((m_CurrAnimID != AnimID) || (bForcedSet))
-	{
-		m_CurrAnimID = AnimID;
-		m_CurrFrameID = m_AnimData[AnimIDInt].FrameS;
-		m_bRepeating = bRepeating;
-		m_bBeingAnimated = !bCanInterrupt;
-
-		SetFrame(m_CurrFrameID);
-	}
-}
-
 void JWLife::Animate()
 {
-	if (m_CurrFrameID < m_AnimData[static_cast<int>(m_CurrAnimID)].FrameE)
+	if (m_bAnimated)
 	{
-		m_CurrFrameID++;
+		// The previous animation is ended
+		// and no animation is set, then set it to Idle
+		SetAnimation(EAnimationID::Idle);
 	}
 	else
 	{
-		m_CurrFrameID = m_AnimData[static_cast<int>(m_CurrAnimID)].FrameS;
-		if (!m_bRepeating)
-			m_bBeingAnimated = false;
-	}
+		if (m_CurrFrameID < m_AnimData[m_CurrAnimDataIndex].FrameE)
+		{
+			m_CurrFrameID++;
 
+			if (!m_AnimData[m_CurrAnimDataIndex].bForceCycle)
+			{
+				m_bAnimated = true;
+			}
+			else
+			{
+				m_bAnimated = false;
+			}
+		}
+		else
+		{
+			// Animation cycle ended
+			m_CurrFrameID = m_AnimData[m_CurrAnimDataIndex].FrameS;
+
+			if (!m_bShouldRepeatAnimation)
+				m_bAnimated = true;
+		}
+	}
+	
 	SetFrame(m_CurrFrameID);
 }
 
@@ -145,12 +226,7 @@ void JWLife::SetDirection(EAnimationDirection Direction)
 	m_AnimDir = Direction;
 }
 
-auto JWLife::IsBeingAnimated() const->bool
-{
-	return m_bBeingAnimated;
-}
-
-auto JWLife::GetScaledLifeSize() const->D3DXVECTOR2
+auto JWLife::GetScaledUnitSize() const->D3DXVECTOR2
 {
 	return m_ScaledSize;
 }
@@ -297,7 +373,7 @@ void JWLife::Walk(EAnimationDirection Direction)
 		break;
 	}
 
-	SetAnimation(EAnimationID::Walk, true);
+	SetAnimation(EAnimationID::Walk);
 	SetDirection(Direction);
 
 	D3DXVECTOR2 tNewVel = m_pMap->GetVelocityAfterCollision(GetBoundingBox(), Velocity);
@@ -336,8 +412,6 @@ void JWLife::Gravitate()
 			/*
 			SetAnimation(AnimationID::Landing, true, true);
 			*/
-
-			SetAnimation(EAnimationID::Idle, true, true);
 		}
 	}
 	else
@@ -347,7 +421,7 @@ void JWLife::Gravitate()
 			if ((m_CurrAnimID == EAnimationID::Idle) || (m_CurrAnimID == EAnimationID::Walk))
 			{
 				// Idle or Walk is ignored when jumping
-				SetAnimation(EAnimationID::Jumping, true, false);
+				SetAnimation(EAnimationID::Jumping, true);
 			}
 		}
 			
@@ -357,7 +431,7 @@ void JWLife::Gravitate()
 			if ((m_CurrAnimID == EAnimationID::Idle) || (m_CurrAnimID == EAnimationID::Walk))
 			{
 				// Idle or Walk is ignored when falling
-				SetAnimation(EAnimationID::Falling, true, false);
+				SetAnimation(EAnimationID::Falling, true);
 			}
 		}
 		

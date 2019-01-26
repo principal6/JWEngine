@@ -79,12 +79,12 @@ auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
 		// MakeOutter rectangles with max size (MAX_TEXT_LEN)
 		for (UINT i = 0; i < MAX_TEXT_LEN; i++)
 		{
-			m_Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0));
-			m_Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0));
-			m_Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1));
-			m_Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1));
-			m_Indices.push_back(SIndex3(i * 4, i * 4 + 1, i * 4 + 3));
-			m_Indices.push_back(SIndex3(i * 4, i * 4 + 3, i * 4 + 2));
+			m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0));
+			m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0));
+			m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1));
+			m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1));
+			m_Indices.emplace_back(SIndex3(i * 4, i * 4 + 1, i * 4 + 3));
+			m_Indices.emplace_back(SIndex3(i * 4, i * 4 + 3, i * 4 + 2));
 		}
 
 		CreateVertexBuffer();

@@ -26,17 +26,13 @@ namespace JWENGINE
 		virtual auto JWLife::GetGlobalPositionInverse() const->D3DXVECTOR2;
 		virtual auto JWLife::GetVelocity() const->D3DXVECTOR2;
 		virtual auto JWLife::GetOffsetForMapMove() const->D3DXVECTOR2;
+		virtual auto JWLife::GetScaledUnitSize() const->D3DXVECTOR2;
 
 		// Animation
-		virtual auto JWLife::AddAnimation(EAnimationID AnimID, int StartFrame, int EndFrame)->JWLife*;
+		virtual auto JWLife::AddAnimation(SAnimationData Value)->JWLife*;
+		virtual void JWLife::SetAnimation(EAnimationID AnimID, bool ForceSet = false, bool bShouldRepeat = false);
 		virtual void JWLife::Animate();
-		virtual void JWLife::SetFrame(int FrameID);
-		virtual void JWLife::SetAnimation(EAnimationID AnimID, bool CanInterrupt = false,
-			bool ForcedSet = false, bool Repeating = false);
 		virtual void JWLife::SetDirection(EAnimationDirection Direction);
-
-		virtual auto JWLife::IsBeingAnimated() const->bool;
-		virtual auto JWLife::GetScaledLifeSize() const->D3DXVECTOR2;
 		virtual auto JWLife::GetDirection() const->EAnimationDirection;
 
 		// Move
@@ -50,8 +46,11 @@ namespace JWENGINE
 		virtual void JWLife::Gravitate();
 
 	protected:
-		void JWLife::CalculateGlobalPositionInverse();
-		void JWLife::CalculateGlobalPosition();
+		virtual void JWLife::CalculateGlobalPositionInverse();
+		virtual void JWLife::CalculateGlobalPosition();
+
+		// Animation
+		virtual void JWLife::SetFrame(int FrameID);
 
 	protected:
 		static const D3DXVECTOR2 JUMP_POWER;
@@ -75,10 +74,11 @@ namespace JWENGINE
 
 		EAnimationDirection m_AnimDir;
 		EAnimationID m_CurrAnimID;
+		size_t m_CurrAnimDataIndex;
 		int m_CurrFrameID;
 		VECTOR<SAnimationData> m_AnimData;
-		int m_AnimCount;
-		bool m_bBeingAnimated;
-		bool m_bRepeating;
+		std::map<int, size_t> m_AnimDataMap;
+		bool m_bAnimated;
+		bool m_bShouldRepeatAnimation;
 	};
 };

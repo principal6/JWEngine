@@ -185,7 +185,7 @@ auto JWMonsterManager::Spawn(WSTRING MonsterName, D3DXVECTOR2 GlobalPosition)->J
 
 			for (SAnimationData& AnimIterator : TypeIterator.m_AnimData)
 			{
-				Temp.AddAnimation(AnimIterator.AnimID, AnimIterator.FrameS, AnimIterator.FrameE);
+				Temp.AddAnimation(SAnimationData(AnimIterator.AnimID, AnimIterator.FrameS, AnimIterator.FrameE));
 			}
 
 			Temp.SetGlobalPosition(GlobalPosition);

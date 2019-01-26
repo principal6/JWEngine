@@ -24,13 +24,13 @@ int main()
 
 	g_MyGame.LoadMap(L"map01.jwm");
 	g_MyGame.SpriteCreate(L"firefox_56x80_creek23.png", POINT{ 56, 80 }, 3, 9, 1.0f)
-		->AddAnimation(EAnimationID::Idle, 0, 2)
-		->AddAnimation(EAnimationID::Walk, 3, 5)
-		->AddAnimation(EAnimationID::Jumping, 7, 7)
-		->AddAnimation(EAnimationID::Falling, 8, 8)
-		->AddAnimation(EAnimationID::Landing, 6, 6)
-		->AddAnimation(EAnimationID::Attack1, 12, 14) // Punch
-		->AddAnimation(EAnimationID::Attack2, 15, 17) // Kick
+		->AddAnimation(SAnimationData(EAnimationID::Idle, 0, 2))
+		->AddAnimation(SAnimationData(EAnimationID::Walk, 3, 5))
+		->AddAnimation(SAnimationData(EAnimationID::Jumping, 7, 7))
+		->AddAnimation(SAnimationData(EAnimationID::Falling, 8, 8))
+		->AddAnimation(SAnimationData(EAnimationID::Landing, 6, 6))
+		->AddAnimation(SAnimationData(EAnimationID::Attack1, 12, 14, true)) // Punch
+		->AddAnimation(SAnimationData(EAnimationID::Attack2, 15, 17, true)) // Kick
 		->SetGlobalPosition(D3DXVECTOR2(30.0f, 250.0f))
 		->SetBoundingBox(D3DXVECTOR2(-12, -12));
 

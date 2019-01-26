@@ -134,9 +134,14 @@ namespace JWENGINE
 	{
 		EAnimationID AnimID;
 		int FrameS, FrameE;
+		bool bForceCycle;
+		bool bSetStartFrameEverytime;
 
 		SAnimationData() : FrameS(0), FrameE(0) {};
-		SAnimationData(EAnimationID _AnimID, int StartFrame, int EndFrame) : AnimID(_AnimID), FrameS(StartFrame), FrameE(EndFrame) {};
+		SAnimationData(EAnimationID _AnimID, int StartFrame, int EndFrame, bool ForceCycle = false,
+			bool SetStartFrameEverytime = false) :
+			AnimID(_AnimID), FrameS(StartFrame), FrameE(EndFrame), bForceCycle(ForceCycle),
+			bSetStartFrameEverytime(SetStartFrameEverytime) {};
 	};
 
 	struct STextureUV
