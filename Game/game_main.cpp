@@ -18,8 +18,8 @@ int main()
 	if (JW_FAILED(g_MyGame.Create(800, 600)))
 		return -1;
 
-	g_MyGame.GetFontObject()->MakeFont(L"megt20all.fnt");
-	g_MyGame.GetFontObject()->SetBackgroundAlpha(150);
+	g_MyGame.GetFontObject()->MakeFont(DEFAULT_FONT);
+
 	g_MyGame.SetBackground(L"colored_talltrees.png");
 
 	g_MyGame.LoadMap(L"map01.jwm");
@@ -58,10 +58,15 @@ int main()
 
 void Render()
 {
-	g_MyGame.GetFontObject()->SetHorizontalAlignment(EHorizontalAlignment::Left);
-	g_MyGame.GetFontObject()->SetVerticalAlignment(EVerticalAlignment::Top);
-	g_MyGame.GetFontObject()->SetText(L"화살표 키: 이동, 점프\nCtrl: 물리 공격\nAlt: 마법 공격\nB: 바운딩 박스 토글");
-	g_MyGame.GetFontObject()->SetSize(D3DXVECTOR2(160, 80));
+	g_MyGame.GetFontObject()->ClearText();
+
+	g_MyGame.GetFontObject()->SetAlignment(EHorizontalAlignment::Left, EVerticalAlignment::Top);
+	g_MyGame.GetFontObject()->AddText(L"화살표 키: 이동, 점프\nCtrl: 물리 공격\nAlt: 마법 공격\nB: 바운딩 박스 토글",
+		D3DXVECTOR2(0, 0), D3DXVECTOR2(160, 80), D3DCOLOR_XRGB(200, 0, 200), D3DCOLOR_ARGB(100, 0, 255, 0));
+
+	g_MyGame.GetFontObject()->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Bottom);
+	g_MyGame.GetFontObject()->AddText(L"다른 것도 되나 시험해봅시다",
+		D3DXVECTOR2(160, 80), D3DXVECTOR2(300, 150), D3DCOLOR_XRGB(200, 200, 0), D3DCOLOR_ARGB(100, 0, 0, 255));
 }
 
 void Keyboard(DWORD Key)

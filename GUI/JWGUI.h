@@ -5,8 +5,13 @@
 #include "../CoreBase/JWFont.h"
 #include "../CoreBase/JWWindow.h"
 
+
+// @WARNING: ONE GUI PER ONE WINDOW!!
+
 namespace JWENGINE
 {
+	static const wchar_t PROJECT_FOLDER[]{ L"\\GUI" };
+
 	class JWGUI final
 	{
 	public:

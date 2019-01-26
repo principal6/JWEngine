@@ -41,6 +41,12 @@
     <ClInclude Include="..\Dependency\tinyxml2.h">
       <Filter>Dependency</Filter>
     </ClInclude>
+    <ClInclude Include="JWControl.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="JWButton.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWImage.cpp">
@@ -65,6 +71,12 @@
     </ClCompile>
     <ClCompile Include="..\Dependency\tinyxml2.cpp">
       <Filter>Dependency</Filter>
+    </ClCompile>
+    <ClCompile Include="JWControl.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="JWButton.cpp">
+      <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

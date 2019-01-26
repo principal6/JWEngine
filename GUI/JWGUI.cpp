@@ -20,6 +20,14 @@ LRESULT CALLBACK GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lP
 
 auto JWGUI::Create()->EError
 {
+	// Set base directory
+	wchar_t tempDir[MAX_FILE_LEN]{};
+	GetCurrentDirectoryW(MAX_FILE_LEN, tempDir);
+	m_BaseDir = tempDir;
+	m_BaseDir = m_BaseDir.substr(0, m_BaseDir.find(PROJECT_FOLDER));
+
+	std::wcout << m_BaseDir.c_str() << std::endl;
+
 	// Create base (window and initialize Direct3D9)
 	if (m_Window = MAKE_UNIQUE(JWWindow)())
 	{

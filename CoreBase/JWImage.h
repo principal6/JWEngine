@@ -79,7 +79,7 @@ namespace JWENGINE
 		virtual auto SetBoundingBoxColor(DWORD Color)->JWImage*;
 
 		virtual auto GetSize() const->D3DXVECTOR2;
-		virtual auto GetScaledSize() const->D3DXVECTOR2;;
+		virtual auto GetScaledSize() const->D3DXVECTOR2;
 		virtual auto GetPosition() const->D3DXVECTOR2;
 		virtual auto GetCenterPosition() const->D3DXVECTOR2;
 		virtual auto GetBoundingBox() const->SBoundingBox;

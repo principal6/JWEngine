@@ -126,6 +126,8 @@
     <ClInclude Include="..\CoreBase\JWLine.h" />
     <ClInclude Include="..\CoreBase\JWWindow.h" />
     <ClInclude Include="..\Dependency\tinyxml2.h" />
+    <ClInclude Include="JWButton.h" />
+    <ClInclude Include="JWControl.h" />
     <ClInclude Include="JWGUI.h" />
   </ItemGroup>
   <ItemGroup>
@@ -137,6 +139,8 @@
     <ClCompile Include="..\CoreBase\JWWindow.cpp" />
     <ClCompile Include="..\Dependency\tinyxml2.cpp" />
     <ClCompile Include="gui_main.cpp" />
+    <ClCompile Include="JWButton.cpp" />
+    <ClCompile Include="JWControl.cpp" />
     <ClCompile Include="JWGUI.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

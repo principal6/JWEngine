@@ -52,7 +52,7 @@ namespace JWENGINE
 	using CINT = const int;
 
 	static constexpr int MAX_FILE_LEN = 260;
-	static constexpr int MAX_TEXT_LEN = 1024;
+	static constexpr int MAX_TEXT_LEN = 16384;
 
 	// @warning: This value must be 256 for Direct Input
 	static constexpr int NUM_KEYS = 256;
@@ -63,6 +63,7 @@ namespace JWENGINE
 	static const DWORD D3DFVF_LINE = D3DFVF_XYZRHW | D3DFVF_DIFFUSE;
 
 	const wchar_t ASSET_DIR[] = L"\\Asset\\";
+	const wchar_t DEFAULT_FONT[] = L"megt20all.fnt";
 
 	enum class EError
 	{
