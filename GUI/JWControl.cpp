@@ -37,10 +37,7 @@ auto JWControl::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position,
 	m_Size = Size;
 
 	// Set control rect
-	m_Rect.left = static_cast<int>(m_PositionClient.x);
-	m_Rect.right = static_cast<int>(m_Rect.left + m_Size.x);
-	m_Rect.top = static_cast<int>(m_PositionClient.y);
-	m_Rect.bottom = static_cast<int>(m_Rect.top + m_Size.y);
+	CalculateRECT();
 
 	// Set control state
 	m_State = EControlState::Normal;
@@ -49,6 +46,14 @@ auto JWControl::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position,
 	m_bShouldDrawBorder = true;
 
 	return EError::OK;
+}
+
+PROTECTED void JWControl::CalculateRECT()
+{
+	m_Rect.left = static_cast<int>(m_PositionClient.x);
+	m_Rect.right = static_cast<int>(m_Rect.left + m_Size.x);
+	m_Rect.top = static_cast<int>(m_PositionClient.y);
+	m_Rect.bottom = static_cast<int>(m_Rect.top + m_Size.y);
 }
 
 void JWControl::Destroy()
@@ -96,13 +101,45 @@ void JWControl::Update(const SMouseData& MouseData)
 	m_pFont->AddText(m_Text, m_PositionClient, m_Size, m_FontColor);
 }
 
+void JWControl::SetPosition(D3DXVECTOR2 Position)
+{
+	m_PositionClient = Position;
+	CalculateRECT();
+}
+
+void JWControl::SetSize(D3DXVECTOR2 Size)
+{
+	m_Size = Size;
+	CalculateRECT();
+}
+
 void JWControl::SetText(WSTRING Text, DWORD FontColor)
 {
 	m_Text = Text;
 	m_FontColor = FontColor;
 }
 
+auto JWControl::GetPosition()->D3DXVECTOR2
+{
+	return m_PositionClient;
+}
+
+auto JWControl::GetSize()->D3DXVECTOR2
+{
+	return m_Size;
+}
+
+auto JWControl::GetText()->WSTRING
+{
+	return m_Text;
+}
+
 void JWControl::ShouldDrawBorder(bool Value)
 {
 	m_bShouldDrawBorder = Value;
+}
+
+auto JWControl::GetState()->EControlState const
+{
+	return m_State;
 }

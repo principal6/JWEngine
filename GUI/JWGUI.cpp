@@ -98,7 +98,13 @@ PRIVATE void JWGUI::MainLoop()
 		iterator->Update(m_MouseData);
 	}
 
-
+	for (JWControl* iterator : m_Controls)
+	{
+		if (iterator->GetState() == EControlState::Clicked)
+		{
+			iterator->SetPosition(iterator->GetPosition() + D3DXVECTOR2(2, 2));
+		}
+	}
 
 	Draw();
 

@@ -21,6 +21,9 @@ namespace JWENGINE
 		void Update(const SMouseData& MouseData) override;
 		void Draw() override;
 
+		void SetPosition(D3DXVECTOR2 Position) override;
+		void SetSize(D3DXVECTOR2 Size) override;
+
 	private:
 		JWImage* m_pImage;
 	};

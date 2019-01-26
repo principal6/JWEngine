@@ -23,6 +23,8 @@ auto JWButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, 
 		return EError::IMAGE_NOT_CREATED;
 	}
 
+	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+
 	return EError::OK;
 }
 
@@ -64,4 +66,16 @@ void JWButton::Draw()
 		m_pImage->DrawBoundingBox();
 	}
 	m_pFont->Draw();
+}
+
+void JWButton::SetPosition(D3DXVECTOR2 Position)
+{
+	JWControl::SetPosition(Position);
+	m_pImage->SetPosition(Position);
+}
+
+void JWButton::SetSize(D3DXVECTOR2 Size)
+{
+	JWControl::SetSize(Size);
+	m_pImage->SetSize(Size);
 }

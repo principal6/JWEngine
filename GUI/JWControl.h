@@ -47,9 +47,20 @@ namespace JWENGINE
 		virtual void Update(const SMouseData& MouseData);
 		virtual void Draw() {};
 
+		virtual void SetPosition(D3DXVECTOR2 Position);
+		virtual void SetSize(D3DXVECTOR2 Size);
 		virtual void SetText(WSTRING Text, DWORD FontColor);
 
+		virtual auto GetPosition()->D3DXVECTOR2;
+		virtual auto GetSize()->D3DXVECTOR2;
+		virtual auto GetText()->WSTRING;
+
 		virtual void ShouldDrawBorder(bool Value);
+
+		virtual auto GetState()->EControlState const;
+
+	protected:
+		virtual void CalculateRECT();
 
 	protected:
 		static const DWORD DEFAULT_COLOR_NORMAL = D3DCOLOR_XRGB(120, 120, 120);
