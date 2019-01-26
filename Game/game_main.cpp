@@ -62,11 +62,7 @@ void Render()
 
 	g_MyGame.GetFontObject()->SetAlignment(EHorizontalAlignment::Left, EVerticalAlignment::Top);
 	g_MyGame.GetFontObject()->AddText(L"화살표 키: 이동, 점프\nCtrl: 물리 공격\nAlt: 마법 공격\nB: 바운딩 박스 토글",
-		D3DXVECTOR2(0, 0), D3DXVECTOR2(160, 80), D3DCOLOR_XRGB(200, 0, 200), D3DCOLOR_ARGB(100, 0, 255, 0));
-
-	g_MyGame.GetFontObject()->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Bottom);
-	g_MyGame.GetFontObject()->AddText(L"다른 것도 되나 시험해봅시다",
-		D3DXVECTOR2(160, 80), D3DXVECTOR2(300, 150), D3DCOLOR_XRGB(200, 200, 0), D3DCOLOR_ARGB(100, 0, 0, 255));
+		D3DXVECTOR2(0, 0), D3DXVECTOR2(160, 80), D3DCOLOR_XRGB(255, 255, 255), D3DCOLOR_ARGB(100, 30, 30, 30));
 }
 
 void Keyboard(DWORD Key)
