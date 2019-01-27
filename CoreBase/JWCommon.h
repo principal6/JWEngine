@@ -144,7 +144,6 @@ namespace JWENGINE
 	{
 		POINT MousePosition;
 		POINT MouseDownPosition;
-		POINT MouseUpPosition;
 		bool bMouseLeftButtonPressed;
 		bool bMouseRightButtonPressed;
 		bool bOnMouseMove;

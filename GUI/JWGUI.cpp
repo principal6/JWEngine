@@ -98,8 +98,6 @@ PRIVATE void JWGUI::HandleMessage()
 		m_MouseData.bMouseLeftButtonPressed = true;
 		break;
 	case WM_LBUTTONUP:
-		m_MouseData.MouseUpPosition.x = GET_X_LPARAM(m_MSG.lParam);
-		m_MouseData.MouseUpPosition.y = GET_Y_LPARAM(m_MSG.lParam);
 		m_MouseData.bMouseLeftButtonPressed = false;
 		break;
 	default:
