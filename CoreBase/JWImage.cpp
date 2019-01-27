@@ -108,7 +108,7 @@ void JWImage::CreateIndexBuffer()
 
 void JWImage::UpdateVertexBuffer()
 {
-	if (m_Vertices.size() > 0)
+	if (m_Vertices.size())
 	{
 		int rVertSize = sizeof(SVertexImage) * static_cast<int>(m_Vertices.size());
 		VOID* pVertices;
@@ -123,7 +123,7 @@ void JWImage::UpdateVertexBuffer()
 
 void JWImage::UpdateIndexBuffer()
 {
-	if (m_Indices.size() > 0)
+	if (m_Indices.size())
 	{
 		int rIndSize = sizeof(SIndex3) * static_cast<int>(m_Indices.size());
 		VOID* pIndices;
@@ -206,6 +206,21 @@ void JWImage::SetSize(D3DXVECTOR2 Size)
 	UpdateVertexData();
 }
 
+void JWImage::SetPosition(D3DXVECTOR2 Position)
+{
+	m_Position = Position;
+
+	UpdateVertexData();
+}
+
+void JWImage::SetPositionCentered(D3DXVECTOR2 Position)
+{
+	m_Position = D3DXVECTOR2(Position.x - (static_cast<float>(m_ScaledSize.x) / 2.0f),
+		Position.y - (static_cast<float>(m_ScaledSize.y) / 2.0f));
+
+	UpdateVertexData();
+}
+
 auto JWImage::SetAlpha(BYTE Alpha)->JWImage*
 {
 	if (m_Vertices.size())
@@ -260,21 +275,6 @@ void JWImage::SetTexture(WSTRING FileName)
 
 	m_ScaledSize.x = m_Size.x * m_Scale.x;
 	m_ScaledSize.y = m_Size.y * m_Scale.y;
-
-	UpdateVertexData();
-}
-
-void JWImage::SetPosition(D3DXVECTOR2 Position)
-{
-	m_Position = Position;
-
-	UpdateVertexData();
-}
-
-void JWImage::SetPositionCentered(D3DXVECTOR2 Position)
-{
-	m_Position = D3DXVECTOR2(Position.x - (static_cast<float>(m_ScaledSize.x) / 2.0f),
-		Position.y - (static_cast<float>(m_ScaledSize.y) / 2.0f));
 
 	UpdateVertexData();
 }

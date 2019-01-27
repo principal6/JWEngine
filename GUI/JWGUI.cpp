@@ -68,6 +68,9 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 	case JWENGINE::Label:
 		m_Controls.push_back(new JWLabel);
 		break;
+	case JWENGINE::Edit:
+		m_Controls.push_back(new JWEdit);
+		break;
 	default:
 		return EError::INVALID_CONTROL_TYPE;
 		break;

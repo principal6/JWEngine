@@ -17,6 +17,7 @@ namespace JWENGINE
 	{
 		Button,
 		Label,
+		Edit,
 	};
 
 	enum EControlState

@@ -6,6 +6,7 @@
 #include "JWControl.h"
 #include "JWButton.h"
 #include "JWLabel.h"
+#include "JWEdit.h"
 
 // @WARNING: ONE GUI PER ONE WINDOW!!
 
