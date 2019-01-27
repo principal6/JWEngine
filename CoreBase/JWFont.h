@@ -37,14 +37,22 @@ namespace JWENGINE
 
 		auto MakeFont(WSTRING FileName_FNT)->EError;
 
+		// Alignment
 		void SetAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment);
 		void SetHorizontalAlignment(EHorizontalAlignment Alignment);
 		void SetVerticalAlignment(EVerticalAlignment Alignment);
 
+		// Color
+		void SetFontAlpha(BYTE Alpha);
+		void SetFontXRGB(DWORD XRGB);
+		void SetBoxAlpha(BYTE Alpha);
+		void SetBoxXRGB(DWORD XRGB);
+
+		// Text
 		void ClearText();
-		auto AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize, DWORD FontColor = DEFAULT_COLOR_FONT,
-			DWORD BoxColor = DEFAULT_COLOR_BOX)->EError;
+		auto AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError;
 		
+		// Draw
 		void Draw() const;
 
 	private:
@@ -91,5 +99,8 @@ namespace JWENGINE
 		size_t m_ImageStringXAdvance;
 		size_t m_ImageStringYAdvance;
 		bool m_bIsStringLineFirstChar;
+
+		DWORD m_FontColor;
+		DWORD m_BoxColor;
 	};
 };

@@ -23,7 +23,11 @@ auto JWButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, 
 		return EError::IMAGE_NOT_CREATED;
 	}
 
+	// Set default font alignment
 	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+
+	// Set control type
+	m_Type = EControlType::Button;
 
 	return EError::OK;
 }

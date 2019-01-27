@@ -129,6 +129,7 @@
     <ClInclude Include="JWButton.h" />
     <ClInclude Include="JWControl.h" />
     <ClInclude Include="JWGUI.h" />
+    <ClInclude Include="JWLabel.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWBMFontParser.cpp" />
@@ -142,6 +143,7 @@
     <ClCompile Include="JWButton.cpp" />
     <ClCompile Include="JWControl.cpp" />
     <ClCompile Include="JWGUI.cpp" />
+    <ClCompile Include="JWLabel.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

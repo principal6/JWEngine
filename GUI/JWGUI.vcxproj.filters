@@ -47,6 +47,9 @@
     <ClInclude Include="JWButton.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="JWLabel.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWImage.cpp">
@@ -76,6 +79,9 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="JWButton.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="JWLabel.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>

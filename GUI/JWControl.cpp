@@ -111,7 +111,7 @@ void JWControl::UpdateState(const SMouseData& MouseData)
 PRIVATE void JWControl::UpdateText()
 {
 	m_pFont->ClearText();
-	m_pFont->AddText(m_Text, m_PositionClient, m_Size, m_FontColor);
+	m_pFont->AddText(m_Text, m_PositionClient, m_Size);
 }
 
 void JWControl::Draw()
@@ -136,10 +136,44 @@ void JWControl::SetSize(D3DXVECTOR2 Size)
 	CalculateRECT();
 }
 
-void JWControl::SetText(WSTRING Text, DWORD FontColor)
+void JWControl::SetText(WSTRING Text)
 {
 	m_Text = Text;
-	m_FontColor = FontColor;
+}
+
+void JWControl::Focus()
+{
+	m_bHasFocus = true;
+}
+
+void JWControl::KillFocus()
+{
+	m_bHasFocus = false;
+}
+
+void JWControl::SetAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment)
+{
+	m_pFont->SetAlignment(HorizontalAlignment, VerticalAlignment);
+}
+
+void JWControl::SetHorizontalAlignment(EHorizontalAlignment Alignment)
+{
+	m_pFont->SetHorizontalAlignment(Alignment);
+}
+
+void JWControl::SetVerticalAlignment(EVerticalAlignment Alignment)
+{
+	m_pFont->SetVerticalAlignment(Alignment);
+}
+
+void JWControl::SetFontAlpha(BYTE Alpha)
+{
+	m_pFont->SetFontAlpha(Alpha);
+}
+
+void JWControl::SetFontXRGB(DWORD XRGB)
+{
+	m_pFont->SetFontXRGB(XRGB);
 }
 
 auto JWControl::GetState()->EControlState const

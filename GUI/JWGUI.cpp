@@ -15,12 +15,14 @@ auto JWGUI::Create(JWWindow* pWindow)->EError
 
 	std::wcout << m_BaseDir.c_str() << std::endl;
 
-	AddControl(EControlType::Button, L"ABCDE", D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50));
-	AddControl(EControlType::Button, L"가나다라", D3DXVECTOR2(20, 0), D3DXVECTOR2(100, 50));
-	AddControl(EControlType::Button, L"가나다라", D3DXVECTOR2(40, 0), D3DXVECTOR2(100, 50));
-	AddControl(EControlType::Button, L"가나다라", D3DXVECTOR2(60, 0), D3DXVECTOR2(100, 50));
-	AddControl(EControlType::Button, L"가나다라", D3DXVECTOR2(80, 0), D3DXVECTOR2(100, 50));
-	AddControl(EControlType::Button, L"가나다라", D3DXVECTOR2(100, 0), D3DXVECTOR2(100, 50));
+	AddControl(EControlType::Button, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
+	AddControl(EControlType::Button, D3DXVECTOR2(20, 0), D3DXVECTOR2(100, 50), L"가나다라");
+	AddControl(EControlType::Button, D3DXVECTOR2(40, 0), D3DXVECTOR2(100, 50), L"가나다라");
+	AddControl(EControlType::Button, D3DXVECTOR2(60, 0), D3DXVECTOR2(100, 50), L"가나다라");
+	AddControl(EControlType::Button, D3DXVECTOR2(80, 0), D3DXVECTOR2(100, 50), L"가나다라");
+	AddControl(EControlType::Button, D3DXVECTOR2(100, 0), D3DXVECTOR2(100, 50), L"가나다라");
+
+	AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 50), L"레이블입니다");
 
 	return EError::OK;
 }
@@ -56,12 +58,28 @@ void JWGUI::Run()
 	Destroy();
 }
 
-auto JWGUI::AddControl(EControlType Type, WSTRING Text, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text)->EError
 {
-	m_Controls.push_back(new JWButton);
+	switch (Type)
+	{
+	case JWENGINE::Button:
+		m_Controls.push_back(new JWButton);
+		break;
+	case JWENGINE::Label:
+		m_Controls.push_back(new JWLabel);
+		break;
+	default:
+		return EError::INVALID_CONTROL_TYPE;
+		break;
+	}
+	
 	if (JW_FAILED(m_Controls[m_Controls.size() - 1]->Create(m_pWindow, m_BaseDir, Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
-	m_Controls[m_Controls.size() - 1]->SetText(Text, D3DCOLOR_ARGB(255, 0, 0, 0));
+
+	if (Text.length())
+	{
+		m_Controls[m_Controls.size() - 1]->SetText(Text);
+	}
 
 	return EError::OK;
 }
@@ -97,6 +115,8 @@ PRIVATE void JWGUI::MainLoop()
 
 	for (JWControl* iterator : m_Controls)
 	{
+		// A control that has mouse pointer on must be only one
+
 		if (iterator->IsMouseOver(m_MouseData))
 		{
 			if (pControlWithMouse)
@@ -115,9 +135,20 @@ PRIVATE void JWGUI::MainLoop()
 	{
 		pControlWithMouse->UpdateState(m_MouseData);
 
-		if (pControlWithMouse->GetState() == EControlState::Clicked)
+		if ((pControlWithMouse->GetState() == EControlState::Clicked) || (pControlWithMouse->GetState() == EControlState::Pressed))
 		{
-			pControlWithMouse->SetPosition(pControlWithMouse->GetPosition() + D3DXVECTOR2(2, 2));
+			if (pControlWithMouse->GetState() == EControlState::Clicked)
+			{
+				pControlWithMouse->SetPosition(pControlWithMouse->GetPosition() + D3DXVECTOR2(2, 2));
+			}
+			
+			// Set focus of all controls
+			pControlWithMouse->Focus();
+			for (JWControl* iterator : m_Controls)
+			{
+				if (iterator != pControlWithMouse)
+					iterator->KillFocus();
+			}
 		}
 	}
 

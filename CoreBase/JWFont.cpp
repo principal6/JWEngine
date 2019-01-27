@@ -16,6 +16,10 @@ JWFont::JWFont()
 	m_HorizontalAlignment = EHorizontalAlignment::Left;
 	m_VerticalAlignment = EVerticalAlignment::Top;
 
+	// Set default colors
+	m_FontColor = DEFAULT_COLOR_FONT;
+	m_BoxColor = DEFAULT_COLOR_BOX;
+
 	ClearString();
 }
 
@@ -213,6 +217,26 @@ void JWFont::SetVerticalAlignment(EVerticalAlignment Alignment)
 	m_VerticalAlignment = Alignment;
 }
 
+void JWFont::SetFontAlpha(BYTE Alpha)
+{
+	SetColorAlpha(&m_FontColor, Alpha);
+}
+
+void JWFont::SetFontXRGB(DWORD XRGB)
+{
+	SetColorXRGB(&m_FontColor, XRGB);
+}
+
+void JWFont::SetBoxAlpha(BYTE Alpha)
+{
+	SetColorAlpha(&m_BoxColor, Alpha);
+}
+
+void JWFont::SetBoxXRGB(DWORD XRGB)
+{
+	SetColorXRGB(&m_BoxColor, XRGB);
+}
+
 void JWFont::ClearText()
 {
 	// Clear image string
@@ -229,7 +253,7 @@ void JWFont::ClearText()
 	}
 }
 
-auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize, DWORD FontColor, DWORD BoxColor)->EError
+auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError
 {
 	if (!MultilineText.size())
 		return EError::NULL_STRING;
@@ -242,8 +266,8 @@ auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	// Add new box
 	m_pBox.push_back(new JWImage);
 	m_pBox[m_pBox.size() - 1]->Create(m_pJWWindow, m_BaseDir);
-	m_pBox[m_pBox.size() - 1]->SetAlpha(GetColorAlpha(BoxColor));
-	m_pBox[m_pBox.size() - 1]->SetXRGB(GetColorXRGB(BoxColor));
+	m_pBox[m_pBox.size() - 1]->SetAlpha(GetColorAlpha(m_BoxColor));
+	m_pBox[m_pBox.size() - 1]->SetXRGB(GetColorXRGB(m_BoxColor));
 	m_pBox[m_pBox.size() - 1]->SetPosition(Position);
 	m_pBox[m_pBox.size() - 1]->SetSize(BoxSize);
 
@@ -326,7 +350,7 @@ auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 			}
 
 			// Add wchar_t to the text (in vertex)
-			AddChar(CharID, CharIDPrev, m_StringLines[iterator][i], XPositionOffset, YPositionOffset, FontColor);
+			AddChar(CharID, CharIDPrev, m_StringLines[iterator][i], XPositionOffset, YPositionOffset, m_FontColor);
 
 			CharIDPrev = CharID;
 		}

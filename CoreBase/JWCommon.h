@@ -115,6 +115,9 @@ namespace JWENGINE
 
 		/** Not enough buffer */
 		BUFFER_NOT_ENOUGH,
+
+		/** Invalid type */
+		INVALID_CONTROL_TYPE,
 	};
 
 	enum class EAnimationDirection

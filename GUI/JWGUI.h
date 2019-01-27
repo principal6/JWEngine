@@ -5,6 +5,7 @@
 #include "../CoreBase/JWWindow.h"
 #include "JWControl.h"
 #include "JWButton.h"
+#include "JWLabel.h"
 
 // @WARNING: ONE GUI PER ONE WINDOW!!
 
@@ -23,7 +24,7 @@ namespace JWENGINE
 
 		void Run();
 
-		auto AddControl(EControlType Type, WSTRING Text, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError;
+		auto AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text)->EError;
 
 	private:
 		void MainLoop();
