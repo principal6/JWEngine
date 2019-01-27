@@ -23,7 +23,7 @@ namespace JWENGINE
 		Clicked,
 	};
 
-	static inline auto IsMouseInRECT(const POINT& Position, const RECT& Rect)->bool
+	static inline auto Static_IsMouseInRECT(const POINT& Position, const RECT& Rect)->bool
 	{
 		if ((Position.x >= Rect.left) && (Position.x <= Rect.right))
 		{
@@ -44,23 +44,26 @@ namespace JWENGINE
 		virtual auto Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError;
 		virtual void Destroy();
 
-		virtual void Update(const SMouseData& MouseData);
-		virtual void Draw() {};
+		virtual auto IsMouseOver(const SMouseData& MouseData)->bool;
+		virtual auto IsMousePressed(const SMouseData& MouseData)->bool;
+		virtual void UpdateState(const SMouseData& MouseData);
+		virtual void Draw();
 
+		virtual void SetState(EControlState State);
 		virtual void SetPosition(D3DXVECTOR2 Position);
 		virtual void SetSize(D3DXVECTOR2 Size);
 		virtual void SetText(WSTRING Text, DWORD FontColor);
 
+		virtual auto GetState()->EControlState const;
 		virtual auto GetPosition()->D3DXVECTOR2;
 		virtual auto GetSize()->D3DXVECTOR2;
 		virtual auto GetText()->WSTRING;
 
 		virtual void ShouldDrawBorder(bool Value);
 
-		virtual auto GetState()->EControlState const;
-
 	protected:
 		virtual void CalculateRECT();
+		virtual void UpdateText();
 
 	protected:
 		static const DWORD DEFAULT_COLOR_NORMAL = D3DCOLOR_XRGB(120, 120, 120);

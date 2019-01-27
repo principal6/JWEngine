@@ -61,14 +61,24 @@ void JWControl::Destroy()
 	JW_DESTROY(m_pFont);
 }
 
-void JWControl::Update(const SMouseData& MouseData)
+auto JWControl::IsMouseOver(const SMouseData& MouseData)->bool
 {
-	if (IsMouseInRECT(MouseData.MousePosition, m_Rect))
+	return Static_IsMouseInRECT(MouseData.MousePosition, m_Rect);
+}
+
+auto JWControl::IsMousePressed(const SMouseData& MouseData)->bool
+{
+	return Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect);
+}
+
+void JWControl::UpdateState(const SMouseData& MouseData)
+{
+	if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
 	{
 		// Mouse position is inside RECT
 		if (MouseData.bMouseLeftButtonPressed)
 		{
-			if (IsMouseInRECT(MouseData.MouseDownPosition, m_Rect))
+			if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect))
 			{
 				m_State = EControlState::Pressed;
 			}
@@ -96,9 +106,22 @@ void JWControl::Update(const SMouseData& MouseData)
 		// Mouse position is out of RECT
 		m_State = EControlState::Normal;
 	}
+}
 
+PRIVATE void JWControl::UpdateText()
+{
 	m_pFont->ClearText();
 	m_pFont->AddText(m_Text, m_PositionClient, m_Size, m_FontColor);
+}
+
+void JWControl::Draw()
+{
+	UpdateText();
+}
+
+void JWControl::SetState(EControlState State)
+{
+	m_State = State;
 }
 
 void JWControl::SetPosition(D3DXVECTOR2 Position)
@@ -119,6 +142,11 @@ void JWControl::SetText(WSTRING Text, DWORD FontColor)
 	m_FontColor = FontColor;
 }
 
+auto JWControl::GetState()->EControlState const
+{
+	return m_State;
+}
+
 auto JWControl::GetPosition()->D3DXVECTOR2
 {
 	return m_PositionClient;
@@ -137,9 +165,4 @@ auto JWControl::GetText()->WSTRING
 void JWControl::ShouldDrawBorder(bool Value)
 {
 	m_bShouldDrawBorder = Value;
-}
-
-auto JWControl::GetState()->EControlState const
-{
-	return m_State;
 }

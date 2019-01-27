@@ -18,7 +18,6 @@ namespace JWENGINE
 		auto Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError override;
 		void Destroy() override;
 
-		void Update(const SMouseData& MouseData) override;
 		void Draw() override;
 
 		void SetPosition(D3DXVECTOR2 Position) override;

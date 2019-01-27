@@ -93,16 +93,31 @@ PRIVATE void JWGUI::MainLoop()
 {
 	m_pWindow->BeginRender();
 
-	for (JWControl* iterator : m_Controls)
-	{
-		iterator->Update(m_MouseData);
-	}
+	JWControl* pControlWithMouse = nullptr;
 
 	for (JWControl* iterator : m_Controls)
 	{
-		if (iterator->GetState() == EControlState::Clicked)
+		if (iterator->IsMouseOver(m_MouseData))
 		{
-			iterator->SetPosition(iterator->GetPosition() + D3DXVECTOR2(2, 2));
+			if (pControlWithMouse)
+			{
+				pControlWithMouse->SetState(EControlState::Normal);
+			}
+			pControlWithMouse = iterator;
+		}
+		else
+		{
+			iterator->SetState(EControlState::Normal);
+		}
+	}
+
+	if (pControlWithMouse)
+	{
+		pControlWithMouse->UpdateState(m_MouseData);
+
+		if (pControlWithMouse->GetState() == EControlState::Clicked)
+		{
+			pControlWithMouse->SetPosition(pControlWithMouse->GetPosition() + D3DXVECTOR2(2, 2));
 		}
 	}
 

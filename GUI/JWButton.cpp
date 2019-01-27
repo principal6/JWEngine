@@ -35,10 +35,8 @@ void JWButton::Destroy()
 	JW_DESTROY_SMART(m_pImage);
 }
 
-void JWButton::Update(const SMouseData& MouseData)
+void JWButton::Draw()
 {
-	JWControl::Update(MouseData);
-
 	switch (m_State)
 	{
 	case JWENGINE::Normal:
@@ -56,10 +54,9 @@ void JWButton::Update(const SMouseData& MouseData)
 	default:
 		break;
 	}
-}
 
-void JWButton::Draw()
-{
+	JWControl::Draw();
+
 	m_pImage->Draw();
 	if (m_bShouldDrawBorder)
 	{
