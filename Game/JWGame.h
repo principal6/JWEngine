@@ -64,8 +64,8 @@ namespace JWENGINE
 	private:
 		static const int ANIM_TICK = 70;
 		static const int KEY_TOGGLE_INTERVAL = 15;
-		static const int WINDOW_X;
-		static const int WINDOW_Y;
+		static const int WINDOW_X = 50;
+		static const int WINDOW_Y = 50;
 
 		bool m_Keys[NUM_KEYS];
 

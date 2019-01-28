@@ -27,7 +27,7 @@ JWWindow::JWWindow()
 	m_hWnd = nullptr;
 	m_pD3D = nullptr;
 	m_pDevice = nullptr;
-	m_BGColor = D3DCOLOR_XRGB(255, 0, 0);
+	m_BGColor = D3DCOLOR_XRGB(0, 0, 0);
 
 	memset(m_FileName, 0, MAX_FILE_LEN);
 	memset(m_FileTitle, 0, MAX_FILE_LEN);

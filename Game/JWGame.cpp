@@ -2,10 +2,6 @@
 
 using namespace JWENGINE;
 
-// Static member variables declaration
-const int JWGame::WINDOW_X = 50;
-const int JWGame::WINDOW_Y = 50;
-
 JWGame::JWGame()
 {
 	m_TimerStart = 0;
