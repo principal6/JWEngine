@@ -41,21 +41,21 @@ void JWLine::Destroy()
 	JW_RELEASE(m_pVB);
 }
 
-void JWLine::AddLine(D3DXVECTOR2 StartPos, D3DXVECTOR2 Length, DWORD Color)
+void JWLine::AddLine(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Length, DWORD Color)
 {
-	m_Vertices.push_back(SVertexLine(StartPos.x, StartPos.y, Color));
-	m_Vertices.push_back(SVertexLine(StartPos.x + Length.x, StartPos.y + Length.y, Color));
+	m_Vertices.push_back(SVertexLine(StartPosition.x, StartPosition.y, Color));
+	m_Vertices.push_back(SVertexLine(StartPosition.x + Length.x, StartPosition.y + Length.y, Color));
 
 	int tIndicesCount = static_cast<int>(m_Indices.size());
 	m_Indices.push_back(SIndex2(tIndicesCount * 2, tIndicesCount * 2 + 1));
 }
 
-void JWLine::AddBox(D3DXVECTOR2 StartPos, D3DXVECTOR2 Size, DWORD Color)
+void JWLine::AddBox(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size, DWORD Color)
 {
-	AddLine(StartPos, D3DXVECTOR2(Size.x, 0), Color);
-	AddLine(StartPos, D3DXVECTOR2(0, Size.y), Color);
-	AddLine(D3DXVECTOR2(StartPos.x + Size.x, StartPos.y), D3DXVECTOR2(0, Size.y), Color);
-	AddLine(D3DXVECTOR2(StartPos.x, StartPos.y + Size.y), D3DXVECTOR2(Size.x, 0), Color);
+	AddLine(StartPosition, D3DXVECTOR2(Size.x, 0), Color);
+	AddLine(StartPosition, D3DXVECTOR2(0, Size.y), Color);
+	AddLine(D3DXVECTOR2(StartPosition.x + Size.x, StartPosition.y), D3DXVECTOR2(0, Size.y), Color);
+	AddLine(D3DXVECTOR2(StartPosition.x, StartPosition.y + Size.y), D3DXVECTOR2(Size.x, 0), Color);
 }
 
 void JWLine::AddEnd()
@@ -66,29 +66,29 @@ void JWLine::AddEnd()
 	UpdateIndexBuffer();
 }
 
-void JWLine::SetBoxPosition(D3DXVECTOR2 StartPos, D3DXVECTOR2 Size)
+void JWLine::SetLine(UINT LineIndex, D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size)
 {
-	m_Vertices[0].x = StartPos.x;
-	m_Vertices[0].y = StartPos.y;
-	m_Vertices[1].x = StartPos.x + Size.x;
-	m_Vertices[1].y = StartPos.y;
+	if (LineIndex * 2 <= static_cast<UINT>(m_Vertices.size()))
+	{
+		m_Vertices[LineIndex * 2].x = StartPosition.x;
+		m_Vertices[LineIndex * 2].y = StartPosition.y;
+		
+		m_Vertices[LineIndex * 2 + 1].x = StartPosition.x + Size.x;
+		m_Vertices[LineIndex * 2 + 1].y = StartPosition.y + Size.y;
 
-	m_Vertices[2].x = StartPos.x;
-	m_Vertices[2].y = StartPos.y;
-	m_Vertices[3].x = StartPos.x;
-	m_Vertices[3].y = StartPos.y + Size.y;
+		UpdateVertexBuffer();
+	}
+}
 
-	m_Vertices[4].x = StartPos.x + Size.x;
-	m_Vertices[4].y = StartPos.y;
-	m_Vertices[5].x = StartPos.x + Size.x;
-	m_Vertices[5].y = StartPos.y + Size.y;
-
-	m_Vertices[6].x = StartPos.x;
-	m_Vertices[6].y = StartPos.y + Size.y;
-	m_Vertices[7].x = StartPos.x + Size.x;
-	m_Vertices[7].y = StartPos.y + Size.y;
-	
-	UpdateVertexBuffer();
+void JWLine::SetBox(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size)
+{
+	if (m_Vertices.size())
+	{
+		SetLine(0, StartPosition, D3DXVECTOR2(Size.x, 0));
+		SetLine(1, StartPosition, D3DXVECTOR2(0, Size.y));
+		SetLine(2, D3DXVECTOR2(StartPosition.x + Size.x, StartPosition.y), D3DXVECTOR2(0, Size.y));
+		SetLine(3, D3DXVECTOR2(StartPosition.x, StartPosition.y + Size.y), D3DXVECTOR2(Size.x, 0));
+	}
 }
 
 void JWLine::SetAlpha(BYTE Alpha)

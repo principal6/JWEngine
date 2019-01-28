@@ -124,6 +124,7 @@
     <ClInclude Include="..\CoreBase\JWImage.h" />
     <ClInclude Include="..\CoreBase\JWInput.h" />
     <ClInclude Include="..\CoreBase\JWLine.h" />
+    <ClInclude Include="..\CoreBase\JWRectangle.h" />
     <ClInclude Include="..\CoreBase\JWWindow.h" />
     <ClInclude Include="..\Dependency\tinyxml2.h" />
     <ClInclude Include="JWButton.h" />
@@ -138,6 +139,7 @@
     <ClCompile Include="..\CoreBase\JWImage.cpp" />
     <ClCompile Include="..\CoreBase\JWInput.cpp" />
     <ClCompile Include="..\CoreBase\JWLine.cpp" />
+    <ClCompile Include="..\CoreBase\JWRectangle.cpp" />
     <ClCompile Include="..\CoreBase\JWWindow.cpp" />
     <ClCompile Include="..\Dependency\tinyxml2.cpp" />
     <ClCompile Include="gui_main.cpp" />

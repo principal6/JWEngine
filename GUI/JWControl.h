@@ -53,6 +53,9 @@ namespace JWENGINE
 		virtual auto IsMouseOver(const SMouseData& MouseData)->bool;
 		virtual auto IsMousePressed(const SMouseData& MouseData)->bool;
 
+		// Keyboard
+		virtual void OnKeyDown(WPARAM VirtualKeyCode);
+
 		// Update
 		virtual void UpdateState(const SMouseData& MouseData);
 

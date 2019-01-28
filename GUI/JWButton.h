@@ -12,7 +12,7 @@ namespace JWENGINE
 	class JWButton final : public JWControl
 	{
 	public:
-		JWButton() {};
+		JWButton();
 		~JWButton() {};
 
 		auto Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError override;

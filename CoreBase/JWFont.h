@@ -51,6 +51,11 @@ namespace JWENGINE
 		// Text
 		void ClearText();
 		auto AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError;
+		auto GetCharSize(wchar_t Character) const->D3DXVECTOR2;
+		auto GetCharOffset(wchar_t Character) const->D3DXVECTOR2;
+		auto GetSelPositionXInLine(UINT LineSelStart, WSTRING LineText) const->float;
+		auto GetLineMaxHeight(WSTRING LineText) const->float;
+		auto GetFontSize() const->UINT;
 		
 		// Draw
 		void Draw() const;

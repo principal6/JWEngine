@@ -61,10 +61,12 @@ namespace JWENGINE
 
 	protected:
 		virtual void ClearVertexAndIndexData();
+
 		virtual void CreateVertexBuffer();
 		virtual void CreateIndexBuffer();
 		virtual void UpdateVertexBuffer();
 		virtual void UpdateIndexBuffer();
+
 		virtual void UpdateVertexData();
 		virtual void UpdateVertexData(float u1, float v1, float u2, float v2);
 

@@ -4,7 +4,7 @@ using namespace tinyxml2;
 using namespace JWENGINE;
 
 // Static member variable declaration
-JWBMFontParser::BMFont JWBMFontParser::m_FontData;
+BMFont JWBMFontParser::m_FontData;
 
 auto WstringToString(WSTRING Source) -> STRING
 {
@@ -232,7 +232,7 @@ auto JWBMFontParser::Parse(WSTRING FileName)->bool
 	return false;
 }
 
-auto JWBMFontParser::GetFontData()->const JWBMFontParser::BMFont* const
+auto JWBMFontParser::GetFontData()->const BMFont* const
 {
 	return &m_FontData;
 }

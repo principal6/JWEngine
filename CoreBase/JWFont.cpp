@@ -366,6 +366,87 @@ auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	return EError::OK;
 }
 
+auto JWFont::GetLineMaxHeight(WSTRING LineText) const->float
+{
+	float Result = 0;
+
+	for (wchar_t iterator : LineText)
+	{
+		Result = max(GetCharSize(iterator).y, Result);
+	}
+	
+	return Result;
+}
+
+auto JWFont::GetCharSize(wchar_t Character) const->D3DXVECTOR2
+{
+	D3DXVECTOR2 Result = { 0, 0 };
+
+	// Find corresponding wchar_t item in m_FontData.CharMap (std::map structure)
+	wchar_t CharID = static_cast<wchar_t>(m_FontData.CharMap.find(Character)->second);
+
+	Result.x = static_cast<float>(m_FontData.Chars[CharID].Width);
+	Result.y = static_cast<float>(m_FontData.Chars[CharID].Height);
+
+	return Result;
+}
+
+auto JWFont::GetCharOffset(wchar_t Character) const->D3DXVECTOR2
+{
+	D3DXVECTOR2 Result = { 0, 0 };
+
+	// Find corresponding wchar_t item in m_FontData.CharMap (std::map structure)
+	wchar_t CharID = static_cast<wchar_t>(m_FontData.CharMap.find(Character)->second);
+
+	Result.x = static_cast<float>(m_FontData.Chars[CharID].XOffset);
+	Result.y = static_cast<float>(m_FontData.Chars[CharID].YOffset);
+
+	return Result;
+}
+
+auto JWFont::GetSelPositionXInLine(UINT LineSelStart, WSTRING LineText) const->float
+{
+	float Result = 0;
+
+	if (!LineText.length())
+		return Result;
+
+	wchar_t CharID = 0;
+	wchar_t CharIDPrev = 0;
+	int Kerning = 0;
+
+	for (size_t iterator = 0; iterator <= LineSelStart; iterator++)
+	{
+		CharID = static_cast<wchar_t>(m_FontData.CharMap.find(LineText[iterator])->second);
+		Result += m_FontData.Chars[CharID].XOffset;
+
+		if (iterator)
+		{
+			// Sum previous letter's x advance since 2nd letter
+			Result += m_FontData.Chars[CharIDPrev].XAdvance;
+
+			// Use kerning since 2nd letter
+			auto iterator_kerning = m_FontData.KerningMap.find(std::make_pair(CharIDPrev, CharID));
+
+			// Set kerning value only if the key exists
+			if (iterator_kerning != m_FontData.KerningMap.end())
+			{
+				Kerning = iterator_kerning->second;
+				Result += Kerning;
+			}
+		}
+
+		CharIDPrev = CharID;
+	}
+
+	return Result;
+}
+
+auto JWFont::GetFontSize() const->UINT
+{
+	return m_FontData.Info.Size;
+}
+
 STATIC auto JWFont::GetImageStringLineLength(WSTRING LineText)->size_t
 {
 	if (!LineText.length())

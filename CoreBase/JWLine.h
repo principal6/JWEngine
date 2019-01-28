@@ -34,11 +34,12 @@ namespace JWENGINE
 		void Clear();
 		void Destroy();
 
-		void AddLine(D3DXVECTOR2 StartPos, D3DXVECTOR2 Length, DWORD Color);
-		void AddBox(D3DXVECTOR2 StartPos, D3DXVECTOR2 Size, DWORD Color);
+		void AddLine(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Length, DWORD Color);
+		void AddBox(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size, DWORD Color);
 		void AddEnd();
 
-		void SetBoxPosition(D3DXVECTOR2 StartPos, D3DXVECTOR2 Size);
+		void SetLine(UINT LineIndex, D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size);
+		void SetBox(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size);
 		void SetAlpha(BYTE Alpha);
 		void SetXRGB(DWORD Color);
 

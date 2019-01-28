@@ -2,6 +2,12 @@
 
 using namespace JWENGINE;
 
+JWGUI::JWGUI()
+{
+	m_pWindow = nullptr;
+	m_pControlWithFocus = nullptr;
+}
+
 auto JWGUI::Create(JWWindow* pWindow)->EError
 {
 	if (nullptr == (m_pWindow = pWindow))
@@ -16,13 +22,10 @@ auto JWGUI::Create(JWWindow* pWindow)->EError
 	std::wcout << m_BaseDir.c_str() << std::endl;
 
 	AddControl(EControlType::Button, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
-	AddControl(EControlType::Button, D3DXVECTOR2(20, 0), D3DXVECTOR2(100, 50), L"가나다라");
-	AddControl(EControlType::Button, D3DXVECTOR2(40, 0), D3DXVECTOR2(100, 50), L"가나다라");
-	AddControl(EControlType::Button, D3DXVECTOR2(60, 0), D3DXVECTOR2(100, 50), L"가나다라");
-	AddControl(EControlType::Button, D3DXVECTOR2(80, 0), D3DXVECTOR2(100, 50), L"가나다라");
-	AddControl(EControlType::Button, D3DXVECTOR2(100, 0), D3DXVECTOR2(100, 50), L"가나다라");
 
 	AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 50), L"레이블입니다");
+
+	AddControl(EControlType::Edit, D3DXVECTOR2(100, 120), D3DXVECTOR2(150, 60), L"abcd\nef");
 
 	return EError::OK;
 }
@@ -113,6 +116,7 @@ PRIVATE void JWGUI::MainLoop()
 	m_pWindow->BeginRender();
 
 	JWControl* pControlWithMouse = nullptr;
+	JWControl* pControlWithNewFocus = nullptr;
 
 	for (JWControl* iterator : m_Controls)
 	{
@@ -138,19 +142,37 @@ PRIVATE void JWGUI::MainLoop()
 
 		if ((pControlWithMouse->GetState() == EControlState::Clicked) || (pControlWithMouse->GetState() == EControlState::Pressed))
 		{
+			pControlWithNewFocus = pControlWithMouse;
+
 			if (pControlWithMouse->GetState() == EControlState::Clicked)
 			{
-				pControlWithMouse->SetPosition(pControlWithMouse->GetPosition() + D3DXVECTOR2(2, 2));
-			}
-			
-			// Set focus of all controls
-			pControlWithMouse->Focus();
-			for (JWControl* iterator : m_Controls)
-			{
-				if (iterator != pControlWithMouse)
-					iterator->KillFocus();
+				//pControlWithMouse->SetPosition(pControlWithMouse->GetPosition() + D3DXVECTOR2(2, 2));
 			}
 		}
+	}
+
+	// Set focus on pControlWithFocus (because the focus is changed)
+	// and kill focus of all the other controls
+	if (pControlWithNewFocus)
+	{
+		m_pControlWithFocus = pControlWithNewFocus;
+		m_pControlWithFocus->Focus();
+		for (JWControl* iterator : m_Controls)
+		{
+			if (iterator != m_pControlWithFocus)
+				iterator->KillFocus();
+		}
+	}
+
+	// Call OnKeyDown() of control with focus
+	switch (m_MSG.message)
+	{
+	case WM_KEYDOWN:
+		if (m_pControlWithFocus)
+		{
+			m_pControlWithFocus->OnKeyDown(m_MSG.wParam);
+		}
+		break;
 	}
 
 	Draw();

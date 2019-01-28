@@ -53,6 +53,9 @@
     <ClInclude Include="JWEdit.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\CoreBase\JWRectangle.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWImage.cpp">
@@ -89,6 +92,9 @@
     </ClCompile>
     <ClCompile Include="JWEdit.cpp">
       <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWRectangle.cpp">
+      <Filter>CoreBase</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

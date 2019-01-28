@@ -85,6 +85,7 @@ namespace JWENGINE
 		INPUT_NOT_CREATED,
 		LINE_NOT_CREATED,
 		FONT_NOT_CREATED,
+		RECTANGLE_NOT_CREATED,
 
 		/** Game creation */
 		LIFE_NOT_CREATED,
@@ -201,6 +202,15 @@ namespace JWENGINE
 		STextureUV(float U1, float U2, float V1, float V2) : u1(U1), u2(U2), v1(V1), v2(V2) {};
 	};
 
+	struct SLineData
+	{
+		WSTRING LineText;
+		UINT LineSelPosition;
+		UINT LineIndex;
+
+		SLineData() : LineSelPosition(0), LineIndex(0) {};
+	};
+
 	inline static void ConvertFrameIDIntoUV(int FrameID, POINT SpriteSize, POINT SheetSize, int NumCols, int NumRows, STextureUV* UV)
 	{
 		int FrameXPos = FrameID % NumCols;
@@ -260,6 +270,31 @@ namespace JWENGINE
 		wchar_t temp[MAX_FILE_LEN]{};
 		_itow_s(In, temp, 10);
 		Result = temp;
+		return Result;
+	}
+
+	static auto GetLineDataFromText(WSTRING& Text, UINT SelPosition)->SLineData
+	{
+		SLineData Result;
+
+		UINT line_count = 0;
+		UINT iterator_prev = 0;
+		for (UINT iterator = 0; iterator <= Text.length(); iterator++)
+		{
+			// Check new line('\n') and string end
+			if ((Text[iterator] == L'\n') || iterator == Text.length())
+			{
+				if (SelPosition <= iterator)
+				{
+					Result.LineText = Text.substr(iterator_prev, iterator - iterator_prev);
+					Result.LineSelPosition = SelPosition - iterator_prev;
+					Result.LineIndex = line_count;
+					return Result;
+				}
+				iterator_prev = iterator + 1;
+				line_count++;
+			}
+		}
 		return Result;
 	}
 };

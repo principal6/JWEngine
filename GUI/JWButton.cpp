@@ -4,6 +4,11 @@
 
 using namespace JWENGINE;
 
+JWButton::JWButton()
+{
+	m_pImage = nullptr;
+}
+
 auto JWButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
 	if (JW_FAILED(JWControl::Create(pWindow, BaseDir, Position, Size)))

@@ -17,7 +17,7 @@ namespace JWENGINE
 	class JWGUI final
 	{
 	public:
-		JWGUI() {};
+		JWGUI();
 		~JWGUI() {};
 
 		auto Create(JWWindow* pWindow)->EError;
@@ -41,5 +41,7 @@ namespace JWENGINE
 		MSG m_MSG;
 
 		SMouseData m_MouseData;
+
+		JWControl* m_pControlWithFocus;
 	};
 };

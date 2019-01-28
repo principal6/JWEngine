@@ -68,13 +68,13 @@ void JWImage::Destroy()
 	JW_RELEASE(m_pVertexBuffer);
 }
 
-void JWImage::ClearVertexAndIndexData()
+PRIVATE void JWImage::ClearVertexAndIndexData()
 {
 	m_Vertices.clear();
 	m_Indices.clear();
 }
 
-void JWImage::CreateVertexBuffer()
+PRIVATE void JWImage::CreateVertexBuffer()
 {
 	if (m_Vertices.size() == 0)
 	{
@@ -91,7 +91,7 @@ void JWImage::CreateVertexBuffer()
 	}
 }
 
-void JWImage::CreateIndexBuffer()
+PRIVATE void JWImage::CreateIndexBuffer()
 {
 	if (m_Indices.size() == 0)
 	{
@@ -106,7 +106,7 @@ void JWImage::CreateIndexBuffer()
 	}
 }
 
-void JWImage::UpdateVertexBuffer()
+PRIVATE void JWImage::UpdateVertexBuffer()
 {
 	if (m_Vertices.size())
 	{
@@ -121,7 +121,7 @@ void JWImage::UpdateVertexBuffer()
 	}
 }
 
-void JWImage::UpdateIndexBuffer()
+PRIVATE void JWImage::UpdateIndexBuffer()
 {
 	if (m_Indices.size())
 	{
@@ -167,7 +167,7 @@ void JWImage::Draw()
 
 void JWImage::DrawBoundingBox()
 {
-	m_BoundingBoxLine.SetBoxPosition(m_Position + m_BoundingBox.PositionOffset, m_BoundingBox.Size);
+	m_BoundingBoxLine.SetBox(m_Position + m_BoundingBox.PositionOffset, m_BoundingBox.Size);
 	m_BoundingBoxLine.Draw();
 }
 

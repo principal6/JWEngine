@@ -71,6 +71,19 @@ auto JWControl::IsMousePressed(const SMouseData& MouseData)->bool
 	return Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect);
 }
 
+void JWControl::OnKeyDown(WPARAM VirtualKeyCode)
+{
+	switch (VirtualKeyCode)
+	{
+	case VK_LEFT:
+
+		break;
+	case VK_RIGHT:
+
+		break;
+	}
+}
+
 void JWControl::UpdateState(const SMouseData& MouseData)
 {
 	if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
