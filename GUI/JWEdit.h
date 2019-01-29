@@ -25,6 +25,7 @@ namespace JWENGINE
 		void Focus() override;
 
 		void OnKeyDown(WPARAM VirtualKeyCode) override;
+		void OnKeyUp(WPARAM VirtualKeyCode) override;
 		void OnMouseDown(LPARAM MousePosition) override;
 		void OnMouseMove(LPARAM MousePosition) override;
 

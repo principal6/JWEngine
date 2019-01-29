@@ -182,6 +182,9 @@ PRIVATE void JWGUI::MainLoop()
 		case WM_KEYDOWN:
 			m_pControlWithFocus->OnKeyDown(m_MSG.wParam);
 			break;
+		case WM_KEYUP:
+			m_pControlWithFocus->OnKeyUp(m_MSG.wParam);
+			break;
 		case WM_MOUSEMOVE:
 			m_pControlWithFocus->OnMouseMove(m_MSG.lParam);
 			break;

@@ -202,26 +202,80 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 	switch (VirtualKeyCode)
 	{
 	case VK_LEFT:
-		if (m_SelStart)
+		if (m_bShiftPressed)
 		{
-			m_SelStart--;
-			Sleep(50);
+			// Shift key pressed, selection!
+			if (m_SelEnd)
+			{
+				m_SelEnd--;
+				Sleep(50);
+			}
+		}
+		else
+		{
+			if (m_SelStart)
+			{
+				m_SelStart--;
+				Sleep(50);
+			}
 		}
 		break;
 	case VK_RIGHT:
-		if (m_SelStart < static_cast<UINT>(m_Text.length()))
+		if (m_bShiftPressed)
 		{
-			m_SelStart++;
-			Sleep(50);
+			// Shift key pressed, selection!
+			if (m_SelEnd < static_cast<UINT>(m_Text.length()))
+			{
+				m_SelEnd++;
+				Sleep(50);
+			}
+		}
+		else
+		{
+			if (m_SelStart < static_cast<UINT>(m_Text.length()))
+			{
+				m_SelStart++;
+				Sleep(50);
+			}
 		}
 		break;
 	}
 
-	m_SelEnd = m_SelStart;
+	if (!m_bShiftPressed)
+	{
+		m_SelEnd = m_SelStart;
+	}
 
-	GetSelStartAndEndData();
-	UpdateCaret();
-	UpdateSelection();
+	if (m_SelEnd < m_SelStart)
+	{
+		GetSelStartAndEndData();
+		UpdateCaret();
+
+		Swap(m_SelStart, m_SelEnd);
+
+		GetSelStartAndEndData();
+		UpdateSelection();
+
+		std::cout << "SWAPED = S: " << m_SelStart << "  E: " << m_SelEnd << std::endl;
+
+		Swap(m_SelStart, m_SelEnd);
+	}
+	else
+	{
+		GetSelStartAndEndData();
+		UpdateCaret();
+		UpdateSelection();
+	}
+}
+
+void JWEdit::OnKeyUp(WPARAM VirtualKeyCode)
+{
+	JWControl::OnKeyUp(VirtualKeyCode);
+
+	if (m_bShiftUp)
+	{
+		m_SelStart = m_SelEnd;
+	}
 }
 
 void JWEdit::OnMouseDown(LPARAM MousePosition)
