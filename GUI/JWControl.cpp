@@ -84,6 +84,32 @@ void JWControl::OnKeyDown(WPARAM VirtualKeyCode)
 	}
 }
 
+void JWControl::OnMouseMove(LPARAM MousePosition)
+{
+	m_MousePosition.x = GET_X_LPARAM(MousePosition);
+	m_MousePosition.y = GET_Y_LPARAM(MousePosition);
+}
+
+void JWControl::OnMouseDown(LPARAM MousePosition)
+{
+	if (m_MouseLeftDown == false)
+	{
+		m_MouseLeftDown = true;
+		m_MousePosition.x = GET_X_LPARAM(MousePosition);
+		m_MousePosition.y = GET_Y_LPARAM(MousePosition);
+	}
+}
+
+void JWControl::OnMouseUp(LPARAM MousePosition)
+{
+	if (m_MouseLeftDown == true)
+	{
+		m_MouseLeftDown = false;
+		m_MousePosition.x = GET_X_LPARAM(MousePosition);
+		m_MousePosition.y = GET_Y_LPARAM(MousePosition);
+	}
+}
+
 void JWControl::UpdateState(const SMouseData& MouseData)
 {
 	if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))

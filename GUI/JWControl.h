@@ -53,8 +53,11 @@ namespace JWENGINE
 		virtual auto IsMouseOver(const SMouseData& MouseData)->bool;
 		virtual auto IsMousePressed(const SMouseData& MouseData)->bool;
 
-		// Keyboard
+		// Event
 		virtual void OnKeyDown(WPARAM VirtualKeyCode);
+		virtual void OnMouseMove(LPARAM MousePosition);
+		virtual void OnMouseDown(LPARAM MousePosition);
+		virtual void OnMouseUp(LPARAM MousePosition);
 
 		// Update
 		virtual void UpdateState(const SMouseData& MouseData);
@@ -114,5 +117,8 @@ namespace JWENGINE
 
 		bool m_bShouldDrawBorder;
 		bool m_bHasFocus;
+
+		POINT m_MousePosition;
+		bool m_MouseLeftDown;
 	};
 };
