@@ -51,18 +51,17 @@ namespace JWENGINE
 		// Text
 		void ClearText();
 		auto AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError;
-		auto GetCharSize(wchar_t Character) const->D3DXVECTOR2;
-		auto GetCharOffset(wchar_t Character) const->D3DXVECTOR2;
-		auto GetSelPositionXInLine(UINT LineSelStart, WSTRING LineText) const->float;
-		auto GetLineMaxHeight(WSTRING LineText) const->float;
-		auto GetFontSize() const->UINT;
+		auto GetCharIndexInLine(LONG XPosition, const WSTRING& LineText) const->size_t;
+		auto GetCharXPositionInLine(size_t CharIndex, const WSTRING& LineText) const->float;
+		auto GetCharYPosition(wchar_t CharID, size_t LineIndex) const->float;
+		auto GetLineYPosition(size_t LineIndex) const->float;
+		auto GetLineLength(const WSTRING& LineText)->float;
+		auto GetLineHeight() const->float;
 		
 		// Draw
 		void Draw() const;
 
 	private:
-		static auto GetImageStringLineLength(WSTRING LineText)->size_t;
-
 		void ClearString();
 		void ClearVertexAndIndexData();
 
@@ -74,7 +73,8 @@ namespace JWENGINE
 
 		auto CreateTexture(WSTRING FileName)->EError;
 
-		void AddChar(wchar_t CharID, wchar_t CharIDPrev, wchar_t Character, int XOffsetBase, int YOffsetBase, DWORD Color);
+		void AddChar(size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex, wchar_t CharID, wchar_t CharIDPrev,
+			float HorizontalAlignmentOffset, float VerticalAlignmentOffset);
 
 	private:
 		static const DWORD DEFAULT_COLOR_FONT = D3DCOLOR_XRGB(255, 255, 255);
@@ -101,9 +101,6 @@ namespace JWENGINE
 		WSTRING m_EntireString;
 		VECTOR<WSTRING> m_StringLines;
 		size_t m_ImageStringLength;
-		size_t m_ImageStringXAdvance;
-		size_t m_ImageStringYAdvance;
-		bool m_bIsStringLineFirstChar;
 
 		DWORD m_FontColor;
 		DWORD m_BoxColor;

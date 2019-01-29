@@ -29,9 +29,6 @@ PRIVATE void JWFont::ClearString()
 	m_StringLines.clear();
 
 	m_ImageStringLength = 0;
-	m_bIsStringLineFirstChar = true;
-	m_ImageStringXAdvance = 0;
-	m_ImageStringYAdvance = 0;
 }
 
 PRIVATE void JWFont::ClearVertexAndIndexData()
@@ -271,55 +268,50 @@ auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	m_pBox[m_pBox.size() - 1]->SetPosition(Position);
 	m_pBox[m_pBox.size() - 1]->SetSize(BoxSize);
 
+	// Parse MultilineText into m_StringLines[]
 	m_StringLines.clear();
-	m_bIsStringLineFirstChar = true;
-	m_ImageStringXAdvance = 0;
-	m_ImageStringYAdvance = 0;
-
-	int iterator_prev = 0;
-	for (int iterator = 0; iterator <= MultilineText.length(); iterator++)
+	int iterator_line_prev = 0;
+	for (int iterator_line = 0; iterator_line <= MultilineText.length(); iterator_line++)
 	{
 		// Check new line('\n') and string end
-		if ((MultilineText[iterator] == L'\n') || iterator == MultilineText.length())
+		if ((MultilineText[iterator_line] == L'\n') || iterator_line == MultilineText.length())
 		{
-			m_StringLines.push_back(MultilineText.substr(iterator_prev, iterator - iterator_prev));
-			iterator_prev = iterator + 1;
+			m_StringLines.push_back(MultilineText.substr(iterator_line_prev, iterator_line - iterator_line_prev));
+			iterator_line_prev = iterator_line + 1;
 		}
 	}
 
-	int XPositionOffset = static_cast<int>(Position.x);
-	int YPositionOffset = static_cast<int>(Position.y);
-	m_ImageStringYAdvance = 0;
-
-	switch (m_VerticalAlignment)
+	for (size_t iterator_line = 0; iterator_line < m_StringLines.size(); iterator_line++)
 	{
-	case JWENGINE::EVerticalAlignment::Top:
-		break;
-	case JWENGINE::EVerticalAlignment::Middle:
-		YPositionOffset += static_cast<int>(m_pBox[m_pBox.size() - 1]->GetSize().y / 2.0f
-			- static_cast<float>(m_FontData.Info.Size * m_StringLines.size()) / 2.0f);
-		break;
-	case JWENGINE::EVerticalAlignment::Bottom:
-		YPositionOffset += static_cast<int>(m_pBox[m_pBox.size() - 1]->GetSize().y
-			- static_cast<float>(m_FontData.Info.Size * m_StringLines.size()));
-		break;
-	default:
-		break;
-	}
+		// Set vertical alignment offset (y position)
+		float VerticalAlignmentOffset = Position.y;
+		switch (m_VerticalAlignment)
+		{
+		case JWENGINE::EVerticalAlignment::Top:
+			break;
+		case JWENGINE::EVerticalAlignment::Middle:
+			VerticalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().y / 2.0f - GetLineYPosition(iterator_line) / 2.0f;
+			break;
+		case JWENGINE::EVerticalAlignment::Bottom:
+			VerticalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().y - GetLineYPosition(iterator_line);
+			break;
+		default:
+			break;
+		}
 
-	for (int iterator = 0; iterator < m_StringLines.size(); iterator++)
-	{
+		// Set horizontal alignment offset (x position)
+		float HorizontalAlignmentOffset = Position.x;
 		switch (m_HorizontalAlignment)
 		{
 		case JWENGINE::EHorizontalAlignment::Left:
 			break;
 		case JWENGINE::EHorizontalAlignment::Center:
-			XPositionOffset += static_cast<int>(m_pBox[m_pBox.size() - 1]->GetSize().x / 2.0f
-				- (static_cast<float>(GetImageStringLineLength(m_StringLines[iterator])) / 2.0f));
+			HorizontalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().x / 2.0f
+				- GetLineLength(m_StringLines[iterator_line]) / 2.0f;
 			break;
 		case JWENGINE::EHorizontalAlignment::Right:
-			XPositionOffset += static_cast<int>(m_pBox[m_pBox.size() - 1]->GetSize().x
-				- static_cast<float>(GetImageStringLineLength(m_StringLines[iterator])));
+			HorizontalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().x
+				- GetLineLength(m_StringLines[iterator_line]);
 			break;
 		default:
 			break;
@@ -327,38 +319,25 @@ auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 
 		wchar_t CharID = 0;
 		wchar_t CharIDPrev = 0;
-		int Kerning = 0;
 
-		// MakeOutter text images from the text string
-		for (size_t i = 0; i < m_StringLines[iterator].length(); i++)
+		// Make outter text images from the text string
+		for (size_t iterator_char = 0; iterator_char < m_StringLines[iterator_line].length(); iterator_char++)
 		{
-			// Find corresponding wchar_t item in m_FontData.CharMap (std::map structure)
-			CharID = static_cast<wchar_t>(m_FontData.CharMap.find(m_StringLines[iterator][i])->second);
-			Kerning = 0;
-
-			if (i)
+			// Find CharID in CharMap
+			CharID = 0;
+			auto iterator_line_character = m_FontData.CharMap.find(m_StringLines[iterator_line][iterator_char]);
+			if (iterator_line_character != m_FontData.CharMap.end())
 			{
-				// Use kerning since 2nd letter
-				auto iterator_kerning = m_FontData.KerningMap.find(std::make_pair(CharIDPrev, CharID));
-
-				// Set kerning value only if the key exists
-				if (iterator_kerning != m_FontData.KerningMap.end())
-				{
-					Kerning = iterator_kerning->second;
-					m_ImageStringXAdvance += Kerning;
-				}
+				// Set CharID value only if the key exists
+				CharID = static_cast<wchar_t>(iterator_line_character->second);
 			}
 
-			// Add wchar_t to the text (in vertex)
-			AddChar(CharID, CharIDPrev, m_StringLines[iterator][i], XPositionOffset, YPositionOffset, m_FontColor);
+			// Add wchar_t to the image string
+			AddChar(iterator_char, m_StringLines[iterator_line], iterator_line, CharID, CharIDPrev,
+				HorizontalAlignmentOffset, VerticalAlignmentOffset);
 
 			CharIDPrev = CharID;
 		}
-
-		// New line setting
-		m_bIsStringLineFirstChar = true;
-		m_ImageStringXAdvance = 0;
-		m_ImageStringYAdvance += m_FontData.Info.Size;
 	}
 
 	UpdateVertexBuffer();
@@ -366,162 +345,151 @@ auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	return EError::OK;
 }
 
-auto JWFont::GetLineMaxHeight(WSTRING LineText) const->float
+auto JWFont::GetCharIndexInLine(LONG XPosition, const WSTRING& LineText) const->size_t
 {
-	float Result = 0;
-
-	for (wchar_t iterator : LineText)
-	{
-		Result = max(GetCharSize(iterator).y, Result);
-	}
-	
-	return Result;
-}
-
-auto JWFont::GetCharSize(wchar_t Character) const->D3DXVECTOR2
-{
-	D3DXVECTOR2 Result = { 0, 0 };
-
-	// Find corresponding wchar_t item in m_FontData.CharMap (std::map structure)
-	wchar_t CharID = static_cast<wchar_t>(m_FontData.CharMap.find(Character)->second);
-
-	Result.x = static_cast<float>(m_FontData.Chars[CharID].Width);
-	Result.y = static_cast<float>(m_FontData.Chars[CharID].Height);
-
-	return Result;
-}
-
-auto JWFont::GetCharOffset(wchar_t Character) const->D3DXVECTOR2
-{
-	D3DXVECTOR2 Result = { 0, 0 };
-
-	// Find corresponding wchar_t item in m_FontData.CharMap (std::map structure)
-	wchar_t CharID = static_cast<wchar_t>(m_FontData.CharMap.find(Character)->second);
-
-	Result.x = static_cast<float>(m_FontData.Chars[CharID].XOffset);
-	Result.y = static_cast<float>(m_FontData.Chars[CharID].YOffset);
-
-	return Result;
-}
-
-auto JWFont::GetSelPositionXInLine(UINT LineSelStart, WSTRING LineText) const->float
-{
-	float Result = 0;
+	size_t Result = 0;
 
 	if (!LineText.length())
 		return Result;
 
+	LONG XPositionSum = 0;
 	wchar_t CharID = 0;
 	wchar_t CharIDPrev = 0;
 	int Kerning = 0;
 
-	for (size_t iterator = 0; iterator <= LineSelStart; iterator++)
+	for (size_t iterator = 0; iterator <= LineText.length(); iterator++)
 	{
-		CharID = static_cast<wchar_t>(m_FontData.CharMap.find(LineText[iterator])->second);
-		Result += m_FontData.Chars[CharID].XOffset;
+		// Find CharID in CharMap
+		CharID = 0;
+		auto iterator_character = m_FontData.CharMap.find(LineText[iterator]);
+		if (iterator_character != m_FontData.CharMap.end())
+		{
+			// Set CharID value only if the key exists
+			CharID = static_cast<wchar_t>(iterator_character->second);
+		}
 
 		if (iterator)
 		{
-			// Sum previous letter's x advance since 2nd letter
-			Result += m_FontData.Chars[CharIDPrev].XAdvance;
+			XPositionSum += m_FontData.Chars[CharIDPrev].XAdvance;
+			XPositionSum += m_FontData.Chars[CharID].XOffset;
 
-			// Use kerning since 2nd letter
+			// Find kerning in KerningMap
 			auto iterator_kerning = m_FontData.KerningMap.find(std::make_pair(CharIDPrev, CharID));
-
-			// Set kerning value only if the key exists
 			if (iterator_kerning != m_FontData.KerningMap.end())
 			{
-				Kerning = iterator_kerning->second;
-				Result += Kerning;
+				// Set kerning value only if the key exists
+				XPositionSum += iterator_kerning->second;
 			}
+		}
+
+		if (XPosition <= XPositionSum)
+		{
+			if (iterator)
+				iterator--;
+
+			Result = iterator;
+			return Result;
 		}
 
 		CharIDPrev = CharID;
 	}
 
+	Result = LineText.length();
 	return Result;
 }
 
-auto JWFont::GetFontSize() const->UINT
+auto JWFont::GetCharXPositionInLine(size_t CharIndex, const WSTRING& LineText) const->float
 {
-	return m_FontData.Info.Size;
-}
+	float Result = 0;
 
-STATIC auto JWFont::GetImageStringLineLength(WSTRING LineText)->size_t
-{
+	// If LineText is NULL, return 0
 	if (!LineText.length())
-		return 0;
+		return Result;
 
-	size_t Result = 0;
-	wchar_t currentChar = 0;
+	// If it's the first char of line, XPosition is 0
+	if (CharIndex == 0)
+		return Result;
+
+	// CharIndex <= LineText.length()
+	if (CharIndex > LineText.length())
+	{
+		CharIndex = LineText.length();
+	}
+
 	wchar_t CharID = 0;
 	wchar_t CharIDPrev = 0;
-	int Kerning = 0;
 
-	for (size_t iterator = 0; iterator < LineText.length(); iterator++)
+	for (size_t iterator = 0; iterator <= CharIndex; iterator++)
 	{
-		currentChar = LineText[iterator];
-		CharID = static_cast<wchar_t>(m_FontData.CharMap.find(currentChar)->second);
-		Result += m_FontData.Chars[CharID].XOffset;
+		// Find CharID in CharMap
+		CharID = 0;
+		auto iterator_character = m_FontData.CharMap.find(LineText[iterator]);
+		if (iterator_character != m_FontData.CharMap.end())
+		{
+			// Set CharID value only if the key exists
+			CharID = static_cast<wchar_t>(iterator_character->second);
+		}
 
 		if (iterator)
 		{
-			// Sum previous letter's x advance since 2nd letter
 			Result += m_FontData.Chars[CharIDPrev].XAdvance;
+			Result += m_FontData.Chars[CharID].XOffset;
 
-			// Use kerning since 2nd letter
+			// Find kerning in KerningMap
 			auto iterator_kerning = m_FontData.KerningMap.find(std::make_pair(CharIDPrev, CharID));
-
-			// Set kerning value only if the key exists
 			if (iterator_kerning != m_FontData.KerningMap.end())
 			{
-				Kerning = iterator_kerning->second;
-				Result += Kerning;
-			}
-
-			if (iterator == LineText.length() - 1)
-			{
-				// If it's the last letter, and XAdvance for the last time
-				Result += m_FontData.Chars[CharID].XAdvance;
+				// Set kerning value only if the key exists
+				Result += iterator_kerning->second;
 			}
 		}
-
+		
 		CharIDPrev = CharID;
 	}
 
 	return Result;
 }
 
-PRIVATE void JWFont::AddChar(wchar_t CharID, wchar_t CharIDPrev, wchar_t Character, int XOffsetBase, int YOffsetBase, DWORD Color)
+auto JWFont::GetLineYPosition(size_t LineIndex) const->float
 {
-	size_t vertexID = m_ImageStringLength * 4;
+	return static_cast<float>(LineIndex * m_FontData.Info.Size);
+}
 
+auto JWFont::GetCharYPosition(wchar_t CharID, size_t LineIndex) const->float
+{
+	return GetLineYPosition(LineIndex) + static_cast<float>(m_FontData.Chars[CharID].YOffset);
+}
+
+auto JWFont::GetLineLength(const WSTRING& LineText)->float
+{
+	return GetCharXPositionInLine(LineText.length(), LineText);
+}
+
+auto JWFont::GetLineHeight() const->float
+{
+	return static_cast<float>(m_FontData.Info.Size);
+}
+
+PRIVATE void JWFont::AddChar(size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex, wchar_t CharID, wchar_t CharIDPrev,
+	float HorizontalAlignmentOffset, float VerticalAlignmentOffset)
+{
+	// Set u, v values
 	float u1 = static_cast<float>(m_FontData.Chars[CharID].X) / static_cast<float>(m_FontData.Common.ScaleW);
 	float v1 = static_cast<float>(m_FontData.Chars[CharID].Y) / static_cast<float>(m_FontData.Common.ScaleH);
 	float u2 = u1 + static_cast<float>(m_FontData.Chars[CharID].Width) / static_cast<float>(m_FontData.Common.ScaleW);
 	float v2 = v1 + static_cast<float>(m_FontData.Chars[CharID].Height) / static_cast<float>(m_FontData.Common.ScaleH);
 
-	if (m_bIsStringLineFirstChar)
-	{
-		m_bIsStringLineFirstChar = false;
-	}
-	else
-	{
-		m_ImageStringXAdvance += m_FontData.Chars[CharIDPrev].XAdvance;
-	}
-
-	float x1 = static_cast<float>(XOffsetBase) + static_cast<float>(m_ImageStringXAdvance) +
-		static_cast<float>(m_FontData.Chars[CharID].XOffset);
+	// Set x, y positions
+	float x1 = HorizontalAlignmentOffset + GetCharXPositionInLine(CharIndexInLine, LineText);
 	float x2 = x1 + static_cast<float>(m_FontData.Chars[CharID].Width);
-
-	float y1 = static_cast<float>(YOffsetBase) + static_cast<float>(m_ImageStringYAdvance) +
-		static_cast<float>(m_FontData.Chars[CharID].YOffset);
+	float y1 = VerticalAlignmentOffset + GetCharYPosition(CharID, LineIndex);
 	float y2 = y1 + static_cast<float>(m_FontData.Chars[CharID].Height);
 
-	m_Vertices[vertexID] = SVertexImage(x1, y1, Color, u1, v1);
-	m_Vertices[vertexID + 1] = SVertexImage(x2, y1, Color, u2, v1);
-	m_Vertices[vertexID + 2] = SVertexImage(x1, y2, Color, u1, v2);
-	m_Vertices[vertexID + 3] = SVertexImage(x2, y2, Color, u2, v2);
+	size_t vertexID = m_ImageStringLength * 4;
+	m_Vertices[vertexID] = SVertexImage(x1, y1, m_FontColor, u1, v1);
+	m_Vertices[vertexID + 1] = SVertexImage(x2, y1, m_FontColor, u2, v1);
+	m_Vertices[vertexID + 2] = SVertexImage(x1, y2, m_FontColor, u1, v2);
+	m_Vertices[vertexID + 3] = SVertexImage(x2, y2, m_FontColor, u2, v2);
 
 	m_ImageStringLength++;
 }
