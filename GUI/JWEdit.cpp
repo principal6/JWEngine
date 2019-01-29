@@ -82,48 +82,116 @@ void JWEdit::Focus()
 {
 	JWControl::Focus();
 
+	GetSelStartAndEndData();
 	UpdateCaret();
 	UpdateSelection();
 }
 
+PRIVATE void JWEdit::GetSelStartAndEndData()
+{
+	m_SelStartLineData = GetLineDataFromSelPosition(m_Text, m_SelStart);
+	m_SelEndLineData = GetLineDataFromSelPosition(m_Text, m_SelEnd);
+}
+
 PRIVATE void JWEdit::UpdateCaret()
 {
-	wchar_t CurrCharacter = m_Text[m_SelStart];
+	if (m_Text.length())
+	{
+		D3DXVECTOR2 CaretSize = D3DXVECTOR2(0, m_pFont->GetLineHeight());
 
-	SLineData LineData = GetLineDataFromText(m_Text, m_SelStart);
+		D3DXVECTOR2 CaretPosition = m_PositionClient;
+		CaretPosition.x += m_pFont->GetCharXPositionInLine(m_SelEndLineData.LineSelPosition, m_SelEndLineData.LineText);
+		CaretPosition.y += m_pFont->GetLineYPosition(m_SelEndLineData.LineIndex);
 
-	D3DXVECTOR2 NewSize = D3DXVECTOR2(0, static_cast<float>(m_pFont->GetFontSize()));
-
-	D3DXVECTOR2 NewPosition = m_PositionClient;
-	NewPosition.x += m_pFont->GetSelPositionXInLine(LineData.LineSelPosition, LineData.LineText);
-	NewPosition.y += static_cast<float>(m_pFont->GetFontSize() * LineData.LineIndex);
-
-	m_pCaret->SetLine(0, NewPosition, NewSize);
+		m_pCaret->SetLine(0, CaretPosition, CaretSize);
+	}
 }
 
 PRIVATE void JWEdit::UpdateSelection()
 {
 	if (m_Text.length())
 	{
-		m_pSelection->ClearAllRectangles();
+		if (m_SelEnd > m_SelStart)
+		{
+			m_pSelection->ClearAllRectangles();
 
+			D3DXVECTOR2 SelectionPosition = D3DXVECTOR2(0, 0);
+			D3DXVECTOR2 SelectionSize = D3DXVECTOR2(0, 0);
 
-		wchar_t CurrCharacter = m_Text[m_SelStart];
+			if (m_SelStartLineData.LineIndex == m_SelEndLineData.LineIndex)
+			{
+				// SelStart and SelEnd are in the same line
+				float SelStartXPosition = m_pFont->GetCharXPositionInLine(m_SelStartLineData.LineSelPosition,
+					m_SelStartLineData.LineText);
+				float SelEndXPosition = m_pFont->GetCharXPositionInLine(m_SelEndLineData.LineSelPosition,
+					m_SelEndLineData.LineText);
 
-		if (CurrCharacter == L'\n')
-			CurrCharacter = 0;
+				SelectionPosition.x = m_PositionClient.x + SelStartXPosition;
+				SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(m_SelStartLineData.LineIndex);
 
-		SLineData LineData = GetLineDataFromText(m_Text, m_SelStart);
+				SelectionSize.x = SelEndXPosition - SelStartXPosition;
+				SelectionSize.y = m_pFont->GetLineHeight();
 
-		D3DXVECTOR2 NewSize = m_pFont->GetCharSize(CurrCharacter);
-		NewSize.y = static_cast<float>(m_pFont->GetFontSize());
+				m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
+			}
+			else
+			{
+				// SelStart and SelEnd are in different lines (multiple-line selection)
 
-		D3DXVECTOR2 NewPosition = m_PositionClient;
-		NewPosition.x += m_pFont->GetSelPositionXInLine(LineData.LineSelPosition, LineData.LineText);
-		NewPosition.y += static_cast<float>(m_pFont->GetFontSize() * LineData.LineIndex);
+				// Firstly, we must select the whole line of SelStart
+				float SelStartXPosition = m_pFont->GetCharXPositionInLine(m_SelStartLineData.LineSelPosition,
+					m_SelStartLineData.LineText);
+				
+				SelectionPosition.x = m_PositionClient.x + SelStartXPosition;
+				SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(m_SelStartLineData.LineIndex);
 
-		
-		m_pSelection->AddRectangle(NewSize, NewPosition);
+				SelectionSize.x = m_pFont->GetLineLength(m_SelStartLineData.LineText) - SelStartXPosition;
+				SelectionSize.y = m_pFont->GetLineHeight();
+
+				m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
+
+				// Loop for selecting the rest of lines
+				for (size_t iterator_line = m_SelStartLineData.LineIndex + 1;
+					iterator_line <= m_SelEndLineData.LineIndex;
+					iterator_line++)
+				{
+					if (iterator_line == m_SelEndLineData.LineIndex)
+					{
+						// This is the last line
+						// so, select from the first letter to SelEnd
+						float SelEndXPosition = m_pFont->GetCharXPositionInLine(m_SelEndLineData.LineSelPosition,
+							m_SelEndLineData.LineText);
+
+						SelectionPosition.x = m_PositionClient.x;
+						SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(m_SelEndLineData.LineIndex);
+
+						SelectionSize.x = SelEndXPosition;
+						SelectionSize.y = m_pFont->GetLineHeight();
+
+						m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
+					}
+					else
+					{
+						// This isn't the last line
+						// so, we must select the whole line
+						SLineData TempData = GetLineDataFromLineIndex(m_Text, iterator_line);
+
+						SelectionPosition.x = m_PositionClient.x;
+						SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(TempData.LineIndex);
+
+						SelectionSize.x = m_pFont->GetLineLength(TempData.LineText);
+						SelectionSize.y = m_pFont->GetLineHeight();
+
+						m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
+					}
+				}
+			}
+		}
+		else
+		{
+			// (SelStart == SelEnd) => That is, no selection!
+			m_pSelection->ClearAllRectangles();
+		}
 	}
 }
 
@@ -149,6 +217,59 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 		break;
 	}
 
+	m_SelEnd = m_SelStart;
+
+	GetSelStartAndEndData();
 	UpdateCaret();
 	UpdateSelection();
+}
+
+void JWEdit::OnMouseDown(LPARAM MousePosition)
+{
+	if (m_MouseLeftDown == false)
+	{
+		POINT NewPosition;
+		NewPosition.x = m_MousePosition.x - static_cast<LONG>(m_PositionClient.x);
+		NewPosition.y = m_MousePosition.y - static_cast<LONG>(m_PositionClient.y);
+
+		m_SelStartLineData = GetLineDataFromMousePosition(m_Text, NewPosition, m_pFont->GetLineHeight());
+		m_SelStartLineData.LineSelPosition = m_pFont->GetCharIndexInLine(NewPosition.x, m_SelStartLineData.LineText);
+		m_SelStart = ConvertLineSelPositionToSelPosition(m_Text, m_SelStartLineData.LineSelPosition, m_SelStartLineData.LineIndex);
+		m_SelEnd = m_SelStart;
+
+		GetSelStartAndEndData();
+		UpdateCaret();
+		UpdateSelection();
+	}
+
+	JWControl::OnMouseDown(MousePosition);
+}
+
+void JWEdit::OnMouseMove(LPARAM MousePosition)
+{
+	JWControl::OnMouseMove(MousePosition);
+
+	if (m_MouseLeftDown)
+	{
+		POINT NewPosition;
+		NewPosition.x = m_MousePosition.x - static_cast<LONG>(m_PositionClient.x);
+		NewPosition.y = m_MousePosition.y - static_cast<LONG>(m_PositionClient.y);
+
+		m_SelEndLineData = GetLineDataFromMousePosition(m_Text, NewPosition, m_pFont->GetLineHeight());
+		m_SelEndLineData.LineSelPosition = m_pFont->GetCharIndexInLine(NewPosition.x, m_SelEndLineData.LineText);
+		m_SelEnd = ConvertLineSelPositionToSelPosition(m_Text, m_SelEndLineData.LineSelPosition, m_SelEndLineData.LineIndex);
+
+		std::cout << "S: " << m_SelStart << "  E: " << m_SelEnd << std::endl;
+
+		if (m_SelEnd < m_SelStart)
+		{
+			size_t temp_swap = m_SelEnd;
+			m_SelEnd = m_SelStart;
+			m_SelStart = temp_swap;
+		}
+
+		GetSelStartAndEndData();
+		UpdateCaret();
+		UpdateSelection();
+	}
 }

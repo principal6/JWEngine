@@ -25,7 +25,7 @@ auto JWGUI::Create(JWWindow* pWindow)->EError
 
 	AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 50), L"레이블입니다");
 
-	AddControl(EControlType::Edit, D3DXVECTOR2(100, 120), D3DXVECTOR2(150, 60), L"abcd\nef");
+	AddControl(EControlType::Edit, D3DXVECTOR2(100, 120), D3DXVECTOR2(150, 60), L"이번엔abcd말고\n한글 ttTT!!ㅋ\nThe third line");
 
 	return EError::OK;
 }
@@ -136,6 +136,7 @@ PRIVATE void JWGUI::MainLoop()
 		}
 	}
 
+	// Mouse cursor is on a control
 	if (pControlWithMouse)
 	{
 		pControlWithMouse->UpdateState(m_MouseData);
@@ -151,28 +152,46 @@ PRIVATE void JWGUI::MainLoop()
 		}
 	}
 
+
+	// TODO: Tab stop needed! (keyboard Tab key)
+
+
 	// Set focus on pControlWithFocus (because the focus is changed)
 	// and kill focus of all the other controls
 	if (pControlWithNewFocus)
 	{
-		m_pControlWithFocus = pControlWithNewFocus;
-		m_pControlWithFocus->Focus();
-		for (JWControl* iterator : m_Controls)
+		// New focus event
+		if (m_pControlWithFocus != pControlWithNewFocus)
 		{
-			if (iterator != m_pControlWithFocus)
-				iterator->KillFocus();
+			// Focus has been moved to another control
+			m_pControlWithFocus = pControlWithNewFocus;
+			m_pControlWithFocus->Focus();
+			for (JWControl* iterator : m_Controls)
+			{
+				if (iterator != m_pControlWithFocus)
+					iterator->KillFocus();
+			}
 		}
 	}
 
-	// Call OnKeyDown() of control with focus
-	switch (m_MSG.message)
+	// Call event handlers of the control with focus
+	if (m_pControlWithFocus)
 	{
-	case WM_KEYDOWN:
-		if (m_pControlWithFocus)
+		switch (m_MSG.message)
 		{
+		case WM_KEYDOWN:
 			m_pControlWithFocus->OnKeyDown(m_MSG.wParam);
+			break;
+		case WM_MOUSEMOVE:
+			m_pControlWithFocus->OnMouseMove(m_MSG.lParam);
+			break;
+		case WM_LBUTTONDOWN:
+			m_pControlWithFocus->OnMouseDown(m_MSG.lParam);
+			break;
+		case WM_LBUTTONUP:
+			m_pControlWithFocus->OnMouseUp(m_MSG.lParam);
+			break;
 		}
-		break;
 	}
 
 	Draw();

@@ -25,8 +25,11 @@ namespace JWENGINE
 		void Focus() override;
 
 		void OnKeyDown(WPARAM VirtualKeyCode) override;
+		void OnMouseDown(LPARAM MousePosition) override;
+		void OnMouseMove(LPARAM MousePosition) override;
 
 	private:
+		void GetSelStartAndEndData();
 		void UpdateCaret();
 		void UpdateSelection();
 
@@ -37,7 +40,10 @@ namespace JWENGINE
 		JWLine* m_pCaret;
 		JWRectangle* m_pSelection;
 
-		UINT m_SelStart;
-		UINT m_SelEnd;
+		size_t m_SelStart;
+		size_t m_SelEnd;
+
+		SLineData m_SelStartLineData;
+		SLineData m_SelEndLineData;
 	};
 };
