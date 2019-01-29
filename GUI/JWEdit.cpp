@@ -263,13 +263,21 @@ void JWEdit::OnMouseMove(LPARAM MousePosition)
 
 		if (m_SelEnd < m_SelStart)
 		{
-			size_t temp_swap = m_SelEnd;
-			m_SelEnd = m_SelStart;
-			m_SelStart = temp_swap;
-		}
+			Swap(m_SelStart, m_SelEnd);
 
-		GetSelStartAndEndData();
-		UpdateCaret();
-		UpdateSelection();
+			GetSelStartAndEndData();
+			UpdateCaret();
+			UpdateSelection();
+
+			std::cout << "SWAPED = S: " << m_SelStart << "  E: " << m_SelEnd << std::endl;
+
+			Swap(m_SelStart, m_SelEnd);
+		}
+		else
+		{
+			GetSelStartAndEndData();
+			UpdateCaret();
+			UpdateSelection();
+		}
 	}
 }
