@@ -205,8 +205,8 @@ namespace JWENGINE
 	struct SLineData
 	{
 		WSTRING LineText;
-		UINT LineSelPosition;
-		UINT LineIndex;
+		size_t LineSelPosition;
+		size_t LineIndex;
 
 		SLineData() : LineSelPosition(0), LineIndex(0) {};
 	};
@@ -273,13 +273,128 @@ namespace JWENGINE
 		return Result;
 	}
 
-	static auto GetLineDataFromText(WSTRING& Text, UINT SelPosition)->SLineData
+	static auto ConvertSelPositionToLineSelPosition(WSTRING& Text, size_t SelPosition)->size_t
+	{
+		size_t Result = 0;
+
+		if (!Text.length())
+			return Result;
+
+		size_t iterator_prev = 0;
+		for (size_t iterator = 0; iterator <= Text.length(); iterator++)
+		{
+			// Check new line('\n') and string end
+			if ((Text[iterator] == L'\n') || iterator == Text.length())
+			{
+				if (SelPosition <= iterator)
+				{
+					Result = SelPosition + iterator_prev;
+					return Result;
+				}
+				iterator_prev = iterator + 1;
+			}
+		}
+
+		return Result;
+	}
+
+	static auto ConvertLineSelPositionToSelPosition(WSTRING& Text, size_t LineSelPosition, size_t LineIndex)->size_t
+	{
+		size_t Result = 0;
+
+		if (!Text.length())
+			return Result;
+
+		size_t line_count = 0;
+		size_t iterator_prev = 0;
+		for (size_t iterator = 0; iterator <= Text.length(); iterator++)
+		{
+			// Check new line('\n') and string end
+			if ((Text[iterator] == L'\n') || iterator == Text.length())
+			{
+				if (LineIndex == line_count)
+				{
+					Result = iterator_prev + LineSelPosition;
+					return Result;
+				}
+
+				iterator_prev = iterator + 1;
+				line_count++;
+			}
+		}
+
+		return Result;
+	}
+
+	static auto GetLineDataFromLineIndex(WSTRING& Text, size_t LineIndex)->SLineData
 	{
 		SLineData Result;
 
-		UINT line_count = 0;
-		UINT iterator_prev = 0;
-		for (UINT iterator = 0; iterator <= Text.length(); iterator++)
+		if (!Text.length())
+			return Result;
+
+		// SIZE_T = LineIndex
+		Result.LineIndex = LineIndex;
+
+		size_t line_count = 0;
+		size_t iterator_prev = 0;
+		for (size_t iterator = 0; iterator <= Text.length(); iterator++)
+		{
+			// Check new line('\n') and string end
+			if ((Text[iterator] == L'\n') || iterator == Text.length())
+			{
+				if (Result.LineIndex == line_count)
+				{
+					Result.LineText = Text.substr(iterator_prev, iterator - iterator_prev);
+					Result.LineSelPosition = 0;
+					return Result;
+				}
+				iterator_prev = iterator + 1;
+				line_count++;
+			}
+		}
+		return Result;
+	}
+
+	static auto GetLineDataFromMousePosition(WSTRING& Text, POINT MousePosition, float LineHeight)->SLineData
+	{
+		SLineData Result;
+
+		if (!Text.length())
+			return Result;
+
+		Result.LineIndex = static_cast<size_t>(static_cast<float>(MousePosition.y) / LineHeight);
+
+		size_t line_count = 0;
+		size_t iterator_prev = 0;
+		for (size_t iterator = 0; iterator <= Text.length(); iterator++)
+		{
+			// Check new line('\n') and string end
+			if ((Text[iterator] == L'\n') || iterator == Text.length())
+			{
+				if (Result.LineIndex == line_count)
+				{
+					Result.LineText = Text.substr(iterator_prev, iterator - iterator_prev);
+					Result.LineSelPosition = 0;
+					return Result;
+				}
+				iterator_prev = iterator + 1;
+				line_count++;
+			}
+		}
+		return Result;
+	}
+
+	static auto GetLineDataFromSelPosition(WSTRING& Text, size_t SelPosition)->SLineData
+	{
+		SLineData Result;
+
+		if (!Text.length())
+			return Result;
+
+		size_t line_count = 0;
+		size_t iterator_prev = 0;
+		for (size_t iterator = 0; iterator <= Text.length(); iterator++)
 		{
 			// Check new line('\n') and string end
 			if ((Text[iterator] == L'\n') || iterator == Text.length())
@@ -295,6 +410,7 @@ namespace JWENGINE
 				line_count++;
 			}
 		}
+
 		return Result;
 	}
 };
