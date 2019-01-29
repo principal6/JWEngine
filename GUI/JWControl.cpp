@@ -91,10 +91,6 @@ auto JWControl::IsMousePressed(const SMouseData& MouseData)->bool
 
 void JWControl::OnKeyDown(WPARAM VirtualKeyCode)
 {
-	m_bControlUp = false;
-	m_bShiftUp = false;
-	m_bAltUp = false;
-
 	switch (VirtualKeyCode)
 	{
 	case VK_CONTROL:
@@ -111,6 +107,10 @@ void JWControl::OnKeyDown(WPARAM VirtualKeyCode)
 
 void JWControl::OnKeyUp(WPARAM VirtualKeyCode)
 {
+	m_bControlUp = false;
+	m_bShiftUp = false;
+	m_bAltUp = false;
+
 	switch (VirtualKeyCode)
 	{
 	case VK_CONTROL:
