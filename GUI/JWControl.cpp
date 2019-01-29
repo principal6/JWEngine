@@ -8,6 +8,30 @@ using namespace JWENGINE;
 WSTRING JWControl::ms_BaseDir;
 JWWindow* JWControl::ms_pWindow;
 
+JWControl::JWControl()
+{
+	m_pFont = nullptr;
+	m_PositionClient = D3DXVECTOR2(0, 0);
+	m_Size = D3DXVECTOR2(0, 0);
+	m_Rect = { 0, 0, 0, 0 };
+
+	m_Type = EControlType::NotDefined;
+	m_State = EControlState::Normal;
+	m_bShouldDrawBorder = true;
+	m_bHasFocus = false;
+
+	m_MousePosition = { 0, 0 };
+	m_MouseLeftDown = false;
+
+	m_bControlPressed = false;
+	m_bShiftPressed = false;
+	m_bAltPressed = false;
+
+	m_bControlUp = false;
+	m_bShiftUp = false;
+	m_bAltUp = false;
+}
+
 auto JWControl::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
 	if (nullptr == (ms_pWindow = pWindow))
@@ -39,12 +63,6 @@ auto JWControl::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position,
 	// Set control rect
 	CalculateRECT();
 
-	// Set control state
-	m_State = EControlState::Normal;
-
-	// Should draw border?
-	m_bShouldDrawBorder = true;
-
 	return EError::OK;
 }
 
@@ -73,13 +91,45 @@ auto JWControl::IsMousePressed(const SMouseData& MouseData)->bool
 
 void JWControl::OnKeyDown(WPARAM VirtualKeyCode)
 {
+	m_bControlUp = false;
+	m_bShiftUp = false;
+	m_bAltUp = false;
+
 	switch (VirtualKeyCode)
 	{
-	case VK_LEFT:
-
+	case VK_CONTROL:
+		m_bControlPressed = true;
 		break;
-	case VK_RIGHT:
+	case VK_SHIFT:
+		m_bShiftPressed = true;
+		break;
+	case VK_MENU: // Alt key
+		m_bAltPressed = true;
+		break;
+	}
+}
 
+void JWControl::OnKeyUp(WPARAM VirtualKeyCode)
+{
+	switch (VirtualKeyCode)
+	{
+	case VK_CONTROL:
+		if (m_bControlPressed)
+			m_bControlUp = true;
+
+		m_bControlPressed = false;
+		break;
+	case VK_SHIFT:
+		if (m_bShiftPressed)
+			m_bShiftUp = true;
+
+		m_bShiftPressed = false;
+		break;
+	case VK_MENU: // Alt key
+		if (m_bAltPressed)
+			m_bAltUp = true;
+
+		m_bAltPressed = false;
 		break;
 	}
 }
