@@ -25,7 +25,7 @@ auto JWGUI::Create(JWWindow* pWindow)->EError
 
 	AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 50), L"레이블입니다");
 
-	AddControl(EControlType::Edit, D3DXVECTOR2(100, 120), D3DXVECTOR2(150, 60), L"abcdefg\nThe second line");
+	AddControl(EControlType::Edit, D3DXVECTOR2(100, 120), D3DXVECTOR2(150, 60), L"This is my custom edit control");
 
 	return EError::OK;
 }

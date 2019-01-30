@@ -48,6 +48,7 @@ namespace JWENGINE
 	private:
 		static const BYTE DEFUALT_ALPHA_BACKGROUND = 255;
 		static const DWORD DEFAULT_COLOR_BACKGROUND = D3DCOLOR_XRGB(200, 200, 200);
+		static const ULONGLONG DEFAULT_CARET_TICK = 30;
 
 		JWLine* m_pCaret;
 		JWRectangle* m_pSelection;
@@ -62,5 +63,7 @@ namespace JWENGINE
 
 		WSTRING m_IMETempText;
 		size_t m_IMETempSel;
+
+		ULONGLONG m_CaretTickCount;
 	};
 };

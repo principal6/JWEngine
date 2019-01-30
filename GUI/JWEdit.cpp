@@ -16,6 +16,7 @@ JWEdit::JWEdit()
 	m_pCaretSelPosition = nullptr;
 	m_CapturedSelPosition = 0;
 	m_IMETempSel = 0;
+	m_CaretTickCount = 0;
 }
 
 auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -79,7 +80,20 @@ void JWEdit::Draw()
 
 	if (m_bHasFocus)
 	{
-		m_pCaret->Draw();
+		if (m_CaretTickCount <= DEFAULT_CARET_TICK)
+		{
+			m_pCaret->Draw();
+			m_CaretTickCount++;
+		}
+		else
+		{
+			m_CaretTickCount++;
+			if (m_CaretTickCount == DEFAULT_CARET_TICK * 2)
+			{
+				m_CaretTickCount = 0;
+			}
+		}
+
 		m_pSelection->Draw();
 	}
 }
@@ -121,6 +135,8 @@ PRIVATE void JWEdit::UpdateCaret()
 	}
 		
 	m_pCaret->SetLine(0, CaretPosition, CaretSize);
+	
+	m_CaretTickCount = 0;
 }
 
 PRIVATE void JWEdit::UpdateSelection()
