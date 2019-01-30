@@ -80,6 +80,9 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 	case JWENGINE::RadioBox:
 		m_Controls.push_back(new JWRadioBox);
 		break;
+	case JWENGINE::ScrollBar:
+		m_Controls.push_back(new JWScrollBar);
+		break;
 	default:
 		return EError::INVALID_CONTROL_TYPE;
 		break;
@@ -145,6 +148,7 @@ PRIVATE void JWGUI::MainLoop()
 		}
 		else
 		{
+			iterator->UpdateState(m_MouseData); // To give mouse data to the controls
 			iterator->SetState(EControlState::Normal);
 		}
 	}

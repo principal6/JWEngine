@@ -28,6 +28,9 @@ int main()
 		myGUI.AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 0), D3DXVECTOR2(0, 0));
 		myGUI.AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 20), D3DXVECTOR2(0, 0));
 
+		myGUI.AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 0), D3DXVECTOR2(160, 40));
+		myGUI.GetControlPointer(7)->MakeScrollBar(EScrollBarDirection::Horizontal);
+
 		myGUI.SetMainLoopFunction(MainLoop);
 
 		myGUI.Run();

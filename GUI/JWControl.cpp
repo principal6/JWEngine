@@ -169,6 +169,8 @@ void JWControl::OnMouseUp(LPARAM MousePosition)
 
 void JWControl::UpdateState(const SMouseData& MouseData)
 {
+	m_UpdatedMousedata = MouseData;
+
 	if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
 	{
 		// Mouse position is inside RECT
@@ -295,6 +297,14 @@ auto JWControl::GetText()->WSTRING
 auto JWControl::GetControlType() const->EControlType
 {
 	return m_Type;
+}
+
+auto JWControl::GetClientMouseDownPosition() const->POINT
+{
+	POINT Result{ 0, 0 };
+	Result.x = m_UpdatedMousedata.MouseDownPosition.x - static_cast<LONG>(m_PositionClient.x);
+	Result.y = m_UpdatedMousedata.MouseDownPosition.y - static_cast<LONG>(m_PositionClient.y);
+	return Result;
 }
 
 void JWControl::ShouldDrawBorder(bool Value)

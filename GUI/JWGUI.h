@@ -10,6 +10,7 @@
 #include "JWEdit.h"
 #include "JWCheckBox.h"
 #include "JWRadioBox.h"
+#include "JWScrollBar.h"
 
 // @WARNING: ONE GUI PER ONE WINDOW!!
 

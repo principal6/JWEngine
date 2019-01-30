@@ -22,6 +22,7 @@ namespace JWENGINE
 		Edit,
 		CheckBox,
 		RadioBox,
+		ScrollBar,
 	};
 
 	enum EControlState
@@ -38,6 +39,12 @@ namespace JWENGINE
 		Right,
 		Up,
 		Down,
+	};
+
+	enum class EScrollBarDirection
+	{
+		Horizontal,
+		Vertical,
 	};
 
 	static inline auto Static_IsMouseInRECT(const POINT& Position, const RECT& Rect)->bool
@@ -63,8 +70,9 @@ namespace JWENGINE
 
 		// Sub-class maker
 		virtual void MakeImageButton(WSTRING TextureAtlasFileName, D3DXVECTOR2 ButtonSizeInTexture, D3DXVECTOR2 NormalOffset,
-			D3DXVECTOR2 HoverOffset, D3DXVECTOR2 PressedOffset) {};
-		virtual void MakeSystemArrowButton(ESystemArrowDirection Direction) {};
+			D3DXVECTOR2 HoverOffset, D3DXVECTOR2 PressedOffset) {}; // ImageButton
+		virtual void MakeSystemArrowButton(ESystemArrowDirection Direction) {}; // ImageButton
+		virtual void MakeScrollBar(EScrollBarDirection Direction) {}; // ScrollBar
 
 		// Mouse
 		virtual auto IsMouseOver(const SMouseData& MouseData)->bool;
@@ -108,6 +116,7 @@ namespace JWENGINE
 		virtual auto GetSize()->D3DXVECTOR2;
 		virtual auto GetText()->WSTRING;
 		virtual auto GetControlType() const->EControlType;
+		virtual auto GetClientMouseDownPosition() const->POINT;
 
 		// Property setter/getter
 		virtual void ShouldDrawBorder(bool Value);
@@ -144,6 +153,7 @@ namespace JWENGINE
 		// Mouse
 		POINT m_MousePosition;
 		bool m_MouseLeftDown;
+		SMouseData m_UpdatedMousedata;
 
 		// Keyboard
 		bool m_bControlDown;
