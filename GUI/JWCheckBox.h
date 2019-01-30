@@ -1,0 +1,35 @@
+#pragma once
+
+#include "JWControl.h"
+
+namespace JWENGINE
+{
+	// ***
+	// *** Forward declaration ***
+	class JWImage;
+	// ***
+
+	class JWCheckBox final : public JWControl
+	{
+	public:
+		JWCheckBox();
+		~JWCheckBox() {};
+
+		auto Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError override;
+		void Destroy() override;
+
+		void Draw() override;
+
+		void SetPosition(D3DXVECTOR2 Position) override;
+		void SetSize(D3DXVECTOR2 Size) override;
+
+	private:
+		JWImage* m_pBackground;
+		JWImage* m_pCheckImage;
+
+		D3DXVECTOR2 m_ButtonImageOffset;
+		D3DXVECTOR2 m_OffsetInAtlas;
+
+		bool m_bChecked;
+	};
+};
