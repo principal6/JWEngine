@@ -45,6 +45,8 @@ namespace JWENGINE
 		void InsertNewLine();
 		void InsertChar(wchar_t Char);
 
+		void UpdateTextCaretSelection();
+
 	private:
 		static const BYTE DEFUALT_ALPHA_BACKGROUND = 255;
 		static const DWORD DEFAULT_COLOR_BACKGROUND = D3DCOLOR_XRGB(200, 200, 200);
@@ -65,5 +67,6 @@ namespace JWENGINE
 		size_t m_IMETempSel;
 
 		ULONGLONG m_CaretTickCount;
+		WSTRING m_ClipText;
 	};
 };

@@ -128,7 +128,7 @@ PRIVATE void JWEdit::UpdateCaret()
 	}
 	else
 	{
-		// No selection??
+		// No selection
 		CaretPosition.x += m_pFont->GetCharXPositionInLine(m_SelEndLineData.LineSelPosition, m_SelEndLineData.LineText);
 		CaretPosition.y += m_pFont->GetLineYPosition(m_SelEndLineData.LineIndex);
 		m_pCaretSelPosition = &m_SelEnd;
@@ -472,56 +472,105 @@ void JWEdit::CheckIME()
 	}
 }
 
-PRIVATE void JWEdit::EraseSelectedText()
+void CopyToClipboard(WSTRING Text)
 {
-	size_t erase_count = m_SelEnd - m_SelStart;
-	m_Text.erase(m_SelStart, erase_count);
-	m_SelEnd = m_SelStart;
-}
+	if (!Text.length())
+		return;
 
-PRIVATE void JWEdit::EraseAfter()
-{
-	m_Text.erase(m_SelStart, 1);
-}
+	const wchar_t* copy_text = Text.c_str();
+	const size_t copy_length = (Text.length() + 1) * 2;
 
-PRIVATE void JWEdit::EraseBefore()
-{
-	if (m_SelStart)
+	OpenClipboard(0);
+	EmptyClipboard();
+
+	HGLOBAL hGlobal = nullptr;
+	while (!hGlobal)
 	{
-		m_Text.erase(m_SelStart - 1, 1);
-
-		m_SelStart--;
-		m_SelEnd = m_SelStart;
+		hGlobal = GlobalAlloc(GMEM_MOVEABLE, copy_length);
 	}
+
+	memcpy(GlobalLock(hGlobal), copy_text, copy_length);
+	GlobalUnlock(hGlobal);
+	SetClipboardData(CF_UNICODETEXT, hGlobal);
+	CloseClipboard();
+	GlobalFree(hGlobal);
 }
 
-PRIVATE void JWEdit::InsertNewLine()
+void PasteFromClipboard(WSTRING& Text)
 {
-	m_Text = m_Text.insert(m_SelEnd, 1, L'\n');
-	m_SelStart++;
-	m_SelEnd = m_SelStart;
+	LPCTSTR temp_string = nullptr;
+
+	OpenClipboard(0);
+	
+	HGLOBAL hGlobal = GetClipboardData(CF_UNICODETEXT);
+	if (hGlobal)
+	{
+		temp_string = static_cast<LPCTSTR>(GlobalLock(hGlobal));
+
+		if (temp_string)
+		{
+			GlobalUnlock(hGlobal);
+		}
+	}
+	CloseClipboard();
+
+	Text = temp_string;
 }
 
-PRIVATE void JWEdit::InsertChar(wchar_t Char)
+PRIVATE void JWEdit::UpdateTextCaretSelection()
 {
-	m_Text = m_Text.insert(m_SelStart, 1, Char);
+	m_pFont->ClearText();
+	m_pFont->AddText(m_Text, m_PositionClient, m_Size);
 
-	m_SelStart++;
-	m_SelEnd = m_SelStart;
+	GetSelStartAndEndData();
+	UpdateCaret();
+	UpdateSelection();
 }
 
 void JWEdit::OnCharKey(WPARAM Char)
 {
 	wchar_t wchar = static_cast<wchar_t>(Char);
 
-	if (wchar == 27) // Escape
+	if (wchar == 3) // Ctrl + c
+	{
+		m_ClipText = m_Text.substr(m_SelStart, m_SelEnd - m_SelStart);
+		CopyToClipboard(m_ClipText);
+
+		return;
+	}
+	else if (wchar == 22) // Ctrl + v
+	{
+		PasteFromClipboard(m_ClipText);
+		for (size_t iterator = 0; iterator < m_ClipText.size(); iterator++)
+		{
+			InsertChar(static_cast<wchar_t>(m_ClipText[iterator]));
+		}
+
+		UpdateTextCaretSelection();
+
+		return;
+	}
+	else if (wchar == 24) // Ctrl + x
+	{
+		m_ClipText = m_Text.substr(m_SelStart, m_SelEnd - m_SelStart);
+		CopyToClipboard(m_ClipText);
+		EraseSelectedText();
+
+		UpdateTextCaretSelection();
+
+		return;
+	}
+	else if (wchar == 26) // Ctrl + z
+	{
+
+		return;
+	}
+	else if (wchar == 27) // Escape
 	{
 		m_SelStart = *m_pCaretSelPosition;
 		m_SelEnd = *m_pCaretSelPosition;
 
-		GetSelStartAndEndData();
-		UpdateCaret();
-		UpdateSelection();
+		UpdateTextCaretSelection();
 
 		return;
 	}
@@ -562,14 +611,47 @@ void JWEdit::OnCharKey(WPARAM Char)
 		}
 	}
 
-	m_pFont->ClearText();
-	m_pFont->AddText(m_Text, m_PositionClient, m_Size);
-
-	GetSelStartAndEndData();
-	UpdateCaret();
-	UpdateSelection();
+	UpdateTextCaretSelection();
 
 	Sleep(60);
+}
+
+PRIVATE void JWEdit::EraseSelectedText()
+{
+	size_t erase_count = m_SelEnd - m_SelStart;
+	m_Text.erase(m_SelStart, erase_count);
+	m_SelEnd = m_SelStart;
+}
+
+PRIVATE void JWEdit::EraseAfter()
+{
+	m_Text.erase(m_SelStart, 1);
+}
+
+PRIVATE void JWEdit::EraseBefore()
+{
+	if (m_SelStart)
+	{
+		m_Text.erase(m_SelStart - 1, 1);
+
+		m_SelStart--;
+		m_SelEnd = m_SelStart;
+	}
+}
+
+PRIVATE void JWEdit::InsertNewLine()
+{
+	m_Text = m_Text.insert(m_SelEnd, 1, L'\n');
+	m_SelStart++;
+	m_SelEnd = m_SelStart;
+}
+
+PRIVATE void JWEdit::InsertChar(wchar_t Char)
+{
+	m_Text = m_Text.insert(m_SelStart, 1, Char);
+
+	m_SelStart++;
+	m_SelEnd = m_SelStart;
 }
 
 void JWEdit::OnMouseDown(LPARAM MousePosition)
