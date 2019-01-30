@@ -33,7 +33,8 @@ auto JWScrollBar::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Positio
 		if (JW_FAILED(m_pBackground->Create(ms_pWindow, ms_BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 
-		m_pBackground->SetXRGB(DEFAULT_COLOR_ALMOST_WHITE);
+		//m_pBackground->SetXRGB(DEFAULT_COLOR_ALMOST_WHITE);
+		m_pBackground->SetXRGB(DEFAULT_COLOR_NORMAL);
 	}
 	else
 	{
@@ -70,6 +71,9 @@ auto JWScrollBar::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Positio
 			return EError::IMAGEBUTTON_NOT_CREATED;
 
 		m_pScroller->ShouldDrawBorder(false);
+		m_pScroller->SetButtonColor(EControlState::Normal, DEFAULT_COLOR_LESS_WHITE);
+		m_pScroller->SetButtonColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_WHITE);
+		m_pScroller->SetButtonColor(EControlState::Pressed, DEFAULT_COLOR_WHITE);
 	}
 	else
 	{
@@ -139,7 +143,7 @@ void JWScrollBar::UpdateState(const SMouseData& MouseData)
 	{
 		if (m_bScrollerCaptured == false)
 		{
-			m_CapturedScrollerPosition = m_ScrollerPosition;
+			m_CapturedScrollerPosition = m_ScrollerPosition - GUI_BUTTON_SIZE;
 			m_bScrollerCaptured = true;
 		}
 
@@ -157,6 +161,8 @@ void JWScrollBar::UpdateState(const SMouseData& MouseData)
 		}
 		else
 		{
+			// When left button is released
+
 			m_pScroller->UpdateState(MouseData);
 
 			m_CapturedScrollerPosition.x = 0;
