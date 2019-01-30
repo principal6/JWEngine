@@ -7,6 +7,10 @@ using namespace JWENGINE;
 JWTextButton::JWTextButton()
 {
 	m_pImage = nullptr;
+
+	m_Color_Normal = DEFAULT_COLOR_NORMAL;
+	m_Color_Hover = DEFAULT_COLOR_HOVER;
+	m_Color_Pressed = DEFAULT_COLOR_PRESSED;
 }
 
 auto JWTextButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -20,7 +24,7 @@ auto JWTextButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Positi
 			return EError::IMAGE_NOT_CREATED;
 		m_pImage->SetSize(m_Size);
 		m_pImage->SetPosition(m_PositionClient);
-		m_pImage->SetXRGB(DEFAULT_COLOR_NORMAL);
+		m_pImage->SetXRGB(m_Color_Normal);
 		m_pImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 	}
 	else
@@ -49,13 +53,13 @@ void JWTextButton::Draw()
 	switch (m_State)
 	{
 	case JWENGINE::Normal:
-		m_pImage->SetXRGB(DEFAULT_COLOR_NORMAL);
+		m_pImage->SetXRGB(m_Color_Normal);
 		break;
 	case JWENGINE::Hover:
-		m_pImage->SetXRGB(DEFAULT_COLOR_HOVER);
+		m_pImage->SetXRGB(m_Color_Hover);
 		break;
 	case JWENGINE::Pressed:
-		m_pImage->SetXRGB(DEFAULT_COLOR_PRESSED);
+		m_pImage->SetXRGB(m_Color_Pressed);
 		break;
 	case JWENGINE::Clicked:
 		break;
@@ -83,4 +87,24 @@ void JWTextButton::SetSize(D3DXVECTOR2 Size)
 {
 	JWControl::SetSize(Size);
 	m_pImage->SetSize(Size);
+}
+
+void JWTextButton::SetButtonColor(EControlState State, DWORD Color)
+{
+	switch (State)
+	{
+	case JWENGINE::Normal:
+		m_Color_Normal = Color;
+		break;
+	case JWENGINE::Hover:
+		m_Color_Hover = Color;
+		break;
+	case JWENGINE::Pressed:
+		m_Color_Pressed = Color;
+		break;
+	case JWENGINE::Clicked:
+		break;
+	default:
+		break;
+	}
 }

@@ -120,6 +120,7 @@ namespace JWENGINE
 
 		// Property setter/getter
 		virtual void ShouldDrawBorder(bool Value);
+		virtual void SetButtonColor(EControlState State, DWORD Color) {}; // TextButton
 		virtual void SetCheckState(bool Value) {}; // CheckBox / RadioBox
 		virtual auto GetCheckState() const->bool { return true; }; // CheckBox / RadioBox
 		virtual void SetScrollRange(size_t Max) {}; // ScrollBar
@@ -134,7 +135,9 @@ namespace JWENGINE
 		static const DWORD DEFAULT_COLOR_HOVER = D3DCOLOR_XRGB(180, 180, 180);
 		static const DWORD DEFAULT_COLOR_PRESSED = D3DCOLOR_XRGB(80, 80, 255);
 		static const DWORD DEFAULT_COLOR_BORDER = D3DCOLOR_XRGB(20, 20, 60);
+		static const DWORD DEFAULT_COLOR_LESS_WHITE = D3DCOLOR_XRGB(200, 200, 200);
 		static const DWORD DEFAULT_COLOR_ALMOST_WHITE = D3DCOLOR_XRGB(230, 230, 230);
+		static const DWORD DEFAULT_COLOR_WHITE = D3DCOLOR_XRGB(255, 255, 255);
 
 		static WSTRING ms_BaseDir;
 		static JWWindow* ms_pWindow;
