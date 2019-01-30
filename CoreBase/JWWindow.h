@@ -78,6 +78,9 @@ namespace JWENGINE
 		auto GetWindowData()->SWindowData*;
 		auto GetMouseData()->SMouseData*;
 		auto GetRenderRect()->RECT;
+		auto GetpIMEChar() const->TCHAR*;
+		auto IsIMEWriting() const->bool;
+		auto IsIMECompleted()->bool;
 
 		// Dialog
 		void SetDlgBase();
@@ -93,6 +96,7 @@ namespace JWENGINE
 		auto OnMouseMove()->bool;
 
 	private:
+		friend LRESULT CALLBACK BaseWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 		auto CreateWINAPIWindow(const wchar_t* Name, CINT X, CINT Y, CINT Width, CINT Height,
 			EWindowStyle WindowStyle, DWORD BackColor, WNDPROC Proc, LPCWSTR MenuName = nullptr, HWND hWndParent = nullptr)->HWND;
 		auto InitializeDirectX()->int;
@@ -107,6 +111,9 @@ namespace JWENGINE
 		static const int VERTICAL_SCROLL_BAR_WIDTH = 20;
 		static const int HORIZONTAL_SCROLL_BAR_HEIGHT = 20;
 		static int ms_ChildWindowCount;
+		static TCHAR ms_IMEChar[MAX_FILE_LEN];
+		static bool ms_IMEWriting;
+		static bool ms_IMECompleted;
 		
 		HINSTANCE m_hInstance;
 		HWND m_hWnd;

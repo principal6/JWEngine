@@ -25,7 +25,7 @@ auto JWGUI::Create(JWWindow* pWindow)->EError
 
 	AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 50), L"레이블입니다");
 
-	AddControl(EControlType::Edit, D3DXVECTOR2(100, 120), D3DXVECTOR2(150, 60), L"이번엔abcd말고\n한글 ttTT!!ㅋ\nThe third line");
+	AddControl(EControlType::Edit, D3DXVECTOR2(100, 120), D3DXVECTOR2(150, 60), L"abcdefg\nThe second line");
 
 	return EError::OK;
 }
@@ -177,10 +177,15 @@ PRIVATE void JWGUI::MainLoop()
 	// Call event handlers of the control with focus
 	if (m_pControlWithFocus)
 	{
+		m_pControlWithFocus->CheckIME();
+
 		switch (m_MSG.message)
 		{
 		case WM_KEYDOWN:
 			m_pControlWithFocus->OnKeyDown(m_MSG.wParam);
+			break;
+		case WM_CHAR:
+			m_pControlWithFocus->OnCharKey(m_MSG.wParam);
 			break;
 		case WM_KEYUP:
 			m_pControlWithFocus->OnKeyUp(m_MSG.wParam);

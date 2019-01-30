@@ -12,6 +12,7 @@
 
 #pragma comment (lib, "d3dx9.lib")
 #pragma comment (lib, "d3d9.lib")
+#pragma comment (lib, "Imm32.lib")
 
 #ifndef CONVENIENT_STD
 #define CONVENIENT_STD
@@ -205,10 +206,11 @@ namespace JWENGINE
 	struct SLineData
 	{
 		WSTRING LineText;
+		size_t LineLength;
 		size_t LineSelPosition;
 		size_t LineIndex;
 
-		SLineData() : LineSelPosition(0), LineIndex(0) {};
+		SLineData() : LineLength(0), LineSelPosition(0), LineIndex(0) {};
 	};
 
 	inline static void ConvertFrameIDIntoUV(int FrameID, POINT SpriteSize, POINT SheetSize, int NumCols, int NumRows, STextureUV* UV)
@@ -346,6 +348,7 @@ namespace JWENGINE
 				if (Result.LineIndex == line_count)
 				{
 					Result.LineText = Text.substr(iterator_prev, iterator - iterator_prev);
+					Result.LineLength = Result.LineText.length();
 					Result.LineSelPosition = 0;
 					return Result;
 				}
@@ -375,6 +378,7 @@ namespace JWENGINE
 				if (Result.LineIndex == line_count)
 				{
 					Result.LineText = Text.substr(iterator_prev, iterator - iterator_prev);
+					Result.LineLength = Result.LineText.length();
 					Result.LineSelPosition = 0;
 					return Result;
 				}
@@ -402,6 +406,7 @@ namespace JWENGINE
 				if (SelPosition <= iterator)
 				{
 					Result.LineText = Text.substr(iterator_prev, iterator - iterator_prev);
+					Result.LineLength = Result.LineText.length();
 					Result.LineSelPosition = SelPosition - iterator_prev;
 					Result.LineIndex = line_count;
 					return Result;
@@ -414,11 +419,30 @@ namespace JWENGINE
 		return Result;
 	}
 
+	// Template function
 	template <typename T>
-	void Swap(T& v1, T& v2)
+	static void Swap(T& v1, T& v2)
 	{
 		T temp = v1;
 		v1 = v2;
 		v2 = temp;
+	}
+
+	static void SIZE_T_MINUS(size_t& var, const size_t value)
+	{
+		if (var >= value)
+			var -= value;
+	}
+
+	static void SIZE_T_PLUS(size_t& var, const size_t value, const size_t& upper_limit)
+	{
+		if (var + value <= upper_limit)
+		{
+			var += value;
+		}
+		else
+		{
+			var = upper_limit;
+		}
 	}
 };

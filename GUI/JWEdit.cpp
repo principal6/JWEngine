@@ -13,6 +13,9 @@ JWEdit::JWEdit()
 
 	m_SelStart = 0;
 	m_SelEnd = 0;
+	m_pCaretSelPosition = nullptr;
+	m_CapturedSelPosition = 0;
+	m_IMETempSel = 0;
 }
 
 auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -67,7 +70,10 @@ void JWEdit::Destroy()
 
 void JWEdit::Draw()
 {
-	JWControl::Draw();
+	if (!ms_pWindow->IsIMEWriting())
+	{
+		JWControl::Draw();
+	}
 
 	m_pFont->Draw();
 
@@ -95,16 +101,26 @@ PRIVATE void JWEdit::GetSelStartAndEndData()
 
 PRIVATE void JWEdit::UpdateCaret()
 {
-	if (m_Text.length())
-	{
-		D3DXVECTOR2 CaretSize = D3DXVECTOR2(0, m_pFont->GetLineHeight());
+	D3DXVECTOR2 CaretSize = D3DXVECTOR2(0, m_pFont->GetLineHeight());
 
-		D3DXVECTOR2 CaretPosition = m_PositionClient;
+	D3DXVECTOR2 CaretPosition = m_PositionClient;
+
+	if (m_SelStart < m_CapturedSelPosition)
+	{
+		// There is selection
+		CaretPosition.x += m_pFont->GetCharXPositionInLine(m_SelStartLineData.LineSelPosition, m_SelStartLineData.LineText);
+		CaretPosition.y += m_pFont->GetLineYPosition(m_SelStartLineData.LineIndex);
+		m_pCaretSelPosition = &m_SelStart;
+	}
+	else
+	{
+		// No selection??
 		CaretPosition.x += m_pFont->GetCharXPositionInLine(m_SelEndLineData.LineSelPosition, m_SelEndLineData.LineText);
 		CaretPosition.y += m_pFont->GetLineYPosition(m_SelEndLineData.LineIndex);
-
-		m_pCaret->SetLine(0, CaretPosition, CaretSize);
+		m_pCaretSelPosition = &m_SelEnd;
 	}
+		
+	m_pCaret->SetLine(0, CaretPosition, CaretSize);
 }
 
 PRIVATE void JWEdit::UpdateSelection()
@@ -193,89 +209,341 @@ PRIVATE void JWEdit::UpdateSelection()
 			m_pSelection->ClearAllRectangles();
 		}
 	}
+	else
+	{
+		// No text => That is, no selection!
+		m_pSelection->ClearAllRectangles();
+	}
+}
+
+PRIVATE auto JWEdit::IsTextSelected() const->bool
+{
+	if (m_SelStart == m_SelEnd)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+PRIVATE void JWEdit::SelectionToLeft(size_t Stride)
+{
+	if (Stride == 0)
+		return;
+
+	if (m_SelStart == m_SelEnd)
+	{
+		SIZE_T_MINUS(m_SelStart, Stride);
+	}
+	else
+	{
+		SIZE_T_MINUS(*m_pCaretSelPosition, Stride);
+		if (m_SelEnd < m_SelStart)
+		{
+			Swap(m_SelStart, m_SelEnd);
+		}
+	}
+}
+
+PRIVATE void JWEdit::SelectionToRight(size_t Stride)
+{
+	if (Stride == 0)
+		return;
+
+	if (m_SelStart == m_SelEnd)
+	{
+		SIZE_T_PLUS(m_SelEnd, Stride, m_Text.length());
+	}
+	else
+	{
+		SIZE_T_PLUS(*m_pCaretSelPosition, Stride, m_Text.length());
+		if (m_SelEnd < m_SelStart)
+		{
+			Swap(m_SelStart, m_SelEnd);
+		}
+	}
 }
 
 void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 {
 	JWControl::OnKeyDown(VirtualKeyCode);
 
-	switch (VirtualKeyCode)
+	if (m_bOnShiftPressed)
 	{
-	case VK_LEFT:
-		if (m_bShiftPressed)
+		if (IsTextSelected())
 		{
-			// Shift key pressed, selection!
-			if (m_SelEnd)
+			// Shift pressed when there is selection
+			if (m_pCaretSelPosition == &m_SelStart)
 			{
-				m_SelEnd--;
-				Sleep(50);
+				// Selection is from right to left
+				m_CapturedSelPosition = m_SelEnd;
+			}
+			else
+			{
+				// Selection is from lefft to right
+				m_CapturedSelPosition = m_SelStart;
 			}
 		}
 		else
 		{
-			if (m_SelStart)
-			{
-				m_SelStart--;
-				Sleep(50);
-			}
+			// Shift pressed when there's no selection
+			m_CapturedSelPosition = m_SelStart;
+		}
+		
+		m_bOnShiftPressed = false;
+	}
+
+	SLineData current_line_data;
+	SLineData upper_line_data;
+
+	switch (VirtualKeyCode)
+	{
+	case VK_HOME:
+		current_line_data = GetLineDataFromSelPosition(m_Text, m_SelStart);
+		SelectionToLeft(current_line_data.LineSelPosition);
+		if (!m_bShiftDown)
+		{
+			m_SelEnd = m_SelStart;
+		}
+		break;
+	case VK_END:
+		current_line_data = GetLineDataFromSelPosition(m_Text, m_SelEnd);
+		SelectionToRight(current_line_data.LineLength - current_line_data.LineSelPosition);
+
+		if (!m_bShiftDown)
+		{
+			m_SelStart = m_SelEnd;
+		}
+		break;
+	case VK_DELETE:
+		if (IsTextSelected())
+		{
+			EraseSelectedText();
+		}
+		else
+		{
+			EraseAfter();
+		}
+		break;
+	case VK_LEFT:
+		SelectionToLeft();
+		if (!m_bShiftDown)
+		{
+			m_SelEnd = m_SelStart;
 		}
 		break;
 	case VK_RIGHT:
-		if (m_bShiftPressed)
+		SelectionToRight();
+		if (!m_bShiftDown)
 		{
-			// Shift key pressed, selection!
-			if (m_SelEnd < static_cast<UINT>(m_Text.length()))
-			{
-				m_SelEnd++;
-				Sleep(50);
-			}
+			m_SelStart = m_SelEnd;
+		}
+		break;
+	case VK_DOWN:
+		current_line_data = GetLineDataFromSelPosition(m_Text, *m_pCaretSelPosition);
+		
+		if (m_bShiftDown)
+		{
+			SelectionToRight(current_line_data.LineLength + 1);
 		}
 		else
 		{
-			if (m_SelStart < static_cast<UINT>(m_Text.length()))
+			if (*m_pCaretSelPosition + current_line_data.LineLength + 1 < m_Text.length())
 			{
-				m_SelStart++;
-				Sleep(50);
+				SelectionToRight(current_line_data.LineLength + 1);
 			}
+			m_SelStart = m_SelEnd;
+		}
+		break;
+	case VK_UP:
+		// Current line's data
+		current_line_data = GetLineDataFromSelPosition(m_Text, *m_pCaretSelPosition);
+
+		// Upper line's data
+		upper_line_data = GetLineDataFromSelPosition(m_Text, *m_pCaretSelPosition - (current_line_data.LineSelPosition + 1));
+		
+		if (current_line_data.LineSelPosition > upper_line_data.LineLength)
+		{
+			SelectionToLeft(current_line_data.LineSelPosition + 1);
+		}
+		else
+		{
+			SelectionToLeft(upper_line_data.LineLength + 1);
+		}
+		
+		if (!m_bShiftDown)
+		{
+			m_SelEnd = m_SelStart;
 		}
 		break;
 	}
 
-	if (!m_bShiftPressed)
-	{
-		m_SelEnd = m_SelStart;
-	}
+	GetSelStartAndEndData();
+	UpdateCaret();
+	UpdateSelection();
 
-	if (m_SelEnd < m_SelStart)
+	Sleep(60);
+}
+
+void JWEdit::CheckIME()
+{
+	if (ms_pWindow->IsIMEWriting())
 	{
+		if (IsTextSelected())
+		{
+			EraseSelectedText();
+
+			m_pFont->ClearText();
+			m_pFont->AddText(m_Text, m_PositionClient, m_Size);
+
+			GetSelStartAndEndData();
+			UpdateCaret();
+			UpdateSelection();
+		}
+
+		TCHAR* pTCHAR = ms_pWindow->GetpIMEChar();
+
+		m_IMETempSel = m_SelStart;
+		m_IMETempText = m_Text;
+
+		m_Text = m_Text.insert(m_SelStart, 1, pTCHAR[0]);
+
+		m_pFont->ClearText();
+		m_pFont->AddText(m_Text, m_PositionClient, m_Size);
+
+		m_SelStart++;
+		m_SelEnd++;
+
 		GetSelStartAndEndData();
 		UpdateCaret();
-
-		Swap(m_SelStart, m_SelEnd);
-
-		GetSelStartAndEndData();
 		UpdateSelection();
 
-		std::cout << "SWAPED = S: " << m_SelStart << "  E: " << m_SelEnd << std::endl;
-
-		Swap(m_SelStart, m_SelEnd);
+		m_Text = m_IMETempText;
+		m_SelStart = m_IMETempSel;
+		m_SelEnd = m_IMETempSel;
 	}
-	else
+
+	if (ms_pWindow->IsIMECompleted())
 	{
+		TCHAR* pTCHAR = ms_pWindow->GetpIMEChar();
+
+		if (pTCHAR[0])
+		{
+			m_Text = m_Text.insert(m_SelStart, 1, pTCHAR[0]);
+
+			m_pFont->ClearText();
+			m_pFont->AddText(m_Text, m_PositionClient, m_Size);
+
+			m_SelStart++;
+			m_SelEnd++;
+		}
+
 		GetSelStartAndEndData();
 		UpdateCaret();
 		UpdateSelection();
 	}
 }
 
-void JWEdit::OnKeyUp(WPARAM VirtualKeyCode)
+PRIVATE void JWEdit::EraseSelectedText()
 {
-	JWControl::OnKeyUp(VirtualKeyCode);
+	size_t erase_count = m_SelEnd - m_SelStart;
+	m_Text.erase(m_SelStart, erase_count);
+	m_SelEnd = m_SelStart;
+}
 
-	if (m_bShiftUp)
+PRIVATE void JWEdit::EraseAfter()
+{
+	m_Text.erase(m_SelStart, 1);
+}
+
+PRIVATE void JWEdit::EraseBefore()
+{
+	if (m_SelStart)
 	{
-		m_SelStart = m_SelEnd;
+		m_Text.erase(m_SelStart - 1, 1);
+
+		m_SelStart--;
+		m_SelEnd = m_SelStart;
 	}
+}
+
+PRIVATE void JWEdit::InsertNewLine()
+{
+	m_Text = m_Text.insert(m_SelEnd, 1, L'\n');
+	m_SelStart++;
+	m_SelEnd = m_SelStart;
+}
+
+PRIVATE void JWEdit::InsertChar(wchar_t Char)
+{
+	m_Text = m_Text.insert(m_SelStart, 1, Char);
+
+	m_SelStart++;
+	m_SelEnd = m_SelStart;
+}
+
+void JWEdit::OnCharKey(WPARAM Char)
+{
+	wchar_t wchar = static_cast<wchar_t>(Char);
+
+	if (wchar == 27) // Escape
+	{
+		m_SelStart = *m_pCaretSelPosition;
+		m_SelEnd = *m_pCaretSelPosition;
+
+		GetSelStartAndEndData();
+		UpdateCaret();
+		UpdateSelection();
+
+		return;
+	}
+
+	if (IsTextSelected())
+	{
+		if (wchar == 8) // Backspace
+		{
+			EraseSelectedText();
+		}
+		else if (wchar == 13) // Enter
+		{
+			EraseSelectedText();
+			InsertNewLine();
+		}
+		else
+		{
+			// Char
+			EraseSelectedText();
+			InsertChar(wchar);
+		}
+	}
+	else
+	{
+		// No selection
+		if (wchar == 8) // Backspace
+		{
+			EraseBefore();
+		}
+		else if (wchar == 13) // Enter
+		{
+			InsertNewLine();
+		}
+		else
+		{
+			// Char
+			InsertChar(wchar);
+		}
+	}
+
+	m_pFont->ClearText();
+	m_pFont->AddText(m_Text, m_PositionClient, m_Size);
+
+	GetSelStartAndEndData();
+	UpdateCaret();
+	UpdateSelection();
+
+	Sleep(60);
 }
 
 void JWEdit::OnMouseDown(LPARAM MousePosition)
@@ -290,6 +558,7 @@ void JWEdit::OnMouseDown(LPARAM MousePosition)
 		m_SelStartLineData.LineSelPosition = m_pFont->GetCharIndexInLine(NewPosition.x, m_SelStartLineData.LineText);
 		m_SelStart = ConvertLineSelPositionToSelPosition(m_Text, m_SelStartLineData.LineSelPosition, m_SelStartLineData.LineIndex);
 		m_SelEnd = m_SelStart;
+		m_CapturedSelPosition = m_SelStart;
 
 		GetSelStartAndEndData();
 		UpdateCaret();
@@ -309,29 +578,25 @@ void JWEdit::OnMouseMove(LPARAM MousePosition)
 		NewPosition.x = m_MousePosition.x - static_cast<LONG>(m_PositionClient.x);
 		NewPosition.y = m_MousePosition.y - static_cast<LONG>(m_PositionClient.y);
 
-		m_SelEndLineData = GetLineDataFromMousePosition(m_Text, NewPosition, m_pFont->GetLineHeight());
-		m_SelEndLineData.LineSelPosition = m_pFont->GetCharIndexInLine(NewPosition.x, m_SelEndLineData.LineText);
-		m_SelEnd = ConvertLineSelPositionToSelPosition(m_Text, m_SelEndLineData.LineSelPosition, m_SelEndLineData.LineIndex);
+		SLineData temp_data = GetLineDataFromMousePosition(m_Text, NewPosition, m_pFont->GetLineHeight());
+		temp_data.LineSelPosition = m_pFont->GetCharIndexInLine(NewPosition.x, temp_data.LineText);
+		size_t temp_sel_position = ConvertLineSelPositionToSelPosition(m_Text, temp_data.LineSelPosition, temp_data.LineIndex);
 
-		std::cout << "S: " << m_SelStart << "  E: " << m_SelEnd << std::endl;
-
-		if (m_SelEnd < m_SelStart)
+		if (temp_sel_position >= m_CapturedSelPosition)
 		{
-			Swap(m_SelStart, m_SelEnd);
-
-			GetSelStartAndEndData();
-			UpdateCaret();
-			UpdateSelection();
-
-			std::cout << "SWAPED = S: " << m_SelStart << "  E: " << m_SelEnd << std::endl;
-
-			Swap(m_SelStart, m_SelEnd);
+			m_SelEndLineData = GetLineDataFromMousePosition(m_Text, NewPosition, m_pFont->GetLineHeight());
+			m_SelEndLineData.LineSelPosition = m_pFont->GetCharIndexInLine(NewPosition.x, m_SelEndLineData.LineText);
+			m_SelEnd = ConvertLineSelPositionToSelPosition(m_Text, m_SelEndLineData.LineSelPosition, m_SelEndLineData.LineIndex);
 		}
 		else
 		{
-			GetSelStartAndEndData();
-			UpdateCaret();
-			UpdateSelection();
+			m_SelStartLineData = GetLineDataFromMousePosition(m_Text, NewPosition, m_pFont->GetLineHeight());
+			m_SelStartLineData.LineSelPosition = m_pFont->GetCharIndexInLine(NewPosition.x, m_SelStartLineData.LineText);
+			m_SelStart = ConvertLineSelPositionToSelPosition(m_Text, m_SelStartLineData.LineSelPosition, m_SelStartLineData.LineIndex);
 		}
+
+		GetSelStartAndEndData();
+		UpdateCaret();
+		UpdateSelection();
 	}
 }

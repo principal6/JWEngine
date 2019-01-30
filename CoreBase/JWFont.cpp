@@ -28,6 +28,21 @@ PRIVATE void JWFont::ClearString()
 	m_EntireString.clear();
 	m_StringLines.clear();
 
+	if (m_Vertices.size())
+	{
+		for (size_t iterator = 0; iterator <= m_ImageStringLength; iterator++)
+		{
+			m_Vertices[iterator * 4].u = 0;
+			m_Vertices[iterator * 4].v = 0;
+			m_Vertices[iterator * 4 + 1].u = 0;
+			m_Vertices[iterator * 4 + 1].v = 0;
+			m_Vertices[iterator * 4 + 2].u = 0;
+			m_Vertices[iterator * 4 + 2].v = 0;
+			m_Vertices[iterator * 4 + 3].u = 0;
+			m_Vertices[iterator * 4 + 3].v = 0;
+		}
+	}
+
 	m_ImageStringLength = 0;
 }
 
@@ -252,9 +267,6 @@ void JWFont::ClearText()
 
 auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError
 {
-	if (!MultilineText.size())
-		return EError::NULL_STRING;
-
 	if (m_EntireString.length() + MultilineText.length() > MAX_TEXT_LEN)
 		return EError::BUFFER_NOT_ENOUGH;
 
@@ -268,75 +280,78 @@ auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	m_pBox[m_pBox.size() - 1]->SetPosition(Position);
 	m_pBox[m_pBox.size() - 1]->SetSize(BoxSize);
 
-	// Parse MultilineText into m_StringLines[]
-	m_StringLines.clear();
-	int iterator_line_prev = 0;
-	for (int iterator_line = 0; iterator_line <= MultilineText.length(); iterator_line++)
+	if (MultilineText.size())
 	{
-		// Check new line('\n') and string end
-		if ((MultilineText[iterator_line] == L'\n') || iterator_line == MultilineText.length())
+		// Parse MultilineText into m_StringLines[]
+		m_StringLines.clear();
+		int iterator_line_prev = 0;
+		for (int iterator_line = 0; iterator_line <= MultilineText.length(); iterator_line++)
 		{
-			m_StringLines.push_back(MultilineText.substr(iterator_line_prev, iterator_line - iterator_line_prev));
-			iterator_line_prev = iterator_line + 1;
-		}
-	}
-
-	for (size_t iterator_line = 0; iterator_line < m_StringLines.size(); iterator_line++)
-	{
-		// Set vertical alignment offset (y position)
-		float VerticalAlignmentOffset = Position.y;
-		switch (m_VerticalAlignment)
-		{
-		case JWENGINE::EVerticalAlignment::Top:
-			break;
-		case JWENGINE::EVerticalAlignment::Middle:
-			VerticalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().y / 2.0f - GetLineYPosition(iterator_line) / 2.0f;
-			break;
-		case JWENGINE::EVerticalAlignment::Bottom:
-			VerticalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().y - GetLineYPosition(iterator_line);
-			break;
-		default:
-			break;
-		}
-
-		// Set horizontal alignment offset (x position)
-		float HorizontalAlignmentOffset = Position.x;
-		switch (m_HorizontalAlignment)
-		{
-		case JWENGINE::EHorizontalAlignment::Left:
-			break;
-		case JWENGINE::EHorizontalAlignment::Center:
-			HorizontalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().x / 2.0f
-				- GetLineLength(m_StringLines[iterator_line]) / 2.0f;
-			break;
-		case JWENGINE::EHorizontalAlignment::Right:
-			HorizontalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().x
-				- GetLineLength(m_StringLines[iterator_line]);
-			break;
-		default:
-			break;
-		}
-
-		wchar_t CharID = 0;
-		wchar_t CharIDPrev = 0;
-
-		// Make outter text images from the text string
-		for (size_t iterator_char = 0; iterator_char < m_StringLines[iterator_line].length(); iterator_char++)
-		{
-			// Find CharID in CharMap
-			CharID = 0;
-			auto iterator_line_character = m_FontData.CharMap.find(m_StringLines[iterator_line][iterator_char]);
-			if (iterator_line_character != m_FontData.CharMap.end())
+			// Check new line('\n') and string end
+			if ((MultilineText[iterator_line] == L'\n') || iterator_line == MultilineText.length())
 			{
-				// Set CharID value only if the key exists
-				CharID = static_cast<wchar_t>(iterator_line_character->second);
+				m_StringLines.push_back(MultilineText.substr(iterator_line_prev, iterator_line - iterator_line_prev));
+				iterator_line_prev = iterator_line + 1;
+			}
+		}
+
+		for (size_t iterator_line = 0; iterator_line < m_StringLines.size(); iterator_line++)
+		{
+			// Set vertical alignment offset (y position)
+			float VerticalAlignmentOffset = Position.y;
+			switch (m_VerticalAlignment)
+			{
+			case JWENGINE::EVerticalAlignment::Top:
+				break;
+			case JWENGINE::EVerticalAlignment::Middle:
+				VerticalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().y / 2.0f - GetLineYPosition(iterator_line) / 2.0f;
+				break;
+			case JWENGINE::EVerticalAlignment::Bottom:
+				VerticalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().y - GetLineYPosition(iterator_line);
+				break;
+			default:
+				break;
 			}
 
-			// Add wchar_t to the image string
-			AddChar(iterator_char, m_StringLines[iterator_line], iterator_line, CharID, CharIDPrev,
-				HorizontalAlignmentOffset, VerticalAlignmentOffset);
+			// Set horizontal alignment offset (x position)
+			float HorizontalAlignmentOffset = Position.x;
+			switch (m_HorizontalAlignment)
+			{
+			case JWENGINE::EHorizontalAlignment::Left:
+				break;
+			case JWENGINE::EHorizontalAlignment::Center:
+				HorizontalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().x / 2.0f
+					- GetLineLength(m_StringLines[iterator_line]) / 2.0f;
+				break;
+			case JWENGINE::EHorizontalAlignment::Right:
+				HorizontalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().x
+					- GetLineLength(m_StringLines[iterator_line]);
+				break;
+			default:
+				break;
+			}
 
-			CharIDPrev = CharID;
+			wchar_t CharID = 0;
+			wchar_t CharIDPrev = 0;
+
+			// Make outter text images from the text string
+			for (size_t iterator_char = 0; iterator_char < m_StringLines[iterator_line].length(); iterator_char++)
+			{
+				// Find CharID in CharMap
+				CharID = 0;
+				auto iterator_line_character = m_FontData.CharMap.find(m_StringLines[iterator_line][iterator_char]);
+				if (iterator_line_character != m_FontData.CharMap.end())
+				{
+					// Set CharID value only if the key exists
+					CharID = static_cast<wchar_t>(iterator_line_character->second);
+				}
+
+				// Add wchar_t to the image string
+				AddChar(iterator_char, m_StringLines[iterator_line], iterator_line, CharID, CharIDPrev,
+					HorizontalAlignmentOffset, VerticalAlignmentOffset);
+
+				CharIDPrev = CharID;
+			}
 		}
 	}
 

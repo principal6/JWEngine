@@ -56,10 +56,12 @@ namespace JWENGINE
 
 		// Event
 		virtual void OnKeyDown(WPARAM VirtualKeyCode);
+		virtual void OnCharKey(WPARAM Char) {};
 		virtual void OnKeyUp(WPARAM VirtualKeyCode);
 		virtual void OnMouseMove(LPARAM MousePosition);
 		virtual void OnMouseDown(LPARAM MousePosition);
 		virtual void OnMouseUp(LPARAM MousePosition);
+		virtual void CheckIME() {};
 
 		// Update
 		virtual void UpdateState(const SMouseData& MouseData);
@@ -124,11 +126,12 @@ namespace JWENGINE
 		bool m_MouseLeftDown;
 
 		// Keyboard
-		bool m_bControlPressed;
-		bool m_bShiftPressed;
-		bool m_bAltPressed;
+		bool m_bControlDown;
+		bool m_bShiftDown;
+		bool m_bAltDown;
 		bool m_bControlUp;
 		bool m_bShiftUp;
 		bool m_bAltUp;
+		bool m_bOnShiftPressed;
 	};
 };

@@ -23,13 +23,15 @@ JWControl::JWControl()
 	m_MousePosition = { 0, 0 };
 	m_MouseLeftDown = false;
 
-	m_bControlPressed = false;
-	m_bShiftPressed = false;
-	m_bAltPressed = false;
+	m_bControlDown = false;
+	m_bShiftDown = false;
+	m_bAltDown = false;
 
 	m_bControlUp = false;
 	m_bShiftUp = false;
 	m_bAltUp = false;
+
+	m_bOnShiftPressed = false;
 }
 
 auto JWControl::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -94,13 +96,17 @@ void JWControl::OnKeyDown(WPARAM VirtualKeyCode)
 	switch (VirtualKeyCode)
 	{
 	case VK_CONTROL:
-		m_bControlPressed = true;
+		m_bControlDown = true;
 		break;
 	case VK_SHIFT:
-		m_bShiftPressed = true;
+		if (m_bShiftDown == false)
+		{
+			m_bOnShiftPressed = true;
+		}
+		m_bShiftDown = true;
 		break;
 	case VK_MENU: // Alt key
-		m_bAltPressed = true;
+		m_bAltDown = true;
 		break;
 	}
 }
@@ -114,22 +120,23 @@ void JWControl::OnKeyUp(WPARAM VirtualKeyCode)
 	switch (VirtualKeyCode)
 	{
 	case VK_CONTROL:
-		if (m_bControlPressed)
+		if (m_bControlDown)
 			m_bControlUp = true;
 
-		m_bControlPressed = false;
+		m_bControlDown = false;
 		break;
 	case VK_SHIFT:
-		if (m_bShiftPressed)
+		if (m_bShiftDown)
 			m_bShiftUp = true;
 
-		m_bShiftPressed = false;
+		m_bShiftDown = false;
+		m_bOnShiftPressed = false;
 		break;
 	case VK_MENU: // Alt key
-		if (m_bAltPressed)
+		if (m_bAltDown)
 			m_bAltUp = true;
 
-		m_bAltPressed = false;
+		m_bAltDown = false;
 		break;
 	}
 }

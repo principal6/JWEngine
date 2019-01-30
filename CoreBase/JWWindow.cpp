@@ -4,15 +4,44 @@ using namespace JWENGINE;
 
 // Static member variable
 int JWWindow::ms_ChildWindowCount = 0;
+TCHAR JWWindow::ms_IMEChar[MAX_FILE_LEN]{};
+bool JWWindow::ms_IMEWriting = false;
+bool JWWindow::ms_IMECompleted = false;
 
 // Base window procedure for Game/GUI window
-LRESULT CALLBACK BaseWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK JWENGINE::BaseWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
+	HIMC hIMC = nullptr;
+
 	switch (Message)
 	{
 	case WM_SYSCOMMAND:
 		if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) // Disable Alt key
 			return 0;
+		break;
+	case WM_IME_COMPOSITION:
+		JWWindow::ms_IMEWriting = true;
+		JWWindow::ms_IMECompleted = false;
+		memset(JWWindow::ms_IMEChar, 0, MAX_FILE_LEN);
+		hIMC = ImmGetContext(hWnd);
+
+		if (lParam & GCS_COMPSTR)
+		{
+			ImmGetCompositionString(hIMC, GCS_COMPSTR, JWWindow::ms_IMEChar, MAX_FILE_LEN);
+			if (JWWindow::ms_IMEChar[0] == 0)
+			{
+				JWWindow::ms_IMEWriting = false;
+				JWWindow::ms_IMECompleted = true;
+			}
+		}
+		else if (lParam & GCS_RESULTSTR)
+		{
+			ImmGetCompositionString(hIMC, GCS_RESULTSTR, JWWindow::ms_IMEChar, MAX_FILE_LEN);
+			JWWindow::ms_IMEWriting = false;
+			JWWindow::ms_IMECompleted = true;
+		}
+
+		ImmReleaseContext(hWnd, hIMC);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -360,6 +389,29 @@ auto JWWindow::GetMouseData()->SMouseData*
 auto JWWindow::GetRenderRect()->RECT
 {
 	return m_RenderRect;
+}
+
+auto JWWindow::GetpIMEChar() const->TCHAR*
+{
+	return ms_IMEChar;
+}
+
+auto JWWindow::IsIMEWriting() const->bool
+{
+	return ms_IMEWriting;
+}
+
+auto JWWindow::IsIMECompleted()->bool
+{
+	if (ms_IMECompleted)
+	{
+		ms_IMECompleted = false;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 

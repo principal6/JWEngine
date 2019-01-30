@@ -25,14 +25,25 @@ namespace JWENGINE
 		void Focus() override;
 
 		void OnKeyDown(WPARAM VirtualKeyCode) override;
-		void OnKeyUp(WPARAM VirtualKeyCode) override;
+		void OnCharKey(WPARAM Char) override;
 		void OnMouseDown(LPARAM MousePosition) override;
 		void OnMouseMove(LPARAM MousePosition) override;
+		void CheckIME() override;
 
 	private:
+		void SelectionToLeft(size_t Stride = 1);
+		void SelectionToRight(size_t Stride = 1);
+
 		void GetSelStartAndEndData();
 		void UpdateCaret();
 		void UpdateSelection();
+
+		auto IsTextSelected() const->bool;
+		void EraseAfter();
+		void EraseBefore();
+		void EraseSelectedText();
+		void InsertNewLine();
+		void InsertChar(wchar_t Char);
 
 	private:
 		static const BYTE DEFUALT_ALPHA_BACKGROUND = 255;
@@ -43,8 +54,13 @@ namespace JWENGINE
 
 		size_t m_SelStart;
 		size_t m_SelEnd;
+		size_t m_CapturedSelPosition;
+		size_t* m_pCaretSelPosition;
 
 		SLineData m_SelStartLineData;
 		SLineData m_SelEndLineData;
+
+		WSTRING m_IMETempText;
+		size_t m_IMETempSel;
 	};
 };
