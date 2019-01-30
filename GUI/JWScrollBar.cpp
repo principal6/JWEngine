@@ -30,7 +30,6 @@ auto JWScrollBar::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Positio
 			return EError::IMAGE_NOT_CREATED;
 
 		m_pBackground->SetXRGB(DEFAULT_COLOR_ALMOST_WHITE);
-		//m_pBackground->SetXRGB(DEFAULT_COLOR_NORMAL);
 	}
 	else
 	{
@@ -63,7 +62,7 @@ auto JWScrollBar::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Positio
 
 	if (m_pScroller = new JWTextButton)
 	{
-		if (JW_FAILED(m_pScroller->Create(pWindow, BaseDir, Position, m_ScrollerSize)))
+		if (JW_FAILED(m_pScroller->Create(pWindow, BaseDir, Position, GUI_BUTTON_SIZE)))
 			return EError::IMAGEBUTTON_NOT_CREATED;
 
 		m_pScroller->ShouldDrawBorder(false);
@@ -73,8 +72,8 @@ auto JWScrollBar::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Positio
 		return EError::IMAGEBUTTON_NOT_CREATED;
 	}
 
-	SetSize(Size);
-	SetPosition(m_PositionClient);
+	//SetSize(Size);
+	//SetPosition(m_PositionClient);
 
 	// Set default font alignment
 	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
@@ -112,6 +111,8 @@ void JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)
 		break;
 	}
 
+	SetSize(m_Size);
+	SetPosition(m_PositionClient);
 	SetButtonSizeAndPosition();
 }
 
@@ -222,6 +223,8 @@ PRIVATE void JWScrollBar::SetButtonSizeAndPosition()
 	D3DXVECTOR2 NewSize = GUI_BUTTON_SIZE;
 	D3DXVECTOR2 APosition = D3DXVECTOR2(0, 0);
 	D3DXVECTOR2 BPosition = D3DXVECTOR2(0, 0);
+
+	D3DXVECTOR2 NewSizeDebug = m_ScrollerSize;
 
 	switch (m_ScrollBarDirection)
 	{
