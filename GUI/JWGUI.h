@@ -16,6 +16,8 @@ namespace JWENGINE
 {
 	static const wchar_t PROJECT_FOLDER[]{ L"\\GUI" };
 
+	using PF_MAINLOOP = void(*)();
+
 	class JWGUI final
 	{
 	public:
@@ -28,6 +30,9 @@ namespace JWENGINE
 		void Run();
 
 		auto AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text = L"")->EError;
+		auto GetControlPointer(size_t ControlIndex)->JWControl*;
+
+		void SetMainLoopFunction(PF_MAINLOOP pfMainLoop);
 
 	private:
 		void MainLoop();
@@ -45,5 +50,7 @@ namespace JWENGINE
 		SMouseData m_MouseData;
 
 		JWControl* m_pControlWithFocus;
+
+		PF_MAINLOOP m_pfMainLoop;
 	};
 };

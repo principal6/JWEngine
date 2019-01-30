@@ -127,33 +127,28 @@ void JWImageButton::SetSize(D3DXVECTOR2 Size)
 	m_pButtonImage->SetPosition(m_PositionClient + m_ButtonImageOffset);
 }
 
-void JWImageButton::SetControlAttibute(EControlType ControlType, UINT Value)
+void JWImageButton::SetImageButtonDireciton(EImageButtonDirection Direction)
 {
-	if (ControlType == EControlType::ImageButton)
-	{
-		EImageButtonDirection Direction = static_cast<EImageButtonDirection>(Value);
-		
-		m_bHorzFlip = false;
-		m_bVertFlip = false;
+	m_bHorzFlip = false;
+	m_bVertFlip = false;
 
-		switch (Direction)
-		{
-		case JWENGINE::EImageButtonDirection::Left:
-			m_OffsetInAtlas = D3DXVECTOR2(0, GUI_BUTTON_SIZE.y);
-			break;
-		case JWENGINE::EImageButtonDirection::Right:
-			m_OffsetInAtlas = D3DXVECTOR2(0, GUI_BUTTON_SIZE.y);
-			m_bHorzFlip = true;
-			break;
-		case JWENGINE::EImageButtonDirection::Up:
-			m_OffsetInAtlas = D3DXVECTOR2(0, 0);
-			break;
-		case JWENGINE::EImageButtonDirection::Down:
-			m_OffsetInAtlas = D3DXVECTOR2(0, 0);
-			m_bVertFlip = true;
-			break;
-		default:
-			break;
-		}
+	switch (Direction)
+	{
+	case JWENGINE::EImageButtonDirection::Left:
+		m_OffsetInAtlas = D3DXVECTOR2(0, GUI_BUTTON_SIZE.y);
+		break;
+	case JWENGINE::EImageButtonDirection::Right:
+		m_OffsetInAtlas = D3DXVECTOR2(0, GUI_BUTTON_SIZE.y);
+		m_bHorzFlip = true;
+		break;
+	case JWENGINE::EImageButtonDirection::Up:
+		m_OffsetInAtlas = D3DXVECTOR2(0, 0);
+		break;
+	case JWENGINE::EImageButtonDirection::Down:
+		m_OffsetInAtlas = D3DXVECTOR2(0, 0);
+		m_bVertFlip = true;
+		break;
+	default:
+		break;
 	}
 }

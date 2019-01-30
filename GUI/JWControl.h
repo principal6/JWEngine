@@ -31,6 +31,14 @@ namespace JWENGINE
 		Clicked,
 	};
 
+	enum class EImageButtonDirection
+	{
+		Left,
+		Right,
+		Up,
+		Down,
+	};
+
 	static inline auto Static_IsMouseInRECT(const POINT& Position, const RECT& Rect)->bool
 	{
 		if ((Position.x >= Rect.left) && (Position.x <= Rect.right))
@@ -94,9 +102,10 @@ namespace JWENGINE
 		virtual auto GetSize()->D3DXVECTOR2;
 		virtual auto GetText()->WSTRING;
 
-		// Property setter
+		// Property setter/getter
 		virtual void ShouldDrawBorder(bool Value);
-		virtual void SetControlAttibute(EControlType ControlType, UINT Value) {};
+		virtual void SetImageButtonDireciton(EImageButtonDirection Direction) {}; // ImageButton
+		virtual auto GetCheckBoxState() const->bool { return true; }; // CheckBox
 
 	protected:
 		virtual void CalculateRECT();

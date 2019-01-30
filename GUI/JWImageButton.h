@@ -9,14 +9,6 @@ namespace JWENGINE
 	class JWImage;
 	// ***
 
-	enum class EImageButtonDirection
-	{
-		Left,
-		Right,
-		Up,
-		Down,
-	};
-
 	class JWImageButton final : public JWControl
 	{
 	public:
@@ -31,7 +23,7 @@ namespace JWENGINE
 		void SetPosition(D3DXVECTOR2 Position) override;
 		void SetSize(D3DXVECTOR2 Size) override;
 
-		void SetControlAttibute(EControlType ControlType, UINT Value) override;
+		void SetImageButtonDireciton(EImageButtonDirection Direction) override;
 
 	private:
 		JWImage* m_pBackground;

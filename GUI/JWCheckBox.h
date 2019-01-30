@@ -23,6 +23,8 @@ namespace JWENGINE
 		void SetPosition(D3DXVECTOR2 Position) override;
 		void SetSize(D3DXVECTOR2 Size) override;
 
+		auto GetCheckBoxState() const->bool override;
+
 	private:
 		JWImage* m_pBackground;
 		JWImage* m_pCheckImage;
