@@ -33,11 +33,13 @@ namespace JWENGINE
 		void SetScrollPosition(size_t Position) override;
 
 	private:
-		void SetButtonSizeAndPosition();
+		void SetButtonSize();
+		void SetButtonPosition();
 		void MoveScroller(D3DXVECTOR2 Move);
 
 	private:
 		static const int DEFAULT_SCROLLER_PADDING = 2;
+		static const int DEFAULT_PAGE_STRIDE = 5;
 
 		JWImage* m_pBackground;
 		JWImageButton* m_pButtonA;
@@ -52,5 +54,6 @@ namespace JWENGINE
 
 		size_t m_ScrollMax;
 		size_t m_ScrollPosition;
+		float m_ScrollableSize;
 	};
 };
