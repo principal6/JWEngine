@@ -127,7 +127,9 @@
     <ClInclude Include="..\CoreBase\JWRectangle.h" />
     <ClInclude Include="..\CoreBase\JWWindow.h" />
     <ClInclude Include="..\Dependency\tinyxml2.h" />
-    <ClInclude Include="JWButton.h" />
+    <ClInclude Include="JWCheckBox.h" />
+    <ClInclude Include="JWImageButton.h" />
+    <ClInclude Include="JWTextButton.h" />
     <ClInclude Include="JWControl.h" />
     <ClInclude Include="JWEdit.h" />
     <ClInclude Include="JWGUI.h" />
@@ -143,7 +145,9 @@
     <ClCompile Include="..\CoreBase\JWWindow.cpp" />
     <ClCompile Include="..\Dependency\tinyxml2.cpp" />
     <ClCompile Include="gui_main.cpp" />
-    <ClCompile Include="JWButton.cpp" />
+    <ClCompile Include="JWCheckBox.cpp" />
+    <ClCompile Include="JWImageButton.cpp" />
+    <ClCompile Include="JWTextButton.cpp" />
     <ClCompile Include="JWControl.cpp" />
     <ClCompile Include="JWEdit.cpp" />
     <ClCompile Include="JWGUI.cpp" />

@@ -9,11 +9,11 @@ namespace JWENGINE
 	class JWImage;
 	// ***
 
-	class JWButton final : public JWControl
+	class JWTextButton final : public JWControl
 	{
 	public:
-		JWButton();
-		~JWButton() {};
+		JWTextButton();
+		~JWTextButton() {};
 
 		auto Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError override;
 		void Destroy() override;

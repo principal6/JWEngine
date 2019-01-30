@@ -4,9 +4,11 @@
 #include "../CoreBase/JWLine.h"
 #include "../CoreBase/JWWindow.h"
 #include "JWControl.h"
-#include "JWButton.h"
+#include "JWTextButton.h"
+#include "JWImageButton.h"
 #include "JWLabel.h"
 #include "JWEdit.h"
+#include "JWCheckBox.h"
 
 // @WARNING: ONE GUI PER ONE WINDOW!!
 
@@ -25,7 +27,7 @@ namespace JWENGINE
 
 		void Run();
 
-		auto AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text)->EError;
+		auto AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text = L"")->EError;
 
 	private:
 		void MainLoop();

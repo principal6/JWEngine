@@ -44,9 +44,6 @@
     <ClInclude Include="JWControl.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="JWButton.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
     <ClInclude Include="JWLabel.h">
       <Filter>GUI</Filter>
     </ClInclude>
@@ -55,6 +52,15 @@
     </ClInclude>
     <ClInclude Include="..\CoreBase\JWRectangle.h">
       <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="JWTextButton.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="JWImageButton.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="JWCheckBox.h">
+      <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -84,9 +90,6 @@
     <ClCompile Include="JWControl.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="JWButton.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
     <ClCompile Include="JWLabel.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
@@ -95,6 +98,15 @@
     </ClCompile>
     <ClCompile Include="..\CoreBase\JWRectangle.cpp">
       <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="JWTextButton.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="JWImageButton.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="JWCheckBox.cpp">
+      <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

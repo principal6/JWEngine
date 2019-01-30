@@ -60,6 +60,9 @@ namespace JWENGINE
 
 	static constexpr int MAX_UNIT_COUNT = 100;
 
+	static const wchar_t GUI_TEXTURE_FILENAME[] = L"jwgui_button.png";
+	static const D3DXVECTOR2 GUI_BUTTON_SIZE = D3DXVECTOR2(15.0f, 15.0f);
+
 	static const DWORD D3DFVF_TEXTURE = D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1;
 	static const DWORD D3DFVF_LINE = D3DFVF_XYZRHW | D3DFVF_DIFFUSE;
 

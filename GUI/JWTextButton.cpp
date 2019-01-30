@@ -1,15 +1,15 @@
-#include "JWButton.h"
+#include "JWTextButton.h"
 #include "../CoreBase/JWFont.h"
 #include "../CoreBase/JWImage.h"
 
 using namespace JWENGINE;
 
-JWButton::JWButton()
+JWTextButton::JWTextButton()
 {
 	m_pImage = nullptr;
 }
 
-auto JWButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWTextButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
 	if (JW_FAILED(JWControl::Create(pWindow, BaseDir, Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
@@ -32,19 +32,19 @@ auto JWButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, 
 	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
-	m_Type = EControlType::Button;
+	m_Type = EControlType::TextButton;
 
 	return EError::OK;
 }
 
-void JWButton::Destroy()
+void JWTextButton::Destroy()
 {
 	JWControl::Destroy();
 
 	JW_DESTROY_SMART(m_pImage);
 }
 
-void JWButton::Draw()
+void JWTextButton::Draw()
 {
 	switch (m_State)
 	{
@@ -58,7 +58,6 @@ void JWButton::Draw()
 		m_pImage->SetXRGB(DEFAULT_COLOR_PRESSED);
 		break;
 	case JWENGINE::Clicked:
-
 		break;
 	default:
 		break;
@@ -74,13 +73,13 @@ void JWButton::Draw()
 	m_pFont->Draw();
 }
 
-void JWButton::SetPosition(D3DXVECTOR2 Position)
+void JWTextButton::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
 	m_pImage->SetPosition(Position);
 }
 
-void JWButton::SetSize(D3DXVECTOR2 Size)
+void JWTextButton::SetSize(D3DXVECTOR2 Size)
 {
 	JWControl::SetSize(Size);
 	m_pImage->SetSize(Size);

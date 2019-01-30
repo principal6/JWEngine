@@ -21,7 +21,10 @@ auto JWGUI::Create(JWWindow* pWindow)->EError
 
 	std::wcout << m_BaseDir.c_str() << std::endl;
 
-	AddControl(EControlType::Button, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
+	AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
+	AddControl(EControlType::ImageButton, D3DXVECTOR2(120, 0), D3DXVECTOR2(100, 50));
+	m_Controls[1]->SetControlAttibute(EControlType::ImageButton, static_cast<UINT>(EImageButtonDirection::Right));
+	AddControl(EControlType::CheckBox, D3DXVECTOR2(250, 0), D3DXVECTOR2(50, 50));
 
 	AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 50), L"레이블입니다");
 
@@ -65,14 +68,20 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 {
 	switch (Type)
 	{
-	case JWENGINE::Button:
-		m_Controls.push_back(new JWButton);
+	case JWENGINE::TextButton:
+		m_Controls.push_back(new JWTextButton);
+		break;
+	case JWENGINE::ImageButton:
+		m_Controls.push_back(new JWImageButton);
 		break;
 	case JWENGINE::Label:
 		m_Controls.push_back(new JWLabel);
 		break;
 	case JWENGINE::Edit:
 		m_Controls.push_back(new JWEdit);
+		break;
+	case JWENGINE::CheckBox:
+		m_Controls.push_back(new JWCheckBox);
 		break;
 	default:
 		return EError::INVALID_CONTROL_TYPE;

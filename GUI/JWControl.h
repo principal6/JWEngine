@@ -16,9 +16,11 @@ namespace JWENGINE
 	enum EControlType
 	{
 		NotDefined,
-		Button,
+		TextButton,
+		ImageButton,
 		Label,
 		Edit,
+		CheckBox,
 	};
 
 	enum EControlState
@@ -94,6 +96,7 @@ namespace JWENGINE
 
 		// Property setter
 		virtual void ShouldDrawBorder(bool Value);
+		virtual void SetControlAttibute(EControlType ControlType, UINT Value) {};
 
 	protected:
 		virtual void CalculateRECT();
@@ -104,6 +107,7 @@ namespace JWENGINE
 		static const DWORD DEFAULT_COLOR_HOVER = D3DCOLOR_XRGB(180, 180, 180);
 		static const DWORD DEFAULT_COLOR_PRESSED = D3DCOLOR_XRGB(80, 80, 255);
 		static const DWORD DEFAULT_COLOR_BORDER = D3DCOLOR_XRGB(20, 20, 60);
+		static const DWORD DEFAULT_COLOR_ALMOST_WHITE = D3DCOLOR_XRGB(230, 230, 230);
 
 		static WSTRING ms_BaseDir;
 		static JWWindow* ms_pWindow;
