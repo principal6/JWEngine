@@ -104,6 +104,7 @@ namespace JWENGINE
 
 		/** GUI creation */
 		CONTROL_NOT_CREATED,
+		IMAGEBUTTON_NOT_CREATED,
 
 		/** Null pointer */
 		NULLPTR_DEVICE,

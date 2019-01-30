@@ -32,7 +32,7 @@ namespace JWENGINE
 		Clicked,
 	};
 
-	enum class EImageButtonDirection
+	enum class ESystemArrowDirection
 	{
 		Left,
 		Right,
@@ -60,6 +60,11 @@ namespace JWENGINE
 
 		virtual auto Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError;
 		virtual void Destroy();
+
+		// Sub-class maker
+		virtual void MakeImageButton(WSTRING TextureAtlasFileName, D3DXVECTOR2 ButtonSizeInTexture, D3DXVECTOR2 NormalOffset,
+			D3DXVECTOR2 HoverOffset, D3DXVECTOR2 PressedOffset) {};
+		virtual void MakeSystemArrowButton(ESystemArrowDirection Direction) {};
 
 		// Mouse
 		virtual auto IsMouseOver(const SMouseData& MouseData)->bool;
@@ -106,7 +111,6 @@ namespace JWENGINE
 
 		// Property setter/getter
 		virtual void ShouldDrawBorder(bool Value);
-		virtual void SetImageButtonDireciton(EImageButtonDirection Direction) {}; // ImageButton
 		virtual void SetCheckState(bool Value) {}; // CheckBox / RadioBox
 		virtual auto GetCheckState() const->bool { return true; }; // CheckBox / RadioBox
 

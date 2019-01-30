@@ -65,6 +65,9 @@
     <ClInclude Include="JWRadioBox.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="JWScrollBar.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWImage.cpp">
@@ -112,6 +115,9 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="JWRadioBox.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="JWScrollBar.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>

@@ -17,7 +17,7 @@ int main()
 		myGUI.AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
 			
 		myGUI.AddControl(EControlType::ImageButton, D3DXVECTOR2(120, 0), D3DXVECTOR2(100, 50));
-		myGUI.GetControlPointer(1)->SetImageButtonDireciton(EImageButtonDirection::Right);
+		myGUI.GetControlPointer(1)->MakeSystemArrowButton(ESystemArrowDirection::Left);
 		
 		myGUI.AddControl(EControlType::CheckBox, D3DXVECTOR2(250, 0), D3DXVECTOR2(50, 50));
 

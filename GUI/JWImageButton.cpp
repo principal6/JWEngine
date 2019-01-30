@@ -9,10 +9,14 @@ JWImageButton::JWImageButton()
 	m_pBackground = nullptr;
 	m_pButtonImage = nullptr;
 
-	m_ButtonImageOffset = D3DXVECTOR2(0, 0);
-	m_OffsetInAtlas = D3DXVECTOR2(0, 0);
+	m_ButtonImagePositionOffset = D3DXVECTOR2(0, 0);
 	m_bHorzFlip = false;
 	m_bVertFlip = false;
+
+	m_ButtonSizeInTexture = D3DXVECTOR2(0, 0);
+	m_NormalOffset = D3DXVECTOR2(0, 0);
+	m_HoverOffset = D3DXVECTOR2(0, 0);
+	m_PressedOffset = D3DXVECTOR2(0, 0);
 }
 
 auto JWImageButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -37,7 +41,6 @@ auto JWImageButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Posit
 		if (JW_FAILED(m_pButtonImage->Create(ms_pWindow, ms_BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		m_pButtonImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
-		m_pButtonImage->SetTexture(GUI_TEXTURE_FILENAME);
 	}
 	else
 	{
@@ -64,18 +67,58 @@ void JWImageButton::Destroy()
 	JW_DESTROY(m_pButtonImage);
 }
 
+void JWImageButton::MakeImageButton(WSTRING TextureAtlasFileName, D3DXVECTOR2 ButtonSizeInTexture, D3DXVECTOR2 NormalOffset,
+	D3DXVECTOR2 HoverOffset, D3DXVECTOR2 PressedOffset)
+{
+	m_pButtonImage->SetTexture(GUI_TEXTURE_FILENAME);
+
+	m_ButtonSizeInTexture = ButtonSizeInTexture;
+
+	m_NormalOffset = NormalOffset;
+	m_HoverOffset = HoverOffset;
+	m_PressedOffset = PressedOffset;
+
+	SetSize(m_Size);
+}
+
+void JWImageButton::MakeSystemArrowButton(ESystemArrowDirection Direction)
+{
+	float AtlasYOffset = 0;
+
+	switch (Direction)
+	{
+	case JWENGINE::ESystemArrowDirection::Left:
+		AtlasYOffset = GUI_BUTTON_SIZE.y;
+		m_bHorzFlip = false;
+		break;
+	case JWENGINE::ESystemArrowDirection::Right:
+		AtlasYOffset = GUI_BUTTON_SIZE.y;
+		m_bHorzFlip = true;
+		break;
+	case JWENGINE::ESystemArrowDirection::Up:
+		m_bVertFlip = false;
+		break;
+	case JWENGINE::ESystemArrowDirection::Down:
+		m_bVertFlip = true;
+		break;
+	}
+
+	MakeImageButton(GUI_TEXTURE_FILENAME, GUI_BUTTON_SIZE, D3DXVECTOR2(0, AtlasYOffset),
+		D3DXVECTOR2(GUI_BUTTON_SIZE.x, AtlasYOffset), D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, AtlasYOffset));
+}
+
 void JWImageButton::Draw()
 {
 	switch (m_State)
 	{
 	case JWENGINE::Normal:
-		m_pButtonImage->SetAtlasUV(D3DXVECTOR2(0, m_OffsetInAtlas.y), GUI_BUTTON_SIZE);
+		m_pButtonImage->SetAtlasUV(m_NormalOffset, m_ButtonSizeInTexture);
 		break;
 	case JWENGINE::Hover:
-		m_pButtonImage->SetAtlasUV(D3DXVECTOR2(GUI_BUTTON_SIZE.x, m_OffsetInAtlas.y), GUI_BUTTON_SIZE);
+		m_pButtonImage->SetAtlasUV(m_HoverOffset, m_ButtonSizeInTexture);
 		break;
 	case JWENGINE::Pressed:
-		m_pButtonImage->SetAtlasUV(D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, m_OffsetInAtlas.y), GUI_BUTTON_SIZE);
+		m_pButtonImage->SetAtlasUV(m_PressedOffset, m_ButtonSizeInTexture);
 		break;
 	case JWENGINE::Clicked:
 		break;
@@ -108,47 +151,21 @@ void JWImageButton::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
 	m_pBackground->SetPosition(Position);
-	m_pButtonImage->SetPosition(Position + m_ButtonImageOffset);
+	m_pButtonImage->SetPosition(Position + m_ButtonImagePositionOffset);
 }
 
 void JWImageButton::SetSize(D3DXVECTOR2 Size)
 {
-	if (Size.x <= GUI_BUTTON_SIZE.x)
-		Size.x = GUI_BUTTON_SIZE.x;
+	if (Size.x <= m_ButtonSizeInTexture.x)
+		Size.x = m_ButtonSizeInTexture.x;
 
-	if (Size.y <= GUI_BUTTON_SIZE.y)
-		Size.y = GUI_BUTTON_SIZE.y;
+	if (Size.y <= m_ButtonSizeInTexture.y)
+		Size.y = m_ButtonSizeInTexture.y;
 
-	m_ButtonImageOffset.x = (Size.x - GUI_BUTTON_SIZE.x) / 2.0f;
-	m_ButtonImageOffset.y = (Size.y - GUI_BUTTON_SIZE.y) / 2.0f;
+	m_ButtonImagePositionOffset.x = (Size.x - m_ButtonSizeInTexture.x) / 2.0f;
+	m_ButtonImagePositionOffset.y = (Size.y - m_ButtonSizeInTexture.y) / 2.0f;
 
 	JWControl::SetSize(Size);
 	m_pBackground->SetSize(Size);
-	m_pButtonImage->SetPosition(m_PositionClient + m_ButtonImageOffset);
-}
-
-void JWImageButton::SetImageButtonDireciton(EImageButtonDirection Direction)
-{
-	m_bHorzFlip = false;
-	m_bVertFlip = false;
-
-	switch (Direction)
-	{
-	case JWENGINE::EImageButtonDirection::Left:
-		m_OffsetInAtlas = D3DXVECTOR2(0, GUI_BUTTON_SIZE.y);
-		break;
-	case JWENGINE::EImageButtonDirection::Right:
-		m_OffsetInAtlas = D3DXVECTOR2(0, GUI_BUTTON_SIZE.y);
-		m_bHorzFlip = true;
-		break;
-	case JWENGINE::EImageButtonDirection::Up:
-		m_OffsetInAtlas = D3DXVECTOR2(0, 0);
-		break;
-	case JWENGINE::EImageButtonDirection::Down:
-		m_OffsetInAtlas = D3DXVECTOR2(0, 0);
-		m_bVertFlip = true;
-		break;
-	default:
-		break;
-	}
+	m_pButtonImage->SetPosition(m_PositionClient + m_ButtonImagePositionOffset);
 }

@@ -18,20 +18,26 @@ namespace JWENGINE
 		auto Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError override;
 		void Destroy() override;
 
+		void MakeImageButton(WSTRING TextureAtlasFileName, D3DXVECTOR2 ButtonSizeInTexture, D3DXVECTOR2 NormalOffset,
+			D3DXVECTOR2 HoverOffset, D3DXVECTOR2 PressedOffset) override;
+		void MakeSystemArrowButton(ESystemArrowDirection Direction) override;
+
 		void Draw() override;
 
 		void SetPosition(D3DXVECTOR2 Position) override;
 		void SetSize(D3DXVECTOR2 Size) override;
 
-		void SetImageButtonDireciton(EImageButtonDirection Direction) override;
-
 	private:
 		JWImage* m_pBackground;
 		JWImage* m_pButtonImage;
 
-		D3DXVECTOR2 m_ButtonImageOffset;
-		D3DXVECTOR2 m_OffsetInAtlas;
+		D3DXVECTOR2 m_ButtonImagePositionOffset;
 		bool m_bHorzFlip;
 		bool m_bVertFlip;
+
+		D3DXVECTOR2 m_ButtonSizeInTexture;
+		D3DXVECTOR2 m_NormalOffset;
+		D3DXVECTOR2 m_HoverOffset;
+		D3DXVECTOR2 m_PressedOffset;
 	};
 };

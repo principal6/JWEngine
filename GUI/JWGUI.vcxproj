@@ -130,6 +130,7 @@
     <ClInclude Include="JWCheckBox.h" />
     <ClInclude Include="JWImageButton.h" />
     <ClInclude Include="JWRadioBox.h" />
+    <ClInclude Include="JWScrollBar.h" />
     <ClInclude Include="JWTextButton.h" />
     <ClInclude Include="JWControl.h" />
     <ClInclude Include="JWEdit.h" />
@@ -149,6 +150,7 @@
     <ClCompile Include="JWCheckBox.cpp" />
     <ClCompile Include="JWImageButton.cpp" />
     <ClCompile Include="JWRadioBox.cpp" />
+    <ClCompile Include="JWScrollBar.cpp" />
     <ClCompile Include="JWTextButton.cpp" />
     <ClCompile Include="JWControl.cpp" />
     <ClCompile Include="JWEdit.cpp" />
