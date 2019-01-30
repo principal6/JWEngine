@@ -21,6 +21,7 @@ namespace JWENGINE
 		Label,
 		Edit,
 		CheckBox,
+		RadioBox,
 	};
 
 	enum EControlState
@@ -97,15 +98,17 @@ namespace JWENGINE
 		virtual void SetText(WSTRING Text);
 		
 		// Getter
-		virtual auto GetState()->EControlState const;
+		virtual auto GetState() const->EControlState;
 		virtual auto GetPosition()->D3DXVECTOR2;
 		virtual auto GetSize()->D3DXVECTOR2;
 		virtual auto GetText()->WSTRING;
+		virtual auto GetControlType() const->EControlType;
 
 		// Property setter/getter
 		virtual void ShouldDrawBorder(bool Value);
 		virtual void SetImageButtonDireciton(EImageButtonDirection Direction) {}; // ImageButton
-		virtual auto GetCheckBoxState() const->bool { return true; }; // CheckBox
+		virtual void SetCheckState(bool Value) {}; // CheckBox / RadioBox
+		virtual auto GetCheckState() const->bool { return true; }; // CheckBox / RadioBox
 
 	protected:
 		virtual void CalculateRECT();

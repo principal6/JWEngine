@@ -25,6 +25,9 @@ int main()
 
 		myGUI.AddControl(EControlType::Edit, D3DXVECTOR2(100, 120), D3DXVECTOR2(150, 60), L"This is my custom edit control");
 
+		myGUI.AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 0), D3DXVECTOR2(0, 0));
+		myGUI.AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 20), D3DXVECTOR2(0, 0));
+
 		myGUI.SetMainLoopFunction(MainLoop);
 
 		myGUI.Run();

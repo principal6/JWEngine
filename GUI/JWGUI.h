@@ -9,6 +9,7 @@
 #include "JWLabel.h"
 #include "JWEdit.h"
 #include "JWCheckBox.h"
+#include "JWRadioBox.h"
 
 // @WARNING: ONE GUI PER ONE WINDOW!!
 
@@ -31,7 +32,7 @@ namespace JWENGINE
 
 		auto AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text = L"")->EError;
 		auto GetControlPointer(size_t ControlIndex)->JWControl*;
-
+		
 		void SetMainLoopFunction(PF_MAINLOOP pfMainLoop);
 
 	private:

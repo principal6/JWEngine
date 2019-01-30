@@ -76,6 +76,9 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 	case JWENGINE::CheckBox:
 		m_Controls.push_back(new JWCheckBox);
 		break;
+	case JWENGINE::RadioBox:
+		m_Controls.push_back(new JWRadioBox);
+		break;
 	default:
 		return EError::INVALID_CONTROL_TYPE;
 		break;
@@ -156,7 +159,19 @@ PRIVATE void JWGUI::MainLoop()
 
 			if (pControlWithMouse->GetState() == EControlState::Clicked)
 			{
-				//pControlWithMouse->SetPosition(pControlWithMouse->GetPosition() + D3DXVECTOR2(2, 2));
+				// RadioBox Check!
+				if (pControlWithMouse->GetControlType() == EControlType::RadioBox)
+				{
+					for (JWControl* iterator : m_Controls)
+					{
+						if (iterator->GetControlType() == EControlType::RadioBox)
+						{
+							iterator->SetCheckState(false);
+						}
+					}
+
+					pControlWithMouse->SetCheckState(true);
+				}
 			}
 		}
 	}

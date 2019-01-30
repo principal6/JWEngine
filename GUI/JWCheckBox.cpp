@@ -120,7 +120,12 @@ void JWCheckBox::SetSize(D3DXVECTOR2 Size)
 	m_pCheckImage->SetPosition(m_PositionClient + m_ButtonImageOffset);
 }
 
-auto JWCheckBox::GetCheckBoxState() const->bool
+void JWCheckBox::SetCheckState(bool Value)
+{
+	m_bChecked = Value;
+}
+
+auto JWCheckBox::GetCheckState() const->bool
 {
 	return m_bChecked;
 }

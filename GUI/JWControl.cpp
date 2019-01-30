@@ -272,7 +272,7 @@ void JWControl::SetFontXRGB(DWORD XRGB)
 	m_pFont->SetFontXRGB(XRGB);
 }
 
-auto JWControl::GetState()->EControlState const
+auto JWControl::GetState() const->EControlState
 {
 	return m_State;
 }
@@ -290,6 +290,11 @@ auto JWControl::GetSize()->D3DXVECTOR2
 auto JWControl::GetText()->WSTRING
 {
 	return m_Text;
+}
+
+auto JWControl::GetControlType() const->EControlType
+{
+	return m_Type;
 }
 
 void JWControl::ShouldDrawBorder(bool Value)
