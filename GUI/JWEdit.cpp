@@ -52,7 +52,8 @@ auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3
 		return EError::RECTANGLE_NOT_CREATED;
 	}
 
-	// Set default background color
+	// Set default color
+	m_pFont->SetFontXRGB(DEFAULT_COLOR_EDIT_FONT);
 	m_pFont->SetBoxAlpha(DEFUALT_ALPHA_BACKGROUND);
 	m_pFont->SetBoxXRGB(DEFAULT_COLOR_BACKGROUND);
 
@@ -548,6 +549,7 @@ void JWEdit::OnCharKey(WPARAM Char)
 
 		UpdateTextCaretSelection();
 
+		Sleep(60);
 		return;
 	}
 	else if (wchar == 24) // Ctrl + x
@@ -558,6 +560,7 @@ void JWEdit::OnCharKey(WPARAM Char)
 
 		UpdateTextCaretSelection();
 
+		Sleep(60);
 		return;
 	}
 	else if (wchar == 26) // Ctrl + z

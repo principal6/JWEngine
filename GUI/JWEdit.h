@@ -50,6 +50,7 @@ namespace JWENGINE
 	private:
 		static const BYTE DEFUALT_ALPHA_BACKGROUND = 255;
 		static const DWORD DEFAULT_COLOR_BACKGROUND = D3DCOLOR_XRGB(200, 200, 200);
+		static const DWORD DEFAULT_COLOR_EDIT_FONT = D3DCOLOR_XRGB(0, 0, 40);
 		static const ULONGLONG DEFAULT_CARET_TICK = 30;
 
 		JWLine* m_pCaret;

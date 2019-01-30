@@ -21,6 +21,7 @@ auto JWGUI::Create(JWWindow* pWindow)->EError
 	m_BaseDir = tempDir;
 	m_BaseDir = m_BaseDir.substr(0, m_BaseDir.find(PROJECT_FOLDER));
 
+	// Output base directory in console window
 	std::wcout << m_BaseDir.c_str() << std::endl;
 
 	return EError::OK;
