@@ -297,6 +297,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 
 	SLineData current_line_data;
 	SLineData upper_line_data;
+	SLineData lower_line_data;
 
 	switch (VirtualKeyCode)
 	{
@@ -342,19 +343,28 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 		}
 		break;
 	case VK_DOWN:
+		// Current line's data
 		current_line_data = GetLineDataFromSelPosition(m_Text, *m_pCaretSelPosition);
+
+		// Lower line's data
+		lower_line_data = GetLineDataFromSelPosition(m_Text, *m_pCaretSelPosition +
+			(current_line_data.LineLength - current_line_data.LineSelPosition + 1));
 		
-		if (m_bShiftDown)
+		if (lower_line_data.LineIndex)
 		{
-			SelectionToRight(current_line_data.LineLength + 1);
-		}
-		else
-		{
-			if (*m_pCaretSelPosition + current_line_data.LineLength + 1 < m_Text.length())
+			if (current_line_data.LineSelPosition > lower_line_data.LineLength)
+			{
+				SelectionToRight(lower_line_data.LineLength + 1);
+			}
+			else
 			{
 				SelectionToRight(current_line_data.LineLength + 1);
 			}
-			m_SelStart = m_SelEnd;
+
+			if (!m_bShiftDown)
+			{
+				m_SelStart = m_SelEnd;
+			}
 		}
 		break;
 	case VK_UP:

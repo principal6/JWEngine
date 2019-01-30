@@ -431,7 +431,9 @@ namespace JWENGINE
 	static void SIZE_T_MINUS(size_t& var, const size_t value)
 	{
 		if (var >= value)
+		{
 			var -= value;
+		}
 	}
 
 	static void SIZE_T_PLUS(size_t& var, const size_t value, const size_t& upper_limit)
@@ -439,10 +441,6 @@ namespace JWENGINE
 		if (var + value <= upper_limit)
 		{
 			var += value;
-		}
-		else
-		{
-			var = upper_limit;
 		}
 	}
 };

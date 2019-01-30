@@ -74,7 +74,7 @@ namespace JWENGINE
 		auto CreateTexture(WSTRING FileName)->EError;
 
 		void AddChar(size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex, wchar_t CharID, wchar_t CharIDPrev,
-			float HorizontalAlignmentOffset, float VerticalAlignmentOffset);
+			float HorizontalAlignmentOffset, float VerticalAlignmentOffset, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize);
 
 	private:
 		static const DWORD DEFAULT_COLOR_FONT = D3DCOLOR_XRGB(255, 255, 255);

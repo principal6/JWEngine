@@ -284,14 +284,14 @@ auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	{
 		// Parse MultilineText into m_StringLines[]
 		m_StringLines.clear();
-		int iterator_line_prev = 0;
-		for (int iterator_line = 0; iterator_line <= MultilineText.length(); iterator_line++)
+		int iterator_in_line_prev = 0;
+		for (int iterator_in_line = 0; iterator_in_line <= MultilineText.length(); iterator_in_line++)
 		{
 			// Check new line('\n') and string end
-			if ((MultilineText[iterator_line] == L'\n') || iterator_line == MultilineText.length())
+			if ((MultilineText[iterator_in_line] == L'\n') || iterator_in_line == MultilineText.length())
 			{
-				m_StringLines.push_back(MultilineText.substr(iterator_line_prev, iterator_line - iterator_line_prev));
-				iterator_line_prev = iterator_line + 1;
+				m_StringLines.push_back(MultilineText.substr(iterator_in_line_prev, iterator_in_line - iterator_in_line_prev));
+				iterator_in_line_prev = iterator_in_line + 1;
 			}
 		}
 
@@ -348,7 +348,7 @@ auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 
 				// Add wchar_t to the image string
 				AddChar(iterator_char, m_StringLines[iterator_line], iterator_line, CharID, CharIDPrev,
-					HorizontalAlignmentOffset, VerticalAlignmentOffset);
+					HorizontalAlignmentOffset, VerticalAlignmentOffset, Position, BoxSize);
 
 				CharIDPrev = CharID;
 			}
@@ -486,7 +486,7 @@ auto JWFont::GetLineHeight() const->float
 }
 
 PRIVATE void JWFont::AddChar(size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex, wchar_t CharID, wchar_t CharIDPrev,
-	float HorizontalAlignmentOffset, float VerticalAlignmentOffset)
+	float HorizontalAlignmentOffset, float VerticalAlignmentOffset, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)
 {
 	// Set u, v values
 	float u1 = static_cast<float>(m_FontData.Chars[CharID].X) / static_cast<float>(m_FontData.Common.ScaleW);
@@ -500,11 +500,14 @@ PRIVATE void JWFont::AddChar(size_t CharIndexInLine, WSTRING& LineText, size_t L
 	float y1 = VerticalAlignmentOffset + GetCharYPosition(CharID, LineIndex);
 	float y2 = y1 + static_cast<float>(m_FontData.Chars[CharID].Height);
 
-	size_t vertexID = m_ImageStringLength * 4;
-	m_Vertices[vertexID] = SVertexImage(x1, y1, m_FontColor, u1, v1);
-	m_Vertices[vertexID + 1] = SVertexImage(x2, y1, m_FontColor, u2, v1);
-	m_Vertices[vertexID + 2] = SVertexImage(x1, y2, m_FontColor, u1, v2);
-	m_Vertices[vertexID + 3] = SVertexImage(x2, y2, m_FontColor, u2, v2);
+	//if ((x2 <= Position.x + BoxSize.x) && (y2 <= Position.y + BoxSize.y))
+	//{
+		size_t vertexID = m_ImageStringLength * 4;
+		m_Vertices[vertexID] = SVertexImage(x1, y1, m_FontColor, u1, v1);
+		m_Vertices[vertexID + 1] = SVertexImage(x2, y1, m_FontColor, u2, v1);
+		m_Vertices[vertexID + 2] = SVertexImage(x1, y2, m_FontColor, u1, v2);
+		m_Vertices[vertexID + 3] = SVertexImage(x2, y2, m_FontColor, u2, v2);
+	//}
 
 	m_ImageStringLength++;
 }
