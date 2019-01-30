@@ -29,6 +29,8 @@ namespace JWENGINE
 		void SetPosition(D3DXVECTOR2 Position) override;
 		void SetSize(D3DXVECTOR2 Size) override;
 		void SetState(EControlState State) override; // Must override
+		void SetScrollRange(size_t Max) override;
+		void SetScrollPosition(size_t Position) override;
 
 	private:
 		void SetButtonSizeAndPosition();
@@ -47,5 +49,8 @@ namespace JWENGINE
 		D3DXVECTOR2 m_ScrollerPosition;
 		D3DXVECTOR2 m_CapturedScrollerPosition;
 		bool m_bScrollerCaptured;
+
+		size_t m_ScrollMax;
+		size_t m_ScrollPosition;
 	};
 };

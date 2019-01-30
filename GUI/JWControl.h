@@ -122,6 +122,8 @@ namespace JWENGINE
 		virtual void ShouldDrawBorder(bool Value);
 		virtual void SetCheckState(bool Value) {}; // CheckBox / RadioBox
 		virtual auto GetCheckState() const->bool { return true; }; // CheckBox / RadioBox
+		virtual void SetScrollRange(size_t Max) {}; // ScrollBar
+		virtual void SetScrollPosition(size_t Position) {}; // ScrollBar
 
 	protected:
 		virtual void CalculateRECT();

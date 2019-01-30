@@ -17,6 +17,9 @@ JWScrollBar::JWScrollBar()
 	m_ScrollerPosition = D3DXVECTOR2(0, 0);
 
 	m_bScrollerCaptured = false;
+
+	m_ScrollMax = 0;
+	m_ScrollPosition = 0;
 }
 
 auto JWScrollBar::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -123,14 +126,23 @@ void JWScrollBar::UpdateState(const SMouseData& MouseData)
 	m_pButtonA->UpdateState(MouseData);
 	m_pButtonB->UpdateState(MouseData);
 
+	if (m_pButtonA->GetState() == EControlState::Clicked)
+	{
+		if (m_ScrollPosition)
+			SetScrollPosition(m_ScrollPosition - 1);
+	}
+
+	if (m_pButtonB->GetState() == EControlState::Clicked)
+	{
+		SetScrollPosition(m_ScrollPosition + 1);
+	}
+
 	if (m_pScroller->GetState() == EControlState::Pressed)
 	{
 		if (m_bScrollerCaptured == false)
 		{
 			m_CapturedScrollerPosition = m_ScrollerPosition;
 			m_bScrollerCaptured = true;
-
-			std::cout << "CAPTURE!" << std::endl;
 		}
 
 		POINT ClientMouseDownPosition = m_pScroller->GetClientMouseDownPosition();
@@ -148,6 +160,32 @@ void JWScrollBar::UpdateState(const SMouseData& MouseData)
 		else
 		{
 			m_pScroller->UpdateState(MouseData);
+
+			m_CapturedScrollerPosition.x = 0;
+			m_CapturedScrollerPosition.y = 0;
+
+			// Calculate Position in Cell
+
+			float position_float = 0;
+			int position_int = 0;
+			switch (m_ScrollBarDirection)
+			{
+			case JWENGINE::EScrollBarDirection::Horizontal:
+				position_float = (m_ScrollerPosition.x - GUI_BUTTON_SIZE.x) / (m_Size.x - GUI_BUTTON_SIZE.x * 2 - m_ScrollerSize.x);
+				position_float *= m_ScrollMax;
+				position_int = static_cast<int>(position_float + 0.5f);
+				SetScrollPosition(position_int);
+				break;
+			case JWENGINE::EScrollBarDirection::Vertical:
+				position_float = (m_ScrollerPosition.y - GUI_BUTTON_SIZE.x) / (m_Size.y - GUI_BUTTON_SIZE.y * 2 - m_ScrollerSize.y);
+				position_float *= m_ScrollMax;
+				position_int = static_cast<int>(position_float + 0.5f);
+				SetScrollPosition(position_int);
+				break;
+			default:
+				break;
+			}
+			
 		}
 	}
 	else
@@ -218,6 +256,36 @@ void JWScrollBar::SetState(EControlState State)
 	}
 }
 
+void JWScrollBar::SetScrollRange(size_t Max)
+{
+	m_ScrollMax = Max;
+
+	SetButtonSizeAndPosition();
+}
+
+void JWScrollBar::SetScrollPosition(size_t Position)
+{
+	if (Position >= m_ScrollMax)
+		Position = m_ScrollMax;
+
+	m_ScrollPosition = Position;
+
+	float PosRatio = static_cast<float>(m_ScrollPosition) / static_cast<float>(m_ScrollMax);
+
+	switch (m_ScrollBarDirection)
+	{
+	case JWENGINE::EScrollBarDirection::Horizontal:
+		MoveScroller(D3DXVECTOR2((m_Size.x - GUI_BUTTON_SIZE.x * 2 - (m_ScrollerSize.x / 2)) * PosRatio, 0));
+		break;
+	case JWENGINE::EScrollBarDirection::Vertical:
+		MoveScroller(D3DXVECTOR2(0, (m_Size.y - GUI_BUTTON_SIZE.y * 2 - (m_ScrollerSize.y / 2)) * PosRatio));
+		break;
+	default:
+		break;
+	}
+	
+}
+
 PRIVATE void JWScrollBar::SetButtonSizeAndPosition()
 {
 	D3DXVECTOR2 NewSize = GUI_BUTTON_SIZE;
@@ -234,6 +302,8 @@ PRIVATE void JWScrollBar::SetButtonSizeAndPosition()
 		BPosition = m_PositionClient;
 		BPosition.x += m_Size.x - GUI_BUTTON_SIZE.x;
 
+		m_ScrollerSize.x = (m_Size.x - GUI_BUTTON_SIZE.x * 2) / static_cast<float>(m_ScrollMax + 1);
+		
 		m_ScrollerSize.y = m_Size.y - static_cast<float>(DEFAULT_SCROLLER_PADDING * 2);
 		m_ScrollerPosition.y = static_cast<float>(DEFAULT_SCROLLER_PADDING);
 		break;
@@ -242,6 +312,8 @@ PRIVATE void JWScrollBar::SetButtonSizeAndPosition()
 
 		BPosition = m_PositionClient;
 		BPosition.y += m_Size.y - GUI_BUTTON_SIZE.y;
+
+		m_ScrollerSize.y = (m_Size.y - GUI_BUTTON_SIZE.y * 2) / static_cast<float>(m_ScrollMax + 1);
 
 		m_ScrollerSize.x = m_Size.x - static_cast<float>(DEFAULT_SCROLLER_PADDING * 2);
 		m_ScrollerPosition.x = static_cast<float>(DEFAULT_SCROLLER_PADDING);
