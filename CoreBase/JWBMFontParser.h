@@ -5,10 +5,18 @@
 
 namespace JWENGINE
 {
-#ifdef USE_FULL_BMFONT_MAX
+#ifdef USE_BMFONT_MAX_FULL_PRIVATE
+	// This includes <Private use>
+	static constexpr int MAX_WCHAR_INDEX = 985343;
+#elif USE_BMFONT_MAX_FULL
+	// This includes <Musical symbols> & <Tags>, which are quite unnecessary
 	static constexpr int MAX_WCHAR_INDEX = 917631;
+#elif USE_BMFONT_MAX_CHINESE_EXTENDED
+	// Maximum index for CJK fonts (chinese extended)
+	static constexpr int MAX_WCHAR_INDEX = 195071;
 #else
-	static constexpr int MAX_WCHAR_INDEX = 68184;
+	// Maximum index for normal CJK fonts (korean included)
+	static constexpr int MAX_WCHAR_INDEX = 68191;
 #endif
 
 	struct BMFont

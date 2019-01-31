@@ -95,10 +95,12 @@ namespace JWENGINE
 		EHorizontalAlignment m_HorizontalAlignment;
 		EVerticalAlignment m_VerticalAlignment;
 
-		WSTRING m_StringText;
-		size_t m_ImageStringLength;
-
 		DWORD m_FontColor;
 		DWORD m_BoxColor;
+
+		bool m_bUseMultiline;
+
+		WSTRING m_StringText;
+		size_t m_ImageStringLength;
 	};
 };

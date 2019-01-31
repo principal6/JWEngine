@@ -4,7 +4,8 @@
 
 using namespace JWENGINE;
 
-LPDIRECT3DTEXTURE9 JWFont::ms_pTexture;
+// Static member variable
+LPDIRECT3DTEXTURE9 JWFont::ms_pTexture = nullptr;
 
 JWFont::JWFont()
 {
@@ -25,6 +26,8 @@ JWFont::JWFont()
 	// Set default colors
 	m_FontColor = DEFAULT_COLOR_FONT;
 	m_BoxColor = DEFAULT_COLOR_BOX;
+
+	m_bUseMultiline = false;
 
 	ClearText();
 }
