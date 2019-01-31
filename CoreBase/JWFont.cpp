@@ -311,7 +311,6 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 			// Get line string
 			line_string = MultilineText.substr(iterator_in_line_prev, iterator_in_line - iterator_in_line_prev);
 
-			/*
 			// Set vertical alignment offset (y position)
 			float VerticalAlignmentOffset = Position.y;
 			switch (m_VerticalAlignment)
@@ -343,7 +342,6 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 			default:
 				break;
 			}
-			*/
 
 			size_t Chars_index = 0;
 			size_t Chars_index_prev = 0;
@@ -354,12 +352,11 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 				// Get Chars_index from MappedCharacters
 				Chars_index = ms_FontData.MappedCharacters[line_string[iterator_char]];
 				
-				AddChar(iterator_char, line_string, line_count, Chars_index, Chars_index_prev, Position.x, Position.y, Position, BoxSize);
-				/*
+				//AddChar(iterator_char, line_string, line_count, Chars_index, Chars_index_prev, Position.x, Position.y, Position, BoxSize);
+
 				// Add wchar_t to the image string
 				AddChar(iterator_char, line_string, line_count, Chars_index, Chars_index_prev,
 					HorizontalAlignmentOffset, VerticalAlignmentOffset, Position, BoxSize);
-				*/
 
 				Chars_index_prev = Chars_index;
 			}
