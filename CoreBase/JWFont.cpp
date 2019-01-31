@@ -318,10 +318,10 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 			case JWENGINE::EVerticalAlignment::Top:
 				break;
 			case JWENGINE::EVerticalAlignment::Middle:
-				VerticalAlignmentOffset += BoxSize.y / 2.0f - GetLineYPosition(line_count) / 2.0f;
+				VerticalAlignmentOffset += (BoxSize.y - GetLineYPosition(line_count) - GetLineHeight()) / 2.0f;
 				break;
 			case JWENGINE::EVerticalAlignment::Bottom:
-				VerticalAlignmentOffset += BoxSize.y - GetLineYPosition(line_count);
+				VerticalAlignmentOffset += BoxSize.y - GetLineYPosition(line_count) - GetLineHeight();
 				break;
 			default:
 				break;
