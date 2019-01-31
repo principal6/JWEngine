@@ -123,12 +123,12 @@ void JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)
 	SetButtonPosition();
 }
 
-void JWScrollBar::UpdateState(const SMouseData& MouseData)
+void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 {
-	JWControl::UpdateState(MouseData);
+	JWControl::UpdateControlState(MouseData);
 
-	m_pButtonA->UpdateState(MouseData);
-	m_pButtonB->UpdateState(MouseData);
+	m_pButtonA->UpdateControlState(MouseData);
+	m_pButtonB->UpdateControlState(MouseData);
 
 	if (m_pButtonA->GetState() == EControlState::Clicked)
 	{
@@ -163,7 +163,7 @@ void JWScrollBar::UpdateState(const SMouseData& MouseData)
 		{
 			// When left button is released
 
-			m_pScroller->UpdateState(MouseData);
+			m_pScroller->UpdateControlState(MouseData);
 
 			m_CapturedScrollerPosition.x = 0;
 			m_CapturedScrollerPosition.y = 0;
@@ -194,9 +194,9 @@ void JWScrollBar::UpdateState(const SMouseData& MouseData)
 	else
 	{
 		m_bScrollerCaptured = false;
-		m_pScroller->UpdateState(MouseData);
+		m_pScroller->UpdateControlState(MouseData);
 
-		if (m_State == EControlState::Clicked)
+		if (m_ControlState == EControlState::Clicked)
 		{
 			// Click on the body of the scrollbar => Page scroll
 			int ScrollStride = 0;
@@ -249,7 +249,7 @@ void JWScrollBar::UpdateState(const SMouseData& MouseData)
 
 void JWScrollBar::Draw()
 {
-	switch (m_State)
+	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
 		break;

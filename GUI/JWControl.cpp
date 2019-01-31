@@ -7,6 +7,7 @@ using namespace JWENGINE;
 // Static member variable
 WSTRING JWControl::ms_BaseDir;
 JWWindow* JWControl::ms_pWindow;
+SKeyState JWControl::ms_WindowKeySate;
 
 JWControl::JWControl()
 {
@@ -16,22 +17,12 @@ JWControl::JWControl()
 	m_Rect = { 0, 0, 0, 0 };
 
 	m_Type = EControlType::NotDefined;
-	m_State = EControlState::Normal;
+	m_ControlState = EControlState::Normal;
 	m_bShouldDrawBorder = true;
 	m_bHasFocus = false;
 
 	m_MousePosition = { 0, 0 };
 	m_MouseLeftDown = false;
-
-	m_bControlDown = false;
-	m_bShiftDown = false;
-	m_bAltDown = false;
-
-	m_bControlUp = false;
-	m_bShiftUp = false;
-	m_bAltUp = false;
-
-	m_bOnShiftPressed = false;
 }
 
 auto JWControl::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -91,56 +82,6 @@ auto JWControl::IsMousePressed(const SMouseData& MouseData)->bool
 	return Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect);
 }
 
-void JWControl::OnKeyDown(WPARAM VirtualKeyCode)
-{
-	switch (VirtualKeyCode)
-	{
-	case VK_CONTROL:
-		m_bControlDown = true;
-		break;
-	case VK_SHIFT:
-		if (m_bShiftDown == false)
-		{
-			m_bOnShiftPressed = true;
-		}
-		m_bShiftDown = true;
-		break;
-	case VK_MENU: // Alt key
-		m_bAltDown = true;
-		break;
-	}
-}
-
-void JWControl::OnKeyUp(WPARAM VirtualKeyCode)
-{
-	m_bControlUp = false;
-	m_bShiftUp = false;
-	m_bAltUp = false;
-
-	switch (VirtualKeyCode)
-	{
-	case VK_CONTROL:
-		if (m_bControlDown)
-			m_bControlUp = true;
-
-		m_bControlDown = false;
-		break;
-	case VK_SHIFT:
-		if (m_bShiftDown)
-			m_bShiftUp = true;
-
-		m_bShiftDown = false;
-		m_bOnShiftPressed = false;
-		break;
-	case VK_MENU: // Alt key
-		if (m_bAltDown)
-			m_bAltUp = true;
-
-		m_bAltDown = false;
-		break;
-	}
-}
-
 void JWControl::OnMouseMove(LPARAM MousePosition)
 {
 	m_MousePosition.x = GET_X_LPARAM(MousePosition);
@@ -167,7 +108,7 @@ void JWControl::OnMouseUp(LPARAM MousePosition)
 	}
 }
 
-void JWControl::UpdateState(const SMouseData& MouseData)
+void JWControl::UpdateControlState(const SMouseData& MouseData)
 {
 	m_UpdatedMousedata = MouseData;
 
@@ -178,32 +119,37 @@ void JWControl::UpdateState(const SMouseData& MouseData)
 		{
 			if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect))
 			{
-				m_State = EControlState::Pressed;
+				m_ControlState = EControlState::Pressed;
 			}
 			else
 			{
-				m_State = EControlState::Hover;
+				m_ControlState = EControlState::Hover;
 			}
 		}
 		else
 		{
-			if (m_State == EControlState::Pressed)
+			if (m_ControlState == EControlState::Pressed)
 			{
 				// If it was pressed before, it is now clicked
-				m_State = EControlState::Clicked;
+				m_ControlState = EControlState::Clicked;
 			}
 			else
 			{
 				// If it wasn't pressed before, then it's just hovered
-				m_State = EControlState::Hover;
+				m_ControlState = EControlState::Hover;
 			}
 		}
 	}
 	else
 	{
 		// Mouse position is out of RECT
-		m_State = EControlState::Normal;
+		m_ControlState = EControlState::Normal;
 	}
+}
+
+void JWControl::UpdateWindowKeyState(const SKeyState& WindowKeyState)
+{
+	ms_WindowKeySate = WindowKeyState;
 }
 
 PRIVATE void JWControl::UpdateText()
@@ -219,7 +165,7 @@ void JWControl::Draw()
 
 void JWControl::SetState(EControlState State)
 {
-	m_State = State;
+	m_ControlState = State;
 }
 
 void JWControl::SetPosition(D3DXVECTOR2 Position)
@@ -276,7 +222,7 @@ void JWControl::SetFontXRGB(DWORD XRGB)
 
 auto JWControl::GetState() const->EControlState
 {
-	return m_State;
+	return m_ControlState;
 }
 
 auto JWControl::GetPosition()->D3DXVECTOR2

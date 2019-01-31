@@ -131,8 +131,22 @@ PRIVATE void JWGUI::HandleMessage()
 	}
 }
 
+PRIVATE void JWGUI::DetectKeyInput()
+{
+	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+	{
+		m_WindowKeyState.ShiftPressed = true;
+	}
+	else
+	{
+		m_WindowKeyState.ShiftPressed = false;
+	}
+}
+
 PRIVATE void JWGUI::MainLoop()
 {
+	DetectKeyInput();
+
 	m_pWindow->BeginRender();
 
 	JWControl* pControlWithMouse = nullptr;
@@ -152,7 +166,7 @@ PRIVATE void JWGUI::MainLoop()
 		}
 		else
 		{
-			iterator->UpdateState(m_MouseData); // To give mouse data to the controls
+			iterator->UpdateControlState(m_MouseData); // To give mouse data to the controls
 			iterator->SetState(EControlState::Normal);
 		}
 	}
@@ -160,7 +174,7 @@ PRIVATE void JWGUI::MainLoop()
 	// Mouse cursor is on a control
 	if (pControlWithMouse)
 	{
-		pControlWithMouse->UpdateState(m_MouseData);
+		pControlWithMouse->UpdateControlState(m_MouseData);
 
 		if ((pControlWithMouse->GetState() == EControlState::Clicked) || (pControlWithMouse->GetState() == EControlState::Pressed))
 		{
@@ -210,7 +224,10 @@ PRIVATE void JWGUI::MainLoop()
 	// Call event handlers of the control with focus
 	if (m_pControlWithFocus)
 	{
-		m_pControlWithFocus->CheckIME();
+		// We update only the key state of the control with focus, not all the controlls
+		m_pControlWithFocus->UpdateWindowKeyState(m_WindowKeyState);
+
+		m_pControlWithFocus->CheckIMEInput();
 
 		switch (m_MSG.message)
 		{

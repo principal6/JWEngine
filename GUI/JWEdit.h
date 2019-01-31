@@ -30,7 +30,7 @@ namespace JWENGINE
 		void OnCharKey(WPARAM Char) override;
 		void OnMouseDown(LPARAM MousePosition) override;
 		void OnMouseMove(LPARAM MousePosition) override;
-		void CheckIME() override;
+		void CheckIMEInput() override;
 
 	private:
 		void SelectionToLeft(size_t Stride = 1);
@@ -40,7 +40,7 @@ namespace JWENGINE
 		void UpdateCaretAndSelection();
 		void GetSelStartAndEndData();
 		void UpdateCaretPosition();
-		void UpdateSelection();
+		void UpdateSelectionBox();
 
 		auto IsTextSelected() const->bool;
 		void EraseAfter();
@@ -63,7 +63,7 @@ namespace JWENGINE
 
 		size_t m_SelStart;
 		size_t m_SelEnd;
-		size_t m_CapturedSelPosition;
+		size_t* m_pCapturedSelPosition;
 		size_t* m_pCaretSelPosition;
 
 		SLineData m_SelStartLineData;

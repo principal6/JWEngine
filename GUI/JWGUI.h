@@ -40,9 +40,11 @@ namespace JWENGINE
 		void MainLoop();
 		void HandleMessage();
 		void Draw();
+		void DetectKeyInput();
 
 	private:
 		JWWindow* m_pWindow;
+		SKeyState m_WindowKeyState;
 
 		VECTOR<JWControl*> m_Controls;
 

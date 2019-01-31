@@ -47,6 +47,15 @@ namespace JWENGINE
 		Vertical,
 	};
 
+	struct SKeyState
+	{
+		bool ControlPressed;
+		bool AltPressed;
+		bool ShiftPressed;
+
+		SKeyState() : ControlPressed(false), AltPressed(false), ShiftPressed(false) {};
+	};
+
 	static inline auto Static_IsMouseInRECT(const POINT& Position, const RECT& Rect)->bool
 	{
 		if ((Position.x >= Rect.left) && (Position.x <= Rect.right))
@@ -79,16 +88,17 @@ namespace JWENGINE
 		virtual auto IsMousePressed(const SMouseData& MouseData)->bool;
 
 		// Event
-		virtual void OnKeyDown(WPARAM VirtualKeyCode);
+		virtual void OnKeyDown(WPARAM VirtualKeyCode) {};
 		virtual void OnCharKey(WPARAM Char) {};
-		virtual void OnKeyUp(WPARAM VirtualKeyCode);
+		virtual void OnKeyUp(WPARAM VirtualKeyCode) {};
 		virtual void OnMouseMove(LPARAM MousePosition);
 		virtual void OnMouseDown(LPARAM MousePosition);
 		virtual void OnMouseUp(LPARAM MousePosition);
-		virtual void CheckIME() {};
+		virtual void CheckIMEInput() {};
 
 		// Update
-		virtual void UpdateState(const SMouseData& MouseData);
+		virtual void UpdateControlState(const SMouseData& MouseData);
+		virtual void UpdateWindowKeyState(const SKeyState& WindowKeyState);
 
 		// Draw
 		virtual void Draw();
@@ -141,6 +151,7 @@ namespace JWENGINE
 
 		static WSTRING ms_BaseDir;
 		static JWWindow* ms_pWindow;
+		static SKeyState ms_WindowKeySate;
 
 		JWFont* m_pFont;
 
@@ -149,7 +160,7 @@ namespace JWENGINE
 		RECT m_Rect;
 
 		EControlType m_Type;
-		EControlState m_State;
+		EControlState m_ControlState;
 		WSTRING m_Text;
 
 		bool m_bShouldDrawBorder;
@@ -159,14 +170,5 @@ namespace JWENGINE
 		POINT m_MousePosition;
 		bool m_MouseLeftDown;
 		SMouseData m_UpdatedMousedata;
-
-		// Keyboard
-		bool m_bControlDown;
-		bool m_bShiftDown;
-		bool m_bAltDown;
-		bool m_bControlUp;
-		bool m_bShiftUp;
-		bool m_bAltUp;
-		bool m_bOnShiftPressed;
 	};
 };

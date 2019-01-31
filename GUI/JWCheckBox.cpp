@@ -67,7 +67,7 @@ void JWCheckBox::Destroy()
 
 void JWCheckBox::Draw()
 {
-	switch (m_State)
+	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
 		break;

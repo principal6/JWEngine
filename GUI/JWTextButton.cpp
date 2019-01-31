@@ -50,7 +50,7 @@ void JWTextButton::Destroy()
 
 void JWTextButton::Draw()
 {
-	switch (m_State)
+	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
 		m_pImage->SetXRGB(m_Color_Normal);

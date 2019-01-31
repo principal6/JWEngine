@@ -109,7 +109,7 @@ void JWImageButton::MakeSystemArrowButton(ESystemArrowDirection Direction)
 
 void JWImageButton::Draw()
 {
-	switch (m_State)
+	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
 		m_pButtonImage->SetAtlasUV(m_NormalOffset, m_ButtonSizeInTexture);

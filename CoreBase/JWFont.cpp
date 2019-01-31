@@ -377,9 +377,9 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 				line_count++;
 			}
 		}
-
-		UpdateVertexBuffer();
 	}
+
+	UpdateVertexBuffer();
 
 	return EError::OK;
 }

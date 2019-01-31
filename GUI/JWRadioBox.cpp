@@ -52,7 +52,7 @@ void JWRadioBox::Destroy()
 
 void JWRadioBox::Draw()
 {
-	switch (m_State)
+	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
 		break;
