@@ -24,6 +24,8 @@ namespace JWENGINE
 
 		void Focus() override;
 
+		void SetSize(D3DXVECTOR2 Size) override;
+
 		void OnKeyDown(WPARAM VirtualKeyCode) override;
 		void OnCharKey(WPARAM Char) override;
 		void OnMouseDown(LPARAM MousePosition) override;
@@ -37,7 +39,7 @@ namespace JWENGINE
 		void UpdateText();
 		void UpdateCaretAndSelection();
 		void GetSelStartAndEndData();
-		void UpdateCaret();
+		void UpdateCaretPosition();
 		void UpdateSelection();
 
 		auto IsTextSelected() const->bool;
@@ -54,6 +56,9 @@ namespace JWENGINE
 		static const ULONGLONG DEFAULT_CARET_TICK = 30;
 
 		JWLine* m_pCaret;
+		D3DXVECTOR2 m_CaretSize;
+		D3DXVECTOR2 m_CaretPosition;
+
 		JWRectangle* m_pSelection;
 
 		size_t m_SelStart;
@@ -69,5 +74,9 @@ namespace JWENGINE
 
 		ULONGLONG m_CaretTickCount;
 		WSTRING m_ClipText;
+
+		bool m_bUseMultiline;
+		float m_YSizeMultiline;
+		float m_YSizeSingleline;
 	};
 };

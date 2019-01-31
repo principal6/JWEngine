@@ -42,15 +42,19 @@ namespace JWENGINE
 		void SetHorizontalAlignment(EHorizontalAlignment Alignment);
 		void SetVerticalAlignment(EVerticalAlignment Alignment);
 
-		// Color
+		// Font color
 		void SetFontAlpha(BYTE Alpha);
 		void SetFontXRGB(DWORD XRGB);
+
+		// Box color
 		void SetBoxAlpha(BYTE Alpha);
 		void SetBoxXRGB(DWORD XRGB);
 
 		// Text
 		void ClearText();
 		auto SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError;
+		void SetUseMultiline(bool Value);
+		auto GetUseMultiline() const->bool;
 		auto GetCharIndexInLine(LONG XPosition, const WSTRING& LineText) const->size_t;
 		auto GetCharXPositionInLine(size_t CharIndex, const WSTRING& LineText) const->float;
 		auto GetCharYPosition(size_t Chars_index, size_t LineIndex) const->float;
@@ -89,6 +93,8 @@ namespace JWENGINE
 
 		SVertexImage* m_Vertices;
 		SIndex3* m_Indices;
+		UINT m_VertexSize;
+		UINT m_IndexSize;
 
 		D3DXVECTOR2 m_PositionOffset;
 

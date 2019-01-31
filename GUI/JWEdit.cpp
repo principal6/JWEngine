@@ -9,6 +9,9 @@ using namespace JWENGINE;
 JWEdit::JWEdit()
 {
 	m_pCaret = nullptr;
+	m_CaretSize = D3DXVECTOR2(0, 0);
+	m_CaretPosition = D3DXVECTOR2(0, 0);
+
 	m_pSelection = nullptr;
 
 	m_SelStart = 0;
@@ -17,6 +20,10 @@ JWEdit::JWEdit()
 	m_CapturedSelPosition = 0;
 	m_IMETempSel = 0;
 	m_CaretTickCount = 0;
+
+	m_bUseMultiline = false;
+	m_YSizeMultiline = 0;
+	m_YSizeSingleline = 0;
 }
 
 auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -56,6 +63,16 @@ auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3
 	m_pFont->SetFontXRGB(DEFAULT_COLOR_EDIT_FONT);
 	m_pFont->SetBoxAlpha(DEFUALT_ALPHA_BACKGROUND);
 	m_pFont->SetBoxXRGB(DEFAULT_COLOR_BACKGROUND);
+
+	// Set multiline and singleline y size
+	m_YSizeMultiline = Size.y;
+	m_YSizeSingleline = m_pFont->GetLineHeight();
+
+	// Set edit size
+	SetSize(m_Size);
+
+	// Set caret size
+	m_CaretSize = D3DXVECTOR2(0, m_pFont->GetLineHeight());
 
 	// Set control type
 	m_Type = EControlType::Edit;
@@ -104,7 +121,7 @@ void JWEdit::Focus()
 	JWControl::Focus();
 
 	GetSelStartAndEndData();
-	UpdateCaret();
+	UpdateCaretPosition();
 	UpdateSelection();
 }
 
@@ -114,29 +131,29 @@ PRIVATE void JWEdit::GetSelStartAndEndData()
 	m_SelEndLineData = GetLineDataFromSelPosition(m_Text, m_SelEnd);
 }
 
-PRIVATE void JWEdit::UpdateCaret()
+PRIVATE void JWEdit::UpdateCaretPosition()
 {
-	D3DXVECTOR2 CaretSize = D3DXVECTOR2(0, m_pFont->GetLineHeight());
-
-	D3DXVECTOR2 CaretPosition = m_PositionClient;
+	m_CaretPosition = m_PositionClient;
 
 	if (m_SelStart < m_CapturedSelPosition)
 	{
 		// There is selection
-		CaretPosition.x += m_pFont->GetCharXPositionInLine(m_SelStartLineData.LineSelPosition, m_SelStartLineData.LineText);
-		CaretPosition.y += m_pFont->GetLineYPosition(m_SelStartLineData.LineIndex);
+		m_CaretPosition.x += m_pFont->GetCharXPositionInLine(m_SelStartLineData.LineSelPosition, m_SelStartLineData.LineText);
+		m_CaretPosition.y += m_pFont->GetLineYPosition(m_SelStartLineData.LineIndex);
 		m_pCaretSelPosition = &m_SelStart;
 	}
 	else
 	{
 		// No selection
-		CaretPosition.x += m_pFont->GetCharXPositionInLine(m_SelEndLineData.LineSelPosition, m_SelEndLineData.LineText);
-		CaretPosition.y += m_pFont->GetLineYPosition(m_SelEndLineData.LineIndex);
+		m_CaretPosition.x += m_pFont->GetCharXPositionInLine(m_SelEndLineData.LineSelPosition, m_SelEndLineData.LineText);
+		m_CaretPosition.y += m_pFont->GetLineYPosition(m_SelEndLineData.LineIndex);
 		m_pCaretSelPosition = &m_SelEnd;
 	}
-		
-	m_pCaret->SetLine(0, CaretPosition, CaretSize);
 	
+	m_pCaret->SetLine(0, m_CaretPosition, m_CaretSize);
+	
+	// If caret position is updated, the caret must be seen
+	// so set tick count to 0
 	m_CaretTickCount = 0;
 }
 
@@ -283,6 +300,21 @@ PRIVATE void JWEdit::SelectionToRight(size_t Stride)
 	}
 }
 
+void JWEdit::SetSize(D3DXVECTOR2 Size)
+{
+	// If single line, set y size to single
+	if (m_bUseMultiline)
+	{
+		Size.y = m_YSizeMultiline;
+	}
+	else
+	{
+		Size.y = m_YSizeSingleline;
+	}
+
+	JWControl::SetSize(Size);
+}
+
 void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 {
 	JWControl::OnKeyDown(VirtualKeyCode);
@@ -408,10 +440,8 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 	}
 
 	GetSelStartAndEndData();
-	UpdateCaret();
+	UpdateCaretPosition();
 	UpdateSelection();
-
-	//Sleep(60);
 }
 
 void JWEdit::CheckIME()
@@ -425,7 +455,7 @@ void JWEdit::CheckIME()
 			UpdateText();
 
 			GetSelStartAndEndData();
-			UpdateCaret();
+			UpdateCaretPosition();
 			UpdateSelection();
 		}
 
@@ -442,7 +472,7 @@ void JWEdit::CheckIME()
 		m_SelEnd++;
 
 		GetSelStartAndEndData();
-		UpdateCaret();
+		UpdateCaretPosition();
 		UpdateSelection();
 
 		m_Text = m_IMETempText;
@@ -465,7 +495,7 @@ void JWEdit::CheckIME()
 		}
 
 		GetSelStartAndEndData();
-		UpdateCaret();
+		UpdateCaretPosition();
 		UpdateSelection();
 	}
 }
@@ -523,7 +553,7 @@ PRIVATE void JWEdit::UpdateText()
 PRIVATE void JWEdit::UpdateCaretAndSelection()
 {
 	GetSelStartAndEndData();
-	UpdateCaret();
+	UpdateCaretPosition();
 	UpdateSelection();
 }
 
@@ -639,9 +669,12 @@ PRIVATE void JWEdit::EraseBefore()
 
 PRIVATE void JWEdit::InsertNewLine()
 {
-	m_Text = m_Text.insert(m_SelEnd, 1, L'\n');
-	m_SelStart++;
-	m_SelEnd = m_SelStart;
+	if (m_pFont->GetUseMultiline())
+	{
+		m_Text = m_Text.insert(m_SelEnd, 1, L'\n');
+		m_SelStart++;
+		m_SelEnd = m_SelStart;
+	}
 }
 
 PRIVATE void JWEdit::InsertChar(wchar_t Char)
@@ -654,24 +687,21 @@ PRIVATE void JWEdit::InsertChar(wchar_t Char)
 
 void JWEdit::OnMouseDown(LPARAM MousePosition)
 {
-	if (m_MouseLeftDown == false)
-	{
-		POINT NewPosition;
-		NewPosition.x = m_MousePosition.x - static_cast<LONG>(m_PositionClient.x);
-		NewPosition.y = m_MousePosition.y - static_cast<LONG>(m_PositionClient.y);
-
-		m_SelStartLineData = GetLineDataFromMousePosition(m_Text, NewPosition, m_pFont->GetLineHeight());
-		m_SelStartLineData.LineSelPosition = m_pFont->GetCharIndexInLine(NewPosition.x, m_SelStartLineData.LineText);
-		m_SelStart = ConvertLineSelPositionToSelPosition(m_Text, m_SelStartLineData.LineSelPosition, m_SelStartLineData.LineIndex);
-		m_SelEnd = m_SelStart;
-		m_CapturedSelPosition = m_SelStart;
-
-		GetSelStartAndEndData();
-		UpdateCaret();
-		UpdateSelection();
-	}
-
 	JWControl::OnMouseDown(MousePosition);
+
+	POINT NewPosition;
+	NewPosition.x = m_MousePosition.x - static_cast<LONG>(m_PositionClient.x);
+	NewPosition.y = m_MousePosition.y - static_cast<LONG>(m_PositionClient.y);
+
+	m_SelStartLineData = GetLineDataFromMousePosition(m_Text, NewPosition, m_pFont->GetLineHeight());
+	m_SelStartLineData.LineSelPosition = m_pFont->GetCharIndexInLine(NewPosition.x, m_SelStartLineData.LineText);
+	m_SelStart = ConvertLineSelPositionToSelPosition(m_Text, m_SelStartLineData.LineSelPosition, m_SelStartLineData.LineIndex);
+	m_SelEnd = m_SelStart;
+	m_CapturedSelPosition = m_SelStart;
+
+	GetSelStartAndEndData();
+	UpdateCaretPosition();
+	UpdateSelection();
 }
 
 void JWEdit::OnMouseMove(LPARAM MousePosition)
@@ -702,7 +732,7 @@ void JWEdit::OnMouseMove(LPARAM MousePosition)
 		}
 
 		GetSelStartAndEndData();
-		UpdateCaret();
+		UpdateCaretPosition();
 		UpdateSelection();
 	}
 }

@@ -19,6 +19,10 @@ JWFont::JWFont()
 	m_Vertices = nullptr;
 	m_Indices = nullptr;
 
+	// Set maximum size (MAX_TEXT_LEN)
+	m_VertexSize = MAX_TEXT_LEN * 4;
+	m_IndexSize = MAX_TEXT_LEN * 2;
+
 	// Set default alignment
 	m_HorizontalAlignment = EHorizontalAlignment::Left;
 	m_VerticalAlignment = EVerticalAlignment::Top;
@@ -119,13 +123,13 @@ auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
 
 PRIVATE auto JWFont::CreateMaxVertexIndexForFont()->EError
 {
-	// MakeOutter rectangles with max size (MAX_TEXT_LEN)
+	// MakeOutter rectangles with max size
 	if (!m_Vertices)
 	{
-		m_Vertices = new SVertexImage[MAX_TEXT_LEN * 4];
+		m_Vertices = new SVertexImage[m_VertexSize];
 		memset(m_Vertices, 0, sizeof(m_Vertices));
 		
-		for (size_t iterator = 0; iterator < MAX_TEXT_LEN; iterator++)
+		for (size_t iterator = 0; iterator < (m_VertexSize / 4); iterator++)
 		{
 			m_Vertices[iterator * 4] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0);
 			m_Vertices[iterator * 4 + 1] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0);
@@ -136,9 +140,9 @@ PRIVATE auto JWFont::CreateMaxVertexIndexForFont()->EError
 
 	if (!m_Indices)
 	{
-		m_Indices = new SIndex3[MAX_TEXT_LEN * 2];
+		m_Indices = new SIndex3[m_IndexSize];
 
-		for (size_t iterator = 0; iterator < MAX_TEXT_LEN; iterator++)
+		for (size_t iterator = 0; iterator < (m_IndexSize / 2); iterator++)
 		{
 			m_Indices[iterator * 2] = SIndex3(iterator * 4, iterator * 4 + 1, iterator * 4 + 3);
 			m_Indices[iterator * 2 + 1] = SIndex3(iterator * 4, iterator * 4 + 3, iterator * 4 + 2);
@@ -157,7 +161,7 @@ PRIVATE auto JWFont::CreateVertexBuffer()->EError
 {
 	if (m_Vertices)
 	{
-		int rVertSize = sizeof(SVertexImage) * MAX_TEXT_LEN * 4;
+		int rVertSize = sizeof(SVertexImage) * m_VertexSize;
 		if (FAILED(m_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 		{
 			return EError::VERTEX_BUFFER_NOT_CREATED;
@@ -171,7 +175,7 @@ PRIVATE auto JWFont::CreateIndexBuffer()->EError
 {
 	if (m_Indices)
 	{
-		int rIndSize = sizeof(SIndex3) * MAX_TEXT_LEN * 2;
+		int rIndSize = sizeof(SIndex3) * m_IndexSize;
 		if (FAILED(m_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 		{
 			return EError::INDEX_BUFFER_NOT_CREATED;
@@ -185,7 +189,7 @@ PRIVATE auto JWFont::UpdateVertexBuffer()->EError
 {
 	if (m_Vertices)
 	{
-		int rVertSize = sizeof(SVertexImage) * MAX_TEXT_LEN * 4;
+		int rVertSize = sizeof(SVertexImage) * m_VertexSize;
 		VOID* pVertices;
 		if (FAILED(m_pVertexBuffer->Lock(0, rVertSize, (void**)&pVertices, 0)))
 		{
@@ -202,7 +206,7 @@ PRIVATE auto JWFont::UpdateIndexBuffer()->EError
 {
 	if (m_Indices)
 	{
-		int rIndSize = sizeof(SIndex3) * MAX_TEXT_LEN * 2;
+		int rIndSize = sizeof(SIndex3) * m_IndexSize;
 		VOID* pIndices;
 		if (FAILED(m_pIndexBuffer->Lock(0, rIndSize, (void **)&pIndices, 0)))
 		{
@@ -285,11 +289,6 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	if (MultilineText.length() > MAX_TEXT_LEN)
 		return EError::BUFFER_NOT_ENOUGH;
 
-	if (!MultilineText.length())
-	{
-		return EError::NULL_STRING;
-	}
-
 	// Clear the text
 	ClearText();
 
@@ -301,77 +300,98 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	m_pBox->SetAlpha(GetColorAlpha(m_BoxColor));
 	m_pBox->SetXRGB(GetColorXRGB(m_BoxColor));
 
-	// Parse MultilineText into line_string
-	WSTRING line_string;
-
-	size_t line_count = 0;
-	size_t iterator_in_line_prev = 0;
-	for (size_t iterator_in_line = 0; iterator_in_line <= MultilineText.length(); iterator_in_line++)
+	if (MultilineText.length())
 	{
-		// Check new line('\n') and string end
-		if ((MultilineText[iterator_in_line] == L'\n') || iterator_in_line == MultilineText.length())
+		if (!m_bUseMultiline)
 		{
-			// Get line string
-			line_string = MultilineText.substr(iterator_in_line_prev, iterator_in_line - iterator_in_line_prev);
-
-			// Set vertical alignment offset (y position)
-			float VerticalAlignmentOffset = Position.y;
-			switch (m_VerticalAlignment)
+			// If multiline is not used, convert the text to single line text
+			size_t cmp_position = 0;
+			while ((cmp_position = MultilineText.find(L'\n')) != std::string::npos)
 			{
-			case JWENGINE::EVerticalAlignment::Top:
-				break;
-			case JWENGINE::EVerticalAlignment::Middle:
-				VerticalAlignmentOffset += (BoxSize.y - GetLineYPosition(line_count) - GetLineHeight()) / 2.0f;
-				break;
-			case JWENGINE::EVerticalAlignment::Bottom:
-				VerticalAlignmentOffset += BoxSize.y - GetLineYPosition(line_count) - GetLineHeight();
-				break;
-			default:
-				break;
+				MultilineText.replace(cmp_position, 1, L"");
 			}
-
-			// Set horizontal alignment offset (x position)
-			float HorizontalAlignmentOffset = Position.x;
-			switch (m_HorizontalAlignment)
-			{
-			case JWENGINE::EHorizontalAlignment::Left:
-				break;
-			case JWENGINE::EHorizontalAlignment::Center:
-				HorizontalAlignmentOffset += BoxSize.x / 2.0f - GetLineLength(line_string) / 2.0f;
-				break;
-			case JWENGINE::EHorizontalAlignment::Right:
-				HorizontalAlignmentOffset += BoxSize.x - GetLineLength(line_string);
-				break;
-			default:
-				break;
-			}
-
-			size_t Chars_index = 0;
-			size_t Chars_index_prev = 0;
-
-			// Make outter text images from the text string
-			for (size_t iterator_char = 0; iterator_char < line_string.length(); iterator_char++)
-			{
-				// Get Chars_index from MappedCharacters
-				Chars_index = ms_FontData.MappedCharacters[line_string[iterator_char]];
-				
-				//AddChar(iterator_char, line_string, line_count, Chars_index, Chars_index_prev, Position.x, Position.y, Position, BoxSize);
-
-				// Add wchar_t to the image string
-				AddChar(iterator_char, line_string, line_count, Chars_index, Chars_index_prev,
-					HorizontalAlignmentOffset, VerticalAlignmentOffset, Position, BoxSize);
-
-				Chars_index_prev = Chars_index;
-			}
-
-			iterator_in_line_prev = iterator_in_line + 1;
-			line_count++;
 		}
+
+		// Parse MultilineText into line_string
+		WSTRING line_string;
+
+		size_t line_count = 0;
+		size_t iterator_in_line_prev = 0;
+		for (size_t iterator_in_line = 0; iterator_in_line <= MultilineText.length(); iterator_in_line++)
+		{
+			// Check new line('\n') and string end
+			if ((MultilineText[iterator_in_line] == L'\n') || iterator_in_line == MultilineText.length())
+			{
+				// Get line string
+				line_string = MultilineText.substr(iterator_in_line_prev, iterator_in_line - iterator_in_line_prev);
+
+				// Set vertical alignment offset (y position)
+				float VerticalAlignmentOffset = Position.y;
+				switch (m_VerticalAlignment)
+				{
+				case JWENGINE::EVerticalAlignment::Top:
+					break;
+				case JWENGINE::EVerticalAlignment::Middle:
+					VerticalAlignmentOffset += (BoxSize.y - GetLineYPosition(line_count) - GetLineHeight()) / 2.0f;
+					break;
+				case JWENGINE::EVerticalAlignment::Bottom:
+					VerticalAlignmentOffset += BoxSize.y - GetLineYPosition(line_count) - GetLineHeight();
+					break;
+				default:
+					break;
+				}
+
+				// Set horizontal alignment offset (x position)
+				float HorizontalAlignmentOffset = Position.x;
+				switch (m_HorizontalAlignment)
+				{
+				case JWENGINE::EHorizontalAlignment::Left:
+					break;
+				case JWENGINE::EHorizontalAlignment::Center:
+					HorizontalAlignmentOffset += BoxSize.x / 2.0f - GetLineLength(line_string) / 2.0f;
+					break;
+				case JWENGINE::EHorizontalAlignment::Right:
+					HorizontalAlignmentOffset += BoxSize.x - GetLineLength(line_string);
+					break;
+				default:
+					break;
+				}
+
+				size_t Chars_index = 0;
+				size_t Chars_index_prev = 0;
+
+				// Make text images from the text string
+				for (size_t iterator_char = 0; iterator_char < line_string.length(); iterator_char++)
+				{
+					// Get Chars_index from MappedCharacters
+					Chars_index = ms_FontData.MappedCharacters[line_string[iterator_char]];
+
+					// Add wchar_t to the image string
+					AddChar(iterator_char, line_string, line_count, Chars_index, Chars_index_prev,
+						HorizontalAlignmentOffset, VerticalAlignmentOffset, Position, BoxSize);
+
+					Chars_index_prev = Chars_index;
+				}
+
+				iterator_in_line_prev = iterator_in_line + 1;
+				line_count++;
+			}
+		}
+
+		UpdateVertexBuffer();
 	}
 
-	UpdateVertexBuffer();
-
 	return EError::OK;
+}
+
+void JWFont::SetUseMultiline(bool Value)
+{
+	m_bUseMultiline = Value;
+}
+
+auto JWFont::GetUseMultiline() const->bool
+{
+	return m_bUseMultiline;
 }
 
 auto JWFont::GetCharIndexInLine(LONG XPosition, const WSTRING& LineText) const->size_t
@@ -530,7 +550,7 @@ void JWFont::Draw() const
 	m_pDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(SVertexImage));
 	m_pDevice->SetFVF(D3DFVF_TEXTURE);
 	m_pDevice->SetIndices(m_pIndexBuffer);
-	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, MAX_TEXT_LEN * 4, 0, MAX_TEXT_LEN * 2);
+	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_VertexSize, 0, m_IndexSize);
 	
 	m_pDevice->SetTexture(0, nullptr);
 }
