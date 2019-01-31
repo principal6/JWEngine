@@ -46,12 +46,16 @@ void JWGUI::Run()
 		{
 			TranslateMessage(&m_MSG);
 			DispatchMessage(&m_MSG);
-
-			HandleMessage();
 		}
 		else
 		{
+			HandleMessage();
+
 			MainLoop();
+
+			// @Warning:
+			// We must empty m_MSG to avoid duplicate messages!
+			memset(&m_MSG, 0, sizeof(m_MSG));
 		}
 	}
 

@@ -94,10 +94,10 @@ PRIVATE void JWRectangle::CreateIndexBuffer()
 	{
 		m_Indices = new SIndex3[m_MaxNumBox * 2];
 
-		for (UINT i = 0; i < m_MaxNumBox; i++)
+		for (size_t iterator = 0; iterator < m_MaxNumBox; iterator++)
 		{
-			m_Indices[i * 2] = SIndex3(i * 4, i * 4 + 1, i * 4 + 3);
-			m_Indices[i * 2 + 1] = SIndex3(i * 4, i * 4 + 3, i * 4 + 2);
+			m_Indices[iterator * 2] = SIndex3(iterator * 4, iterator * 4 + 1, iterator * 4 + 3);
+			m_Indices[iterator * 2 + 1] = SIndex3(iterator * 4, iterator * 4 + 3, iterator * 4 + 2);
 		}
 	}
 

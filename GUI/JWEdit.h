@@ -34,6 +34,8 @@ namespace JWENGINE
 		void SelectionToLeft(size_t Stride = 1);
 		void SelectionToRight(size_t Stride = 1);
 
+		void UpdateText();
+		void UpdateCaretAndSelection();
 		void GetSelStartAndEndData();
 		void UpdateCaret();
 		void UpdateSelection();
@@ -44,8 +46,6 @@ namespace JWENGINE
 		void EraseSelectedText();
 		void InsertNewLine();
 		void InsertChar(wchar_t Char);
-
-		void UpdateTextCaretSelection();
 
 	private:
 		static const BYTE DEFUALT_ALPHA_BACKGROUND = 255;

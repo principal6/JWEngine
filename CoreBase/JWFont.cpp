@@ -8,9 +8,15 @@ LPDIRECT3DTEXTURE9 JWFont::ms_pTexture;
 
 JWFont::JWFont()
 {
+	m_pJWWindow = nullptr;
+	m_pBox = nullptr;
+
 	m_pDevice = nullptr;
 	m_pVertexBuffer = nullptr;
 	m_pIndexBuffer = nullptr;
+
+	m_Vertices = nullptr;
+	m_Indices = nullptr;
 
 	// Set default alignment
 	m_HorizontalAlignment = EHorizontalAlignment::Left;
@@ -20,15 +26,14 @@ JWFont::JWFont()
 	m_FontColor = DEFAULT_COLOR_FONT;
 	m_BoxColor = DEFAULT_COLOR_BOX;
 
-	ClearString();
+	ClearText();
 }
 
-PRIVATE void JWFont::ClearString()
+void JWFont::ClearText()
 {
-	m_EntireString.clear();
-	m_StringLines.clear();
+	m_StringText.clear();
 
-	if (m_Vertices.size())
+	if (m_Vertices)
 	{
 		for (size_t iterator = 0; iterator <= m_ImageStringLength; iterator++)
 		{
@@ -46,12 +51,6 @@ PRIVATE void JWFont::ClearString()
 	m_ImageStringLength = 0;
 }
 
-PRIVATE void JWFont::ClearVertexAndIndexData()
-{
-	m_Vertices.clear();
-	m_Indices.clear();
-}
-
 auto JWFont::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError
 {
 	if (pJWWindow == nullptr)
@@ -61,7 +60,9 @@ auto JWFont::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError
 	m_pDevice = pJWWindow->GetDevice();
 	m_BaseDir = BaseDir;
 
-	ClearVertexAndIndexData();
+	// Create background box
+	m_pBox = new JWImage;
+	m_pBox->Create(m_pJWWindow, m_BaseDir);
 
 	return EError::OK;
 }
@@ -70,8 +71,12 @@ void JWFont::Destroy()
 {
 	m_pDevice = nullptr;
 
-	ClearVertexAndIndexData();
 	ClearText();
+
+	JW_DELETE_ARRAY(m_Vertices);
+	JW_DELETE_ARRAY(m_Indices);
+
+	JW_DESTROY(m_pBox);
 
 	JW_RELEASE(ms_pTexture);
 	JW_RELEASE(m_pIndexBuffer);
@@ -85,7 +90,7 @@ auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
 	NewFileName += ASSET_DIR;
 	NewFileName += FileName_FNT;
 
-	if (m_FontData.bFontCreated)
+	if (ms_FontData.bFontDataParsed)
 	{
 		// Font already exists, no need to parse again
 		return CreateMaxVertexIndexForFont();
@@ -95,10 +100,12 @@ auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
 		// Font not yet created, then create one
 		if (Parse(NewFileName))
 		{
+			ms_FontData.bFontDataParsed = true;
+
 			if (JW_SUCCEEDED(CreateMaxVertexIndexForFont()))
 			{
 				// JWFont will always use only one page in the BMFont, whose ID is '0'
-				if (JW_FAILED(CreateTexture(m_FontData.Pages[0].File)))
+				if (JW_FAILED(CreateTexture(ms_FontData.Pages[0].File)))
 					return EError::TEXTURE_NOT_CREATED;
 			}
 		}
@@ -110,14 +117,29 @@ auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
 PRIVATE auto JWFont::CreateMaxVertexIndexForFont()->EError
 {
 	// MakeOutter rectangles with max size (MAX_TEXT_LEN)
-	for (UINT i = 0; i < MAX_TEXT_LEN; i++)
+	if (!m_Vertices)
 	{
-		m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0));
-		m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0));
-		m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1));
-		m_Vertices.emplace_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1));
-		m_Indices.emplace_back(SIndex3(i * 4, i * 4 + 1, i * 4 + 3));
-		m_Indices.emplace_back(SIndex3(i * 4, i * 4 + 3, i * 4 + 2));
+		m_Vertices = new SVertexImage[MAX_TEXT_LEN * 4];
+		memset(m_Vertices, 0, sizeof(m_Vertices));
+		
+		for (size_t iterator = 0; iterator < MAX_TEXT_LEN; iterator++)
+		{
+			m_Vertices[iterator * 4] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0);
+			m_Vertices[iterator * 4 + 1] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0);
+			m_Vertices[iterator * 4 + 2] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1);
+			m_Vertices[iterator * 4 + 3] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1);
+		}
+	}
+
+	if (!m_Indices)
+	{
+		m_Indices = new SIndex3[MAX_TEXT_LEN * 2];
+
+		for (size_t iterator = 0; iterator < MAX_TEXT_LEN; iterator++)
+		{
+			m_Indices[iterator * 2] = SIndex3(iterator * 4, iterator * 4 + 1, iterator * 4 + 3);
+			m_Indices[iterator * 2 + 1] = SIndex3(iterator * 4, iterator * 4 + 3, iterator * 4 + 2);
+		}
 	}
 
 	CreateVertexBuffer();
@@ -125,16 +147,14 @@ PRIVATE auto JWFont::CreateMaxVertexIndexForFont()->EError
 	UpdateVertexBuffer();
 	UpdateIndexBuffer();
 
-	m_FontData.bFontCreated = true;
-
 	return EError::OK;
 }
 
 PRIVATE auto JWFont::CreateVertexBuffer()->EError
 {
-	if (m_Vertices.size())
+	if (m_Vertices)
 	{
-		int rVertSize = sizeof(SVertexImage) * static_cast<int>(m_Vertices.size());
+		int rVertSize = sizeof(SVertexImage) * MAX_TEXT_LEN * 4;
 		if (FAILED(m_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 		{
 			return EError::VERTEX_BUFFER_NOT_CREATED;
@@ -146,9 +166,9 @@ PRIVATE auto JWFont::CreateVertexBuffer()->EError
 
 PRIVATE auto JWFont::CreateIndexBuffer()->EError
 {
-	if (m_Indices.size())
+	if (m_Indices)
 	{
-		int rIndSize = sizeof(SIndex3) * static_cast<int>(m_Indices.size());
+		int rIndSize = sizeof(SIndex3) * MAX_TEXT_LEN * 2;
 		if (FAILED(m_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 		{
 			return EError::INDEX_BUFFER_NOT_CREATED;
@@ -160,9 +180,9 @@ PRIVATE auto JWFont::CreateIndexBuffer()->EError
 
 PRIVATE auto JWFont::UpdateVertexBuffer()->EError
 {
-	if (m_Vertices.size())
+	if (m_Vertices)
 	{
-		int rVertSize = sizeof(SVertexImage) * static_cast<int>(m_Vertices.size());
+		int rVertSize = sizeof(SVertexImage) * MAX_TEXT_LEN * 4;
 		VOID* pVertices;
 		if (FAILED(m_pVertexBuffer->Lock(0, rVertSize, (void**)&pVertices, 0)))
 		{
@@ -177,9 +197,9 @@ PRIVATE auto JWFont::UpdateVertexBuffer()->EError
 
 PRIVATE auto JWFont::UpdateIndexBuffer()->EError
 {
-	if (m_Indices.size())
+	if (m_Indices)
 	{
-		int rIndSize = sizeof(SIndex3) * static_cast<int>(m_Indices.size());
+		int rIndSize = sizeof(SIndex3) * MAX_TEXT_LEN * 2;
 		VOID* pIndices;
 		if (FAILED(m_pIndexBuffer->Lock(0, rIndSize, (void **)&pIndices, 0)))
 		{
@@ -242,61 +262,56 @@ void JWFont::SetFontXRGB(DWORD XRGB)
 void JWFont::SetBoxAlpha(BYTE Alpha)
 {
 	SetColorAlpha(&m_BoxColor, Alpha);
+	if (m_pBox)
+	{
+		m_pBox->SetAlpha(GetColorAlpha(m_BoxColor));
+	}
 }
 
 void JWFont::SetBoxXRGB(DWORD XRGB)
 {
 	SetColorXRGB(&m_BoxColor, XRGB);
-}
-
-void JWFont::ClearText()
-{
-	// Clear image string
-	ClearString();
-
-	// Clear boxes
-	if (m_pBox.size())
+	if (m_pBox)
 	{
-		for (JWImage* iterator : m_pBox)
-		{
-			JW_DESTROY(iterator);
-		}
-		m_pBox.clear();
+		m_pBox->SetXRGB(GetColorXRGB(m_BoxColor));
 	}
 }
 
-auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError
+auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError
 {
-	if (m_EntireString.length() + MultilineText.length() > MAX_TEXT_LEN)
+	if (MultilineText.length() > MAX_TEXT_LEN)
 		return EError::BUFFER_NOT_ENOUGH;
 
-	m_EntireString += MultilineText;
-
-	// Add new box
-	m_pBox.push_back(new JWImage);
-	m_pBox[m_pBox.size() - 1]->Create(m_pJWWindow, m_BaseDir);
-	m_pBox[m_pBox.size() - 1]->SetAlpha(GetColorAlpha(m_BoxColor));
-	m_pBox[m_pBox.size() - 1]->SetXRGB(GetColorXRGB(m_BoxColor));
-	m_pBox[m_pBox.size() - 1]->SetPosition(Position);
-	m_pBox[m_pBox.size() - 1]->SetSize(BoxSize);
-
-	if (MultilineText.size())
+	if (!MultilineText.length())
 	{
-		// Parse MultilineText into m_StringLines[]
-		m_StringLines.clear();
-		int iterator_in_line_prev = 0;
-		for (int iterator_in_line = 0; iterator_in_line <= MultilineText.length(); iterator_in_line++)
-		{
-			// Check new line('\n') and string end
-			if ((MultilineText[iterator_in_line] == L'\n') || iterator_in_line == MultilineText.length())
-			{
-				m_StringLines.push_back(MultilineText.substr(iterator_in_line_prev, iterator_in_line - iterator_in_line_prev));
-				iterator_in_line_prev = iterator_in_line + 1;
-			}
-		}
+		return EError::NULL_STRING;
+	}
 
-		for (size_t iterator_line = 0; iterator_line < m_StringLines.size(); iterator_line++)
+	// Clear the text
+	ClearText();
+
+	m_StringText = MultilineText;
+
+	// Set backgrounnd box
+	m_pBox->SetPosition(Position);
+	m_pBox->SetSize(BoxSize);
+	m_pBox->SetAlpha(GetColorAlpha(m_BoxColor));
+	m_pBox->SetXRGB(GetColorXRGB(m_BoxColor));
+
+	// Parse MultilineText into line_string
+	WSTRING line_string;
+
+	size_t line_count = 0;
+	size_t iterator_in_line_prev = 0;
+	for (size_t iterator_in_line = 0; iterator_in_line <= MultilineText.length(); iterator_in_line++)
+	{
+		// Check new line('\n') and string end
+		if ((MultilineText[iterator_in_line] == L'\n') || iterator_in_line == MultilineText.length())
 		{
+			// Get line string
+			line_string = MultilineText.substr(iterator_in_line_prev, iterator_in_line - iterator_in_line_prev);
+
+			/*
 			// Set vertical alignment offset (y position)
 			float VerticalAlignmentOffset = Position.y;
 			switch (m_VerticalAlignment)
@@ -304,10 +319,10 @@ auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 			case JWENGINE::EVerticalAlignment::Top:
 				break;
 			case JWENGINE::EVerticalAlignment::Middle:
-				VerticalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().y / 2.0f - GetLineYPosition(iterator_line) / 2.0f;
+				VerticalAlignmentOffset += BoxSize.y / 2.0f - GetLineYPosition(line_count) / 2.0f;
 				break;
 			case JWENGINE::EVerticalAlignment::Bottom:
-				VerticalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().y - GetLineYPosition(iterator_line);
+				VerticalAlignmentOffset += BoxSize.y - GetLineYPosition(line_count);
 				break;
 			default:
 				break;
@@ -320,38 +335,37 @@ auto JWFont::AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 			case JWENGINE::EHorizontalAlignment::Left:
 				break;
 			case JWENGINE::EHorizontalAlignment::Center:
-				HorizontalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().x / 2.0f
-					- GetLineLength(m_StringLines[iterator_line]) / 2.0f;
+				HorizontalAlignmentOffset += BoxSize.x / 2.0f - GetLineLength(line_string) / 2.0f;
 				break;
 			case JWENGINE::EHorizontalAlignment::Right:
-				HorizontalAlignmentOffset += m_pBox[m_pBox.size() - 1]->GetSize().x
-					- GetLineLength(m_StringLines[iterator_line]);
+				HorizontalAlignmentOffset += BoxSize.x - GetLineLength(line_string);
 				break;
 			default:
 				break;
 			}
+			*/
 
-			wchar_t CharID = 0;
-			wchar_t CharIDPrev = 0;
+			size_t Chars_index = 0;
+			size_t Chars_index_prev = 0;
 
 			// Make outter text images from the text string
-			for (size_t iterator_char = 0; iterator_char < m_StringLines[iterator_line].length(); iterator_char++)
+			for (size_t iterator_char = 0; iterator_char < line_string.length(); iterator_char++)
 			{
-				// Find CharID in CharMap
-				CharID = 0;
-				auto iterator_line_character = m_FontData.CharMap.find(m_StringLines[iterator_line][iterator_char]);
-				if (iterator_line_character != m_FontData.CharMap.end())
-				{
-					// Set CharID value only if the key exists
-					CharID = static_cast<wchar_t>(iterator_line_character->second);
-				}
-
+				// Get Chars_index from MappedCharacters
+				Chars_index = ms_FontData.MappedCharacters[line_string[iterator_char]];
+				
+				AddChar(iterator_char, line_string, line_count, Chars_index, Chars_index_prev, Position.x, Position.y, Position, BoxSize);
+				/*
 				// Add wchar_t to the image string
-				AddChar(iterator_char, m_StringLines[iterator_line], iterator_line, CharID, CharIDPrev,
+				AddChar(iterator_char, line_string, line_count, Chars_index, Chars_index_prev,
 					HorizontalAlignmentOffset, VerticalAlignmentOffset, Position, BoxSize);
+				*/
 
-				CharIDPrev = CharID;
+				Chars_index_prev = Chars_index;
 			}
+
+			iterator_in_line_prev = iterator_in_line + 1;
+			line_count++;
 		}
 	}
 
@@ -368,33 +382,18 @@ auto JWFont::GetCharIndexInLine(LONG XPosition, const WSTRING& LineText) const->
 		return Result;
 
 	LONG XPositionSum = 0;
-	wchar_t CharID = 0;
-	wchar_t CharIDPrev = 0;
-	int Kerning = 0;
+	size_t Chars_index = 0;
+	size_t Chars_index_prev = 0;
 
 	for (size_t iterator = 0; iterator <= LineText.length(); iterator++)
 	{
-		// Find CharID in CharMap
-		CharID = 0;
-		auto iterator_character = m_FontData.CharMap.find(LineText[iterator]);
-		if (iterator_character != m_FontData.CharMap.end())
-		{
-			// Set CharID value only if the key exists
-			CharID = static_cast<wchar_t>(iterator_character->second);
-		}
+		// Get Chars_index in from MappedCharacters
+		Chars_index = ms_FontData.MappedCharacters[LineText[iterator]];
 
 		if (iterator)
 		{
-			XPositionSum += m_FontData.Chars[CharIDPrev].XAdvance;
-			XPositionSum += m_FontData.Chars[CharID].XOffset;
-
-			// Find kerning in KerningMap
-			auto iterator_kerning = m_FontData.KerningMap.find(std::make_pair(CharIDPrev, CharID));
-			if (iterator_kerning != m_FontData.KerningMap.end())
-			{
-				// Set kerning value only if the key exists
-				XPositionSum += iterator_kerning->second;
-			}
+			XPositionSum += ms_FontData.Chars[Chars_index_prev].XAdvance;
+			XPositionSum += ms_FontData.Chars[Chars_index].XOffset;
 		}
 
 		if (XPosition <= XPositionSum)
@@ -406,7 +405,7 @@ auto JWFont::GetCharIndexInLine(LONG XPosition, const WSTRING& LineText) const->
 			return Result;
 		}
 
-		CharIDPrev = CharID;
+		Chars_index_prev = Chars_index;
 	}
 
 	Result = LineText.length();
@@ -431,35 +430,21 @@ auto JWFont::GetCharXPositionInLine(size_t CharIndex, const WSTRING& LineText) c
 		CharIndex = LineText.length();
 	}
 
-	wchar_t CharID = 0;
-	wchar_t CharIDPrev = 0;
+	size_t Chars_index = 0;
+	size_t Chars_index_prev = 0;
 
 	for (size_t iterator = 0; iterator <= CharIndex; iterator++)
 	{
-		// Find CharID in CharMap
-		CharID = 0;
-		auto iterator_character = m_FontData.CharMap.find(LineText[iterator]);
-		if (iterator_character != m_FontData.CharMap.end())
-		{
-			// Set CharID value only if the key exists
-			CharID = static_cast<wchar_t>(iterator_character->second);
-		}
+		// Get Chars_index from MappedCharacters
+		Chars_index = ms_FontData.MappedCharacters[LineText[iterator]];
 
 		if (iterator)
 		{
-			Result += m_FontData.Chars[CharIDPrev].XAdvance;
-			Result += m_FontData.Chars[CharID].XOffset;
-
-			// Find kerning in KerningMap
-			auto iterator_kerning = m_FontData.KerningMap.find(std::make_pair(CharIDPrev, CharID));
-			if (iterator_kerning != m_FontData.KerningMap.end())
-			{
-				// Set kerning value only if the key exists
-				Result += iterator_kerning->second;
-			}
+			Result += ms_FontData.Chars[Chars_index_prev].XAdvance;
+			Result += ms_FontData.Chars[Chars_index].XOffset;
 		}
 		
-		CharIDPrev = CharID;
+		Chars_index_prev = Chars_index;
 	}
 
 	return Result;
@@ -467,12 +452,12 @@ auto JWFont::GetCharXPositionInLine(size_t CharIndex, const WSTRING& LineText) c
 
 auto JWFont::GetLineYPosition(size_t LineIndex) const->float
 {
-	return static_cast<float>(LineIndex * m_FontData.Info.Size);
+	return static_cast<float>(LineIndex * ms_FontData.Info.Size);
 }
 
-auto JWFont::GetCharYPosition(wchar_t CharID, size_t LineIndex) const->float
+auto JWFont::GetCharYPosition(size_t Chars_index, size_t LineIndex) const->float
 {
-	return GetLineYPosition(LineIndex) + static_cast<float>(m_FontData.Chars[CharID].YOffset);
+	return GetLineYPosition(LineIndex) + static_cast<float>(ms_FontData.Chars[Chars_index].YOffset);
 }
 
 auto JWFont::GetLineLength(const WSTRING& LineText)->float
@@ -482,23 +467,23 @@ auto JWFont::GetLineLength(const WSTRING& LineText)->float
 
 auto JWFont::GetLineHeight() const->float
 {
-	return static_cast<float>(m_FontData.Info.Size);
+	return static_cast<float>(ms_FontData.Info.Size);
 }
 
-PRIVATE void JWFont::AddChar(size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex, wchar_t CharID, wchar_t CharIDPrev,
+PRIVATE void JWFont::AddChar(size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex, size_t Chars_index, size_t Chars_index_prev,
 	float HorizontalAlignmentOffset, float VerticalAlignmentOffset, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)
 {
 	// Set u, v values
-	float u1 = static_cast<float>(m_FontData.Chars[CharID].X) / static_cast<float>(m_FontData.Common.ScaleW);
-	float v1 = static_cast<float>(m_FontData.Chars[CharID].Y) / static_cast<float>(m_FontData.Common.ScaleH);
-	float u2 = u1 + static_cast<float>(m_FontData.Chars[CharID].Width) / static_cast<float>(m_FontData.Common.ScaleW);
-	float v2 = v1 + static_cast<float>(m_FontData.Chars[CharID].Height) / static_cast<float>(m_FontData.Common.ScaleH);
+	float u1 = static_cast<float>(ms_FontData.Chars[Chars_index].X) / static_cast<float>(ms_FontData.Common.ScaleW);
+	float v1 = static_cast<float>(ms_FontData.Chars[Chars_index].Y) / static_cast<float>(ms_FontData.Common.ScaleH);
+	float u2 = u1 + static_cast<float>(ms_FontData.Chars[Chars_index].Width) / static_cast<float>(ms_FontData.Common.ScaleW);
+	float v2 = v1 + static_cast<float>(ms_FontData.Chars[Chars_index].Height) / static_cast<float>(ms_FontData.Common.ScaleH);
 
 	// Set x, y positions
 	float x1 = HorizontalAlignmentOffset + GetCharXPositionInLine(CharIndexInLine, LineText);
-	float x2 = x1 + static_cast<float>(m_FontData.Chars[CharID].Width);
-	float y1 = VerticalAlignmentOffset + GetCharYPosition(CharID, LineIndex);
-	float y2 = y1 + static_cast<float>(m_FontData.Chars[CharID].Height);
+	float x2 = x1 + static_cast<float>(ms_FontData.Chars[Chars_index].Width);
+	float y1 = VerticalAlignmentOffset + GetCharYPosition(Chars_index, LineIndex);
+	float y2 = y1 + static_cast<float>(ms_FontData.Chars[Chars_index].Height);
 
 	//if ((x2 <= Position.x + BoxSize.x) && (y2 <= Position.y + BoxSize.y))
 	//{
@@ -515,12 +500,9 @@ PRIVATE void JWFont::AddChar(size_t CharIndexInLine, WSTRING& LineText, size_t L
 void JWFont::Draw() const
 {
 	// Draw background box
-	if (m_pBox.size())
+	if (m_pBox)
 	{
-		for (JWImage* iterator : m_pBox)
-		{
-			iterator->Draw();
-		}
+		m_pBox->Draw();
 	}
 
 	// Set alpha blending on
@@ -548,8 +530,7 @@ void JWFont::Draw() const
 	m_pDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(SVertexImage));
 	m_pDevice->SetFVF(D3DFVF_TEXTURE);
 	m_pDevice->SetIndices(m_pIndexBuffer);
-	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
-		static_cast<int>(m_Vertices.size()), 0, static_cast<int>(m_Indices.size()));
+	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, MAX_TEXT_LEN * 4, 0, MAX_TEXT_LEN * 2);
 	
 	m_pDevice->SetTexture(0, nullptr);
 }

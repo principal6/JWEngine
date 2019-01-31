@@ -64,7 +64,7 @@ void Render()
 	g_MyGame.GetFontObject()->SetFontXRGB(D3DCOLOR_XRGB(255, 255, 255));
 	g_MyGame.GetFontObject()->SetBoxAlpha(100);
 	g_MyGame.GetFontObject()->SetBoxXRGB(D3DCOLOR_XRGB(30, 30, 30));
-	g_MyGame.GetFontObject()->AddText(L"화살표 키: 이동, 점프\nCtrl: 물리 공격\nAlt: 마법 공격\nB: 바운딩 박스 토글",
+	g_MyGame.GetFontObject()->SetText(L"화살표 키: 이동, 점프\nCtrl: 물리 공격\nAlt: 마법 공격\nB: 바운딩 박스 토글",
 		D3DXVECTOR2(0, 0), D3DXVECTOR2(250, 80));
 }
 

@@ -5,6 +5,12 @@
 
 namespace JWENGINE
 {
+#ifdef USE_FULL_BMFONT_MAX
+	static constexpr int MAX_WCHAR_INDEX = 917631;
+#else
+	static constexpr int MAX_WCHAR_INDEX = 68184;
+#endif
+
 	struct BMFont
 	{
 		struct BMInfo;
@@ -104,7 +110,9 @@ namespace JWENGINE
 		std::map<wchar_t, size_t> CharMap;
 		std::map<std::pair<UINT, UINT>, int> KerningMap;
 
-		bool bFontCreated = false;
+		size_t MappedCharacters[MAX_WCHAR_INDEX];
+
+		bool bFontDataParsed = false;
 	};
 
 	class JWBMFontParser
@@ -120,6 +128,6 @@ namespace JWENGINE
 		virtual auto ParseComma(STRING Data, UINT ID)->UINT const;
 
 	protected:
-		static BMFont m_FontData;
+		static BMFont ms_FontData;
 	};
 };

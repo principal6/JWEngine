@@ -50,10 +50,10 @@ namespace JWENGINE
 
 		// Text
 		void ClearText();
-		auto AddText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError;
+		auto SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError;
 		auto GetCharIndexInLine(LONG XPosition, const WSTRING& LineText) const->size_t;
 		auto GetCharXPositionInLine(size_t CharIndex, const WSTRING& LineText) const->float;
-		auto GetCharYPosition(wchar_t CharID, size_t LineIndex) const->float;
+		auto GetCharYPosition(size_t Chars_index, size_t LineIndex) const->float;
 		auto GetLineYPosition(size_t LineIndex) const->float;
 		auto GetLineLength(const WSTRING& LineText)->float;
 		auto GetLineHeight() const->float;
@@ -62,9 +62,6 @@ namespace JWENGINE
 		void Draw() const;
 
 	private:
-		void ClearString();
-		void ClearVertexAndIndexData();
-
 		auto CreateMaxVertexIndexForFont()->EError;
 		auto CreateVertexBuffer()->EError;
 		auto CreateIndexBuffer()->EError;
@@ -73,7 +70,7 @@ namespace JWENGINE
 
 		auto CreateTexture(WSTRING FileName)->EError;
 
-		void AddChar(size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex, wchar_t CharID, wchar_t CharIDPrev,
+		void AddChar(size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex, size_t Chars_index, size_t Chars_index_prev,
 			float HorizontalAlignmentOffset, float VerticalAlignmentOffset, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize);
 
 	private:
@@ -83,23 +80,22 @@ namespace JWENGINE
 		static LPDIRECT3DTEXTURE9 ms_pTexture;
 
 		JWWindow* m_pJWWindow;
-		VECTOR<JWImage*> m_pBox;
+		JWImage* m_pBox;
 		WSTRING m_BaseDir;
 
 		LPDIRECT3DDEVICE9 m_pDevice;
 		LPDIRECT3DVERTEXBUFFER9 m_pVertexBuffer;
 		LPDIRECT3DINDEXBUFFER9 m_pIndexBuffer;
 
-		VECTOR<SVertexImage> m_Vertices;
-		VECTOR<SIndex3> m_Indices;
+		SVertexImage* m_Vertices;
+		SIndex3* m_Indices;
 
 		D3DXVECTOR2 m_PositionOffset;
 
 		EHorizontalAlignment m_HorizontalAlignment;
 		EVerticalAlignment m_VerticalAlignment;
 
-		WSTRING m_EntireString;
-		VECTOR<WSTRING> m_StringLines;
+		WSTRING m_StringText;
 		size_t m_ImageStringLength;
 
 		DWORD m_FontColor;

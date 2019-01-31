@@ -411,7 +411,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 	UpdateCaret();
 	UpdateSelection();
 
-	Sleep(60);
+	//Sleep(60);
 }
 
 void JWEdit::CheckIME()
@@ -422,8 +422,7 @@ void JWEdit::CheckIME()
 		{
 			EraseSelectedText();
 
-			m_pFont->ClearText();
-			m_pFont->AddText(m_Text, m_PositionClient, m_Size);
+			UpdateText();
 
 			GetSelStartAndEndData();
 			UpdateCaret();
@@ -437,8 +436,7 @@ void JWEdit::CheckIME()
 
 		m_Text = m_Text.insert(m_SelStart, 1, pTCHAR[0]);
 
-		m_pFont->ClearText();
-		m_pFont->AddText(m_Text, m_PositionClient, m_Size);
+		UpdateText();
 
 		m_SelStart++;
 		m_SelEnd++;
@@ -460,8 +458,7 @@ void JWEdit::CheckIME()
 		{
 			m_Text = m_Text.insert(m_SelStart, 1, pTCHAR[0]);
 
-			m_pFont->ClearText();
-			m_pFont->AddText(m_Text, m_PositionClient, m_Size);
+			UpdateText();
 
 			m_SelStart++;
 			m_SelEnd++;
@@ -518,11 +515,13 @@ void PasteFromClipboard(WSTRING& Text)
 	Text = temp_string;
 }
 
-PRIVATE void JWEdit::UpdateTextCaretSelection()
+PRIVATE void JWEdit::UpdateText()
 {
-	m_pFont->ClearText();
-	m_pFont->AddText(m_Text, m_PositionClient, m_Size);
+	m_pFont->SetText(m_Text, m_PositionClient, m_Size);
+}
 
+PRIVATE void JWEdit::UpdateCaretAndSelection()
+{
 	GetSelStartAndEndData();
 	UpdateCaret();
 	UpdateSelection();
@@ -547,9 +546,8 @@ void JWEdit::OnCharKey(WPARAM Char)
 			InsertChar(static_cast<wchar_t>(m_ClipText[iterator]));
 		}
 
-		UpdateTextCaretSelection();
-
-		Sleep(60);
+		UpdateText();
+		UpdateCaretAndSelection();
 		return;
 	}
 	else if (wchar == 24) // Ctrl + x
@@ -558,9 +556,8 @@ void JWEdit::OnCharKey(WPARAM Char)
 		CopyToClipboard(m_ClipText);
 		EraseSelectedText();
 
-		UpdateTextCaretSelection();
-
-		Sleep(60);
+		UpdateText();
+		UpdateCaretAndSelection();
 		return;
 	}
 	else if (wchar == 26) // Ctrl + z
@@ -573,8 +570,7 @@ void JWEdit::OnCharKey(WPARAM Char)
 		m_SelStart = *m_pCaretSelPosition;
 		m_SelEnd = *m_pCaretSelPosition;
 
-		UpdateTextCaretSelection();
-
+		UpdateCaretAndSelection();
 		return;
 	}
 
@@ -614,9 +610,8 @@ void JWEdit::OnCharKey(WPARAM Char)
 		}
 	}
 
-	UpdateTextCaretSelection();
-
-	Sleep(60);
+	UpdateText();
+	UpdateCaretAndSelection();
 }
 
 PRIVATE void JWEdit::EraseSelectedText()

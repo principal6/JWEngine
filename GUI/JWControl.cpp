@@ -209,7 +209,7 @@ void JWControl::UpdateState(const SMouseData& MouseData)
 PRIVATE void JWControl::UpdateText()
 {
 	m_pFont->ClearText();
-	m_pFont->AddText(m_Text, m_PositionClient, m_Size);
+	m_pFont->SetText(m_Text, m_PositionClient, m_Size);
 }
 
 void JWControl::Draw()

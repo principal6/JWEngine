@@ -46,6 +46,7 @@ namespace JWENGINE
 {
 	#define JW_SUCCEEDED(func) (func == EError::OK)
 	#define JW_FAILED(func) (func != EError::OK)
+	#define JW_DELETE_ARRAY(arr) {if(arr) {delete[] arr; arr = nullptr;}}
 	#define JW_DESTROY(obj) {if(obj) {obj->Destroy(); delete obj; obj = nullptr;}}
 	#define JW_DESTROY_SMART(obj) {if(obj) {obj->Destroy();}}
 	#define JW_RELEASE(obj) {if(obj) {obj->Release(); obj = nullptr;}}
@@ -197,6 +198,12 @@ namespace JWENGINE
 			_0(0), _1(0), _2(0) {};
 		SIndex3(int ID0, int ID1, int ID2) :
 			_0(ID0), _1(ID1), _2(ID2) {};
+		SIndex3(size_t ID0, size_t ID1, size_t ID2)
+		{
+			_0 = static_cast<WORD>(ID0);
+			_1 = static_cast<WORD>(ID1);
+			_2 = static_cast<WORD>(ID2);
+		}
 	};
 
 	struct STextureUV
