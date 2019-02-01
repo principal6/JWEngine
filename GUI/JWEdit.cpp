@@ -591,6 +591,11 @@ void JWEdit::OnCharKey(WPARAM Char)
 	}
 	else if (wchar == 22) // Ctrl + v
 	{
+		if (IsTextSelected())
+		{
+			EraseSelectedText();
+		}
+
 		PasteTextFromClipboard(m_ClipText);
 		for (size_t iterator = 0; iterator < m_ClipText.size(); iterator++)
 		{
