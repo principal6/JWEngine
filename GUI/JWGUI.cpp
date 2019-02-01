@@ -133,31 +133,51 @@ PRIVATE void JWGUI::HandleMessage()
 
 PRIVATE void JWGUI::DetectKeyInput()
 {
-	if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
+	// Mouse
+	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
 	{
-		m_WindowKeyState.ControlPressed = true;
+		m_WindowInputState.MouseLeftPressed = true;
 	}
 	else
 	{
-		m_WindowKeyState.ControlPressed = false;
+		m_WindowInputState.MouseLeftPressed = false;
+	}
+
+	if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+	{
+		m_WindowInputState.MouseRightPressed = true;
+	}
+	else
+	{
+		m_WindowInputState.MouseRightPressed = false;
+	}
+
+	// Keyboard
+	if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
+	{
+		m_WindowInputState.ControlPressed = true;
+	}
+	else
+	{
+		m_WindowInputState.ControlPressed = false;
 	}
 
 	if (GetAsyncKeyState(VK_MENU) & 0x8000)
 	{
-		m_WindowKeyState.AltPressed = true;
+		m_WindowInputState.AltPressed = true;
 	}
 	else
 	{
-		m_WindowKeyState.AltPressed = false;
+		m_WindowInputState.AltPressed = false;
 	}
 
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
 	{
-		m_WindowKeyState.ShiftPressed = true;
+		m_WindowInputState.ShiftPressed = true;
 	}
 	else
 	{
-		m_WindowKeyState.ShiftPressed = false;
+		m_WindowInputState.ShiftPressed = false;
 	}
 }
 
@@ -243,7 +263,7 @@ PRIVATE void JWGUI::MainLoop()
 	if (m_pControlWithFocus)
 	{
 		// We update only the key state of the control with focus, not all the controlls
-		m_pControlWithFocus->UpdateWindowKeyState(m_WindowKeyState);
+		m_pControlWithFocus->UpdateWindowInputState(m_WindowInputState);
 
 		m_pControlWithFocus->CheckIMEInput();
 

@@ -285,6 +285,14 @@ namespace JWENGINE
 		v2 = temp;
 	}
 
+	template <typename T>
+	static void SwapPointer(T*& v1, T*& v2)
+	{
+		T* temp = v1;
+		v1 = v2;
+		v2 = temp;
+	}
+
 	static void SIZE_T_MINUS(size_t& var, const size_t value)
 	{
 		if (var >= value)

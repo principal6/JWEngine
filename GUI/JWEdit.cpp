@@ -11,13 +11,14 @@ JWEdit::JWEdit()
 	m_pCaret = nullptr;
 	m_CaretSize = D3DXVECTOR2(0, 0);
 	m_CaretPosition = D3DXVECTOR2(0, 0);
+	m_pCaretSelPosition = &m_SelStart;
+	m_PreviousCaretSelPosition = 0;
 
 	m_pSelection = nullptr;
-
 	m_SelStart = 0;
 	m_SelEnd = 0;
 	m_pCapturedSelPosition = &m_SelStart;
-	m_pCaretSelPosition = &m_SelStart;
+	
 	m_IMETempSel = 0;
 	m_CaretTickCount = 0;
 
@@ -125,7 +126,7 @@ void JWEdit::Focus()
 
 PRIVATE void JWEdit::SelectOrMoveCaretToLeft(size_t Stride)
 {
-	if (ms_WindowKeySate.ShiftPressed)
+	if (ms_WindowInputSate.ShiftPressed)
 	{
 		// Select
 		if (m_pCapturedSelPosition == &m_SelStart)
@@ -154,7 +155,7 @@ PRIVATE void JWEdit::SelectOrMoveCaretToLeft(size_t Stride)
 
 PRIVATE void JWEdit::SelectOrMoveCaretToRight(size_t Stride)
 {
-	if (ms_WindowKeySate.ShiftPressed)
+	if (ms_WindowInputSate.ShiftPressed)
 	{
 		// Select
 		if (m_pCapturedSelPosition == &m_SelStart)
@@ -222,14 +223,20 @@ PRIVATE void JWEdit::UpdateCaretAndSelection()
 
 PRIVATE void JWEdit::UpdateCaretPosition()
 {
-	m_CaretPosition.x = m_pFont->GetCharXPosition(*m_pCaretSelPosition);
-	m_CaretPosition.y = m_pFont->GetCharYPosition(*m_pCaretSelPosition);
+	if (m_PreviousCaretSelPosition != *m_pCaretSelPosition)
+	{
+		// Update caret's image position only when the caret has been moved
+		m_CaretPosition.x = m_pFont->GetCharXPosition(*m_pCaretSelPosition);
+		m_CaretPosition.y = m_pFont->GetCharYPosition(*m_pCaretSelPosition);
+		m_pCaret->SetLine(0, m_CaretPosition, m_CaretSize);
 
-	m_pCaret->SetLine(0, m_CaretPosition, m_CaretSize);
-	
-	// If caret position is updated, the caret must be seen
-	// so set tick count to 0
-	m_CaretTickCount = 0;
+		// If caret position is updated, the caret must be seen.
+		// So, let's set tick count to 0
+		m_CaretTickCount = 0;
+
+		// Save the changed caret sel position for the next comparison
+		m_PreviousCaretSelPosition = *m_pCaretSelPosition;
+	}
 }
 
 PRIVATE void JWEdit::UpdateSelectionBox()
@@ -254,8 +261,8 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 			D3DXVECTOR2 SelectionPosition = D3DXVECTOR2(0, 0);
 			D3DXVECTOR2 SelectionSize = D3DXVECTOR2(0, 0);
 
-			size_t sel_start_line_index = m_pFont->GetLineIndex(m_SelStart);
-			size_t sel_end_line_index = m_pFont->GetLineIndex(m_SelEnd);
+			size_t sel_start_line_index = m_pFont->GetLineIndexByCharIndex(m_SelStart);
+			size_t sel_end_line_index = m_pFont->GetLineIndexByCharIndex(m_SelEnd);
 			float SelStartXPosition = m_pFont->GetCharXPosition(m_SelStart);
 			float SelEndXPosition = m_pFont->GetCharXPosition(m_SelEnd);
 
@@ -399,7 +406,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 			m_pCaretSelPosition = &m_SelStart;
 		}
 
-		SelectOrMoveCaretToLeft(m_pFont->GetLineSelPosition(*m_pCaretSelPosition));
+		SelectOrMoveCaretToLeft(m_pFont->GetLineSelPositionByCharIndex(*m_pCaretSelPosition));
 
 		break;
 	case VK_END:
@@ -412,7 +419,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 		}
 
 		SelectOrMoveCaretToRight(m_pFont->GetLineLengthByCharIndex(*m_pCaretSelPosition)
-			- m_pFont->GetLineSelPosition(*m_pCaretSelPosition) - 1);
+			- m_pFont->GetLineSelPositionByCharIndex(*m_pCaretSelPosition) - 1);
 
 		break;
 	case VK_LEFT:
@@ -440,13 +447,13 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 
 		break;
 	case VK_DOWN:
-		current_line_index = m_pFont->GetLineIndex(*m_pCaretSelPosition);
+		current_line_index = m_pFont->GetLineIndexByCharIndex(*m_pCaretSelPosition);
 
 		compare_line_index = current_line_index + 1;
 
 		if (compare_line_index < m_pFont->GetLineCount())
 		{
-			current_line_sel_position = m_pFont->GetLineSelPosition(*m_pCaretSelPosition);
+			current_line_sel_position = m_pFont->GetLineSelPositionByCharIndex(*m_pCaretSelPosition);
 			current_line_length = m_pFont->GetLineLength(current_line_index);
 			compare_line_length = m_pFont->GetLineLength(compare_line_index);
 
@@ -459,21 +466,21 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 				SelectOrMoveCaretToRight(current_line_length);
 			}
 
-			if (!ms_WindowKeySate.ShiftPressed)
+			if (!ms_WindowInputSate.ShiftPressed)
 			{
 				m_SelStart = m_SelEnd;
 			}
 		}
 		break;
 	case VK_UP:
-		current_line_index = m_pFont->GetLineIndex(*m_pCaretSelPosition);
+		current_line_index = m_pFont->GetLineIndexByCharIndex(*m_pCaretSelPosition);
 
 		if (current_line_index)
 		{
 			compare_line_index = current_line_index - 1;
 		}
 
-		current_line_sel_position = m_pFont->GetLineSelPosition(*m_pCaretSelPosition);
+		current_line_sel_position = m_pFont->GetLineSelPositionByCharIndex(*m_pCaretSelPosition);
 		current_line_length = m_pFont->GetLineLength(current_line_index);
 		compare_line_length = m_pFont->GetLineLength(compare_line_index);
 
@@ -486,7 +493,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 			SelectOrMoveCaretToLeft(compare_line_length);
 		}
 
-		if (!ms_WindowKeySate.ShiftPressed)
+		if (!ms_WindowInputSate.ShiftPressed)
 		{
 			m_SelEnd = m_SelStart;
 		}
@@ -565,7 +572,7 @@ void JWEdit::OnCharKey(WPARAM Char)
 	else if (wchar == 8) // Ctrl + h || Backspace
 	{
 		// Let's ignore <Ctrl + h>
-		if (!ms_WindowKeySate.ControlPressed)
+		if (!ms_WindowInputSate.ControlPressed)
 		{
 			if (IsTextSelected())
 			{
@@ -580,7 +587,7 @@ void JWEdit::OnCharKey(WPARAM Char)
 	else if (wchar == 13) // Ctrl + m || Enter
 	{
 		// Let's ignore <Ctrl + m>
-		if (!ms_WindowKeySate.ControlPressed)
+		if (!ms_WindowInputSate.ControlPressed)
 		{
 			if (IsTextSelected())
 			{
@@ -615,7 +622,7 @@ void JWEdit::OnCharKey(WPARAM Char)
 	else if (wchar == 27) // Ctrl + [ || Escape
 	{
 		// Let's ignore <Ctrl + [>
-		if (!ms_WindowKeySate.ControlPressed)
+		if (!ms_WindowInputSate.ControlPressed)
 		{
 			m_SelStart = *m_pCaretSelPosition;
 			m_SelEnd = *m_pCaretSelPosition;
@@ -729,13 +736,23 @@ void JWEdit::OnMouseDown(LPARAM MousePosition)
 {
 	JWControl::OnMouseDown(MousePosition);
 
-	POINT NewPosition;
-	NewPosition.x = m_MousePosition.x - static_cast<LONG>(m_PositionClient.x);
-	NewPosition.y = m_MousePosition.y - static_cast<LONG>(m_PositionClient.y);
+	if (ms_WindowInputSate.ShiftPressed)
+	{
+		*m_pCaretSelPosition = m_pFont->GetCharIndexByMousePosition(m_MousePosition);
 
-	m_SelStart = 0;
-	m_SelEnd = m_SelStart;
-	m_pCapturedSelPosition = &m_SelStart;
+		if (m_SelEnd < m_SelStart)
+		{
+			Swap(m_SelStart, m_SelEnd);
+			SwapPointer(m_pCapturedSelPosition, m_pCaretSelPosition);
+		}
+	}
+	else
+	{
+		m_SelStart = m_pFont->GetCharIndexByMousePosition(m_MousePosition);
+		m_SelEnd = m_SelStart;
+		m_pCapturedSelPosition = &m_SelStart;
+		m_pCaretSelPosition = &m_SelEnd;
+	}
 
 	UpdateCaretAndSelection();
 }
@@ -744,11 +761,15 @@ void JWEdit::OnMouseMove(LPARAM MousePosition)
 {
 	JWControl::OnMouseMove(MousePosition);
 
-	if (m_MouseLeftDown)
+	if (ms_WindowInputSate.MouseLeftPressed)
 	{
-		POINT NewPosition;
-		NewPosition.x = m_MousePosition.x - static_cast<LONG>(m_PositionClient.x);
-		NewPosition.y = m_MousePosition.y - static_cast<LONG>(m_PositionClient.y);
+		*m_pCaretSelPosition = m_pFont->GetCharIndexByMousePosition(m_MousePosition);
+
+		if (m_SelEnd < m_SelStart)
+		{
+			Swap(m_SelStart, m_SelEnd);
+			SwapPointer(m_pCapturedSelPosition, m_pCaretSelPosition);
+		}
 
 		UpdateCaretAndSelection();
 	}

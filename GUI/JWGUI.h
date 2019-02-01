@@ -44,7 +44,7 @@ namespace JWENGINE
 
 	private:
 		JWWindow* m_pWindow;
-		SKeyState m_WindowKeyState;
+		SWindowInputState m_WindowInputState;
 
 		VECTOR<JWControl*> m_Controls;
 

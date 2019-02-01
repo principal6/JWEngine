@@ -7,7 +7,7 @@ using namespace JWENGINE;
 // Static member variable
 WSTRING JWControl::ms_BaseDir;
 JWWindow* JWControl::ms_pWindow;
-SKeyState JWControl::ms_WindowKeySate;
+SWindowInputState JWControl::ms_WindowInputSate;
 
 JWControl::JWControl()
 {
@@ -22,7 +22,6 @@ JWControl::JWControl()
 	m_bHasFocus = false;
 
 	m_MousePosition = { 0, 0 };
-	m_MouseLeftDown = false;
 }
 
 auto JWControl::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -90,22 +89,14 @@ void JWControl::OnMouseMove(LPARAM MousePosition)
 
 void JWControl::OnMouseDown(LPARAM MousePosition)
 {
-	if (m_MouseLeftDown == false)
-	{
-		m_MouseLeftDown = true;
-		m_MousePosition.x = GET_X_LPARAM(MousePosition);
-		m_MousePosition.y = GET_Y_LPARAM(MousePosition);
-	}
+	m_MousePosition.x = GET_X_LPARAM(MousePosition);
+	m_MousePosition.y = GET_Y_LPARAM(MousePosition);
 }
 
 void JWControl::OnMouseUp(LPARAM MousePosition)
 {
-	if (m_MouseLeftDown == true)
-	{
-		m_MouseLeftDown = false;
-		m_MousePosition.x = GET_X_LPARAM(MousePosition);
-		m_MousePosition.y = GET_Y_LPARAM(MousePosition);
-	}
+	m_MousePosition.x = GET_X_LPARAM(MousePosition);
+	m_MousePosition.y = GET_Y_LPARAM(MousePosition);
 }
 
 void JWControl::UpdateControlState(const SMouseData& MouseData)
@@ -147,9 +138,9 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 	}
 }
 
-void JWControl::UpdateWindowKeyState(const SKeyState& WindowKeyState)
+void JWControl::UpdateWindowInputState(const SWindowInputState& WindowKeyState)
 {
-	ms_WindowKeySate = WindowKeyState;
+	ms_WindowInputSate = WindowKeyState;
 }
 
 PRIVATE void JWControl::UpdateText()

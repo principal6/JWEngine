@@ -71,13 +71,12 @@ namespace JWENGINE
 		void SetUseMultiline(bool Value);
 		auto GetUseMultiline() const->bool;
 		auto GetCharIndexByMousePosition(POINT Position) const->size_t;
-		auto GetCharIndexInLine(LONG XPosition, const WSTRING& LineText) const->size_t; // NOT USED???
 		auto GetCharXPosition(size_t CharIndex) const->float;
 		auto GetCharYPosition(size_t CharIndex) const->float;
 		auto GetCharacter(size_t CharIndex) const->wchar_t;
-		auto GetLineIndex(size_t CharIndex) const->size_t;
+		auto GetLineIndexByCharIndex(size_t CharIndex) const->size_t;
 		auto GetLineCount() const->size_t;
-		auto GetLineSelPosition(size_t CharIndex) const->size_t;
+		auto GetLineSelPositionByCharIndex(size_t CharIndex) const->size_t;
 		auto GetLineYPosition(size_t LineIndex) const->float;
 		auto GetLineYPositionByCharIndex(size_t CharIndex) const->float;
 		auto GetLineLength(size_t LineIndex) const->size_t;
@@ -89,7 +88,7 @@ namespace JWENGINE
 		auto GetLineGlobalSelEnd(size_t LineIndex) const->size_t;
 
 		// @warning:
-		// This function converts sel position in plain text to sel position in splitted text
+		// This function converts sel position in plain text to sel position in splitted text (with '\0' line end)
 		// which is needed because the line splitted text has different length than the original one!
 		auto GetAdjustedSelPosition(size_t SelPosition) const->size_t;
 		
@@ -105,8 +104,8 @@ namespace JWENGINE
 
 		auto CreateTexture(WSTRING FileName)->EError;
 
-		auto CalculateCharYPosition(size_t Chars_ID, size_t LineIndex) const->float;
-		auto CalculateCharXPositionInLine(size_t CharIndex, const WSTRING& LineText) const->float;
+		auto CalculateCharPositionTop(size_t Chars_ID, size_t LineIndex) const->float;
+		auto CalculateCharPositionLeftInLine(size_t CharIndex, const WSTRING& LineText) const->float;
 		auto CalculateCharPositionRightInLine(size_t CharIndex, const WSTRING& LineText) const->float;
 		auto CalculateLineWidth(const WSTRING& LineText)->float;
 
@@ -144,11 +143,11 @@ namespace JWENGINE
 
 		bool m_bUseMultiline;
 
-		WSTRING m_StringText;
+		WSTRING m_ImageStringOriginalText;
 		size_t m_ImageStringLength;
 		size_t m_ImageStringAdjustedLength;
 
-		STextInfo* m_TextInfo;
+		STextInfo* m_ImageStringInfo;
 		VECTOR<size_t> m_LineLength;
 	};
 };

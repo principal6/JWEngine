@@ -33,12 +33,12 @@ JWFont::JWFont()
 
 	m_bUseMultiline = false;
 	
-	m_TextInfo = nullptr;
+	m_ImageStringInfo = nullptr;
 }
 
 void JWFont::ClearText()
 {
-	m_StringText.clear();
+	m_ImageStringOriginalText.clear();
 	m_LineLength.clear();
 
 	if (m_Vertices)
@@ -56,7 +56,7 @@ void JWFont::ClearText()
 		}
 	}
 
-	memset(m_TextInfo, 0, sizeof(STextInfo) * MAX_TEXT_LEN);
+	memset(m_ImageStringInfo, 0, sizeof(STextInfo) * MAX_TEXT_LEN);
 
 	m_ImageStringLength = 0;
 	m_ImageStringAdjustedLength = 0;
@@ -87,7 +87,7 @@ void JWFont::Destroy()
 	JW_DELETE_ARRAY(m_Vertices);
 	JW_DELETE_ARRAY(m_Indices);
 
-	JW_DELETE_ARRAY(m_TextInfo);
+	JW_DELETE_ARRAY(m_ImageStringInfo);
 
 	JW_DESTROY(m_pBox);
 
@@ -103,7 +103,7 @@ auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
 	NewFileName += ASSET_DIR;
 	NewFileName += FileName_FNT;
 
-	m_TextInfo = new STextInfo[MAX_TEXT_LEN];
+	m_ImageStringInfo = new STextInfo[MAX_TEXT_LEN];
 
 	if (ms_FontData.bFontDataParsed)
 	{
@@ -300,7 +300,8 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	// Clear the text
 	ClearText();
 
-	m_StringText = MultilineText;
+	// Save the original text
+	m_ImageStringOriginalText = MultilineText;
 
 	// Set backgrounnd box
 	m_pBox->SetPosition(Position);
@@ -449,53 +450,37 @@ auto JWFont::GetCharIndexByMousePosition(POINT Position) const->size_t
 {
 	size_t Result = 0;
 
-	return Result;
-}
-
-auto JWFont::GetCharIndexInLine(LONG XPosition, const WSTRING& LineText) const->size_t
-{
-	size_t Result = 0;
-
-	if (!LineText.length())
-		return Result;
-
-	LONG XPositionSum = 0;
-	size_t Chars_ID = 0;
-	size_t Chars_ID_prev = 0;
-
-	for (size_t iterator = 0; iterator <= LineText.length(); iterator++)
+	// First, find the line index with Mouse's y position
+	size_t current_line_index = 0;
+	for (size_t iterator = 0; iterator < m_ImageStringLength; iterator++)
 	{
-		// Get Chars_ID in from MappedCharacters
-		Chars_ID = ms_FontData.MappedCharacters[LineText[iterator]];
-
-		if (iterator)
+		if (m_ImageStringInfo[iterator].Top <= Position.y)
 		{
-			XPositionSum += ms_FontData.Chars[Chars_ID_prev].XAdvance;
-			XPositionSum += ms_FontData.Chars[Chars_ID].XOffset;
+			current_line_index = m_ImageStringInfo[iterator].LineIndex;
 		}
-
-		if (XPosition <= XPositionSum)
-		{
-			if (iterator)
-				iterator--;
-
-			Result = iterator;
-			return Result;
-		}
-
-		Chars_ID_prev = Chars_ID;
 	}
 
-	Result = LineText.length();
+	// Now, find the right character with Mouse's x position
+	for (size_t iterator = 0; iterator < m_ImageStringLength; iterator++)
+	{
+		if (m_ImageStringInfo[iterator].LineIndex == current_line_index)
+		{
+			if (m_ImageStringInfo[iterator].Left <= Position.x)
+			{
+				Result = iterator;
+			}
+		}
+	}
+
 	return Result;
 }
 
-PRIVATE auto JWFont::CalculateCharYPosition(size_t Chars_ID, size_t LineIndex) const->float
+PRIVATE auto JWFont::CalculateCharPositionTop(size_t Chars_ID, size_t LineIndex) const->float
 {
 	return (LineIndex * GetLineHeight() + ms_FontData.Chars[Chars_ID].YOffset);
 }
 
-PRIVATE auto JWFont::CalculateCharXPositionInLine(size_t CharIndex, const WSTRING& LineText) const->float
+PRIVATE auto JWFont::CalculateCharPositionLeftInLine(size_t CharIndex, const WSTRING& LineText) const->float
 {
 	float Result = 0;
 
@@ -579,13 +564,13 @@ auto JWFont::GetCharXPosition(size_t CharIndex) const->float
 
 	if (!IsTextEmpty())
 	{
-		if (!m_TextInfo[CharIndex].Character)
+		if (!m_ImageStringInfo[CharIndex].Character)
 		{
-			Result = m_TextInfo[CharIndex - 1].Right;
+			Result = m_ImageStringInfo[CharIndex - 1].Right;
 		}
 		else
 		{
-			Result = m_TextInfo[CharIndex].Left;
+			Result = m_ImageStringInfo[CharIndex].Left;
 		}
 	}
 
@@ -598,7 +583,7 @@ auto JWFont::GetCharYPosition(size_t CharIndex) const->float
 
 	if (!IsTextEmpty())
 	{
-		Result = m_TextInfo[CharIndex].Top;
+		Result = m_ImageStringInfo[CharIndex].Top;
 	}
 
 	return Result;
@@ -608,7 +593,7 @@ auto JWFont::GetCharacter(size_t CharIndex) const->wchar_t
 {
 	if (!IsTextEmpty())
 	{
-		return m_TextInfo[CharIndex].Character;
+		return m_ImageStringInfo[CharIndex].Character;
 	}
 
 	return 0;
@@ -623,7 +608,7 @@ auto JWFont::GetLineLengthByCharIndex(size_t CharIndex) const->size_t
 {
 	if (m_LineLength.size())
 	{
-		return m_LineLength[m_TextInfo[CharIndex].LineIndex];
+		return m_LineLength[m_ImageStringInfo[CharIndex].LineIndex];
 	}
 
 	return 0;
@@ -639,14 +624,14 @@ auto JWFont::GetLineLength(size_t LineIndex) const->size_t
 	return 0;
 }
 
-auto JWFont::GetLineSelPosition(size_t CharIndex) const->size_t
+auto JWFont::GetLineSelPositionByCharIndex(size_t CharIndex) const->size_t
 {
-	return m_TextInfo[CharIndex].CharIndexInLine;
+	return m_ImageStringInfo[CharIndex].CharIndexInLine;
 }
 
-auto JWFont::GetLineIndex(size_t CharIndex) const->size_t
+auto JWFont::GetLineIndexByCharIndex(size_t CharIndex) const->size_t
 {
-	return m_TextInfo[CharIndex].LineIndex;
+	return m_ImageStringInfo[CharIndex].LineIndex;
 }
 
 auto JWFont::GetLineCount() const->size_t
@@ -658,7 +643,7 @@ auto JWFont::GetLineYPositionByCharIndex(size_t CharIndex) const->float
 {
 	if (m_LineLength.size())
 	{
-		return m_TextInfo[CharIndex].Top;
+		return m_ImageStringInfo[CharIndex].Top;
 	}
 
 	return 0;
@@ -688,7 +673,7 @@ auto JWFont::GetLineWidthByCharIndex(size_t CharIndex) const->float
 	
 	if (!IsTextEmpty())
 	{
-		size_t line_index = GetLineIndex(CharIndex);
+		size_t line_index = GetLineIndexByCharIndex(CharIndex);
 		size_t sel_end = GetLineGlobalSelEnd(line_index);
 		Result = GetCharXPosition(sel_end);
 	}
@@ -709,7 +694,7 @@ auto JWFont::GetLineGlobalSelStart(size_t LineIndex) const->size_t
 	{
 		for (size_t iterator = 0; iterator < m_ImageStringLength; iterator++)
 		{
-			if (m_TextInfo[iterator].LineIndex == LineIndex)
+			if (m_ImageStringInfo[iterator].LineIndex == LineIndex)
 			{
 				Result = iterator;
 				break;
@@ -728,7 +713,7 @@ auto JWFont::GetLineGlobalSelEnd(size_t LineIndex) const->size_t
 	{
 		for (size_t iterator = 0; iterator < m_ImageStringLength; iterator++)
 		{
-			if (m_TextInfo[iterator].LineIndex == LineIndex)
+			if (m_ImageStringInfo[iterator].LineIndex == LineIndex)
 			{
 				Result = iterator;
 			}
@@ -740,7 +725,7 @@ auto JWFont::GetLineGlobalSelEnd(size_t LineIndex) const->size_t
 
 auto JWFont::GetAdjustedSelPosition(size_t SelPosition) const->size_t
 {
-	return m_TextInfo[SelPosition].AdjustedCharIndex;
+	return m_ImageStringInfo[SelPosition].AdjustedCharIndex;
 }
 
 PRIVATE auto JWFont::IsTextEmpty() const->bool
@@ -764,10 +749,10 @@ PRIVATE void JWFont::AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING&
 	float v2 = v1 + static_cast<float>(ms_FontData.Chars[Chars_ID].Height) / static_cast<float>(ms_FontData.Common.ScaleH);
 
 	// Set x, y positions
-	float x1 = HorizontalAlignmentOffset + CalculateCharXPositionInLine(CharIndexInLine, LineText);
+	float x1 = HorizontalAlignmentOffset + CalculateCharPositionLeftInLine(CharIndexInLine, LineText);
 	float x2 = x1 + static_cast<float>(ms_FontData.Chars[Chars_ID].Width);
 
-	float y1 = VerticalAlignmentOffset + CalculateCharYPosition(Chars_ID, LineIndex);
+	float y1 = VerticalAlignmentOffset + CalculateCharPositionTop(Chars_ID, LineIndex);
 	float y2 = y1 + static_cast<float>(ms_FontData.Chars[Chars_ID].Height);
 
 	// Set vertices
@@ -782,14 +767,14 @@ PRIVATE void JWFont::AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING&
 		m_ImageStringAdjustedLength++;
 
 	// Set text info
-	m_TextInfo[m_ImageStringLength].Character = Character;
-	m_TextInfo[m_ImageStringLength].Left = x1;
-	m_TextInfo[m_ImageStringLength].Right = x2;
-	m_TextInfo[m_ImageStringLength].Top = y1 - ms_FontData.Chars[Chars_ID].YOffset;
-	m_TextInfo[m_ImageStringLength].Bottom = y2;
-	m_TextInfo[m_ImageStringLength].LineIndex = LineIndex;
-	m_TextInfo[m_ImageStringLength].CharIndexInLine = CharIndexInLine;
-	m_TextInfo[m_ImageStringLength].AdjustedCharIndex = m_ImageStringAdjustedLength - 1;
+	m_ImageStringInfo[m_ImageStringLength].Character = Character;
+	m_ImageStringInfo[m_ImageStringLength].Left = x1;
+	m_ImageStringInfo[m_ImageStringLength].Right = x2;
+	m_ImageStringInfo[m_ImageStringLength].Top = y1 - ms_FontData.Chars[Chars_ID].YOffset;
+	m_ImageStringInfo[m_ImageStringLength].Bottom = y2;
+	m_ImageStringInfo[m_ImageStringLength].LineIndex = LineIndex;
+	m_ImageStringInfo[m_ImageStringLength].CharIndexInLine = CharIndexInLine;
+	m_ImageStringInfo[m_ImageStringLength].AdjustedCharIndex = m_ImageStringAdjustedLength - 1;
 
 	// Image string length includes '\0' in the splitted text
 	m_ImageStringLength++;

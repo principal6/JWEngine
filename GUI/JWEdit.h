@@ -64,13 +64,14 @@ namespace JWENGINE
 		JWLine* m_pCaret;
 		D3DXVECTOR2 m_CaretSize;
 		D3DXVECTOR2 m_CaretPosition;
+		size_t* m_pCaretSelPosition;
+		size_t m_PreviousCaretSelPosition;
 
 		JWRectangle* m_pSelection;
-
 		size_t m_SelStart;
 		size_t m_SelEnd;
 		size_t* m_pCapturedSelPosition;
-		size_t* m_pCaretSelPosition;
+		
 
 		WSTRING m_IMETempText;
 		size_t m_IMETempSel;
