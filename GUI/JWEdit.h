@@ -52,7 +52,7 @@ namespace JWENGINE
 		void InsertNewLine();
 		void EraseAfter();
 		void EraseBefore();
-		void EraseSelectedText();
+		void EraseSelectedText(bool bEraseAfter = false);
 		
 
 	private:

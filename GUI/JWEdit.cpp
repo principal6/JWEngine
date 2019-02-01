@@ -678,35 +678,10 @@ PRIVATE void JWEdit::InsertNewLine()
 	}
 }
 
-PRIVATE void JWEdit::EraseSelectedText()
-{
-	wchar_t prior_character = m_pFont->GetCharacter(m_SelStart - 1);
-	wchar_t current_character = m_pFont->GetCharacter(m_SelStart);
-	size_t erase_count = m_SelEnd - m_SelStart;
-	size_t adjusted_sel_position = m_pFont->GetAdjustedSelPosition(m_SelStart);
-	m_Text = m_Text.erase(adjusted_sel_position, erase_count);
-
-	// Update the text
-	UpdateText();
-
-	if ((prior_character == 0) || (current_character == 0))
-	{
-		// If the prior character is '\0', it was a splitted line,
-		// but now it isn't, so let's move the Sel to the left
-		m_SelStart--;
-	}
-
-	// There has to be no selection
-	m_SelEnd = m_SelStart;
-
-	// Update the caret position and selection
-	UpdateCaretAndSelection();
-}
-
 PRIVATE void JWEdit::EraseAfter()
 {
 	m_SelEnd = m_SelStart + 1;
-	EraseSelectedText();
+	EraseSelectedText(true);
 }
 
 PRIVATE void JWEdit::EraseBefore()
@@ -716,6 +691,33 @@ PRIVATE void JWEdit::EraseBefore()
 		m_SelStart--;
 		EraseSelectedText();
 	}
+}
+
+PRIVATE void JWEdit::EraseSelectedText(bool bEraseAfter)
+{
+	wchar_t current_character = m_pFont->GetCharacter(m_SelStart);
+	size_t erase_count = m_SelEnd - m_SelStart;
+	size_t adjusted_sel_position = m_pFont->GetAdjustedSelPosition(m_SelStart);
+	if ((current_character == 0) && (bEraseAfter))
+	{
+		adjusted_sel_position++;
+	}
+	m_Text = m_Text.erase(adjusted_sel_position, erase_count);
+
+	// Update the text
+	UpdateText();
+
+	if ((current_character == 0) && (!bEraseAfter))
+	{
+		// If the current sel's character is '\0', it is a splitted line
+		m_SelStart--;
+	}
+
+	// There has to be no selection
+	m_SelEnd = m_SelStart;
+
+	// Update the caret position and selection
+	UpdateCaretAndSelection();
 }
 
 void JWEdit::OnMouseDown(LPARAM MousePosition)
