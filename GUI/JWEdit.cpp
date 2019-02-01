@@ -123,7 +123,7 @@ void JWEdit::Focus()
 	UpdateCaretAndSelection();
 }
 
-PRIVATE void JWEdit::SelectionToLeft(size_t Stride)
+PRIVATE void JWEdit::SelectOrMoveCaretToLeft(size_t Stride)
 {
 	if (ms_WindowKeySate.ShiftPressed)
 	{
@@ -148,20 +148,11 @@ PRIVATE void JWEdit::SelectionToLeft(size_t Stride)
 	else
 	{
 		// Move
-		if (m_pCaretSelPosition == &m_SelStart)
-		{
-			SIZE_T_MINUS(m_SelStart, Stride);
-			m_SelEnd = m_SelStart;
-		}
-		else
-		{
-			SIZE_T_MINUS(m_SelEnd, Stride);
-			m_SelStart = m_SelEnd;
-		}
+		MoveCaretToLeft(Stride);
 	}
 }
 
-PRIVATE void JWEdit::SelectionToRight(size_t Stride)
+PRIVATE void JWEdit::SelectOrMoveCaretToRight(size_t Stride)
 {
 	if (ms_WindowKeySate.ShiftPressed)
 	{
@@ -186,16 +177,35 @@ PRIVATE void JWEdit::SelectionToRight(size_t Stride)
 	else
 	{
 		// Move
-		if (m_pCaretSelPosition == &m_SelStart)
-		{
-			SIZE_T_PLUS(m_SelStart, Stride, GetTextLength());
-			m_SelEnd = m_SelStart;
-		}
-		else
-		{
-			SIZE_T_PLUS(m_SelEnd, Stride, GetTextLength());
-			m_SelStart = m_SelEnd;
-		}
+		MoveCaretToRight(Stride);
+	}
+}
+
+PRIVATE void JWEdit::MoveCaretToLeft(size_t Stride)
+{
+	if (m_pCaretSelPosition == &m_SelStart)
+	{
+		SIZE_T_MINUS(m_SelStart, Stride);
+		m_SelEnd = m_SelStart;
+	}
+	else
+	{
+		SIZE_T_MINUS(m_SelEnd, Stride);
+		m_SelStart = m_SelEnd;
+	}
+}
+
+PRIVATE void JWEdit::MoveCaretToRight(size_t Stride)
+{
+	if (m_pCaretSelPosition == &m_SelStart)
+	{
+		SIZE_T_PLUS(m_SelStart, Stride, GetTextLength());
+		m_SelEnd = m_SelStart;
+	}
+	else
+	{
+		SIZE_T_PLUS(m_SelEnd, Stride, GetTextLength());
+		m_SelStart = m_SelEnd;
 	}
 }
 
@@ -389,7 +399,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 			m_pCaretSelPosition = &m_SelStart;
 		}
 
-		SelectionToLeft(m_pFont->GetLineSelPosition(*m_pCaretSelPosition));
+		SelectOrMoveCaretToLeft(m_pFont->GetLineSelPosition(*m_pCaretSelPosition));
 
 		break;
 	case VK_END:
@@ -401,7 +411,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 			m_pCaretSelPosition = &m_SelEnd;
 		}
 
-		SelectionToRight(m_pFont->GetLineLengthByCharIndex(*m_pCaretSelPosition)
+		SelectOrMoveCaretToRight(m_pFont->GetLineLengthByCharIndex(*m_pCaretSelPosition)
 			- m_pFont->GetLineSelPosition(*m_pCaretSelPosition) - 1);
 
 		break;
@@ -414,7 +424,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 			m_pCaretSelPosition = &m_SelStart;
 		}
 
-		SelectionToLeft();
+		SelectOrMoveCaretToLeft();
 
 		break;
 	case VK_RIGHT:
@@ -426,7 +436,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 			m_pCaretSelPosition = &m_SelEnd;
 		}
 
-		SelectionToRight();
+		SelectOrMoveCaretToRight();
 
 		break;
 	case VK_DOWN:
@@ -442,11 +452,11 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 
 			if (current_line_sel_position >= compare_line_length)
 			{
-				SelectionToRight(current_line_length - current_line_sel_position + compare_line_length - 1);
+				SelectOrMoveCaretToRight(current_line_length - current_line_sel_position + compare_line_length - 1);
 			}
 			else
 			{
-				SelectionToRight(current_line_length);
+				SelectOrMoveCaretToRight(current_line_length);
 			}
 
 			if (!ms_WindowKeySate.ShiftPressed)
@@ -469,11 +479,11 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 
 		if (current_line_sel_position >= compare_line_length)
 		{
-			SelectionToLeft(current_line_sel_position + 1);
+			SelectOrMoveCaretToLeft(current_line_sel_position + 1);
 		}
 		else
 		{
-			SelectionToLeft(compare_line_length);
+			SelectOrMoveCaretToLeft(compare_line_length);
 		}
 
 		if (!ms_WindowKeySate.ShiftPressed)
@@ -541,16 +551,43 @@ void JWEdit::OnCharKey(WPARAM Char)
 			m_SelEnd = GetTextLength();
 			m_pCaretSelPosition = &m_SelEnd;
 			m_pCapturedSelPosition = &m_SelStart;
-
-			UpdateCaretAndSelection();
 		}
-		return;
 	}
 	else if (wchar == 3) // Ctrl + c
 	{
 		m_ClipText = m_Text.substr(m_SelStart, m_SelEnd - m_SelStart);
 		CopyTextToClipboard(m_ClipText);
-		return;
+	}
+	else if (wchar == 6) // Ctrl + f
+	{
+		
+	}
+	else if (wchar == 8) // Ctrl + h || Backspace
+	{
+		// Let's ignore <Ctrl + h>
+		if (!ms_WindowKeySate.ControlPressed)
+		{
+			if (IsTextSelected())
+			{
+				EraseSelectedText();
+			}
+			else
+			{
+				EraseBefore();
+			}
+		}
+	}
+	else if (wchar == 13) // Ctrl + m || Enter
+	{
+		// Let's ignore <Ctrl + m>
+		if (!ms_WindowKeySate.ControlPressed)
+		{
+			if (IsTextSelected())
+			{
+				EraseSelectedText();
+			}
+			InsertNewLine();
+		}
 	}
 	else if (wchar == 22) // Ctrl + v
 	{
@@ -559,69 +596,33 @@ void JWEdit::OnCharKey(WPARAM Char)
 		{
 			InsertChar(static_cast<wchar_t>(m_ClipText[iterator]));
 		}
-
-		UpdateText();
-		UpdateCaretAndSelection();
-		return;
 	}
 	else if (wchar == 24) // Ctrl + x
 	{
 		m_ClipText = m_Text.substr(m_SelStart, m_SelEnd - m_SelStart);
 		CopyTextToClipboard(m_ClipText);
 		EraseSelectedText();
-
-		UpdateText();
-		UpdateCaretAndSelection();
-		return;
 	}
 	else if (wchar == 26) // Ctrl + z
 	{
-
-		return;
+		
 	}
-	else if (wchar == 27) // Escape
+	else if (wchar == 27) // Ctrl + [ || Escape
 	{
-		m_SelStart = *m_pCaretSelPosition;
-		m_SelEnd = *m_pCaretSelPosition;
-
-		UpdateCaretAndSelection();
-		return;
+		// Let's ignore <Ctrl + [>
+		if (!ms_WindowKeySate.ControlPressed)
+		{
+			m_SelStart = *m_pCaretSelPosition;
+			m_SelEnd = *m_pCaretSelPosition;
+		}
 	}
-
-	if (IsTextSelected())
+	else if (wchar >= 32) // Characters
 	{
-		if (wchar == 8) // Backspace
+		if (IsTextSelected())
 		{
 			EraseSelectedText();
 		}
-		else if (wchar == 13) // Enter
-		{
-			EraseSelectedText();
-			InsertNewLine();
-		}
-		else
-		{
-			// Char input
-			EraseSelectedText();
-			InsertChar(wchar);
-		}
-	}
-	else
-	{
-		// No selection
-		if (wchar == 8) // Backspace
-		{
-			EraseBefore();
-		}
-		else if (wchar == 13) // Enter
-		{
-			InsertNewLine();
-		}
-		else
-		{
-			// Char input
-			InsertChar(wchar);
-		}
+		InsertChar(wchar);
 	}
 
 	UpdateText();
@@ -634,22 +635,39 @@ PRIVATE void JWEdit::InsertChar(wchar_t Char)
 	// TODO: Insert when inserted, the line gets splitted
 	// e.g. abefffffffffffffffffffffffffqwerty + ANY_LETTER -> problem!
 	// maybe change the code below to SelectionToRight()??
+	m_SelEnd = m_SelStart;
+
+	wchar_t current_sel_character = m_pFont->GetCharacter(m_SelStart);
 	size_t adjusted_sel_position = m_pFont->GetAdjustedSelPosition(m_SelStart);
+	if (current_sel_character == 0)
+	{
+		adjusted_sel_position++;
+	}
+	
 	m_Text = m_Text.insert(adjusted_sel_position, 1, Char);
 
-	std::cout << "CHARACTER: " << m_pFont->GetCharacter(m_SelStart) << std::endl;
-	wchar_t current_sel_character = m_pFont->GetCharacter(m_SelStart);
-	if (!current_sel_character)
+	// Update the text
+	UpdateText();
+
+	if (m_SelStart)
 	{
-		// This is split line's end ('\0')
-		m_SelStart += 2;
+		if (m_pFont->GetCharacter(m_SelStart) == 0)
+		{
+			// Splitted line's end
+			MoveCaretToRight(2);
+		}
+		else
+		{
+			MoveCaretToRight();
+		}
 	}
 	else
 	{
-		m_SelStart++;
+		MoveCaretToRight();
 	}
 
-	m_SelEnd = m_SelStart;
+	// Update the caret position and selection
+	UpdateCaretAndSelection();
 }
 
 PRIVATE void JWEdit::InsertNewLine()
@@ -662,28 +680,41 @@ PRIVATE void JWEdit::InsertNewLine()
 
 PRIVATE void JWEdit::EraseSelectedText()
 {
+	wchar_t prior_character = m_pFont->GetCharacter(m_SelStart - 1);
+	wchar_t current_character = m_pFont->GetCharacter(m_SelStart);
 	size_t erase_count = m_SelEnd - m_SelStart;
 	size_t adjusted_sel_position = m_pFont->GetAdjustedSelPosition(m_SelStart);
 	m_Text = m_Text.erase(adjusted_sel_position, erase_count);
 
+	// Update the text
+	UpdateText();
+
+	if ((prior_character == 0) || (current_character == 0))
+	{
+		// If the prior character is '\0', it was a splitted line,
+		// but now it isn't, so let's move the Sel to the left
+		m_SelStart--;
+	}
+
+	// There has to be no selection
 	m_SelEnd = m_SelStart;
+
+	// Update the caret position and selection
+	UpdateCaretAndSelection();
 }
 
 PRIVATE void JWEdit::EraseAfter()
 {
-	size_t adjusted_sel_position = m_pFont->GetAdjustedSelPosition(m_SelStart);
-	m_Text = m_Text.erase(adjusted_sel_position, 1);
+	m_SelEnd = m_SelStart + 1;
+	EraseSelectedText();
 }
 
 PRIVATE void JWEdit::EraseBefore()
 {
 	if (m_SelStart)
 	{
-		size_t adjusted_sel_position = m_pFont->GetAdjustedSelPosition(m_SelStart - 1);
-		m_Text = m_Text.erase(adjusted_sel_position, 1);
-
 		m_SelStart--;
-		m_SelEnd = m_SelStart;
+		EraseSelectedText();
 	}
 }
 

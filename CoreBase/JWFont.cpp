@@ -56,7 +56,7 @@ void JWFont::ClearText()
 		}
 	}
 
-	memset(m_TextInfo, 0, sizeof(m_TextInfo));
+	memset(m_TextInfo, 0, sizeof(STextInfo) * MAX_TEXT_LEN);
 
 	m_ImageStringLength = 0;
 	m_ImageStringAdjustedLength = 0;
@@ -335,18 +335,7 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 		b_should_add_line = false;
 		b_split_end_line = false;
 
-		if ((MultilineText[iterator_in_text] == L'\n') || (iterator_in_text == MultilineText.length()))
-		{
-			// If we meet new line character or end of the text
-			b_should_add_line = true;
-			line_width = CalculateLineWidth(line_string);
-
-			m_LineLength.push_back(line_string.length() + 1); // includes '\n' or '\0'!
-
-			iterator_in_text_prev = iterator_in_text + 1;
-			line_count++;
-		}
-		else if (CalculateCharPositionRightInLine(line_character_index, line_string) >= BoxSize.x)
+		if (CalculateLineWidth(line_string) >= BoxSize.x)
 		{
 			// If current character's x position exceeds the box's x size
 			b_should_add_line = true;
@@ -361,6 +350,17 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 			iterator_in_text--;
 			iterator_in_text_prev = iterator_in_text;
 
+			line_count++;
+		}
+		else if ((MultilineText[iterator_in_text] == L'\n') || (iterator_in_text == MultilineText.length()))
+		{
+			// If we meet new line character or end of the text
+			b_should_add_line = true;
+			line_width = CalculateLineWidth(line_string);
+
+			m_LineLength.push_back(line_string.length() + 1); // includes '\n' or '\0'!
+
+			iterator_in_text_prev = iterator_in_text + 1;
 			line_count++;
 		}
 
@@ -568,7 +568,7 @@ PRIVATE auto JWFont::CalculateCharPositionRightInLine(size_t CharIndex, const WS
 		Chars_ID_prev = Chars_ID;
 	}
 
-	Result += ms_FontData.Chars[Chars_ID].XAdvance;
+	//Result += ms_FontData.Chars[Chars_ID].XAdvance;
 
 	return Result;
 }
@@ -616,7 +616,7 @@ auto JWFont::GetCharacter(size_t CharIndex) const->wchar_t
 
 PRIVATE auto JWFont::CalculateLineWidth(const WSTRING& LineText)->float
 {
-	return CalculateCharXPositionInLine(LineText.length(), LineText);
+	return CalculateCharPositionRightInLine(LineText.length(), LineText);
 }
 
 auto JWFont::GetLineLengthByCharIndex(size_t CharIndex) const->size_t
@@ -777,6 +777,10 @@ PRIVATE void JWFont::AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING&
 	m_Vertices[vertexID + 2] = SVertexImage(x1, y2, m_FontColor, u1, v2);
 	m_Vertices[vertexID + 3] = SVertexImage(x2, y2, m_FontColor, u2, v2);
 
+	// If character is not '\0', adjusted length + 1
+	if (Character)
+		m_ImageStringAdjustedLength++;
+
 	// Set text info
 	m_TextInfo[m_ImageStringLength].Character = Character;
 	m_TextInfo[m_ImageStringLength].Left = x1;
@@ -785,14 +789,10 @@ PRIVATE void JWFont::AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING&
 	m_TextInfo[m_ImageStringLength].Bottom = y2;
 	m_TextInfo[m_ImageStringLength].LineIndex = LineIndex;
 	m_TextInfo[m_ImageStringLength].CharIndexInLine = CharIndexInLine;
-	m_TextInfo[m_ImageStringLength].AdjustedCharIndex = m_ImageStringAdjustedLength;
+	m_TextInfo[m_ImageStringLength].AdjustedCharIndex = m_ImageStringAdjustedLength - 1;
 
 	// Image string length includes '\0' in the splitted text
 	m_ImageStringLength++;
-
-	// If character is not '\0', adjusted length + 1
-	if (Character)
-		m_ImageStringAdjustedLength++;
 }
 
 void JWFont::Draw() const

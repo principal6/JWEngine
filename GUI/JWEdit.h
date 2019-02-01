@@ -34,8 +34,10 @@ namespace JWENGINE
 		void CheckIMEInput() override;
 
 	private:
-		void SelectionToLeft(size_t Stride = 1);
-		void SelectionToRight(size_t Stride = 1);
+		void SelectOrMoveCaretToLeft(size_t Stride = 1); // Select characters to the left or move the caret to the left
+		void SelectOrMoveCaretToRight(size_t Stride = 1); // Select characters to the right or move the caret to the right
+		void MoveCaretToLeft(size_t Stride = 1); // Move the caret to the left
+		void MoveCaretToRight(size_t Stride = 1); // Move the caret to the right
 
 		void UpdateText();
 		void UpdateCaretAndSelection();

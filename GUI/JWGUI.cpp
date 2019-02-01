@@ -133,6 +133,24 @@ PRIVATE void JWGUI::HandleMessage()
 
 PRIVATE void JWGUI::DetectKeyInput()
 {
+	if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
+	{
+		m_WindowKeyState.ControlPressed = true;
+	}
+	else
+	{
+		m_WindowKeyState.ControlPressed = false;
+	}
+
+	if (GetAsyncKeyState(VK_MENU) & 0x8000)
+	{
+		m_WindowKeyState.AltPressed = true;
+	}
+	else
+	{
+		m_WindowKeyState.AltPressed = false;
+	}
+
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
 	{
 		m_WindowKeyState.ShiftPressed = true;
