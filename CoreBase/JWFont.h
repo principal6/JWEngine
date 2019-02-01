@@ -26,6 +26,20 @@ namespace JWENGINE
 		Bottom,
 	};
 
+	struct STextInfo
+	{
+		wchar_t Character;
+		float Left;
+		float Right;
+		float Top;
+		float Bottom;
+		size_t LineIndex;
+		size_t CharIndexInLine;
+		size_t AdjustedCharIndex;
+
+		STextInfo() : Character(0), Left(0), Right(0), Top(0), Bottom(0), LineIndex(0), CharIndexInLine(0), AdjustedCharIndex(0) {};
+	};
+
 	class JWFont final : public JWBMFontParser
 	{
 	public:
@@ -53,14 +67,31 @@ namespace JWENGINE
 		// Text
 		void ClearText();
 		auto SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError;
+		auto GetTextLength() const->size_t;
 		void SetUseMultiline(bool Value);
 		auto GetUseMultiline() const->bool;
-		auto GetCharIndexInLine(LONG XPosition, const WSTRING& LineText) const->size_t;
-		auto GetCharXPositionInLine(size_t CharIndex, const WSTRING& LineText) const->float;
-		auto GetCharYPosition(size_t Chars_index, size_t LineIndex) const->float;
+		auto GetCharIndexByMousePosition(POINT Position) const->size_t;
+		auto GetCharIndexInLine(LONG XPosition, const WSTRING& LineText) const->size_t; // NOT USED???
+		auto GetCharXPosition(size_t CharIndex) const->float;
+		auto GetCharYPosition(size_t CharIndex) const->float;
+		auto GetCharacter(size_t CharIndex) const->wchar_t;
+		auto GetLineIndex(size_t CharIndex) const->size_t;
+		auto GetLineCount() const->size_t;
+		auto GetLineSelPosition(size_t CharIndex) const->size_t;
 		auto GetLineYPosition(size_t LineIndex) const->float;
-		auto GetLineLength(const WSTRING& LineText)->float;
+		auto GetLineYPositionByCharIndex(size_t CharIndex) const->float;
+		auto GetLineLength(size_t LineIndex) const->size_t;
+		auto GetLineLengthByCharIndex(size_t CharIndex) const->size_t;
+		auto GetLineWidth(size_t LineIndex) const->float;
+		auto GetLineWidthByCharIndex(size_t CharIndex) const->float;
 		auto GetLineHeight() const->float;
+		auto GetLineGlobalSelStart(size_t LineIndex) const->size_t;
+		auto GetLineGlobalSelEnd(size_t LineIndex) const->size_t;
+
+		// @warning:
+		// This function converts sel position in plain text to sel position in splitted text
+		// which is needed because the line splitted text has different length than the original one!
+		auto GetAdjustedSelPosition(size_t SelPosition) const->size_t;
 		
 		// Draw
 		void Draw() const;
@@ -74,8 +105,15 @@ namespace JWENGINE
 
 		auto CreateTexture(WSTRING FileName)->EError;
 
-		void AddChar(size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex, size_t Chars_index, size_t Chars_index_prev,
-			float HorizontalAlignmentOffset, float VerticalAlignmentOffset, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize);
+		auto CalculateCharYPosition(size_t Chars_ID, size_t LineIndex) const->float;
+		auto CalculateCharXPositionInLine(size_t CharIndex, const WSTRING& LineText) const->float;
+		auto CalculateCharPositionRightInLine(size_t CharIndex, const WSTRING& LineText) const->float;
+		auto CalculateLineWidth(const WSTRING& LineText)->float;
+
+		auto IsTextEmpty() const->bool;
+
+		void AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex,
+			size_t Chars_ID, size_t Chars_ID_prev, float HorizontalAlignmentOffset, float VerticalAlignmentOffset);
 
 	private:
 		static const DWORD DEFAULT_COLOR_FONT = D3DCOLOR_XRGB(255, 255, 255);
@@ -108,5 +146,9 @@ namespace JWENGINE
 
 		WSTRING m_StringText;
 		size_t m_ImageStringLength;
+		size_t m_ImageStringAdjustedLength;
+
+		STextInfo* m_TextInfo;
+		VECTOR<size_t> m_LineLength;
 	};
 };

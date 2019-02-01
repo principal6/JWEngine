@@ -234,24 +234,24 @@ auto JWBMFontParser::Parse(WSTRING FileName)->bool
 		
 		// Map all possible characters from 0 to MAX_WCHAR_INDEX
 		wchar_t wchar_t_value = 0;
-		size_t Chars_index = 0;
+		size_t Chars_ID = 0;
 		for (size_t iterator_wchar_t = 0; iterator_wchar_t < MAX_WCHAR_INDEX; iterator_wchar_t++)
 		{
 			wchar_t_value = static_cast<wchar_t>(iterator_wchar_t);
 
-			// Find Chars_index in CharMap
+			// Find Chars_ID in CharMap
 			auto iterator_line_character = ms_FontData.CharMap.find(wchar_t_value);
 			if (iterator_line_character != ms_FontData.CharMap.end())
 			{
-				// Set Chars_index value only if the key exists
-				Chars_index = iterator_line_character->second;
+				// Set Chars_ID value only if the key exists
+				Chars_ID = iterator_line_character->second;
 			}
 			else
 			{
-				Chars_index = 0;
+				Chars_ID = 0;
 			}
 
-			ms_FontData.MappedCharacters[iterator_wchar_t] = Chars_index;
+			ms_FontData.MappedCharacters[iterator_wchar_t] = Chars_ID;
 		}
 
 		// The parsing ended successfully

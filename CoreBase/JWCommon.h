@@ -214,16 +214,6 @@ namespace JWENGINE
 		STextureUV(float U1, float U2, float V1, float V2) : u1(U1), u2(U2), v1(V1), v2(V2) {};
 	};
 
-	struct SLineData
-	{
-		WSTRING LineText;
-		size_t LineLength;
-		size_t LineSelPosition;
-		size_t LineIndex;
-
-		SLineData() : LineLength(0), LineSelPosition(0), LineIndex(0) {};
-	};
-
 	inline static void ConvertFrameIDIntoUV(int FrameID, POINT SpriteSize, POINT SheetSize, int NumCols, int NumRows, STextureUV* UV)
 	{
 		int FrameXPos = FrameID % NumCols;
@@ -286,150 +276,6 @@ namespace JWENGINE
 		return Result;
 	}
 
-	static auto ConvertSelPositionToLineSelPosition(WSTRING& Text, size_t SelPosition)->size_t
-	{
-		size_t Result = 0;
-
-		if (!Text.length())
-			return Result;
-
-		size_t iterator_prev = 0;
-		for (size_t iterator = 0; iterator <= Text.length(); iterator++)
-		{
-			// Check new line('\n') and string end
-			if ((Text[iterator] == L'\n') || iterator == Text.length())
-			{
-				if (SelPosition <= iterator)
-				{
-					Result = SelPosition + iterator_prev;
-					return Result;
-				}
-				iterator_prev = iterator + 1;
-			}
-		}
-
-		return Result;
-	}
-
-	static auto ConvertLineSelPositionToSelPosition(WSTRING& Text, size_t LineSelPosition, size_t LineIndex)->size_t
-	{
-		size_t Result = 0;
-
-		if (!Text.length())
-			return Result;
-
-		size_t line_count = 0;
-		size_t iterator_prev = 0;
-		for (size_t iterator = 0; iterator <= Text.length(); iterator++)
-		{
-			// Check new line('\n') and string end
-			if ((Text[iterator] == L'\n') || iterator == Text.length())
-			{
-				if (LineIndex == line_count)
-				{
-					Result = iterator_prev + LineSelPosition;
-					return Result;
-				}
-
-				iterator_prev = iterator + 1;
-				line_count++;
-			}
-		}
-
-		return Result;
-	}
-
-	static auto GetLineDataFromLineIndex(WSTRING& Text, size_t LineIndex)->SLineData
-	{
-		SLineData Result;
-
-		if (!Text.length())
-			return Result;
-
-		// SIZE_T = LineIndex
-		Result.LineIndex = LineIndex;
-
-		size_t line_count = 0;
-		size_t iterator_prev = 0;
-		for (size_t iterator = 0; iterator <= Text.length(); iterator++)
-		{
-			// Check new line('\n') and string end
-			if ((Text[iterator] == L'\n') || iterator == Text.length())
-			{
-				if (Result.LineIndex == line_count)
-				{
-					Result.LineText = Text.substr(iterator_prev, iterator - iterator_prev);
-					Result.LineLength = Result.LineText.length();
-					Result.LineSelPosition = 0;
-					return Result;
-				}
-				iterator_prev = iterator + 1;
-				line_count++;
-			}
-		}
-		return Result;
-	}
-
-	static auto GetLineDataFromMousePosition(WSTRING& Text, POINT MousePosition, float LineHeight)->SLineData
-	{
-		SLineData Result;
-
-		if (!Text.length())
-			return Result;
-
-		Result.LineIndex = static_cast<size_t>(static_cast<float>(MousePosition.y) / LineHeight);
-
-		size_t line_count = 0;
-		size_t iterator_prev = 0;
-		for (size_t iterator = 0; iterator <= Text.length(); iterator++)
-		{
-			// Check new line('\n') and string end
-			if ((Text[iterator] == L'\n') || iterator == Text.length())
-			{
-				if (Result.LineIndex == line_count)
-				{
-					Result.LineText = Text.substr(iterator_prev, iterator - iterator_prev);
-					Result.LineLength = Result.LineText.length();
-					Result.LineSelPosition = 0;
-					return Result;
-				}
-				iterator_prev = iterator + 1;
-				line_count++;
-			}
-		}
-		return Result;
-	}
-
-	static auto GetLineDataFromSelPosition(WSTRING& Text, size_t SelPosition)->SLineData
-	{
-		SLineData Result;
-
-		if (!Text.length())
-			return Result;
-
-		size_t line_count = 0;
-		size_t iterator_prev = 0;
-		for (size_t iterator = 0; iterator <= Text.length(); iterator++)
-		{
-			// Check new line('\n') and string end
-			if ((Text[iterator] == L'\n') || iterator == Text.length())
-			{
-				if (SelPosition <= iterator)
-				{
-					Result.LineText = Text.substr(iterator_prev, iterator - iterator_prev);
-					Result.LineLength = Result.LineText.length();
-					Result.LineSelPosition = SelPosition - iterator_prev;
-					Result.LineIndex = line_count;
-					return Result;
-				}
-				iterator_prev = iterator + 1;
-				line_count++;
-			}
-		}
-
-		return Result;
-	}
-
 	// Template function
 	template <typename T>
 	static void Swap(T& v1, T& v2)
@@ -453,5 +299,50 @@ namespace JWENGINE
 		{
 			var += value;
 		}
+	}
+
+	inline static void CopyTextToClipboard(WSTRING Text)
+	{
+		if (!Text.length())
+			return;
+
+		const wchar_t* copy_text = Text.c_str();
+		const size_t copy_length = (Text.length() + 1) * 2;
+
+		OpenClipboard(0);
+		EmptyClipboard();
+
+		HGLOBAL hGlobal = nullptr;
+		while (!hGlobal)
+		{
+			hGlobal = GlobalAlloc(GMEM_MOVEABLE, copy_length);
+		}
+
+		memcpy(GlobalLock(hGlobal), copy_text, copy_length);
+		GlobalUnlock(hGlobal);
+		SetClipboardData(CF_UNICODETEXT, hGlobal);
+		CloseClipboard();
+		GlobalFree(hGlobal);
+	}
+
+	inline static void PasteTextFromClipboard(WSTRING& Text)
+	{
+		LPCTSTR temp_string = nullptr;
+
+		OpenClipboard(0);
+
+		HGLOBAL hGlobal = GetClipboardData(CF_UNICODETEXT);
+		if (hGlobal)
+		{
+			temp_string = static_cast<LPCTSTR>(GlobalLock(hGlobal));
+
+			if (temp_string)
+			{
+				GlobalUnlock(hGlobal);
+			}
+		}
+		CloseClipboard();
+
+		Text = temp_string;
 	}
 };

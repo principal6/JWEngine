@@ -25,6 +25,7 @@ namespace JWENGINE
 		void Focus() override;
 
 		void SetSize(D3DXVECTOR2 Size) override;
+		void SetUseMultiline(bool Value) override;
 
 		void OnKeyDown(WPARAM VirtualKeyCode) override;
 		void OnCharKey(WPARAM Char) override;
@@ -38,16 +39,19 @@ namespace JWENGINE
 
 		void UpdateText();
 		void UpdateCaretAndSelection();
-		void GetSelStartAndEndData();
+		
 		void UpdateCaretPosition();
 		void UpdateSelectionBox();
 
 		auto IsTextSelected() const->bool;
+		auto IsTextEmpty() const->bool;
+		auto GetTextLength() const->size_t;
+		void InsertChar(wchar_t Char);
+		void InsertNewLine();
 		void EraseAfter();
 		void EraseBefore();
 		void EraseSelectedText();
-		void InsertNewLine();
-		void InsertChar(wchar_t Char);
+		
 
 	private:
 		static const BYTE DEFUALT_ALPHA_BACKGROUND = 255;
@@ -65,9 +69,6 @@ namespace JWENGINE
 		size_t m_SelEnd;
 		size_t* m_pCapturedSelPosition;
 		size_t* m_pCaretSelPosition;
-
-		SLineData m_SelStartLineData;
-		SLineData m_SelEndLineData;
 
 		WSTRING m_IMETempText;
 		size_t m_IMETempSel;
