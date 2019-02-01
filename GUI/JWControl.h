@@ -47,18 +47,6 @@ namespace JWENGINE
 		Vertical,
 	};
 
-	struct SWindowInputState
-	{
-		bool MouseLeftPressed;
-		bool MouseRightPressed;
-		bool ControlPressed;
-		bool AltPressed;
-		bool ShiftPressed;
-
-		SWindowInputState() : MouseLeftPressed(false), MouseRightPressed(false),
-			ControlPressed(false), AltPressed(false), ShiftPressed(false) {};
-	};
-
 	static inline auto Static_IsMouseInRECT(const POINT& Position, const RECT& Rect)->bool
 	{
 		if ((Position.x >= Rect.left) && (Position.x <= Rect.right))
@@ -101,7 +89,6 @@ namespace JWENGINE
 
 		// Update
 		virtual void UpdateControlState(const SMouseData& MouseData);
-		virtual void UpdateWindowInputState(const SWindowInputState& WindowKeyState);
 
 		// Draw
 		virtual void Draw();
@@ -155,7 +142,6 @@ namespace JWENGINE
 
 		static WSTRING ms_BaseDir;
 		static JWWindow* ms_pWindow;
-		static SWindowInputState ms_WindowInputSate;
 
 		JWFont* m_pFont;
 

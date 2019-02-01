@@ -146,6 +146,7 @@ void JWGame::Shutdown()
 PRIVATE void JWGame::MainLoop()
 {
 	DetectInput();
+	m_Window->UpdateInputState();
 
 	// Timer for calculating FPS
 	if (GetTickCount64() >= m_TimerSec + 1000)

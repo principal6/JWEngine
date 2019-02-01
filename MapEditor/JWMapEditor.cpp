@@ -227,13 +227,13 @@ LRESULT CALLBACK JWENGINE::RightChildWindowProc(HWND hWnd, UINT Message, WPARAM 
 	{
 		JWMapEditor::ms_MapTileSelector->UpdateMapSelector();
 
-		if (JWMapEditor::ms_WindowRight->IsMouseLeftButtonPressed())
+		if (JWMapEditor::ms_WindowRight->GetWindowInputState()->MouseLeftPressed)
 		{
 			// Edit map with seleted tiles
 			JWMapEditor::ms_Map->EditMap(JWMapEditor::ms_MapTileSelector.get());
 		}
 
-		if (JWMapEditor::ms_WindowRight->IsMouseRightButtonPressed())
+		if (JWMapEditor::ms_WindowRight->GetWindowInputState()->MouseRightPressed)
 		{
 			// Edit map with seleted tiles
 			JWMapEditor::ms_Map->EditMap(JWMapEditor::ms_MapTileSelector.get(), true);
@@ -454,6 +454,9 @@ void JWMapEditor::Run()
 
 PRIVATE void JWMapEditor::MainLoop()
 {
+	ms_WindowLeft->UpdateInputState();
+	ms_WindowRight->UpdateInputState();
+
 	ms_WindowLeft->BeginRender();
 	ms_WindowRight->BeginRender();
 	if (ms_Map)

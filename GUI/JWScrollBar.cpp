@@ -1,6 +1,7 @@
 #include "JWScrollBar.h"
 #include "../CoreBase/JWFont.h"
 #include "../CoreBase/JWImage.h"
+#include "../CoreBase/JWWindow.h"
 #include "../GUI/JWTextButton.h"
 #include "../GUI/JWImageButton.h"
 
@@ -155,7 +156,7 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 
 		MoveScroller(move_stride);
 
-		if (MouseData.bMouseLeftButtonPressed)
+		if (ms_pWindow->GetWindowInputState()->MouseLeftPressed)
 		{
 			m_pScroller->SetState(EControlState::Pressed);
 		}
@@ -301,7 +302,7 @@ void JWScrollBar::SetState(EControlState State)
 		m_pButtonA->SetState(State);
 		m_pButtonB->SetState(State);
 
-		if (m_UpdatedMousedata.bMouseLeftButtonPressed == false)
+		if (!ms_pWindow->GetWindowInputState()->MouseLeftPressed)
 		{
 			m_pScroller->SetState(State);
 		}

@@ -414,6 +414,60 @@ auto JWWindow::IsIMECompleted()->bool
 	}
 }
 
+void JWWindow::UpdateInputState()
+{
+	// Mouse
+	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+	{
+		m_InputState.MouseLeftPressed = true;
+	}
+	else
+	{
+		m_InputState.MouseLeftPressed = false;
+	}
+
+	if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+	{
+		m_InputState.MouseRightPressed = true;
+	}
+	else
+	{
+		m_InputState.MouseRightPressed = false;
+	}
+
+	// Keyboard
+	if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
+	{
+		m_InputState.ControlPressed = true;
+	}
+	else
+	{
+		m_InputState.ControlPressed = false;
+	}
+
+	if (GetAsyncKeyState(VK_MENU) & 0x8000)
+	{
+		m_InputState.AltPressed = true;
+	}
+	else
+	{
+		m_InputState.AltPressed = false;
+	}
+
+	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+	{
+		m_InputState.ShiftPressed = true;
+	}
+	else
+	{
+		m_InputState.ShiftPressed = false;
+	}
+}
+
+auto JWWindow::GetWindowInputState() const->const SWindowInputState*
+{
+	return &m_InputState;
+}
 
 /** Dialog functions */
 void JWWindow::SetDlgBase()
@@ -478,31 +532,12 @@ void JWWindow::EditorChildWindowMessageHandler(UINT Message, WPARAM wParam, LPAR
 	case WM_MOUSEMOVE:
 		m_MouseData.MousePosition.x = GET_X_LPARAM(lParam);
 		m_MouseData.MousePosition.y = GET_Y_LPARAM(lParam);
-		m_MouseData.bOnMouseMove = true;
 		break;
 
 	case WM_LBUTTONDOWN:
-		if (!m_MouseData.bMouseLeftButtonPressed)
-		{
-			m_MouseData.MouseDownPosition.x = GET_X_LPARAM(lParam);
-			m_MouseData.MouseDownPosition.y = GET_Y_LPARAM(lParam);
-
-			m_MouseData.bMouseLeftButtonPressed = true;
-		}
+		m_MouseData.MouseDownPosition.x = GET_X_LPARAM(lParam);
+		m_MouseData.MouseDownPosition.y = GET_Y_LPARAM(lParam);
 		break;
-
-	case WM_LBUTTONUP:
-		m_MouseData.bMouseLeftButtonPressed = false;
-		break;
-
-	case WM_RBUTTONDOWN:
-		m_MouseData.bMouseRightButtonPressed = true;
-		break;
-
-	case WM_RBUTTONUP:
-		m_MouseData.bMouseRightButtonPressed = false;
-		break;
-
 	case WM_VSCROLL:
 		GetScrollRange((HWND)lParam, SB_CTL, &tempScrMin, &tempScrMax);
 		tempScrPos = GetScrollPos((HWND)lParam, SB_CTL);
@@ -560,25 +595,4 @@ void JWWindow::EditorChildWindowMessageHandler(UINT Message, WPARAM wParam, LPAR
 		UpdateHorizontalScrollbarPosition();
 		break;
 	}
-}
-
-auto JWWindow::IsMouseLeftButtonPressed() const->bool
-{
-	return m_MouseData.bMouseLeftButtonPressed;
-}
-
-auto JWWindow::IsMouseRightButtonPressed() const->bool
-{
-	return m_MouseData.bMouseRightButtonPressed;
-}
-
-auto JWWindow::OnMouseMove()->bool
-{
-	if (m_MouseData.bOnMouseMove)
-	{
-		m_MouseData.bOnMouseMove = false;
-		return true;
-	}
-
-	return false;
 }

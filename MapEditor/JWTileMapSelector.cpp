@@ -79,7 +79,7 @@ void JWTileMapSelector::UpdateTileSelector()
 	{
 		if (m_pMapInfo->TileSize)
 		{
-			if (MouseData->bMouseLeftButtonPressed)
+			if (m_pTileSelectorWindow->GetWindowInputState()->MouseLeftPressed)
 			{
 				POINT PositionInCells = ConvertPositionToCellXY(MouseData->MousePosition);
 				POINT DownPositionInCells = ConvertPositionToCellXY(MouseData->MouseDownPosition);

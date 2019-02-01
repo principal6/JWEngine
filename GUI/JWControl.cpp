@@ -7,7 +7,6 @@ using namespace JWENGINE;
 // Static member variable
 WSTRING JWControl::ms_BaseDir;
 JWWindow* JWControl::ms_pWindow;
-SWindowInputState JWControl::ms_WindowInputSate;
 
 JWControl::JWControl()
 {
@@ -106,7 +105,7 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 	if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
 	{
 		// Mouse position is inside RECT
-		if (MouseData.bMouseLeftButtonPressed)
+		if (ms_pWindow->GetWindowInputState()->MouseLeftPressed)
 		{
 			if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect))
 			{
@@ -136,11 +135,6 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 		// Mouse position is out of RECT
 		m_ControlState = EControlState::Normal;
 	}
-}
-
-void JWControl::UpdateWindowInputState(const SWindowInputState& WindowKeyState)
-{
-	ms_WindowInputSate = WindowKeyState;
 }
 
 PRIVATE void JWControl::UpdateText()

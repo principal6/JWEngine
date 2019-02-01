@@ -151,11 +151,8 @@ namespace JWENGINE
 	{
 		POINT MousePosition;
 		POINT MouseDownPosition;
-		bool bMouseLeftButtonPressed;
-		bool bMouseRightButtonPressed;
-		bool bOnMouseMove;
 
-		SMouseData() : bMouseLeftButtonPressed(false), bOnMouseMove(false) {};
+		SMouseData() : MousePosition({ 0, 0 }), MouseDownPosition({ 0, 0 }) {};
 	};
 
 	struct SAnimationData

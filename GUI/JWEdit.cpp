@@ -126,7 +126,7 @@ void JWEdit::Focus()
 
 PRIVATE void JWEdit::SelectOrMoveCaretToLeft(size_t Stride)
 {
-	if (ms_WindowInputSate.ShiftPressed)
+	if (ms_pWindow->GetWindowInputState()->ShiftPressed)
 	{
 		// Select
 		if (m_pCapturedSelPosition == &m_SelStart)
@@ -155,7 +155,7 @@ PRIVATE void JWEdit::SelectOrMoveCaretToLeft(size_t Stride)
 
 PRIVATE void JWEdit::SelectOrMoveCaretToRight(size_t Stride)
 {
-	if (ms_WindowInputSate.ShiftPressed)
+	if (ms_pWindow->GetWindowInputState()->ShiftPressed)
 	{
 		// Select
 		if (m_pCapturedSelPosition == &m_SelStart)
@@ -466,7 +466,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 				SelectOrMoveCaretToRight(current_line_length);
 			}
 
-			if (!ms_WindowInputSate.ShiftPressed)
+			if (!ms_pWindow->GetWindowInputState()->ShiftPressed)
 			{
 				m_SelStart = m_SelEnd;
 			}
@@ -493,7 +493,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 			SelectOrMoveCaretToLeft(compare_line_length);
 		}
 
-		if (!ms_WindowInputSate.ShiftPressed)
+		if (!ms_pWindow->GetWindowInputState()->ShiftPressed)
 		{
 			m_SelEnd = m_SelStart;
 		}
@@ -572,7 +572,7 @@ void JWEdit::OnCharKey(WPARAM Char)
 	else if (wchar == 8) // Ctrl + h || Backspace
 	{
 		// Let's ignore <Ctrl + h>
-		if (!ms_WindowInputSate.ControlPressed)
+		if (!ms_pWindow->GetWindowInputState()->ControlPressed)
 		{
 			if (IsTextSelected())
 			{
@@ -587,7 +587,7 @@ void JWEdit::OnCharKey(WPARAM Char)
 	else if (wchar == 13) // Ctrl + m || Enter
 	{
 		// Let's ignore <Ctrl + m>
-		if (!ms_WindowInputSate.ControlPressed)
+		if (!ms_pWindow->GetWindowInputState()->ControlPressed)
 		{
 			if (IsTextSelected())
 			{
@@ -622,7 +622,7 @@ void JWEdit::OnCharKey(WPARAM Char)
 	else if (wchar == 27) // Ctrl + [ || Escape
 	{
 		// Let's ignore <Ctrl + [>
-		if (!ms_WindowInputSate.ControlPressed)
+		if (!ms_pWindow->GetWindowInputState()->ControlPressed)
 		{
 			m_SelStart = *m_pCaretSelPosition;
 			m_SelEnd = *m_pCaretSelPosition;
@@ -736,7 +736,7 @@ void JWEdit::OnMouseDown(LPARAM MousePosition)
 {
 	JWControl::OnMouseDown(MousePosition);
 
-	if (ms_WindowInputSate.ShiftPressed)
+	if (ms_pWindow->GetWindowInputState()->ShiftPressed)
 	{
 		*m_pCaretSelPosition = m_pFont->GetCharIndexByMousePosition(m_MousePosition);
 
@@ -761,7 +761,7 @@ void JWEdit::OnMouseMove(LPARAM MousePosition)
 {
 	JWControl::OnMouseMove(MousePosition);
 
-	if (ms_WindowInputSate.MouseLeftPressed)
+	if (ms_pWindow->GetWindowInputState()->MouseLeftPressed)
 	{
 		*m_pCaretSelPosition = m_pFont->GetCharIndexByMousePosition(m_MousePosition);
 

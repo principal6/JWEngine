@@ -121,69 +121,17 @@ PRIVATE void JWGUI::HandleMessage()
 	case WM_LBUTTONDOWN:
 		m_MouseData.MouseDownPosition.x = GET_X_LPARAM(m_MSG.lParam);
 		m_MouseData.MouseDownPosition.y = GET_Y_LPARAM(m_MSG.lParam);
-		m_MouseData.bMouseLeftButtonPressed = true;
 		break;
 	case WM_LBUTTONUP:
-		m_MouseData.bMouseLeftButtonPressed = false;
 		break;
 	default:
 		break;
 	}
 }
 
-PRIVATE void JWGUI::DetectKeyInput()
-{
-	// Mouse
-	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
-	{
-		m_WindowInputState.MouseLeftPressed = true;
-	}
-	else
-	{
-		m_WindowInputState.MouseLeftPressed = false;
-	}
-
-	if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
-	{
-		m_WindowInputState.MouseRightPressed = true;
-	}
-	else
-	{
-		m_WindowInputState.MouseRightPressed = false;
-	}
-
-	// Keyboard
-	if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
-	{
-		m_WindowInputState.ControlPressed = true;
-	}
-	else
-	{
-		m_WindowInputState.ControlPressed = false;
-	}
-
-	if (GetAsyncKeyState(VK_MENU) & 0x8000)
-	{
-		m_WindowInputState.AltPressed = true;
-	}
-	else
-	{
-		m_WindowInputState.AltPressed = false;
-	}
-
-	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
-	{
-		m_WindowInputState.ShiftPressed = true;
-	}
-	else
-	{
-		m_WindowInputState.ShiftPressed = false;
-	}
-}
-
 PRIVATE void JWGUI::MainLoop()
 {
-	DetectKeyInput();
+	m_pWindow->UpdateInputState();
 
 	m_pWindow->BeginRender();
 
@@ -193,7 +141,6 @@ PRIVATE void JWGUI::MainLoop()
 	for (JWControl* iterator : m_Controls)
 	{
 		// A control that has mouse pointer on must be only one
-
 		if (iterator->IsMouseOver(m_MouseData))
 		{
 			if (pControlWithMouse)
@@ -262,9 +209,6 @@ PRIVATE void JWGUI::MainLoop()
 	// Call event handlers of the control with focus
 	if (m_pControlWithFocus)
 	{
-		// We update only the key state of the control with focus, not all the controlls
-		m_pControlWithFocus->UpdateWindowInputState(m_WindowInputState);
-
 		m_pControlWithFocus->CheckIMEInput();
 
 		switch (m_MSG.message)

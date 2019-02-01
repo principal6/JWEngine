@@ -42,6 +42,21 @@ namespace JWENGINE
 		SWindowData() : WindowWidth(0), WindowHeight(0), WindowHalfWidth(0), WindowHalfHeight(0) {};
 	};
 
+	struct SWindowInputState
+	{
+		bool MouseLeftPressed;
+		bool MouseRightPressed;
+		bool ControlPressed;
+		bool AltPressed;
+		bool ShiftPressed;
+		POINT MousePosition;
+		POINT MouseDownPosition;
+
+		SWindowInputState() : MouseLeftPressed(false), MouseRightPressed(false),
+			ControlPressed(false), AltPressed(false), ShiftPressed(false),
+			MousePosition({ 0, 0 }), MouseDownPosition({ 0, 0 }) {};
+	};
+
 	class JWWindow final
 	{
 	public:
@@ -82,6 +97,10 @@ namespace JWENGINE
 		auto IsIMEWriting() const->bool;
 		auto IsIMECompleted()->bool;
 
+		// Input
+		void UpdateInputState();
+		auto GetWindowInputState() const->const SWindowInputState*;
+
 		// Dialog
 		void SetDlgBase();
 		auto OpenFileDlg(LPCWSTR Filter)->BOOL;
@@ -91,9 +110,6 @@ namespace JWENGINE
 
 		// Editor message handler
 		void EditorChildWindowMessageHandler(UINT Message, WPARAM wParam, LPARAM lParam);
-		auto IsMouseLeftButtonPressed() const->bool;
-		auto IsMouseRightButtonPressed() const->bool;
-		auto OnMouseMove()->bool;
 
 	private:
 		friend LRESULT CALLBACK BaseWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
@@ -121,6 +137,7 @@ namespace JWENGINE
 		mutable RECT m_RenderRect;
 		SWindowData m_WindowData;
 		SMouseData m_MouseData;
+		SWindowInputState m_InputState;
 
 		HWND m_hVerticalScrollbar;
 		HWND m_hHorizontalScrollbar;

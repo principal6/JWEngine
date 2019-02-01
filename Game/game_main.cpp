@@ -60,6 +60,7 @@ void Render()
 {
 	g_MyGame.GetFontObject()->ClearText();
 
+	g_MyGame.GetFontObject()->SetUseMultiline(true);
 	g_MyGame.GetFontObject()->SetAlignment(EHorizontalAlignment::Left, EVerticalAlignment::Top);
 	g_MyGame.GetFontObject()->SetFontXRGB(D3DCOLOR_XRGB(255, 255, 255));
 	g_MyGame.GetFontObject()->SetBoxAlpha(100);
