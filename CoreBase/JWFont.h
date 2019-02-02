@@ -124,10 +124,10 @@ namespace JWENGINE
 		static const DWORD DEFAULT_COLOR_FONT = D3DCOLOR_XRGB(255, 255, 255);
 		static const DWORD DEFAULT_COLOR_BOX = D3DCOLOR_ARGB(0, 180, 180, 180);
 
-		static LPDIRECT3DTEXTURE9 ms_pTexture;
+		static LPDIRECT3DTEXTURE9 ms_pFontTexture;
 
 		JWWindow* m_pJWWindow;
-		JWImage* m_pBox;
+		JWImage* m_pBackgroundBox;
 		WSTRING m_BaseDir;
 		const SWindowData* m_pWindowData;
 
@@ -139,9 +139,9 @@ namespace JWENGINE
 		SIndex3* m_Indices;
 		UINT m_VertexSize;
 		UINT m_IndexSize;
-		UINT m_LetterBoxCount;
 		UINT m_MaximumCharacterCountInLine;
 		UINT m_MaximumLineCount;
+		UINT m_MaximumLetterBoxCount;
 
 		D3DXVECTOR2 m_PositionOffset;
 

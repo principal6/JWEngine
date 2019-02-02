@@ -73,7 +73,7 @@ void JWTileMapSelector::Destroy()
 
 void JWTileMapSelector::UpdateTileSelector()
 {
-	SMouseData* MouseData = m_pTileSelectorWindow->GetMouseData();
+	const SMouseData* MouseData = m_pTileSelectorWindow->GetMouseData();
 
 	if (m_pMapInfo)
 	{
@@ -131,7 +131,7 @@ void JWTileMapSelector::UpdateTileSelector()
 
 void JWTileMapSelector::UpdateMapSelector()
 {
-	SMouseData* MouseData = m_pMapWIndow->GetMouseData();
+	const SMouseData* MouseData = m_pMapWIndow->GetMouseData();
 
 	if (m_pMapInfo)
 	{

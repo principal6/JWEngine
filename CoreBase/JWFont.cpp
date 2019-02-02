@@ -5,12 +5,12 @@
 using namespace JWENGINE;
 
 // Static member variable
-LPDIRECT3DTEXTURE9 JWFont::ms_pTexture = nullptr;
+LPDIRECT3DTEXTURE9 JWFont::ms_pFontTexture = nullptr;
 
 JWFont::JWFont()
 {
 	m_pJWWindow = nullptr;
-	m_pBox = nullptr;
+	m_pBackgroundBox = nullptr;
 
 	m_pDevice = nullptr;
 	m_pVertexBuffer = nullptr;
@@ -21,9 +21,9 @@ JWFont::JWFont()
 
 	m_VertexSize = 0;
 	m_IndexSize = 0;
-	m_LetterBoxCount = 0;
 	m_MaximumCharacterCountInLine = 0;
 	m_MaximumLineCount = 0;
+	m_MaximumLetterBoxCount = 0;
 
 	// Set default alignment
 	m_HorizontalAlignment = EHorizontalAlignment::Left;
@@ -58,7 +58,7 @@ void JWFont::ClearText()
 		}
 	}
 
-	memset(m_ImageStringInfo, 0, sizeof(STextInfo) * m_LetterBoxCount);
+	memset(m_ImageStringInfo, 0, sizeof(STextInfo) * m_MaximumLetterBoxCount);
 
 	m_UsedLetterBoxCount = 0;
 	m_ImageStringLength = 0;
@@ -75,8 +75,8 @@ auto JWFont::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError
 	m_BaseDir = BaseDir;
 
 	// Create background box
-	m_pBox = new JWImage;
-	m_pBox->Create(m_pJWWindow, m_BaseDir);
+	m_pBackgroundBox = new JWImage;
+	m_pBackgroundBox->Create(m_pJWWindow, m_BaseDir);
 
 	return EError::OK;
 }
@@ -92,9 +92,9 @@ void JWFont::Destroy()
 
 	JW_DELETE_ARRAY(m_ImageStringInfo);
 
-	JW_DESTROY(m_pBox);
+	JW_DESTROY(m_pBackgroundBox);
 
-	JW_RELEASE(ms_pTexture);
+	JW_RELEASE(ms_pFontTexture);
 	JW_RELEASE(m_pIndexBuffer);
 	JW_RELEASE(m_pVertexBuffer);
 }
@@ -140,14 +140,14 @@ PRIVATE auto JWFont::CreateMaxVertexIndexBuffer()->EError
 	m_MaximumLineCount = (ScreenHeight / FullSize) + 1;
 
 	// Set letter-box count
-	m_LetterBoxCount = m_MaximumCharacterCountInLine * m_MaximumLineCount;
+	m_MaximumLetterBoxCount = m_MaximumCharacterCountInLine * m_MaximumLineCount;
 
 	// Allocate array for ImageStringInfo
-	m_ImageStringInfo = new STextInfo[m_LetterBoxCount];
+	m_ImageStringInfo = new STextInfo[m_MaximumLetterBoxCount];
 
 	// Set maximum size
-	m_VertexSize = m_LetterBoxCount * 4;
-	m_IndexSize = m_LetterBoxCount * 2;
+	m_VertexSize = m_MaximumLetterBoxCount * 4;
+	m_IndexSize = m_MaximumLetterBoxCount * 2;
 
 	// Make rectangles for characters with maximum size
 	if (!m_Vertices)
@@ -247,10 +247,10 @@ PRIVATE auto JWFont::UpdateIndexBuffer()->EError
 
 PRIVATE auto JWFont::CreateTexture(WSTRING FileName)->EError
 {
-	if (ms_pTexture)
+	if (ms_pFontTexture)
 	{
-		ms_pTexture->Release();
-		ms_pTexture = nullptr;
+		ms_pFontTexture->Release();
+		ms_pFontTexture = nullptr;
 	}
 
 	WSTRING NewFileName;
@@ -260,7 +260,7 @@ PRIVATE auto JWFont::CreateTexture(WSTRING FileName)->EError
 
 	// Craete texture without color key
 	if (FAILED(D3DXCreateTextureFromFileExW(m_pDevice, NewFileName.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &ms_pTexture)))
+		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &ms_pFontTexture)))
 		return EError::TEXTURE_NOT_CREATED;
 
 	return EError::OK;
@@ -295,18 +295,18 @@ void JWFont::SetFontXRGB(DWORD XRGB)
 void JWFont::SetBoxAlpha(BYTE Alpha)
 {
 	SetColorAlpha(&m_BoxColor, Alpha);
-	if (m_pBox)
+	if (m_pBackgroundBox)
 	{
-		m_pBox->SetAlpha(GetColorAlpha(m_BoxColor));
+		m_pBackgroundBox->SetAlpha(GetColorAlpha(m_BoxColor));
 	}
 }
 
 void JWFont::SetBoxXRGB(DWORD XRGB)
 {
 	SetColorXRGB(&m_BoxColor, XRGB);
-	if (m_pBox)
+	if (m_pBackgroundBox)
 	{
-		m_pBox->SetXRGB(GetColorXRGB(m_BoxColor));
+		m_pBackgroundBox->SetXRGB(GetColorXRGB(m_BoxColor));
 	}
 }
 
@@ -319,10 +319,10 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	m_ImageStringOriginalText = MultilineText;
 
 	// Set backgrounnd box
-	m_pBox->SetPosition(Position);
-	m_pBox->SetSize(BoxSize);
-	m_pBox->SetAlpha(GetColorAlpha(m_BoxColor));
-	m_pBox->SetXRGB(GetColorXRGB(m_BoxColor));
+	m_pBackgroundBox->SetPosition(Position);
+	m_pBackgroundBox->SetSize(BoxSize);
+	m_pBackgroundBox->SetAlpha(GetColorAlpha(m_BoxColor));
+	m_pBackgroundBox->SetXRGB(GetColorXRGB(m_BoxColor));
 
 	// Check if multiline is used
 	if (!m_bUseMultiline)
@@ -351,33 +351,49 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 		b_should_add_line = false;
 		b_split_end_line = false;
 
-		if (CalculateLineWidth(line_string) >= BoxSize.x)
+		if (m_bUseMultiline)
 		{
-			// If current character's x position exceeds the box's x size
-			b_should_add_line = true;
-			b_split_end_line = true;
+			if (CalculateLineWidth(line_string) >= BoxSize.x)
+			{
+				// If current character's x position exceeds the box's x size
+				b_should_add_line = true;
+				b_split_end_line = true;
 
-			line_string = MultilineText.substr(iterator_in_text_prev, iterator_in_text - 1 - iterator_in_text_prev);
-			line_character_index = iterator_in_text - iterator_in_text_prev - 1;
-			line_width = CalculateLineWidth(line_string);
+				line_string = MultilineText.substr(iterator_in_text_prev, iterator_in_text - 1 - iterator_in_text_prev);
+				line_character_index = iterator_in_text - iterator_in_text_prev - 1;
+				line_width = CalculateLineWidth(line_string);
 
-			m_LineLength.push_back(line_string.length() + 1); // includes '\0'
+				m_LineLength.push_back(line_string.length() + 1); // includes '\0'
 
-			iterator_in_text--;
-			iterator_in_text_prev = iterator_in_text;
+				iterator_in_text--;
+				iterator_in_text_prev = iterator_in_text;
 
-			line_count++;
+				line_count++;
+			}
+			else if ((MultilineText[iterator_in_text] == L'\n') || (iterator_in_text == MultilineText.length()))
+			{
+				// If we meet new line character or end of the text
+				b_should_add_line = true;
+				line_width = CalculateLineWidth(line_string);
+
+				m_LineLength.push_back(line_string.length() + 1); // includes '\n' or '\0'!
+
+				iterator_in_text_prev = iterator_in_text + 1;
+				line_count++;
+			}
 		}
-		else if ((MultilineText[iterator_in_text] == L'\n') || (iterator_in_text == MultilineText.length()))
+		else
 		{
-			// If we meet new line character or end of the text
-			b_should_add_line = true;
-			line_width = CalculateLineWidth(line_string);
+			if (iterator_in_text == MultilineText.length())
+			{
+				b_should_add_line = true;
 
-			m_LineLength.push_back(line_string.length() + 1); // includes '\n' or '\0'!
+				line_width = CalculateLineWidth(line_string);
 
-			iterator_in_text_prev = iterator_in_text + 1;
-			line_count++;
+				m_LineLength.push_back(line_string.length() + 1); // includes '\n' or '\0'!
+
+				line_count++;
+			}
 		}
 
 		if (b_should_add_line)
@@ -812,9 +828,9 @@ PRIVATE void JWFont::AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING&
 void JWFont::Draw() const
 {
 	// Draw background box
-	if (m_pBox)
+	if (m_pBackgroundBox)
 	{
-		m_pBox->Draw();
+		m_pBackgroundBox->Draw();
 	}
 
 	// Draw text when it is
@@ -826,10 +842,10 @@ void JWFont::Draw() const
 		m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 		m_pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
-		if (ms_pTexture)
+		if (ms_pFontTexture)
 		{
 			// Texture exists
-			m_pDevice->SetTexture(0, ms_pTexture);
+			m_pDevice->SetTexture(0, ms_pFontTexture);
 
 			// Texture alpha * Diffuse alpha
 			m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
