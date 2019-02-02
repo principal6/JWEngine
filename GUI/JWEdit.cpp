@@ -95,9 +95,7 @@ void JWEdit::Draw()
 		JWControl::Draw();
 	}
 
-	// Draw text when it is
-	if (m_Text.length())
-		m_pFont->Draw();
+	m_pFont->Draw();
 
 	if (m_bHasFocus)
 	{

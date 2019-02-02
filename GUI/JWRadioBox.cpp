@@ -85,9 +85,8 @@ void JWRadioBox::Draw()
 	m_pBackground->DrawBoundingBox();
 	*/
 
-	// Draw text when it is
-	if (m_Text.length())
-		m_pFont->Draw();
+	// Draw text
+	m_pFont->Draw();
 }
 
 void JWRadioBox::SetPosition(D3DXVECTOR2 Position)

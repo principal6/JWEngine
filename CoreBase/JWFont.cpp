@@ -817,32 +817,36 @@ void JWFont::Draw() const
 		m_pBox->Draw();
 	}
 
-	// Set alpha blending on
-	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
-	m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	m_pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
-
-	if (ms_pTexture)
+	// Draw text when it is
+	if (m_ImageStringOriginalText.length())
 	{
-		// Texture exists
-		m_pDevice->SetTexture(0, ms_pTexture);
+		// Set alpha blending on
+		m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
+		m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		m_pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
-		// Texture alpha * Diffuse alpha
-		m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-		m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-		m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+		if (ms_pTexture)
+		{
+			// Texture exists
+			m_pDevice->SetTexture(0, ms_pTexture);
 
-		// Texture color * Diffuse color
-		m_pDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-		m_pDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-		m_pDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+			// Texture alpha * Diffuse alpha
+			m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+			m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+			m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+
+			// Texture color * Diffuse color
+			m_pDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+			m_pDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+			m_pDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+		}
+
+		m_pDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(SVertexImage));
+		m_pDevice->SetFVF(D3DFVF_TEXTURE);
+		m_pDevice->SetIndices(m_pIndexBuffer);
+		m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_VertexSize, 0, m_IndexSize);
+
+		m_pDevice->SetTexture(0, nullptr);
 	}
-
-	m_pDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(SVertexImage));
-	m_pDevice->SetFVF(D3DFVF_TEXTURE);
-	m_pDevice->SetIndices(m_pIndexBuffer);
-	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_VertexSize, 0, m_IndexSize);
-	
-	m_pDevice->SetTexture(0, nullptr);
 }

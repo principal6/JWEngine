@@ -22,6 +22,7 @@ void JWLabel::Draw()
 {
 	JWControl::Draw();
 	
+	// Draw text
 	m_pFont->Draw();
 }
 

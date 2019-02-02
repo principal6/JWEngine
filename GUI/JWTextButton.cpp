@@ -75,9 +75,8 @@ void JWTextButton::Draw()
 		m_pImage->DrawBoundingBox();
 	}
 
-	// Draw text when it is
-	if (m_Text.length())
-		m_pFont->Draw();
+	// Draw text
+	m_pFont->Draw();
 }
 
 void JWTextButton::SetPosition(D3DXVECTOR2 Position)
