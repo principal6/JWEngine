@@ -74,7 +74,17 @@ namespace JWENGINE
 		auto GetUseMultiline() const->bool;
 		auto GetCharIndexByMousePosition(POINT Position) const->size_t;
 		auto GetCharXPosition(size_t CharIndex) const->float;
+		
+		// GetCharXPositionInBox() limits the character's x position as below
+		// [box.position.x <= value <= box.position.x + box.size.x]
+		auto GetCharXPositionInBox(size_t CharIndex) const->float;
+
 		auto GetCharYPosition(size_t CharIndex) const->float;
+
+		// GetCharYPositionInBox() limits the character's y position as below
+		// [box.position.y <= value <= box.position.y + box.size.y]
+		auto GetCharYPositionInBox(size_t CharIndex) const->float;
+
 		auto GetCharacter(size_t CharIndex) const->wchar_t;
 		auto GetLineIndexByCharIndex(size_t CharIndex) const->size_t;
 		auto GetLineCount() const->size_t;
@@ -89,6 +99,7 @@ namespace JWENGINE
 		auto GetLineGlobalSelStart(size_t LineIndex) const->size_t;
 		auto GetLineGlobalSelEnd(size_t LineIndex) const->size_t;
 		auto GetMaximumLineCount() const->const UINT;
+		void UpdateCaretPosition(size_t CaretSelPosition, D3DXVECTOR2* InOutPtrCaretPosition);
 
 		// @warning:
 		// This function converts sel position in plain text to sel position in splitted text (with '\0' line end)
@@ -117,12 +128,16 @@ namespace JWENGINE
 
 		auto IsTextEmpty() const->bool;
 
+		void UpdateText();
+		void UpdateSinglelineXOffset(float x_difference);
+
 		void AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex,
 			size_t Chars_ID, size_t Chars_ID_prev, float HorizontalAlignmentOffset, float VerticalAlignmentOffset);
 
 	private:
 		static const DWORD DEFAULT_COLOR_FONT = D3DCOLOR_XRGB(255, 255, 255);
 		static const DWORD DEFAULT_COLOR_BOX = D3DCOLOR_ARGB(0, 180, 180, 180);
+		static const float DEFAULT_BOUNDARY_STRIDE;
 
 		static LPDIRECT3DTEXTURE9 ms_pFontTexture;
 
@@ -143,13 +158,14 @@ namespace JWENGINE
 		UINT m_MaximumLineCount;
 		UINT m_MaximumLetterBoxCount;
 
-		D3DXVECTOR2 m_PositionOffset;
-
 		EHorizontalAlignment m_HorizontalAlignment;
 		EVerticalAlignment m_VerticalAlignment;
 
 		DWORD m_FontColor;
 		DWORD m_BoxColor;
+
+		D3DXVECTOR2 m_BoxPosition;
+		D3DXVECTOR2 m_BoxSize;
 
 		bool m_bUseMultiline;
 
@@ -160,5 +176,7 @@ namespace JWENGINE
 
 		STextInfo* m_ImageStringInfo;
 		VECTOR<size_t> m_LineLength;
+		D3DXVECTOR2 m_CaretPosition;
+		float m_SinglelineXOffset;
 	};
 };

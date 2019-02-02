@@ -23,9 +23,9 @@ int main()
 
 		myGUI.AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 50), L"레이블입니다");
 
-		myGUI.AddControl(EControlType::Edit, D3DXVECTOR2(100, 120), D3DXVECTOR2(100, 400),
-			L"qwert haha");
-		//myGUI.GetControlPointer(4)->SetUseMultiline(true);
+		myGUI.AddControl(EControlType::Edit, D3DXVECTOR2(100, 120), D3DXVECTOR2(160, 300),
+			L"qwert asdfghjkl");
+		myGUI.GetControlPointer(4)->SetUseMultiline(false);
 
 		myGUI.AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 0), D3DXVECTOR2(0, 0));
 		myGUI.AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 20), D3DXVECTOR2(0, 0));

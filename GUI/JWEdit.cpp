@@ -53,7 +53,7 @@ auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3
 			return EError::RECTANGLE_NOT_CREATED;
 
 		m_pSelection->SetRectangleAlpha(100);
-		m_pSelection->SetRectangleXRGB(D3DCOLOR_XRGB(0, 100, 255));
+		m_pSelection->SetRectangleXRGB(DEFAULT_COLOR_SELECTION);
 	}
 	else
 	{
@@ -223,19 +223,19 @@ PRIVATE void JWEdit::UpdateCaretAndSelection()
 
 PRIVATE void JWEdit::UpdateCaretPosition()
 {
+	// Update caret's image position only when the caret has been moved
 	if (m_PreviousCaretSelPosition != *m_pCaretSelPosition)
 	{
-		// Update caret's image position only when the caret has been moved
-		m_CaretPosition.x = m_pFont->GetCharXPosition(*m_pCaretSelPosition);
-		m_CaretPosition.y = m_pFont->GetCharYPosition(*m_pCaretSelPosition);
-		m_pCaret->SetLine(0, m_CaretPosition, m_CaretSize);
-
 		// If caret position is updated, the caret must be seen.
 		// So, let's set tick count to 0
 		m_CaretTickCount = 0;
 
 		// Save the changed caret sel position for the next comparison
 		m_PreviousCaretSelPosition = *m_pCaretSelPosition;
+
+		m_pFont->UpdateCaretPosition(*m_pCaretSelPosition, &m_CaretPosition);
+
+		m_pCaret->SetLine(0, m_CaretPosition, m_CaretSize);
 	}
 }
 
@@ -268,6 +268,13 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 
 			if (sel_start_line_index == sel_end_line_index)
 			{
+				if (!m_bUseMultiline)
+				{
+					// This is a single-line edit
+					SelStartXPosition = m_pFont->GetCharXPositionInBox(m_SelStart);
+					SelEndXPosition = m_pFont->GetCharXPositionInBox(m_SelEnd);
+				}
+
 				// SelStart and SelEnd are in the same line (single-line selection)
 				SelectionPosition.x = SelStartXPosition;
 				SelectionPosition.y = m_pFont->GetLineYPositionByCharIndex(m_SelStart);
@@ -284,7 +291,7 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 				SelectionPosition.x = SelStartXPosition;
 				SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(sel_start_line_index);
 
-				SelectionSize.x = m_pFont->GetLineWidthByCharIndex(m_SelStart) - SelStartXPosition;
+				SelectionSize.x = m_pFont->GetLineWidthByCharIndex(m_SelStart) - SelStartXPosition + m_PositionClient.x;
 				SelectionSize.y = m_pFont->GetLineHeight();
 
 				m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
@@ -311,7 +318,7 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 						SelectionPosition.x = m_PositionClient.x;
 						SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(iterator_line);
 
-						SelectionSize.x = m_pFont->GetLineWidth(iterator_line) - m_PositionClient.x;
+						SelectionSize.x = m_pFont->GetLineWidth(iterator_line);
 						SelectionSize.y = m_pFont->GetLineHeight();
 
 						m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
@@ -347,21 +354,20 @@ PRIVATE auto JWEdit::IsTextEmpty() const->bool
 PRIVATE auto JWEdit::GetTextLength() const->size_t
 {
 	return m_pFont->GetTextLength();
-	//return m_Text.length() + 1;
 }
 
 void JWEdit::SetSize(D3DXVECTOR2 Size)
 {
-	// If single line, set y size to single
+	// If single line, set y size to single-line y size
 	if (m_bUseMultiline)
 	{
-		Size.y = m_YSizeMultiline;
+		m_YSizeMultiline = Size.y;
 	}
 	else
 	{
 		Size.y = m_YSizeSingleline;
 	}
-
+	
 	JWControl::SetSize(Size);
 }
 
@@ -503,6 +509,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 	UpdateCaretAndSelection();
 }
 
+// TODO: IME INPUT ERRORS NEED TO BE FIXED!
 void JWEdit::CheckIMEInput()
 {
 	if (ms_pWindow->IsIMEWriting())
@@ -684,14 +691,14 @@ PRIVATE void JWEdit::PasteText()
 
 PRIVATE void JWEdit::InsertChar(wchar_t Char)
 {
-	// TODO: Insert at the end of the line!! -> FIXED
-	// TODO: Insert when inserted, the line gets splitted
-	// e.g. abefffffffffffffffffffffffffqwerty + ANY_LETTER -> problem!
-	// maybe change the code below to SelectionToRight()??
 	m_SelEnd = m_SelStart;
 
 	wchar_t current_sel_character = m_pFont->GetCharacter(m_SelStart);
 	size_t adjusted_sel_position = m_pFont->GetAdjustedSelPosition(m_SelStart);
+
+	// If this is a multi-line edit,
+	// split line ends with '\0'
+	// when we meet this value, we need to advance one our adjusted_sel_position
 	if (current_sel_character == 0)
 	{
 		adjusted_sel_position++;

@@ -6,6 +6,7 @@ using namespace JWENGINE;
 
 // Static member variable
 LPDIRECT3DTEXTURE9 JWFont::ms_pFontTexture = nullptr;
+const float JWFont::DEFAULT_BOUNDARY_STRIDE = 50.0f;
 
 JWFont::JWFont()
 {
@@ -33,9 +34,15 @@ JWFont::JWFont()
 	m_FontColor = DEFAULT_COLOR_FONT;
 	m_BoxColor = DEFAULT_COLOR_BOX;
 
+	m_BoxPosition = D3DXVECTOR2(0, 0);
+	m_BoxSize = D3DXVECTOR2(0, 0);
+
 	m_bUseMultiline = false;
 	
 	m_ImageStringInfo = nullptr;
+
+	m_CaretPosition = D3DXVECTOR2(0, 0);
+	m_SinglelineXOffset = 0;
 }
 
 void JWFont::ClearText()
@@ -319,8 +326,10 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	m_ImageStringOriginalText = MultilineText;
 
 	// Set backgrounnd box
-	m_pBackgroundBox->SetPosition(Position);
-	m_pBackgroundBox->SetSize(BoxSize);
+	m_BoxPosition = Position;
+	m_BoxSize = BoxSize;
+	m_pBackgroundBox->SetPosition(m_BoxPosition);
+	m_pBackgroundBox->SetSize(m_BoxSize);
 	m_pBackgroundBox->SetAlpha(GetColorAlpha(m_BoxColor));
 	m_pBackgroundBox->SetXRGB(GetColorXRGB(m_BoxColor));
 
@@ -608,6 +617,16 @@ auto JWFont::GetCharXPosition(size_t CharIndex) const->float
 	return Result;
 }
 
+auto JWFont::GetCharXPositionInBox(size_t CharIndex) const->float
+{
+	float Result = GetCharXPosition(CharIndex) + m_SinglelineXOffset;
+
+	if (Result < m_BoxPosition.x)
+		Result = m_BoxPosition.x;
+
+	return Result;
+}
+
 auto JWFont::GetCharYPosition(size_t CharIndex) const->float
 {
 	float Result = 0;
@@ -620,9 +639,19 @@ auto JWFont::GetCharYPosition(size_t CharIndex) const->float
 	return Result;
 }
 
+auto JWFont::GetCharYPositionInBox(size_t CharIndex) const->float
+{
+	float Result = GetCharYPosition(CharIndex);
+
+	if (Result < m_BoxPosition.y)
+		Result = m_BoxPosition.y;
+
+	return Result;
+}
+
 auto JWFont::GetCharacter(size_t CharIndex) const->wchar_t
 {
-	if (!IsTextEmpty())
+	if (m_ImageStringInfo)
 	{
 		return m_ImageStringInfo[CharIndex].Character;
 	}
@@ -692,7 +721,7 @@ auto JWFont::GetLineWidth(size_t LineIndex) const->float
 	if (!IsTextEmpty())
 	{
 		size_t sel_end = GetLineGlobalSelEnd(LineIndex);
-		Result = GetCharXPosition(sel_end);
+		Result = GetCharXPosition(sel_end) - m_BoxPosition.x;
 	}
 
 	return Result;
@@ -705,8 +734,7 @@ auto JWFont::GetLineWidthByCharIndex(size_t CharIndex) const->float
 	if (!IsTextEmpty())
 	{
 		size_t line_index = GetLineIndexByCharIndex(CharIndex);
-		size_t sel_end = GetLineGlobalSelEnd(line_index);
-		Result = GetCharXPosition(sel_end);
+		Result = GetLineWidth(line_index);
 	}
 	
 	return Result;
@@ -759,6 +787,79 @@ auto JWFont::GetMaximumLineCount() const->const UINT
 	return m_MaximumLineCount;
 }
 
+void JWFont::UpdateCaretPosition(size_t CaretSelPosition, D3DXVECTOR2* InOutPtrCaretPosition)
+{
+	InOutPtrCaretPosition->x = GetCharXPosition(CaretSelPosition);
+	InOutPtrCaretPosition->y = GetCharYPosition(CaretSelPosition);
+
+	float x_difference = InOutPtrCaretPosition->x - m_CaretPosition.x;
+	m_CaretPosition = *InOutPtrCaretPosition;
+
+	UpdateSinglelineXOffset(x_difference);
+
+	UpdateText();
+
+	InOutPtrCaretPosition->x = GetCharXPositionInBox(CaretSelPosition);
+	InOutPtrCaretPosition->y = GetCharYPositionInBox(CaretSelPosition);
+}
+
+void JWFont::UpdateSinglelineXOffset(float x_difference)
+{
+	if (!m_bUseMultiline)
+	{
+		float temp_caret_position_x = m_CaretPosition.x - m_BoxPosition.x;
+		float compare_value = temp_caret_position_x + m_SinglelineXOffset;
+
+		float line_width = GetLineWidth(0);
+		float invisible_width = line_width - m_BoxSize.x;
+		if (compare_value > m_BoxSize.x)
+		{
+			// Moving to right
+			//m_SinglelineXOffset = box_width - temp_caret_position_x;
+			if (x_difference < DEFAULT_BOUNDARY_STRIDE)
+			{
+				m_SinglelineXOffset -= DEFAULT_BOUNDARY_STRIDE;
+			}
+			else
+			{
+				m_SinglelineXOffset -= x_difference;
+			}
+
+			if (m_SinglelineXOffset < -invisible_width)
+			{
+				m_SinglelineXOffset = -invisible_width;
+			}
+		}
+		else if (compare_value < 0)
+		{
+			// Moving to left
+			//m_SinglelineXOffset = -temp_caret_position_x;
+			if ((-x_difference) < DEFAULT_BOUNDARY_STRIDE)
+			{
+				m_SinglelineXOffset += DEFAULT_BOUNDARY_STRIDE;
+			}
+			else
+			{
+				m_SinglelineXOffset += (-x_difference);
+			}
+
+			if (m_SinglelineXOffset > 0)
+			{
+				m_SinglelineXOffset = 0;
+			}
+		}
+	}
+	else
+	{
+		m_SinglelineXOffset = 0;
+	}
+}
+
+PRIVATE void JWFont::UpdateText()
+{
+	SetText(m_ImageStringOriginalText, m_BoxPosition, m_BoxSize);
+}
+
 auto JWFont::GetAdjustedSelPosition(size_t SelPosition) const->size_t
 {
 	return m_ImageStringInfo[SelPosition].AdjustedCharIndex;
@@ -766,7 +867,7 @@ auto JWFont::GetAdjustedSelPosition(size_t SelPosition) const->size_t
 
 PRIVATE auto JWFont::IsTextEmpty() const->bool
 {
-	if (m_ImageStringLength)
+	if (m_ImageStringOriginalText.length())
 	{
 		return false;
 	}
@@ -785,7 +886,7 @@ PRIVATE void JWFont::AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING&
 	float v2 = v1 + static_cast<float>(ms_FontData.Chars[Chars_ID].Height) / static_cast<float>(ms_FontData.Common.ScaleH);
 
 	// Set x, y positions
-	float x1 = HorizontalAlignmentOffset + CalculateCharPositionLeftInLine(CharIndexInLine, LineText);
+	float x1 = m_SinglelineXOffset + HorizontalAlignmentOffset + CalculateCharPositionLeftInLine(CharIndexInLine, LineText);
 	float x2 = x1 + static_cast<float>(ms_FontData.Chars[Chars_ID].Width);
 
 	float y1 = VerticalAlignmentOffset + CalculateCharPositionTop(Chars_ID, LineIndex);
@@ -813,8 +914,10 @@ PRIVATE void JWFont::AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING&
 
 	// Set text info
 	m_ImageStringInfo[m_ImageStringLength].Character = Character;
-	m_ImageStringInfo[m_ImageStringLength].Left = x1;
-	m_ImageStringInfo[m_ImageStringLength].Right = x2;
+	// Subtract m_SinglelineXOffset In order to save absolute left position
+	m_ImageStringInfo[m_ImageStringLength].Left = x1 - m_SinglelineXOffset;
+	// Subtract m_SinglelineXOffset In order to save absolute right position
+	m_ImageStringInfo[m_ImageStringLength].Right = x2 - m_SinglelineXOffset;
 	m_ImageStringInfo[m_ImageStringLength].Top = y1 - ms_FontData.Chars[Chars_ID].YOffset;
 	m_ImageStringInfo[m_ImageStringLength].Bottom = y2;
 	m_ImageStringInfo[m_ImageStringLength].LineIndex = LineIndex;
