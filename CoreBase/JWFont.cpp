@@ -81,6 +81,9 @@ auto JWFont::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError
 	m_pDevice = pJWWindow->GetDevice();
 	m_BaseDir = BaseDir;
 
+	// Get the original viewport to reset it later
+	m_pDevice->GetViewport(&m_OriginalViewport);
+
 	// Create background box
 	m_pBackgroundBox = new JWImage;
 	m_pBackgroundBox->Create(m_pJWWindow, m_BaseDir);
@@ -333,6 +336,9 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	m_pBackgroundBox->SetAlpha(GetColorAlpha(m_BoxColor));
 	m_pBackgroundBox->SetXRGB(GetColorXRGB(m_BoxColor));
 
+	// Update box viewport
+	UpdateBoxViewport();
+
 	// Check if multiline is used
 	if (!m_bUseMultiline)
 	{
@@ -505,7 +511,7 @@ auto JWFont::GetCharIndexByMousePosition(POINT Position) const->size_t
 	{
 		if (m_ImageStringInfo[iterator].LineIndex == current_line_index)
 		{
-			if (m_ImageStringInfo[iterator].Left <= Position.x)
+			if (m_ImageStringInfo[iterator].Left + m_SinglelineXOffset  <= Position.x)
 			{
 				Result = iterator;
 			}
@@ -602,7 +608,7 @@ auto JWFont::GetCharXPosition(size_t CharIndex) const->float
 {
 	float Result = 0;
 
-	if (!IsTextEmpty())
+	if (m_ImageStringInfo)
 	{
 		if (!m_ImageStringInfo[CharIndex].Character)
 		{
@@ -624,6 +630,9 @@ auto JWFont::GetCharXPositionInBox(size_t CharIndex) const->float
 	if (Result < m_BoxPosition.x)
 		Result = m_BoxPosition.x;
 
+	if (Result > m_BoxPosition.x + m_BoxSize.x)
+		Result = m_BoxPosition.x + m_BoxSize.x;
+
 	return Result;
 }
 
@@ -631,7 +640,7 @@ auto JWFont::GetCharYPosition(size_t CharIndex) const->float
 {
 	float Result = 0;
 
-	if (!IsTextEmpty())
+	if (m_ImageStringInfo)
 	{
 		Result = m_ImageStringInfo[CharIndex].Top;
 	}
@@ -787,6 +796,11 @@ auto JWFont::GetMaximumLineCount() const->const UINT
 	return m_MaximumLineCount;
 }
 
+PRIVATE void JWFont::UpdateText()
+{
+	SetText(m_ImageStringOriginalText, m_BoxPosition, m_BoxSize);
+}
+
 void JWFont::UpdateCaretPosition(size_t CaretSelPosition, D3DXVECTOR2* InOutPtrCaretPosition)
 {
 	InOutPtrCaretPosition->x = GetCharXPosition(CaretSelPosition);
@@ -803,7 +817,7 @@ void JWFont::UpdateCaretPosition(size_t CaretSelPosition, D3DXVECTOR2* InOutPtrC
 	InOutPtrCaretPosition->y = GetCharYPositionInBox(CaretSelPosition);
 }
 
-void JWFont::UpdateSinglelineXOffset(float x_difference)
+PRIVATE void JWFont::UpdateSinglelineXOffset(float x_difference)
 {
 	if (!m_bUseMultiline)
 	{
@@ -855,9 +869,13 @@ void JWFont::UpdateSinglelineXOffset(float x_difference)
 	}
 }
 
-PRIVATE void JWFont::UpdateText()
+PRIVATE void JWFont::UpdateBoxViewport()
 {
-	SetText(m_ImageStringOriginalText, m_BoxPosition, m_BoxSize);
+	m_BoxViewport = m_OriginalViewport;
+	m_BoxViewport.X = static_cast<DWORD>(m_BoxPosition.x);
+	m_BoxViewport.Y = static_cast<DWORD>(m_BoxPosition.y);
+	m_BoxViewport.Width = static_cast<DWORD>(m_BoxSize.x);
+	m_BoxViewport.Height = static_cast<DWORD>(m_BoxSize.y);
 }
 
 auto JWFont::GetAdjustedSelPosition(size_t SelPosition) const->size_t
@@ -914,10 +932,13 @@ PRIVATE void JWFont::AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING&
 
 	// Set text info
 	m_ImageStringInfo[m_ImageStringLength].Character = Character;
+
 	// Subtract m_SinglelineXOffset In order to save absolute left position
 	m_ImageStringInfo[m_ImageStringLength].Left = x1 - m_SinglelineXOffset;
+	
 	// Subtract m_SinglelineXOffset In order to save absolute right position
 	m_ImageStringInfo[m_ImageStringLength].Right = x2 - m_SinglelineXOffset;
+	
 	m_ImageStringInfo[m_ImageStringLength].Top = y1 - ms_FontData.Chars[Chars_ID].YOffset;
 	m_ImageStringInfo[m_ImageStringLength].Bottom = y2;
 	m_ImageStringInfo[m_ImageStringLength].LineIndex = LineIndex;
@@ -964,7 +985,16 @@ void JWFont::Draw() const
 		m_pDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(SVertexImage));
 		m_pDevice->SetFVF(D3DFVF_TEXTURE);
 		m_pDevice->SetIndices(m_pIndexBuffer);
+
+		// Set viewport with box position and size
+		// in order not to draw things that are outside of the box
+		m_pDevice->SetViewport(&m_BoxViewport);
+
+		// Draw call
 		m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_VertexSize, 0, m_IndexSize);
+
+		// Reset the original viewport
+		m_pDevice->SetViewport(&m_OriginalViewport);
 
 		m_pDevice->SetTexture(0, nullptr);
 	}

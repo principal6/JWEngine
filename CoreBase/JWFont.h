@@ -128,8 +128,12 @@ namespace JWENGINE
 
 		auto IsTextEmpty() const->bool;
 
+		// UpdateText() doesn't change a single character in the string
+		// but this function is necessary in order to update the characters' vertex position value
 		void UpdateText();
+
 		void UpdateSinglelineXOffset(float x_difference);
+		void UpdateBoxViewport();
 
 		void AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex,
 			size_t Chars_ID, size_t Chars_ID_prev, float HorizontalAlignmentOffset, float VerticalAlignmentOffset);
@@ -149,6 +153,8 @@ namespace JWENGINE
 		LPDIRECT3DDEVICE9 m_pDevice;
 		LPDIRECT3DVERTEXBUFFER9 m_pVertexBuffer;
 		LPDIRECT3DINDEXBUFFER9 m_pIndexBuffer;
+		D3DVIEWPORT9 m_OriginalViewport;
+		D3DVIEWPORT9 m_BoxViewport;
 
 		SVertexImage* m_Vertices;
 		SIndex3* m_Indices;
