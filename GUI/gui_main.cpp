@@ -25,7 +25,7 @@ int main()
 
 		myGUI.AddControl(EControlType::Edit, D3DXVECTOR2(100, 120), D3DXVECTOR2(160, 300),
 			L"This is JWEdit control");
-		myGUI.GetControlPointer(4)->SetUseMultiline(false);
+		myGUI.GetControlPointer(4)->SetUseMultiline(true);
 
 		myGUI.AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 0), D3DXVECTOR2(0, 0));
 		myGUI.AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 20), D3DXVECTOR2(0, 0));

@@ -683,10 +683,7 @@ PRIVATE void JWEdit::PasteText()
 
 	m_ClipText = temp_string;
 
-	for (size_t iterator = 0; iterator < m_ClipText.size(); iterator++)
-	{
-		InsertChar(static_cast<wchar_t>(m_ClipText[iterator]));
-	}
+	InsertString(m_ClipText);
 }
 
 PRIVATE void JWEdit::InsertChar(wchar_t Char)
@@ -724,6 +721,78 @@ PRIVATE void JWEdit::InsertChar(wchar_t Char)
 	else
 	{
 		MoveCaretToRight();
+	}
+
+	// Update the caret position and selection
+	UpdateCaretAndSelection();
+}
+
+PRIVATE void JWEdit::InsertString(WSTRING String)
+{
+	m_SelEnd = m_SelStart;
+
+	wchar_t current_sel_character = m_pFont->GetCharacter(m_SelStart);
+	size_t adjusted_sel_position = m_pFont->GetAdjustedSelPosition(m_SelStart);
+
+	// If this is a multi-line edit,
+	// split line ends with '\0'
+	// when we meet this value, we need to advance one our adjusted_sel_position
+	if (current_sel_character == 0)
+	{
+		adjusted_sel_position++;
+	}
+
+	// We don't use '\r', so remove it
+	size_t find_r = String.find('\r');
+	while (find_r != String.npos)
+	{
+		String.erase(find_r, 1);
+		find_r = String.find('\r');
+	}
+
+	if (!m_bUseMultiline)
+	{
+		// If this is single-line edit,
+		// we don't use '\n', so remove it
+		size_t find_r = String.find('\n');
+		while (find_r != String.npos)
+		{
+			String.erase(find_r, 1);
+			find_r = String.find('\n');
+		}
+	}
+
+	// Insert this new string into m_Text
+	m_Text = m_Text.insert(adjusted_sel_position, String);
+
+	// Set move stride
+	size_t stride = String.length();
+
+	// Update the text
+	UpdateText();
+
+	if (m_bUseMultiline)
+	{
+		if (m_SelStart)
+		{
+			if (m_pFont->GetCharacter(m_SelStart) == 0)
+			{
+				// Splitted line's end
+				MoveCaretToRight(stride + 1);
+			}
+			else
+			{
+				MoveCaretToRight(stride);
+			}
+		}
+		else
+		{
+			MoveCaretToRight(stride);
+		}
+	}
+	else
+	{
+		MoveCaretToRight(stride);
 	}
 
 	// Update the caret position and selection

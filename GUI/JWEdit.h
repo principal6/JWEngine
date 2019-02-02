@@ -51,6 +51,7 @@ namespace JWENGINE
 		void CopySelectedText();
 		void PasteText();
 		void InsertChar(wchar_t Char);
+		void InsertString(WSTRING String);
 		void InsertNewLine();
 		void EraseSelectedText(bool bEraseAfter = false);
 		void EraseAfter();
