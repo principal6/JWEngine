@@ -94,7 +94,9 @@ void JWCheckBox::Draw()
 	// Checkbox has always border
 	m_pBackground->DrawBoundingBox();
 
-	m_pFont->Draw();
+	// Draw text when it is
+	if (m_Text.length())
+		m_pFont->Draw();
 }
 
 void JWCheckBox::SetPosition(D3DXVECTOR2 Position)

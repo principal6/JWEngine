@@ -194,8 +194,11 @@ PRIVATE void JWWindow::SetDirect3DParameters()
 	
 	// Create the back buffer with maximum size(screen resolution).
 	// This way you don't need to reset the device when the window is resized
-	m_D3DPP.BackBufferWidth = GetSystemMetrics(SM_CXSCREEN);
-	m_D3DPP.BackBufferHeight = GetSystemMetrics(SM_CYSCREEN);
+	m_WindowData.ScreenSize.x = GetSystemMetrics(SM_CXSCREEN);
+	m_WindowData.ScreenSize.y = GetSystemMetrics(SM_CYSCREEN);
+
+	m_D3DPP.BackBufferWidth = m_WindowData.ScreenSize.x;
+	m_D3DPP.BackBufferHeight = m_WindowData.ScreenSize.y;
 
 	UpdateRenderRect();
 }
@@ -361,37 +364,37 @@ void JWWindow::EndRender() const
 	m_pDevice->Present(&m_RenderRect, &m_RenderRect, nullptr, nullptr);
 }
 
-auto JWWindow::GetDevice() const->LPDIRECT3DDEVICE9
+auto JWWindow::GetDevice() const->const LPDIRECT3DDEVICE9
 {
 	return m_pDevice;
 }
 
-auto JWWindow::GethWnd() const->HWND
+auto JWWindow::GethWnd() const->const HWND
 {
 	return m_hWnd;
 }
 
-auto JWWindow::GethInstance() const->HINSTANCE
+auto JWWindow::GethInstance() const->const HINSTANCE
 {
 	return m_hInstance;
 }
 
-auto JWWindow::GetWindowData()->SWindowData*
+auto JWWindow::GetWindowData() const->const SWindowData*
 {
 	return &m_WindowData;
 }
 
-auto JWWindow::GetMouseData()->SMouseData*
+auto JWWindow::GetMouseData() const->const SMouseData*
 {
 	return &m_MouseData;
 }
 
-auto JWWindow::GetRenderRect()->RECT
+auto JWWindow::GetRenderRect() const->const RECT
 {
 	return m_RenderRect;
 }
 
-auto JWWindow::GetpIMEChar() const->TCHAR*
+auto JWWindow::GetpIMEChar() const->const TCHAR*
 {
 	return ms_IMEChar;
 }
@@ -401,7 +404,7 @@ auto JWWindow::IsIMEWriting() const->bool
 	return ms_IMEWriting;
 }
 
-auto JWWindow::IsIMECompleted()->bool
+auto JWWindow::IsIMECompleted() const->bool
 {
 	if (ms_IMECompleted)
 	{

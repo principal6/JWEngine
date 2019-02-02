@@ -8,8 +8,10 @@ namespace JWENGINE
 	// *** Forward declaration ***
 	class JWWindow;
 	class JWImage;
+
 	struct SVertexImage;
 	struct SIndex3;
+	struct SWindowData;
 	// ***
 
 	enum class EHorizontalAlignment
@@ -86,6 +88,7 @@ namespace JWENGINE
 		auto GetLineHeight() const->float;
 		auto GetLineGlobalSelStart(size_t LineIndex) const->size_t;
 		auto GetLineGlobalSelEnd(size_t LineIndex) const->size_t;
+		auto GetMaximumLineCount() const->const UINT;
 
 		// @warning:
 		// This function converts sel position in plain text to sel position in splitted text (with '\0' line end)
@@ -96,7 +99,10 @@ namespace JWENGINE
 		void Draw() const;
 
 	private:
-		auto CreateMaxVertexIndexForFont()->EError;
+		auto CreateMaxVertexIndexBuffer()->EError;
+		// TODO:
+		//auto CreateDynamicVertexIndexBuffer()->EError;
+
 		auto CreateVertexBuffer()->EError;
 		auto CreateIndexBuffer()->EError;
 		auto UpdateVertexBuffer()->EError;
@@ -123,6 +129,7 @@ namespace JWENGINE
 		JWWindow* m_pJWWindow;
 		JWImage* m_pBox;
 		WSTRING m_BaseDir;
+		const SWindowData* m_pWindowData;
 
 		LPDIRECT3DDEVICE9 m_pDevice;
 		LPDIRECT3DVERTEXBUFFER9 m_pVertexBuffer;
@@ -132,6 +139,9 @@ namespace JWENGINE
 		SIndex3* m_Indices;
 		UINT m_VertexSize;
 		UINT m_IndexSize;
+		UINT m_LetterBoxCount;
+		UINT m_MaximumCharacterCountInLine;
+		UINT m_MaximumLineCount;
 
 		D3DXVECTOR2 m_PositionOffset;
 
@@ -144,6 +154,7 @@ namespace JWENGINE
 		bool m_bUseMultiline;
 
 		WSTRING m_ImageStringOriginalText;
+		size_t m_UsedLetterBoxCount;
 		size_t m_ImageStringLength;
 		size_t m_ImageStringAdjustedLength;
 

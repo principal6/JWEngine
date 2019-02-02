@@ -91,7 +91,7 @@ namespace JWENGINE
 		virtual void UpdateControlState(const SMouseData& MouseData);
 
 		// Draw
-		virtual void Draw();
+		virtual void Draw() {};
 
 		// Font
 		virtual void SetAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment);

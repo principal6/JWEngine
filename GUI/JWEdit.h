@@ -48,11 +48,14 @@ namespace JWENGINE
 		auto IsTextSelected() const->bool;
 		auto IsTextEmpty() const->bool;
 		auto GetTextLength() const->size_t;
+		void CopySelectedText();
+		void PasteText();
 		void InsertChar(wchar_t Char);
 		void InsertNewLine();
+		void EraseSelectedText(bool bEraseAfter = false);
 		void EraseAfter();
 		void EraseBefore();
-		void EraseSelectedText(bool bEraseAfter = false);
+		void SelectAll();
 		
 
 	private:

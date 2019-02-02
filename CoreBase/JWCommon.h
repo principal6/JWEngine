@@ -54,7 +54,6 @@ namespace JWENGINE
 	using CINT = const int;
 
 	static constexpr int MAX_FILE_LEN = 260;
-	static constexpr int MAX_TEXT_LEN = 512;
 
 	// @warning: This value must be 256 for Direct Input
 	static constexpr int NUM_KEYS = 256;
@@ -304,50 +303,5 @@ namespace JWENGINE
 		{
 			var += value;
 		}
-	}
-
-	inline static void CopyTextToClipboard(WSTRING Text)
-	{
-		if (!Text.length())
-			return;
-
-		const wchar_t* copy_text = Text.c_str();
-		const size_t copy_length = (Text.length() + 1) * 2;
-
-		OpenClipboard(0);
-		EmptyClipboard();
-
-		HGLOBAL hGlobal = nullptr;
-		while (!hGlobal)
-		{
-			hGlobal = GlobalAlloc(GMEM_MOVEABLE, copy_length);
-		}
-
-		memcpy(GlobalLock(hGlobal), copy_text, copy_length);
-		GlobalUnlock(hGlobal);
-		SetClipboardData(CF_UNICODETEXT, hGlobal);
-		CloseClipboard();
-		GlobalFree(hGlobal);
-	}
-
-	inline static void PasteTextFromClipboard(WSTRING& Text)
-	{
-		LPCTSTR temp_string = nullptr;
-
-		OpenClipboard(0);
-
-		HGLOBAL hGlobal = GetClipboardData(CF_UNICODETEXT);
-		if (hGlobal)
-		{
-			temp_string = static_cast<LPCTSTR>(GlobalLock(hGlobal));
-
-			if (temp_string)
-			{
-				GlobalUnlock(hGlobal);
-			}
-		}
-		CloseClipboard();
-
-		Text = temp_string;
 	}
 };

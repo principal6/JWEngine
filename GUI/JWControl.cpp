@@ -143,11 +143,6 @@ PRIVATE void JWControl::UpdateText()
 	m_pFont->SetText(m_Text, m_PositionClient, m_Size);
 }
 
-void JWControl::Draw()
-{
-	UpdateText();
-}
-
 void JWControl::SetState(EControlState State)
 {
 	m_ControlState = State;
@@ -168,6 +163,8 @@ void JWControl::SetSize(D3DXVECTOR2 Size)
 void JWControl::SetText(WSTRING Text)
 {
 	m_Text = Text;
+
+	UpdateText();
 }
 
 void JWControl::Focus()

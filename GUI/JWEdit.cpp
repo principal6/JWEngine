@@ -49,7 +49,7 @@ auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3
 	// Create rectangle for selection
 	if (m_pSelection = new JWRectangle)
 	{
-		if (JW_FAILED(m_pSelection->Create(pWindow, BaseDir, MAX_TEXT_LEN)))
+		if (JW_FAILED(m_pSelection->Create(pWindow, BaseDir, m_pFont->GetMaximumLineCount())))
 			return EError::RECTANGLE_NOT_CREATED;
 
 		m_pSelection->SetRectangleAlpha(100);
@@ -95,7 +95,9 @@ void JWEdit::Draw()
 		JWControl::Draw();
 	}
 
-	m_pFont->Draw();
+	// Draw text when it is
+	if (m_Text.length())
+		m_pFont->Draw();
 
 	if (m_bHasFocus)
 	{
@@ -372,6 +374,7 @@ void JWEdit::SetUseMultiline(bool Value)
 
 	m_Size.y = m_YSizeMultiline;
 	SetSize(m_Size);
+	UpdateText();
 }
 
 void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
@@ -514,7 +517,7 @@ void JWEdit::CheckIMEInput()
 			UpdateCaretAndSelection();
 		}
 
-		TCHAR* pTCHAR = ms_pWindow->GetpIMEChar();
+		const TCHAR* pTCHAR = ms_pWindow->GetpIMEChar();
 
 		m_IMETempSel = m_SelStart;
 		m_IMETempText = m_Text;
@@ -532,7 +535,7 @@ void JWEdit::CheckIMEInput()
 
 	if (ms_pWindow->IsIMECompleted())
 	{
-		TCHAR* pTCHAR = ms_pWindow->GetpIMEChar();
+		const TCHAR* pTCHAR = ms_pWindow->GetpIMEChar();
 
 		// If new character is not '\0', insert it to the text
 		if (pTCHAR[0])
@@ -554,16 +557,12 @@ void JWEdit::OnCharKey(WPARAM Char)
 	{
 		if (!IsTextSelected())
 		{
-			m_SelStart = 0;
-			m_SelEnd = GetTextLength();
-			m_pCaretSelPosition = &m_SelEnd;
-			m_pCapturedSelPosition = &m_SelStart;
+			SelectAll();
 		}
 	}
 	else if (wchar == 3) // Ctrl + c
 	{
-		m_ClipText = m_Text.substr(m_SelStart, m_SelEnd - m_SelStart);
-		CopyTextToClipboard(m_ClipText);
+		CopySelectedText();
 	}
 	else if (wchar == 6) // Ctrl + f
 	{
@@ -603,16 +602,11 @@ void JWEdit::OnCharKey(WPARAM Char)
 			EraseSelectedText();
 		}
 
-		PasteTextFromClipboard(m_ClipText);
-		for (size_t iterator = 0; iterator < m_ClipText.size(); iterator++)
-		{
-			InsertChar(static_cast<wchar_t>(m_ClipText[iterator]));
-		}
+		PasteText();
 	}
 	else if (wchar == 24) // Ctrl + x
 	{
-		m_ClipText = m_Text.substr(m_SelStart, m_SelEnd - m_SelStart);
-		CopyTextToClipboard(m_ClipText);
+		CopySelectedText();
 		EraseSelectedText();
 	}
 	else if (wchar == 26) // Ctrl + z
@@ -636,9 +630,58 @@ void JWEdit::OnCharKey(WPARAM Char)
 		}
 		InsertChar(wchar);
 	}
+}
 
-	UpdateText();
-	UpdateCaretAndSelection();
+PRIVATE void JWEdit::CopySelectedText()
+{
+	m_ClipText = m_Text.substr(m_SelStart, m_SelEnd - m_SelStart);
+
+	if (!m_ClipText.length())
+		return;
+
+	const wchar_t* copy_text = m_ClipText.c_str();
+	const size_t copy_length = (m_ClipText.length() + 1) * 2;
+
+	OpenClipboard(0);
+	EmptyClipboard();
+
+	HGLOBAL hGlobal = nullptr;
+	while (!hGlobal)
+	{
+		hGlobal = GlobalAlloc(GMEM_MOVEABLE, copy_length);
+	}
+
+	memcpy(GlobalLock(hGlobal), copy_text, copy_length);
+	GlobalUnlock(hGlobal);
+	SetClipboardData(CF_UNICODETEXT, hGlobal);
+	CloseClipboard();
+	GlobalFree(hGlobal);
+}
+
+PRIVATE void JWEdit::PasteText()
+{
+	LPCTSTR temp_string = nullptr;
+
+	OpenClipboard(0);
+
+	HGLOBAL hGlobal = GetClipboardData(CF_UNICODETEXT);
+	if (hGlobal)
+	{
+		temp_string = static_cast<LPCTSTR>(GlobalLock(hGlobal));
+
+		if (temp_string)
+		{
+			GlobalUnlock(hGlobal);
+		}
+	}
+	CloseClipboard();
+
+	m_ClipText = temp_string;
+
+	for (size_t iterator = 0; iterator < m_ClipText.size(); iterator++)
+	{
+		InsertChar(static_cast<wchar_t>(m_ClipText[iterator]));
+	}
 }
 
 PRIVATE void JWEdit::InsertChar(wchar_t Char)
@@ -690,21 +733,6 @@ PRIVATE void JWEdit::InsertNewLine()
 	}
 }
 
-PRIVATE void JWEdit::EraseAfter()
-{
-	m_SelEnd = m_SelStart + 1;
-	EraseSelectedText(true);
-}
-
-PRIVATE void JWEdit::EraseBefore()
-{
-	if (m_SelStart)
-	{
-		m_SelStart--;
-		EraseSelectedText();
-	}
-}
-
 PRIVATE void JWEdit::EraseSelectedText(bool bEraseAfter)
 {
 	wchar_t current_character = m_pFont->GetCharacter(m_SelStart);
@@ -727,6 +755,32 @@ PRIVATE void JWEdit::EraseSelectedText(bool bEraseAfter)
 
 	// There has to be no selection
 	m_SelEnd = m_SelStart;
+
+	// Update the caret position and selection
+	UpdateCaretAndSelection();
+}
+
+PRIVATE void JWEdit::EraseAfter()
+{
+	m_SelEnd = m_SelStart + 1;
+	EraseSelectedText(true);
+}
+
+PRIVATE void JWEdit::EraseBefore()
+{
+	if (m_SelStart)
+	{
+		m_SelStart--;
+		EraseSelectedText();
+	}
+}
+
+PRIVATE void JWEdit::SelectAll()
+{
+	m_SelStart = 0;
+	m_SelEnd = GetTextLength();
+	m_pCaretSelPosition = &m_SelEnd;
+	m_pCapturedSelPosition = &m_SelStart;
 
 	// Update the caret position and selection
 	UpdateCaretAndSelection();

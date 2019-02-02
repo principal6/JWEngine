@@ -38,8 +38,9 @@ namespace JWENGINE
 		int WindowHeight;
 		float WindowHalfWidth;
 		float WindowHalfHeight;
+		POINT ScreenSize;
 
-		SWindowData() : WindowWidth(0), WindowHeight(0), WindowHalfWidth(0), WindowHalfHeight(0) {};
+		SWindowData() : WindowWidth(0), WindowHeight(0), WindowHalfWidth(0), WindowHalfHeight(0), ScreenSize{0, 0} {};
 	};
 
 	struct SWindowInputState
@@ -87,15 +88,15 @@ namespace JWENGINE
 		void BeginRender() const;
 		void EndRender() const;
 
-		auto GetDevice() const->LPDIRECT3DDEVICE9;
-		auto GethWnd() const->HWND;
-		auto GethInstance() const->HINSTANCE;
-		auto GetWindowData()->SWindowData*;
-		auto GetMouseData()->SMouseData*;
-		auto GetRenderRect()->RECT;
-		auto GetpIMEChar() const->TCHAR*;
+		auto GetDevice() const->const LPDIRECT3DDEVICE9;
+		auto GethWnd() const->const HWND;
+		auto GethInstance() const->const HINSTANCE;
+		auto GetWindowData() const->const SWindowData*;
+		auto GetMouseData() const->const SMouseData*;
+		auto GetRenderRect() const->const RECT;
+		auto GetpIMEChar() const->const TCHAR*;
 		auto IsIMEWriting() const->bool;
-		auto IsIMECompleted()->bool;
+		auto IsIMECompleted() const->bool;
 
 		// Input
 		void UpdateInputState();

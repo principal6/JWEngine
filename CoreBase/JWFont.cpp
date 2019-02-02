@@ -19,9 +19,11 @@ JWFont::JWFont()
 	m_Vertices = nullptr;
 	m_Indices = nullptr;
 
-	// Set maximum size (MAX_TEXT_LEN)
-	m_VertexSize = MAX_TEXT_LEN * 4;
-	m_IndexSize = MAX_TEXT_LEN * 2;
+	m_VertexSize = 0;
+	m_IndexSize = 0;
+	m_LetterBoxCount = 0;
+	m_MaximumCharacterCountInLine = 0;
+	m_MaximumLineCount = 0;
 
 	// Set default alignment
 	m_HorizontalAlignment = EHorizontalAlignment::Left;
@@ -56,8 +58,9 @@ void JWFont::ClearText()
 		}
 	}
 
-	memset(m_ImageStringInfo, 0, sizeof(STextInfo) * MAX_TEXT_LEN);
+	memset(m_ImageStringInfo, 0, sizeof(STextInfo) * m_LetterBoxCount);
 
+	m_UsedLetterBoxCount = 0;
 	m_ImageStringLength = 0;
 	m_ImageStringAdjustedLength = 0;
 }
@@ -103,35 +106,50 @@ auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
 	NewFileName += ASSET_DIR;
 	NewFileName += FileName_FNT;
 
-	m_ImageStringInfo = new STextInfo[MAX_TEXT_LEN];
-
-	if (ms_FontData.bFontDataParsed)
+	if (!ms_FontData.bFontDataParsed)
 	{
-		// Font already exists, no need to parse again
-		return CreateMaxVertexIndexForFont();
-	}
-	else
-	{
-		// Font not yet created, then create one
+		// Font not yet parsed, then parse it
+		// FontData is static, so we'll run this code only once per process
 		if (Parse(NewFileName))
 		{
 			ms_FontData.bFontDataParsed = true;
 
-			if (JW_SUCCEEDED(CreateMaxVertexIndexForFont()))
-			{
-				// JWFont will always use only one page in the BMFont, whose ID is '0'
-				if (JW_FAILED(CreateTexture(ms_FontData.Pages[0].File)))
-					return EError::TEXTURE_NOT_CREATED;
-			}
+			// JWFont will always use only one page in the BMFont, whose ID is '0'
+			if (JW_FAILED(CreateTexture(ms_FontData.Pages[0].File)))
+				return EError::TEXTURE_NOT_CREATED;
 		}
 	}
+
+	// Create vertex and index buffer
+	CreateMaxVertexIndexBuffer();
 	
 	return EError::FONT_NOT_CREATED;
 }
 
-PRIVATE auto JWFont::CreateMaxVertexIndexForFont()->EError
+PRIVATE auto JWFont::CreateMaxVertexIndexBuffer()->EError
 {
-	// MakeOutter rectangles with max size
+	m_pWindowData = m_pJWWindow->GetWindowData();
+
+	UINT ScreenWidth = m_pWindowData->ScreenSize.x;
+	UINT ScreenHeight = m_pWindowData->ScreenSize.y;
+
+	UINT FullSize = ms_FontData.Info.Size;
+	UINT HalfSize = ms_FontData.Info.Size / static_cast <UINT>(2);
+
+	m_MaximumCharacterCountInLine = (ScreenWidth / HalfSize) + 1;
+	m_MaximumLineCount = (ScreenHeight / FullSize) + 1;
+
+	// Set letter-box count
+	m_LetterBoxCount = m_MaximumCharacterCountInLine * m_MaximumLineCount;
+
+	// Allocate array for ImageStringInfo
+	m_ImageStringInfo = new STextInfo[m_LetterBoxCount];
+
+	// Set maximum size
+	m_VertexSize = m_LetterBoxCount * 4;
+	m_IndexSize = m_LetterBoxCount * 2;
+
+	// Make rectangles for characters with maximum size
 	if (!m_Vertices)
 	{
 		m_Vertices = new SVertexImage[m_VertexSize];
@@ -294,9 +312,6 @@ void JWFont::SetBoxXRGB(DWORD XRGB)
 
 auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError
 {
-	if (MultilineText.length() > MAX_TEXT_LEN)
-		return EError::BUFFER_NOT_ENOUGH;
-
 	// Clear the text
 	ClearText();
 
@@ -723,6 +738,11 @@ auto JWFont::GetLineGlobalSelEnd(size_t LineIndex) const->size_t
 	return Result;
 }
 
+auto JWFont::GetMaximumLineCount() const->const UINT
+{
+	return m_MaximumLineCount;
+}
+
 auto JWFont::GetAdjustedSelPosition(size_t SelPosition) const->size_t
 {
 	return m_ImageStringInfo[SelPosition].AdjustedCharIndex;
@@ -755,12 +775,21 @@ PRIVATE void JWFont::AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING&
 	float y1 = VerticalAlignmentOffset + CalculateCharPositionTop(Chars_ID, LineIndex);
 	float y2 = y1 + static_cast<float>(ms_FontData.Chars[Chars_ID].Height);
 
-	// Set vertices
-	size_t vertexID = m_ImageStringLength * 4;
-	m_Vertices[vertexID] = SVertexImage(x1, y1, m_FontColor, u1, v1);
-	m_Vertices[vertexID + 1] = SVertexImage(x2, y1, m_FontColor, u2, v1);
-	m_Vertices[vertexID + 2] = SVertexImage(x1, y2, m_FontColor, u1, v2);
-	m_Vertices[vertexID + 3] = SVertexImage(x2, y2, m_FontColor, u2, v2);
+	// Set vertices only when it's inside the screen region
+	// otherwise, skip the vertices setting
+	if ((x2 >= 0) && (x1 <= m_pWindowData->ScreenSize.x))
+	{
+		if ((y2 >= 0) && (y2 <= m_pWindowData->ScreenSize.y))
+		{
+			size_t vertexID = m_UsedLetterBoxCount * 4;
+			m_Vertices[vertexID] = SVertexImage(x1, y1, m_FontColor, u1, v1);
+			m_Vertices[vertexID + 1] = SVertexImage(x2, y1, m_FontColor, u2, v1);
+			m_Vertices[vertexID + 2] = SVertexImage(x1, y2, m_FontColor, u1, v2);
+			m_Vertices[vertexID + 3] = SVertexImage(x2, y2, m_FontColor, u2, v2);
+
+			m_UsedLetterBoxCount++;
+		}
+	}
 
 	// If character is not '\0', adjusted length + 1
 	if (Character)
