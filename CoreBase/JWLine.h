@@ -39,6 +39,8 @@ namespace JWENGINE
 		void AddEnd();
 
 		void SetLine(UINT LineIndex, D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size);
+		void SetLineColor(UINT LineIndex, DWORD Color);
+		void SetLineColor(UINT LineIndex, DWORD ColorA, DWORD ColorB);
 		void SetBox(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size);
 		void SetAlpha(BYTE Alpha);
 		void SetXRGB(DWORD Color);

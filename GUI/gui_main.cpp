@@ -10,7 +10,7 @@ int main()
 {
 	static JWWindow myWindow;
 
-	if (JW_SUCCEEDED(myWindow.CreateGUIWindow(0, 100, 800, 600, D3DCOLOR_XRGB(0, 120, 255))))
+	if (JW_SUCCEEDED(myWindow.CreateGUIWindow(0, 100, 800, 600, DEFAULT_COLOR_BACKGROUND)))
 	{
 		myGUI.Create(&myWindow);
 

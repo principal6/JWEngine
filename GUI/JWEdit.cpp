@@ -78,9 +78,9 @@ auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3
 	}
 
 	// Set default color
-	m_pFont->SetFontXRGB(DEFAULT_COLOR_EDIT_FONT);
-	m_pFont->SetBoxAlpha(DEFUALT_ALPHA_BACKGROUND);
-	m_pFont->SetBoxXRGB(DEFAULT_COLOR_BACKGROUND);
+	m_pFont->SetFontXRGB(DEFAULT_COLOR_FONT_EDIT);
+	m_pFont->SetBoxAlpha(DEFUALT_ALPHA_BACKGROUND_EDIT);
+	m_pFont->SetBoxXRGB(DEFAULT_COLOR_BACKGROUND_EDIT);
 
 	// Set multiline and singleline y size
 	m_YSizeMultiline = Size.y;
@@ -253,7 +253,7 @@ PRIVATE void JWEdit::UpdateText()
 	text_position.x += 1.0f;
 
 	D3DXVECTOR2 text_size = m_Size;
-	text_size.x -= 1.0f;
+	text_size.x -= 2.0f;
 
 	m_pFont->SetText(m_Text, text_position, text_size);
 }
@@ -429,28 +429,33 @@ PRIVATE void JWEdit::UpdateBorderline()
 {
 	D3DXVECTOR2 border_position = D3DXVECTOR2(0, 0);
 	D3DXVECTOR2 border_size = D3DXVECTOR2(0, 0);
-	
-	m_pBorderLine->SetXRGB(DEFAULT_COLOR_BORDER_SECOND);
 
+	const DWORD& ColorA = DEFAULT_COLOR_PRESSED;
+	const DWORD& ColorB = DEFAULT_COLOR_DARK;
+	
 	// Up
 	border_position = m_PositionClient;
 	border_size = m_Size;
 	border_size.y = 0;
 	m_pBorderLine->SetLine(0, border_position, border_size);
+	m_pBorderLine->SetLineColor(0, ColorA, ColorB);
 	
 	// Bottom
 	border_position.y += (m_Size.y - 1.0f);
 	m_pBorderLine->SetLine(1, border_position, border_size);
+	m_pBorderLine->SetLineColor(1, ColorB);
 
 	// Left
 	border_position = m_PositionClient;
 	border_size = m_Size;
 	border_size.x = 0;
 	m_pBorderLine->SetLine(2, border_position, border_size);
+	m_pBorderLine->SetLineColor(2, ColorA, ColorB);
 
 	// Right
 	border_position.x += (m_Size.x - 1.0f);
 	m_pBorderLine->SetLine(3, border_position, border_size);
+	m_pBorderLine->SetLineColor(3, ColorB);
 }
 
 void JWEdit::SetUseMultiline(bool Value)

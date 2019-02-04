@@ -80,6 +80,30 @@ void JWLine::SetLine(UINT LineIndex, D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size
 	}
 }
 
+void JWLine::SetLineColor(UINT LineIndex, DWORD Color)
+{
+	if (LineIndex * 2 <= static_cast<UINT>(m_Vertices.size()))
+	{
+		m_Vertices[LineIndex * 2].color = Color;
+
+		m_Vertices[LineIndex * 2 + 1].color = Color;
+
+		UpdateVertexBuffer();
+	}
+}
+
+void JWLine::SetLineColor(UINT LineIndex, DWORD ColorA, DWORD ColorB)
+{
+	if (LineIndex * 2 <= static_cast<UINT>(m_Vertices.size()))
+	{
+		m_Vertices[LineIndex * 2].color = ColorA;
+
+		m_Vertices[LineIndex * 2 + 1].color = ColorB;
+
+		UpdateVertexBuffer();
+	}
+}
+
 void JWLine::SetBox(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size)
 {
 	if (m_Vertices.size())
