@@ -32,6 +32,23 @@ auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3
 	if (JW_FAILED(JWControl::Create(pWindow, BaseDir, Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
 	
+	// Create line for border
+	if (m_pBorderLine = new JWLine)
+	{
+		if (JW_FAILED(m_pBorderLine->Create(pWindow->GetDevice())))
+			return EError::LINE_NOT_CREATED;
+
+		m_pBorderLine->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 100), D3DCOLOR_XRGB(0, 0, 0));
+		m_pBorderLine->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 100), D3DCOLOR_XRGB(0, 0, 0));
+		m_pBorderLine->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 100), D3DCOLOR_XRGB(0, 0, 0));
+		m_pBorderLine->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 100), D3DCOLOR_XRGB(0, 0, 0));
+		m_pBorderLine->AddEnd();
+	}
+	else
+	{
+		return EError::LINE_NOT_CREATED;
+	}
+
 	// Create line for caret
 	if (m_pCaret = new JWLine)
 	{
@@ -122,6 +139,8 @@ void JWEdit::Draw()
 		}
 		m_pSelection->Draw();
 	}
+
+	m_pBorderLine->Draw();
 
 	ms_pWindow->GetDevice()->SetViewport(&m_OriginalViewport);
 }
@@ -230,7 +249,13 @@ PRIVATE void JWEdit::UpdateViewport()
 
 PRIVATE void JWEdit::UpdateText()
 {
-	m_pFont->SetText(m_Text, m_PositionClient, m_Size);
+	D3DXVECTOR2 text_position = m_PositionClient;
+	text_position.x += 1.0f;
+
+	D3DXVECTOR2 text_size = m_Size;
+	text_size.x -= 1.0f;
+
+	m_pFont->SetText(m_Text, text_position, text_size);
 }
 
 PRIVATE void JWEdit::UpdateCaretAndSelection()
@@ -239,7 +264,6 @@ PRIVATE void JWEdit::UpdateCaretAndSelection()
 	UpdateSelectionBox();
 }
 
-// TODO: Multiline y offsetting needs to be added!!
 PRIVATE void JWEdit::UpdateCaretPosition()
 {
 	// Update caret's image position only when the caret has been moved
@@ -389,6 +413,7 @@ void JWEdit::SetSize(D3DXVECTOR2 Size)
 	
 	JWControl::SetSize(Size);
 
+	UpdateBorderline();
 	UpdateViewport();
 }
 
@@ -396,7 +421,36 @@ void JWEdit::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
 
+	UpdateBorderline();
 	UpdateViewport();
+}
+
+PRIVATE void JWEdit::UpdateBorderline()
+{
+	D3DXVECTOR2 border_position = D3DXVECTOR2(0, 0);
+	D3DXVECTOR2 border_size = D3DXVECTOR2(0, 0);
+	
+	m_pBorderLine->SetXRGB(DEFAULT_COLOR_BORDER_SECOND);
+
+	// Up
+	border_position = m_PositionClient;
+	border_size = m_Size;
+	border_size.y = 0;
+	m_pBorderLine->SetLine(0, border_position, border_size);
+	
+	// Bottom
+	border_position.y += (m_Size.y - 1.0f);
+	m_pBorderLine->SetLine(1, border_position, border_size);
+
+	// Left
+	border_position = m_PositionClient;
+	border_size = m_Size;
+	border_size.x = 0;
+	m_pBorderLine->SetLine(2, border_position, border_size);
+
+	// Right
+	border_position.x += (m_Size.x - 1.0f);
+	m_pBorderLine->SetLine(3, border_position, border_size);
 }
 
 void JWEdit::SetUseMultiline(bool Value)
@@ -552,6 +606,8 @@ void JWEdit::CheckIMEInput()
 
 		const TCHAR* pTCHAR = ms_pWindow->GetpIMEChar();
 
+		std::cout << static_cast<size_t>(pTCHAR[0]) << std::endl;
+
 		m_IMETempSel = m_SelStart;
 		m_IMETempText = m_Text;
 
@@ -570,11 +626,18 @@ void JWEdit::CheckIMEInput()
 	{
 		const TCHAR* pTCHAR = ms_pWindow->GetpIMEChar();
 
+		std::cout << static_cast<size_t>(pTCHAR[0]) << std::endl;
+
 		// If new character is not '\0', insert it to the text
 		if (pTCHAR[0])
 		{
 			InsertChar(pTCHAR[0]);
 			
+			UpdateText();
+		}
+		else
+		{
+			// if it's '\0', then backspace or escape is pressed.
 			UpdateText();
 		}
 

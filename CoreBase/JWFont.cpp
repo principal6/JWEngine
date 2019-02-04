@@ -595,6 +595,8 @@ auto JWFont::GetCharXPosition(size_t CharIndex) const->float
 
 	if (m_ImageStringInfo.size())
 	{
+		CharIndex = min(CharIndex, m_ImageStringInfo.size() - 1);
+
 		if (!m_ImageStringInfo[CharIndex].Character)
 		{
 			Result = m_ImageStringInfo[CharIndex - 1].Right;
@@ -610,6 +612,8 @@ auto JWFont::GetCharXPosition(size_t CharIndex) const->float
 
 auto JWFont::GetCharXPositionInBox(size_t CharIndex) const->float
 {
+	CharIndex = min(CharIndex, m_ImageStringInfo.size() - 1);
+
 	float Result = GetCharXPosition(CharIndex) + m_SinglelineXOffset;
 
 	if (Result < m_BoxPosition.x)
@@ -627,6 +631,8 @@ auto JWFont::GetCharYPosition(size_t CharIndex) const->float
 
 	if (m_ImageStringInfo.size())
 	{
+		CharIndex = min(CharIndex, m_ImageStringInfo.size() - 1);
+
 		Result = m_ImageStringInfo[CharIndex].LineTop;
 	}
 
@@ -635,6 +641,8 @@ auto JWFont::GetCharYPosition(size_t CharIndex) const->float
 
 auto JWFont::GetCharYPositionInBox(size_t CharIndex) const->float
 {
+	CharIndex = min(CharIndex, m_ImageStringInfo.size() - 1);
+
 	float Result = GetCharYPosition(CharIndex) + m_MultilineYOffset;
 
 	if (Result < m_BoxPosition.y)
@@ -650,6 +658,8 @@ auto JWFont::GetCharacter(size_t CharIndex) const->wchar_t
 {
 	if (m_ImageStringInfo.size())
 	{
+		CharIndex = min(CharIndex, m_ImageStringInfo.size() - 1);
+
 		return m_ImageStringInfo[CharIndex].Character;
 	}
 
@@ -665,6 +675,8 @@ auto JWFont::GetLineLengthByCharIndex(size_t CharIndex) const->size_t
 {
 	if (m_LineLength.size())
 	{
+		CharIndex = min(CharIndex, m_ImageStringInfo.size() - 1);
+
 		return m_LineLength[m_ImageStringInfo[CharIndex].LineIndex];
 	}
 
@@ -675,6 +687,8 @@ auto JWFont::GetLineLength(size_t LineIndex) const->size_t
 {
 	if (LineIndex < m_LineLength.size())
 	{
+		LineIndex = min(LineIndex, m_LineLength.size() - 1);
+
 		return m_LineLength[LineIndex];
 	}
 
@@ -683,11 +697,15 @@ auto JWFont::GetLineLength(size_t LineIndex) const->size_t
 
 auto JWFont::GetLineSelPositionByCharIndex(size_t CharIndex) const->size_t
 {
+	CharIndex = min(CharIndex, m_ImageStringInfo.size() - 1);
+
 	return m_ImageStringInfo[CharIndex].CharIndexInLine;
 }
 
 auto JWFont::GetLineIndexByCharIndex(size_t CharIndex) const->size_t
 {
+	CharIndex = min(CharIndex, m_ImageStringInfo.size() - 1);
+
 	return m_ImageStringInfo[CharIndex].LineIndex;
 }
 
@@ -700,6 +718,8 @@ auto JWFont::GetLineYPositionByCharIndex(size_t CharIndex) const->float
 {
 	if (m_LineLength.size())
 	{
+		CharIndex = min(CharIndex, m_ImageStringInfo.size() - 1);
+
 		return m_ImageStringInfo[CharIndex].LineTop + m_MultilineYOffset;
 	}
 
@@ -898,6 +918,7 @@ PRIVATE void JWFont::UpdateMultilineYOffset(float y_difference)
 
 auto JWFont::GetAdjustedSelPosition(size_t SelPosition) const->size_t
 {
+	SelPosition = min(SelPosition, m_ImageStringInfo.size() - 1);
 	return m_ImageStringInfo[SelPosition].AdjustedCharIndex;
 }
 
