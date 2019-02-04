@@ -105,7 +105,7 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 
 auto JWGUI::GetControlPointer(size_t ControlIndex)->JWControl*
 {
-	ControlIndex = min(ControlIndex, m_Controls.size());
+	ControlIndex = min(ControlIndex, m_Controls.size() - 1);
 
 	return m_Controls[ControlIndex];
 }

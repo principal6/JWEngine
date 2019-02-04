@@ -25,6 +25,7 @@ namespace JWENGINE
 		void Focus() override;
 
 		void SetSize(D3DXVECTOR2 Size) override;
+		void SetPosition(D3DXVECTOR2 Position) override;
 		void SetUseMultiline(bool Value) override;
 
 		void OnKeyDown(WPARAM VirtualKeyCode) override;
@@ -38,6 +39,8 @@ namespace JWENGINE
 		void SelectOrMoveCaretToRight(size_t Stride = 1); // Select characters to the right or move the caret to the right
 		void MoveCaretToLeft(size_t Stride = 1); // Move the caret to the left
 		void MoveCaretToRight(size_t Stride = 1); // Move the caret to the right
+
+		void UpdateViewport();
 
 		void UpdateText();
 		void UpdateCaretAndSelection();
@@ -57,7 +60,6 @@ namespace JWENGINE
 		void EraseAfter();
 		void EraseBefore();
 		void SelectAll();
-		
 
 	private:
 		static const BYTE DEFUALT_ALPHA_BACKGROUND = 255;
@@ -66,6 +68,9 @@ namespace JWENGINE
 		//static const DWORD DEFAULT_COLOR_SELECTION = D3DCOLOR_XRGB(0, 100, 255);
 		static const DWORD DEFAULT_COLOR_SELECTION = D3DCOLOR_XRGB(255, 100, 255);
 		static const ULONGLONG DEFAULT_CARET_TICK = 30;
+
+		D3DVIEWPORT9 m_OriginalViewport;
+		D3DVIEWPORT9 m_EditViewport;
 
 		JWLine* m_pCaret;
 		D3DXVECTOR2 m_CaretSize;
@@ -77,7 +82,6 @@ namespace JWENGINE
 		size_t m_SelStart;
 		size_t m_SelEnd;
 		size_t* m_pCapturedSelPosition;
-		
 
 		WSTRING m_IMETempText;
 		size_t m_IMETempSel;

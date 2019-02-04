@@ -35,11 +35,17 @@ namespace JWENGINE
 		float Right;
 		float Top;
 		float Bottom;
+		float LineTop;
+		float U1;
+		float U2;
+		float V1;
+		float V2;
 		size_t LineIndex;
 		size_t CharIndexInLine;
 		size_t AdjustedCharIndex;
 
-		STextInfo() : Character(0), Left(0), Right(0), Top(0), Bottom(0), LineIndex(0), CharIndexInLine(0), AdjustedCharIndex(0) {};
+		STextInfo() : Character(0), Left(0), Right(0), Top(0), Bottom(0), LineTop(0), U1(0), U2(0), V1(0), V2(0),
+			LineIndex(0), CharIndexInLine(0), AdjustedCharIndex(0) {};
 	};
 
 	class JWFont final : public JWBMFontParser
@@ -127,13 +133,10 @@ namespace JWENGINE
 		auto CalculateLineWidth(const WSTRING& LineText)->float;
 
 		auto IsTextEmpty() const->bool;
-
-		// UpdateText() doesn't change a single character in the string
-		// but this function is necessary in order to update the characters' vertex position value
-		void UpdateText();
-
+		
+		void UpdateLetterBoxes();
 		void UpdateSinglelineXOffset(float x_difference);
-		void UpdateBoxViewport();
+		void UpdateMultilineYOffset(float y_difference);
 
 		void AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING& LineText, size_t LineIndex,
 			size_t Chars_ID, size_t Chars_ID_prev, float HorizontalAlignmentOffset, float VerticalAlignmentOffset);
@@ -153,8 +156,6 @@ namespace JWENGINE
 		LPDIRECT3DDEVICE9 m_pDevice;
 		LPDIRECT3DVERTEXBUFFER9 m_pVertexBuffer;
 		LPDIRECT3DINDEXBUFFER9 m_pIndexBuffer;
-		D3DVIEWPORT9 m_OriginalViewport;
-		D3DVIEWPORT9 m_BoxViewport;
 
 		SVertexImage* m_Vertices;
 		SIndex3* m_Indices;
@@ -176,13 +177,14 @@ namespace JWENGINE
 		bool m_bUseMultiline;
 
 		WSTRING m_ImageStringOriginalText;
-		size_t m_UsedLetterBoxCount;
 		size_t m_ImageStringLength;
 		size_t m_ImageStringAdjustedLength;
+		size_t m_UsedLetterBoxCount;
 
-		STextInfo* m_ImageStringInfo;
+		VECTOR<STextInfo> m_ImageStringInfo;
 		VECTOR<size_t> m_LineLength;
 		D3DXVECTOR2 m_CaretPosition;
 		float m_SinglelineXOffset;
+		float m_MultilineYOffset;
 	};
 };

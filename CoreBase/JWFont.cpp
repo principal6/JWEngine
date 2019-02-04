@@ -38,21 +38,21 @@ JWFont::JWFont()
 	m_BoxSize = D3DXVECTOR2(0, 0);
 
 	m_bUseMultiline = false;
-	
-	m_ImageStringInfo = nullptr;
 
 	m_CaretPosition = D3DXVECTOR2(0, 0);
 	m_SinglelineXOffset = 0;
+	m_MultilineYOffset = 0;
 }
 
 void JWFont::ClearText()
 {
+	m_ImageStringInfo.clear();
 	m_ImageStringOriginalText.clear();
 	m_LineLength.clear();
 
 	if (m_Vertices)
 	{
-		for (size_t iterator = 0; iterator <= m_ImageStringLength; iterator++)
+		for (size_t iterator = 0; iterator < (m_VertexSize / 4); iterator++)
 		{
 			m_Vertices[iterator * 4].u = 0;
 			m_Vertices[iterator * 4].v = 0;
@@ -65,11 +65,9 @@ void JWFont::ClearText()
 		}
 	}
 
-	memset(m_ImageStringInfo, 0, sizeof(STextInfo) * m_MaximumLetterBoxCount);
-
-	m_UsedLetterBoxCount = 0;
 	m_ImageStringLength = 0;
 	m_ImageStringAdjustedLength = 0;
+	m_UsedLetterBoxCount = 0;
 }
 
 auto JWFont::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError
@@ -80,9 +78,6 @@ auto JWFont::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError
 	m_pJWWindow = pJWWindow;
 	m_pDevice = pJWWindow->GetDevice();
 	m_BaseDir = BaseDir;
-
-	// Get the original viewport to reset it later
-	m_pDevice->GetViewport(&m_OriginalViewport);
 
 	// Create background box
 	m_pBackgroundBox = new JWImage;
@@ -99,8 +94,6 @@ void JWFont::Destroy()
 
 	JW_DELETE_ARRAY(m_Vertices);
 	JW_DELETE_ARRAY(m_Indices);
-
-	JW_DELETE_ARRAY(m_ImageStringInfo);
 
 	JW_DESTROY(m_pBackgroundBox);
 
@@ -152,9 +145,6 @@ PRIVATE auto JWFont::CreateMaxVertexIndexBuffer()->EError
 	// Set letter-box count
 	m_MaximumLetterBoxCount = m_MaximumCharacterCountInLine * m_MaximumLineCount;
 
-	// Allocate array for ImageStringInfo
-	m_ImageStringInfo = new STextInfo[m_MaximumLetterBoxCount];
-
 	// Set maximum size
 	m_VertexSize = m_MaximumLetterBoxCount * 4;
 	m_IndexSize = m_MaximumLetterBoxCount * 2;
@@ -163,7 +153,7 @@ PRIVATE auto JWFont::CreateMaxVertexIndexBuffer()->EError
 	if (!m_Vertices)
 	{
 		m_Vertices = new SVertexImage[m_VertexSize];
-		memset(m_Vertices, 0, sizeof(m_Vertices));
+		memset(m_Vertices, 0, sizeof(SVertexImage) * m_VertexSize);
 		
 		for (size_t iterator = 0; iterator < (m_VertexSize / 4); iterator++)
 		{
@@ -197,8 +187,8 @@ PRIVATE auto JWFont::CreateVertexBuffer()->EError
 {
 	if (m_Vertices)
 	{
-		int rVertSize = sizeof(SVertexImage) * m_VertexSize;
-		if (FAILED(m_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
+		int temp_vertex_size = sizeof(SVertexImage) * m_VertexSize;
+		if (FAILED(m_pDevice->CreateVertexBuffer(temp_vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 		{
 			return EError::VERTEX_BUFFER_NOT_CREATED;
 		}
@@ -211,8 +201,8 @@ PRIVATE auto JWFont::CreateIndexBuffer()->EError
 {
 	if (m_Indices)
 	{
-		int rIndSize = sizeof(SIndex3) * m_IndexSize;
-		if (FAILED(m_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
+		int temp_index_size = sizeof(SIndex3) * m_IndexSize;
+		if (FAILED(m_pDevice->CreateIndexBuffer(temp_index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 		{
 			return EError::INDEX_BUFFER_NOT_CREATED;
 		}
@@ -225,13 +215,13 @@ PRIVATE auto JWFont::UpdateVertexBuffer()->EError
 {
 	if (m_Vertices)
 	{
-		int rVertSize = sizeof(SVertexImage) * m_VertexSize;
+		int temp_vertex_size = sizeof(SVertexImage) * m_VertexSize;
 		VOID* pVertices;
-		if (FAILED(m_pVertexBuffer->Lock(0, rVertSize, (void**)&pVertices, 0)))
+		if (FAILED(m_pVertexBuffer->Lock(0, temp_vertex_size, (void**)&pVertices, 0)))
 		{
 			return EError::VERTEX_BUFFER_NOT_LOCKED;
 		}
-		memcpy(pVertices, &m_Vertices[0], rVertSize);
+		memcpy(pVertices, &m_Vertices[0], temp_vertex_size);
 		m_pVertexBuffer->Unlock();
 		return EError::OK;
 	}
@@ -242,13 +232,13 @@ PRIVATE auto JWFont::UpdateIndexBuffer()->EError
 {
 	if (m_Indices)
 	{
-		int rIndSize = sizeof(SIndex3) * m_IndexSize;
+		int temp_index_size = sizeof(SIndex3) * m_IndexSize;
 		VOID* pIndices;
-		if (FAILED(m_pIndexBuffer->Lock(0, rIndSize, (void **)&pIndices, 0)))
+		if (FAILED(m_pIndexBuffer->Lock(0, temp_index_size, (void **)&pIndices, 0)))
 		{
 			return EError::INDEX_BUFFER_NOT_LOCKED;
 		}
-		memcpy(pIndices, &m_Indices[0], rIndSize);
+		memcpy(pIndices, &m_Indices[0], temp_index_size);
 		m_pIndexBuffer->Unlock();
 		return EError::OK;
 	}
@@ -336,13 +326,10 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 	m_pBackgroundBox->SetAlpha(GetColorAlpha(m_BoxColor));
 	m_pBackgroundBox->SetXRGB(GetColorXRGB(m_BoxColor));
 
-	// Update box viewport
-	UpdateBoxViewport();
-
 	// Check if multiline is used
 	if (!m_bUseMultiline)
 	{
-		// If multiline is not used, convert the text to single line text
+		// If multiline is not used, convert the text into single-line text
 		size_t cmp_position = 0;
 		while ((cmp_position = MultilineText.find(L'\n')) != std::string::npos)
 		{
@@ -472,7 +459,7 @@ auto JWFont::SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 Bo
 		}
 	}
 
-	UpdateVertexBuffer();
+	UpdateLetterBoxes();
 
 	return EError::OK;
 }
@@ -500,7 +487,7 @@ auto JWFont::GetCharIndexByMousePosition(POINT Position) const->size_t
 	size_t current_line_index = 0;
 	for (size_t iterator = 0; iterator < m_ImageStringLength; iterator++)
 	{
-		if (m_ImageStringInfo[iterator].Top <= Position.y)
+		if (m_ImageStringInfo[iterator].LineTop <= Position.y)
 		{
 			current_line_index = m_ImageStringInfo[iterator].LineIndex;
 		}
@@ -598,9 +585,7 @@ PRIVATE auto JWFont::CalculateCharPositionRightInLine(size_t CharIndex, const WS
 
 		Chars_ID_prev = Chars_ID;
 	}
-
-	//Result += ms_FontData.Chars[Chars_ID].XAdvance;
-
+	
 	return Result;
 }
 
@@ -608,7 +593,7 @@ auto JWFont::GetCharXPosition(size_t CharIndex) const->float
 {
 	float Result = 0;
 
-	if (m_ImageStringInfo)
+	if (m_ImageStringInfo.size())
 	{
 		if (!m_ImageStringInfo[CharIndex].Character)
 		{
@@ -640,9 +625,9 @@ auto JWFont::GetCharYPosition(size_t CharIndex) const->float
 {
 	float Result = 0;
 
-	if (m_ImageStringInfo)
+	if (m_ImageStringInfo.size())
 	{
-		Result = m_ImageStringInfo[CharIndex].Top;
+		Result = m_ImageStringInfo[CharIndex].LineTop;
 	}
 
 	return Result;
@@ -650,17 +635,20 @@ auto JWFont::GetCharYPosition(size_t CharIndex) const->float
 
 auto JWFont::GetCharYPositionInBox(size_t CharIndex) const->float
 {
-	float Result = GetCharYPosition(CharIndex);
+	float Result = GetCharYPosition(CharIndex) + m_MultilineYOffset;
 
 	if (Result < m_BoxPosition.y)
 		Result = m_BoxPosition.y;
+
+	if (Result > m_BoxPosition.y + m_BoxSize.y)
+		Result = m_BoxPosition.y + m_BoxSize.y;
 
 	return Result;
 }
 
 auto JWFont::GetCharacter(size_t CharIndex) const->wchar_t
 {
-	if (m_ImageStringInfo)
+	if (m_ImageStringInfo.size())
 	{
 		return m_ImageStringInfo[CharIndex].Character;
 	}
@@ -712,7 +700,7 @@ auto JWFont::GetLineYPositionByCharIndex(size_t CharIndex) const->float
 {
 	if (m_LineLength.size())
 	{
-		return m_ImageStringInfo[CharIndex].Top;
+		return m_ImageStringInfo[CharIndex].LineTop + m_MultilineYOffset;
 	}
 
 	return 0;
@@ -720,7 +708,7 @@ auto JWFont::GetLineYPositionByCharIndex(size_t CharIndex) const->float
 
 auto JWFont::GetLineYPosition(size_t LineIndex) const->float
 {
-	return static_cast<float>(LineIndex * ms_FontData.Info.Size);
+	return static_cast<float>(LineIndex * ms_FontData.Info.Size + m_MultilineYOffset);
 }
 
 auto JWFont::GetLineWidth(size_t LineIndex) const->float
@@ -796,22 +784,25 @@ auto JWFont::GetMaximumLineCount() const->const UINT
 	return m_MaximumLineCount;
 }
 
-PRIVATE void JWFont::UpdateText()
-{
-	SetText(m_ImageStringOriginalText, m_BoxPosition, m_BoxSize);
-}
-
 void JWFont::UpdateCaretPosition(size_t CaretSelPosition, D3DXVECTOR2* InOutPtrCaretPosition)
 {
 	InOutPtrCaretPosition->x = GetCharXPosition(CaretSelPosition);
 	InOutPtrCaretPosition->y = GetCharYPosition(CaretSelPosition);
 
 	float x_difference = InOutPtrCaretPosition->x - m_CaretPosition.x;
+	float y_difference = InOutPtrCaretPosition->y - m_CaretPosition.y;
 	m_CaretPosition = *InOutPtrCaretPosition;
 
+	float temp_x_offset = m_SinglelineXOffset;
+	float temp_y_offset = m_MultilineYOffset;
+	
 	UpdateSinglelineXOffset(x_difference);
+	UpdateMultilineYOffset(y_difference);
 
-	UpdateText();
+	if ((temp_x_offset != m_SinglelineXOffset) || (temp_y_offset != m_MultilineYOffset))
+	{
+		UpdateLetterBoxes();
+	}
 
 	InOutPtrCaretPosition->x = GetCharXPositionInBox(CaretSelPosition);
 	InOutPtrCaretPosition->y = GetCharYPositionInBox(CaretSelPosition);
@@ -869,13 +860,40 @@ PRIVATE void JWFont::UpdateSinglelineXOffset(float x_difference)
 	}
 }
 
-PRIVATE void JWFont::UpdateBoxViewport()
+PRIVATE void JWFont::UpdateMultilineYOffset(float y_difference)
 {
-	m_BoxViewport = m_OriginalViewport;
-	m_BoxViewport.X = static_cast<DWORD>(m_BoxPosition.x);
-	m_BoxViewport.Y = static_cast<DWORD>(m_BoxPosition.y);
-	m_BoxViewport.Width = static_cast<DWORD>(m_BoxSize.x);
-	m_BoxViewport.Height = static_cast<DWORD>(m_BoxSize.y);
+	if (m_bUseMultiline)
+	{
+		float temp_caret_position_y = m_CaretPosition.y - m_BoxPosition.y;
+		float compare_value = temp_caret_position_y + m_MultilineYOffset;
+
+		if (y_difference != 0)
+		{
+			if (y_difference > 0)
+			{
+				// Moving down
+				compare_value += GetLineHeight();
+			}
+			else
+			{
+				// Moving up
+				//compare_value -= GetLineHeight();
+			}
+
+			if (compare_value < 0)
+			{
+				m_MultilineYOffset -= compare_value;
+			}
+			else if (compare_value > m_BoxSize.y)
+			{
+				m_MultilineYOffset += (m_BoxSize.y - compare_value);
+			}
+		}
+	}
+	else
+	{
+		m_MultilineYOffset = 0;
+	}
 }
 
 auto JWFont::GetAdjustedSelPosition(size_t SelPosition) const->size_t
@@ -904,49 +922,92 @@ PRIVATE void JWFont::AddChar(wchar_t Character, size_t CharIndexInLine, WSTRING&
 	float v2 = v1 + static_cast<float>(ms_FontData.Chars[Chars_ID].Height) / static_cast<float>(ms_FontData.Common.ScaleH);
 
 	// Set x, y positions
-	float x1 = m_SinglelineXOffset + HorizontalAlignmentOffset + CalculateCharPositionLeftInLine(CharIndexInLine, LineText);
+	float x1 = HorizontalAlignmentOffset + CalculateCharPositionLeftInLine(CharIndexInLine, LineText);
 	float x2 = x1 + static_cast<float>(ms_FontData.Chars[Chars_ID].Width);
 
 	float y1 = VerticalAlignmentOffset + CalculateCharPositionTop(Chars_ID, LineIndex);
 	float y2 = y1 + static_cast<float>(ms_FontData.Chars[Chars_ID].Height);
-
-	// Set vertices only when it's inside the screen region
-	// otherwise, skip the vertices setting
-	if ((x2 >= 0) && (x1 <= m_pWindowData->ScreenSize.x))
-	{
-		if ((y2 >= 0) && (y2 <= m_pWindowData->ScreenSize.y))
-		{
-			size_t vertexID = m_UsedLetterBoxCount * 4;
-			m_Vertices[vertexID] = SVertexImage(x1, y1, m_FontColor, u1, v1);
-			m_Vertices[vertexID + 1] = SVertexImage(x2, y1, m_FontColor, u2, v1);
-			m_Vertices[vertexID + 2] = SVertexImage(x1, y2, m_FontColor, u1, v2);
-			m_Vertices[vertexID + 3] = SVertexImage(x2, y2, m_FontColor, u2, v2);
-
-			m_UsedLetterBoxCount++;
-		}
-	}
 
 	// If character is not '\0', adjusted length + 1
 	if (Character)
 		m_ImageStringAdjustedLength++;
 
 	// Set text info
-	m_ImageStringInfo[m_ImageStringLength].Character = Character;
-
-	// Subtract m_SinglelineXOffset In order to save absolute left position
-	m_ImageStringInfo[m_ImageStringLength].Left = x1 - m_SinglelineXOffset;
-	
-	// Subtract m_SinglelineXOffset In order to save absolute right position
-	m_ImageStringInfo[m_ImageStringLength].Right = x2 - m_SinglelineXOffset;
-	
-	m_ImageStringInfo[m_ImageStringLength].Top = y1 - ms_FontData.Chars[Chars_ID].YOffset;
-	m_ImageStringInfo[m_ImageStringLength].Bottom = y2;
-	m_ImageStringInfo[m_ImageStringLength].LineIndex = LineIndex;
-	m_ImageStringInfo[m_ImageStringLength].CharIndexInLine = CharIndexInLine;
-	m_ImageStringInfo[m_ImageStringLength].AdjustedCharIndex = m_ImageStringAdjustedLength - 1;
+	STextInfo temp_info;
+	temp_info.Character = Character;
+	temp_info.Left = x1;
+	temp_info.Right = x2;
+	temp_info.Top = y1;
+	temp_info.Bottom = y2;
+	temp_info.LineTop = y1 - ms_FontData.Chars[Chars_ID].YOffset;
+	temp_info.U1 = u1;
+	temp_info.U2 = u2;
+	temp_info.V1 = v1;
+	temp_info.V2 = v2;
+	temp_info.LineIndex = LineIndex;
+	temp_info.CharIndexInLine = CharIndexInLine;
+	temp_info.AdjustedCharIndex = m_ImageStringAdjustedLength - 1;
+	m_ImageStringInfo.push_back(temp_info);
 
 	// Image string length includes '\0' in the splitted text
 	m_ImageStringLength++;
+}
+
+PRIVATE void JWFont::UpdateLetterBoxes()
+{
+	m_UsedLetterBoxCount = 0;
+
+	float x1 = 0;
+	float x2 = 0;
+	float y1 = 0;
+	float y2 = 0;
+
+	float u1 = 0;
+	float u2 = 0;
+	float v1 = 0;
+	float v2 = 0;
+
+	float screen_width = static_cast<float>(m_pWindowData->ScreenSize.x);
+	float screen_height = static_cast<float>(m_pWindowData->ScreenSize.y);
+
+	memset(m_Vertices, 0, sizeof(SVertexImage) * m_VertexSize);
+
+	for (size_t iterator = 0; iterator < m_ImageStringLength; iterator++)
+	{
+		// Set vertices only when it's inside the screen region
+		// otherwise, skip the vertices setting
+		x1 = m_ImageStringInfo[iterator].Left + m_SinglelineXOffset;
+		x2 = m_ImageStringInfo[iterator].Right + m_SinglelineXOffset;
+		y1 = m_ImageStringInfo[iterator].Top + m_MultilineYOffset;
+		y2 = m_ImageStringInfo[iterator].Bottom + m_MultilineYOffset;
+
+		u1 = m_ImageStringInfo[iterator].U1;
+		u2 = m_ImageStringInfo[iterator].U2;
+		v1 = m_ImageStringInfo[iterator].V1;
+		v2 = m_ImageStringInfo[iterator].V2;
+
+		if ((x2 >= 0) && (x1 <= screen_width))
+		{
+			if ((y2 >= 0) && (y2 <= screen_height))
+			{
+				size_t vertexID = m_UsedLetterBoxCount * 4;
+				/*
+				m_Vertices[vertexID] = SVertexImage(x1, y1, m_FontColor, u1, v1);
+				m_Vertices[vertexID + 1] = SVertexImage(x2, y1, m_FontColor, u2, v1);
+				m_Vertices[vertexID + 2] = SVertexImage(x1, y2, m_FontColor, u1, v2);
+				m_Vertices[vertexID + 3] = SVertexImage(x2, y2, m_FontColor, u2, v2);
+				*/
+				m_Vertices[vertexID] = { x1, y1, 0, 1, m_FontColor, u1, v1 };
+				m_Vertices[vertexID + 1] = { x2, y1, 0, 1, m_FontColor, u2, v1 };
+				m_Vertices[vertexID + 2] = { x1, y2, 0, 1, m_FontColor, u1, v2 };
+				m_Vertices[vertexID + 3] = { x2, y2, 0, 1, m_FontColor, u2, v2 };
+
+				m_UsedLetterBoxCount++;
+			}
+		}
+	}
+
+	UpdateVertexBuffer();
 }
 
 void JWFont::Draw() const
@@ -986,15 +1047,8 @@ void JWFont::Draw() const
 		m_pDevice->SetFVF(D3DFVF_TEXTURE);
 		m_pDevice->SetIndices(m_pIndexBuffer);
 
-		// Set viewport with box position and size
-		// in order not to draw things that are outside of the box
-		m_pDevice->SetViewport(&m_BoxViewport);
-
 		// Draw call
 		m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_VertexSize, 0, m_IndexSize);
-
-		// Reset the original viewport
-		m_pDevice->SetViewport(&m_OriginalViewport);
 
 		m_pDevice->SetTexture(0, nullptr);
 	}

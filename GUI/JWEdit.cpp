@@ -69,6 +69,9 @@ auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3
 	m_YSizeMultiline = Size.y;
 	m_YSizeSingleline = m_pFont->GetLineHeight();
 
+	// Set edit position
+	SetPosition(m_PositionClient);
+
 	// Set edit size
 	SetSize(m_Size);
 
@@ -77,6 +80,9 @@ auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3
 
 	// Set control type
 	m_Type = EControlType::Edit;
+
+	// Get the original viewport to reset it later
+	ms_pWindow->GetDevice()->GetViewport(&m_OriginalViewport);
 
 	return EError::OK;
 }
@@ -90,6 +96,8 @@ void JWEdit::Destroy()
 
 void JWEdit::Draw()
 {
+	ms_pWindow->GetDevice()->SetViewport(&m_EditViewport);
+
 	if (!ms_pWindow->IsIMEWriting())
 	{
 		JWControl::Draw();
@@ -112,9 +120,10 @@ void JWEdit::Draw()
 				m_CaretTickCount = 0;
 			}
 		}
-
 		m_pSelection->Draw();
 	}
+
+	ms_pWindow->GetDevice()->SetViewport(&m_OriginalViewport);
 }
 
 void JWEdit::Focus()
@@ -210,6 +219,15 @@ PRIVATE void JWEdit::MoveCaretToRight(size_t Stride)
 	}
 }
 
+PRIVATE void JWEdit::UpdateViewport()
+{
+	m_EditViewport = m_OriginalViewport;
+	m_EditViewport.X = static_cast<DWORD>(m_PositionClient.x);
+	m_EditViewport.Y = static_cast<DWORD>(m_PositionClient.y);
+	m_EditViewport.Width = static_cast<DWORD>(m_Size.x);
+	m_EditViewport.Height = static_cast<DWORD>(m_Size.y);
+}
+
 PRIVATE void JWEdit::UpdateText()
 {
 	m_pFont->SetText(m_Text, m_PositionClient, m_Size);
@@ -221,6 +239,7 @@ PRIVATE void JWEdit::UpdateCaretAndSelection()
 	UpdateSelectionBox();
 }
 
+// TODO: Multiline y offsetting needs to be added!!
 PRIVATE void JWEdit::UpdateCaretPosition()
 {
 	// Update caret's image position only when the caret has been moved
@@ -369,6 +388,15 @@ void JWEdit::SetSize(D3DXVECTOR2 Size)
 	}
 	
 	JWControl::SetSize(Size);
+
+	UpdateViewport();
+}
+
+void JWEdit::SetPosition(D3DXVECTOR2 Position)
+{
+	JWControl::SetPosition(Position);
+
+	UpdateViewport();
 }
 
 void JWEdit::SetUseMultiline(bool Value)
@@ -753,13 +781,9 @@ PRIVATE void JWEdit::InsertString(WSTRING String)
 	if (!m_bUseMultiline)
 	{
 		// If this is single-line edit,
-		// we don't use '\n', so remove it
+		// we don't use '\n', so clip the string
 		size_t find_r = String.find('\n');
-		while (find_r != String.npos)
-		{
-			String.erase(find_r, 1);
-			find_r = String.find('\n');
-		}
+		String = String.substr(0, find_r);
 	}
 
 	// Insert this new string into m_Text
