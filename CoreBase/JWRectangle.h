@@ -15,7 +15,7 @@ namespace JWENGINE
 		JWRectangle();
 		virtual ~JWRectangle() {};
 
-		virtual auto Create(JWWindow* pJWWindow, WSTRING BaseDir, UINT MaxNumBox = 1)->EError;
+		virtual auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, UINT MaxNumBox = 1)->EError;
 		virtual void Destroy();
 
 		virtual void ClearAllRectangles();
@@ -37,10 +37,10 @@ namespace JWENGINE
 	protected:
 		static const DWORD DEFAULT_COLOR_RECTANGLE = D3DCOLOR_ARGB(255, 80, 255, 0);
 
-		JWWindow* m_pJWWindow;
-		WSTRING m_BaseDir;
+		const JWWindow* m_pJWWindow;
+		const WSTRING* m_pBaseDir;
+		
 		LPDIRECT3DDEVICE9 m_pDevice;
-
 		LPDIRECT3DVERTEXBUFFER9 m_pVertexBuffer;
 		LPDIRECT3DINDEXBUFFER9 m_pIndexBuffer;
 

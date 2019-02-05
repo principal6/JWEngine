@@ -58,7 +58,7 @@ namespace JWENGINE
 		JWMap();
 		~JWMap() {};
 
-		auto JWMap::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError;
+		auto JWMap::Create(JWWindow* pJWWindow, WSTRING* pBaseDir)->EError;
 		void JWMap::Destroy() override;
 
 		void JWMap::CreateMap(SMapInfo* InPtr_Info);

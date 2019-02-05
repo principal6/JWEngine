@@ -16,7 +16,7 @@ namespace JWENGINE
 		JWLife();
 		virtual ~JWLife() {};
 
-		virtual auto JWLife::Create(JWWindow* pJWWindow, WSTRING BaseDir, JWMap* pMap)->EError;
+		virtual auto JWLife::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError;
 
 		virtual auto JWLife::MakeLife(WSTRING TextureFN, POINT UnitSize, int numCols, int numRows, float Scale = 1.0f)->JWLife*;
 

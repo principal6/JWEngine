@@ -44,42 +44,42 @@ auto JWGame::Create(int Width, int Height)->EError
 	// Create font object
 	if (m_Font = MAKE_UNIQUE(JWFont)())
 	{
-		if (JW_FAILED(m_Font->Create(m_Window.get(), m_BaseDir)))
+		if (JW_FAILED(m_Font->Create(m_Window.get(), &m_BaseDir)))
 			return EError::FONT_NOT_CREATED;
 	}
 
 	// Create image object
 	if (m_Background = MAKE_UNIQUE(JWBackground)())
 	{
-		if (JW_FAILED(m_Background->Create(m_Window.get(), m_BaseDir)))
+		if (JW_FAILED(m_Background->Create(m_Window.get(), &m_BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 	}
 	
 	// Create map object
 	if (m_Map = MAKE_UNIQUE(JWMap)())
 	{
-		if (JW_FAILED(m_Map->Create(m_Window.get(), m_BaseDir)))
+		if (JW_FAILED(m_Map->Create(m_Window.get(), &m_BaseDir)))
 			return EError::MAP_NOT_CREATED;
 	}
 	
 	// Create sprite object
 	if (m_Sprite = MAKE_UNIQUE(JWLife)())
 	{
-		if (JW_FAILED(m_Sprite->Create(m_Window.get(), m_BaseDir, m_Map.get())))
+		if (JW_FAILED(m_Sprite->Create(m_Window.get(), &m_BaseDir, m_Map.get())))
 			return EError::SPRITE_NOT_CREATED;
 	}
 
 	// Create monster manager object
 	if (m_MonsterManager = MAKE_UNIQUE(JWMonsterManager)())
 	{
-		if (JW_FAILED(m_MonsterManager->Create(m_Window.get(), m_BaseDir, m_Map.get())))
+		if (JW_FAILED(m_MonsterManager->Create(m_Window.get(), &m_BaseDir, m_Map.get())))
 			return EError::MONSTERMANAGER_NOT_CREATED;
 	}
 
 	// Create effect manager object
 	if (m_EffectManager = MAKE_UNIQUE(JWEffect)())
 	{
-		if (JW_FAILED(m_EffectManager->Create(m_Window.get(), m_BaseDir, m_Map.get())))
+		if (JW_FAILED(m_EffectManager->Create(m_Window.get(), &m_BaseDir, m_Map.get())))
 			return EError::EFFECTMANAGER_NOT_CREATED;
 	}
 

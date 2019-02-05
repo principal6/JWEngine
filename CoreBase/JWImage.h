@@ -25,7 +25,7 @@ namespace JWENGINE
 		JWImage();
 		virtual ~JWImage() {};
 
-		virtual auto Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError;
+		virtual auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError;
 		virtual void Destroy();
 
 		virtual void Draw();
@@ -34,12 +34,13 @@ namespace JWENGINE
 		virtual void FlipHorizontal();
 		virtual void FlipVertical();
 
-		// @warning: SetSize() is used publicly only in Map Editor
+		// @warning: SetSize() is used only in Map Editor
 		virtual void SetSize(D3DXVECTOR2 Size);
 		
 		virtual void SetPosition(D3DXVECTOR2 Position);
 		virtual void SetPositionCentered(D3DXVECTOR2 Position);
 		virtual void SetTexture(WSTRING FileName);
+		virtual void SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo);
 		virtual auto SetAlpha(BYTE Alpha)->JWImage*;
 		virtual auto SetXRGB(DWORD Color)->JWImage*;
 		virtual auto SetScale(D3DXVECTOR2 Scale)->JWImage*;
@@ -74,8 +75,8 @@ namespace JWENGINE
 		static const int VISIBLE_RANGE_NOT_SET = -1;
 		static const DWORD DEF_BOUNDINGBOX_COLOR;
 
-		JWWindow* m_pJWWindow;
-		WSTRING m_BaseDir;
+		const JWWindow* m_pJWWindow;
+		const WSTRING* m_pBaseDir;
 
 		LPDIRECT3DDEVICE9 m_pDevice;
 
@@ -99,5 +100,7 @@ namespace JWENGINE
 		D3DXVECTOR2 m_BoundingBoxExtraSize;
 		JWLine m_BoundingBoxLine;
 		DWORD m_BoundingBoxColor;
+
+		bool m_bUseStaticTexture;
 	};
 };

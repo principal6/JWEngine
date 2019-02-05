@@ -28,9 +28,9 @@ JWLife::JWLife()
 	m_bHitGround = true;
 }
 
-auto JWLife::Create(JWWindow* pJWWindow, WSTRING BaseDir, JWMap* pMap)->EError
+auto JWLife::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError
 {
-	if (JW_SUCCEEDED(JWImage::Create(pJWWindow, BaseDir)))
+	if (JW_SUCCEEDED(JWImage::Create(pJWWindow, pBaseDir)))
 	{
 		if (nullptr == (m_pMap = pMap))
 			return EError::NULLPTR_MAP;

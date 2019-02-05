@@ -26,16 +26,18 @@ JWImage::JWImage()
 
 	m_BoundingBoxExtraSize = D3DXVECTOR2(0, 0);
 	m_BoundingBoxColor = DEF_BOUNDINGBOX_COLOR;
+
+	m_bUseStaticTexture = false;
 }
 
-auto JWImage::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError
+auto JWImage::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError
 {
 	if (pJWWindow == nullptr)
 		return EError::NULLPTR_WINDOW;
 
 	m_pJWWindow = pJWWindow;
 	m_pDevice = pJWWindow->GetDevice();
-	m_BaseDir = BaseDir;
+	m_pBaseDir = pBaseDir;
 
 	ClearVertexAndIndexData();
 	CreateVertexBuffer();
@@ -63,7 +65,10 @@ void JWImage::Destroy()
 
 	m_BoundingBoxLine.Destroy();
 
-	JW_RELEASE(m_pTexture);
+	if (!m_bUseStaticTexture)
+	{
+		JW_RELEASE(m_pTexture);
+	}
 	JW_RELEASE(m_pIndexBuffer);
 	JW_RELEASE(m_pVertexBuffer);
 }
@@ -258,7 +263,7 @@ void JWImage::SetTexture(WSTRING FileName)
 	}
 
 	WSTRING NewFileName;
-	NewFileName = m_BaseDir;
+	NewFileName = *m_pBaseDir;
 	NewFileName += ASSET_DIR;
 	NewFileName += FileName;
 
@@ -269,6 +274,30 @@ void JWImage::SetTexture(WSTRING FileName)
 
 	m_Size.x = static_cast<float>(tImageInfo.Width);
 	m_Size.y = static_cast<float>(tImageInfo.Height);
+
+	// Entire texture size (will never be changed unless the texture itself changes)
+	m_AtlasSize = m_Size;
+
+	m_ScaledSize.x = m_Size.x * m_Scale.x;
+	m_ScaledSize.y = m_Size.y * m_Scale.y;
+
+	UpdateVertexData();
+}
+
+void JWImage::SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo)
+{
+	m_bUseStaticTexture = true;
+
+	if (m_pTexture)
+	{
+		m_pTexture->Release();
+		m_pTexture = nullptr;
+	}
+
+	m_pTexture = pTexture;
+
+	m_Size.x = static_cast<float>(pInfo->Width);
+	m_Size.y = static_cast<float>(pInfo->Height);
 
 	// Entire texture size (will never be changed unless the texture itself changes)
 	m_AtlasSize = m_Size;

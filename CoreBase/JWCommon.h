@@ -35,15 +35,20 @@
 	#define MAKE_SHARED(T) std::make_shared<T>
 #endif
 
-// Static function
+// Static function prefix
 #define STATIC
-// Protected method
+// Protected method prefix
 #define PROTECTED
-// Private method
+// Private method prefix
 #define PRIVATE
 
 namespace JWENGINE
 {
+	// ***
+	// *** Forward declaration ***
+	class JWWindow;
+	// ***
+
 	#define JW_SUCCEEDED(func) (func == EError::OK)
 	#define JW_FAILED(func) (func != EError::OK)
 	#define JW_DELETE_ARRAY(arr) {if(arr) {delete[] arr; arr = nullptr;}}
@@ -219,6 +224,16 @@ namespace JWENGINE
 
 		STextureUV() : u1(0), u2(0), v1(0), v2(0) {};
 		STextureUV(float U1, float U2, float V1, float V2) : u1(U1), u2(U2), v1(V1), v2(V2) {};
+	};
+
+	struct SGUISharedData
+	{
+		JWWindow* pWindow;
+		WSTRING BaseDir;
+		LPDIRECT3DTEXTURE9 Texture_GUI;
+		D3DXIMAGE_INFO Texture_GUI_Info;
+
+		SGUISharedData() : pWindow(nullptr), Texture_GUI(nullptr) {};
 	};
 
 	inline static void ConvertFrameIDIntoUV(int FrameID, POINT SpriteSize, POINT SheetSize, int NumCols, int NumRows, STextureUV* UV)

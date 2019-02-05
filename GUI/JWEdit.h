@@ -17,7 +17,7 @@ namespace JWENGINE
 		JWEdit();
 		~JWEdit() {};
 
-		auto Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError override;
+		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError override;
 		void Destroy() override;
 
 		void Draw() override;
@@ -87,6 +87,8 @@ namespace JWENGINE
 
 		WSTRING m_IMETempText;
 		size_t m_IMETempSel;
+		const TCHAR* m_pIMECharacter;
+		bool m_bIMECompleted;
 
 		ULONGLONG m_CaretTickCount;
 		WSTRING m_ClipText;

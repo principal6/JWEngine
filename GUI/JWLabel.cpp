@@ -3,9 +3,9 @@
 
 using namespace JWENGINE;
 
-auto JWLabel::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWLabel::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
-	if (JW_FAILED(JWControl::Create(pWindow, BaseDir, Position, Size)))
+	if (JW_FAILED(JWControl::Create(Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
 
 	// Set control type

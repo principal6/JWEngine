@@ -11,18 +11,18 @@ JWRadioBox::JWRadioBox()
 	m_bChecked = false;
 }
 
-auto JWRadioBox::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWRadioBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
-	if (JW_FAILED(JWControl::Create(pWindow, BaseDir, Position, Size)))
+	if (JW_FAILED(JWControl::Create(Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
 
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(ms_pWindow, ms_BaseDir)))
+		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		
 		//m_pBackground->SetXRGB(D3DCOLOR_XRGB(255, 255, 255));
-		m_pBackground->SetTexture(GUI_TEXTURE_FILENAME);
+		m_pBackground->SetTexture(ms_pSharedData->Texture_GUI, &ms_pSharedData->Texture_GUI_Info);
 	}
 	else
 	{

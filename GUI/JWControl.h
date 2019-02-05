@@ -65,7 +65,8 @@ namespace JWENGINE
 		JWControl();
 		virtual ~JWControl() {};
 
-		virtual auto Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError;
+		virtual void SetSharedData(const SGUISharedData* SharedData);
+		virtual auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError;
 		virtual void Destroy();
 
 		// Sub-class maker
@@ -132,8 +133,7 @@ namespace JWENGINE
 		virtual void UpdateText();
 
 	protected:
-		static WSTRING ms_BaseDir;
-		static JWWindow* ms_pWindow;
+		static const SGUISharedData* ms_pSharedData;
 
 		JWFont* m_pFont;
 

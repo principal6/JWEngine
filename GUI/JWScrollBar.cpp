@@ -27,14 +27,14 @@ JWScrollBar::JWScrollBar()
 	m_ScrollableSize = 0;
 }
 
-auto JWScrollBar::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWScrollBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
-	if (JW_FAILED(JWControl::Create(pWindow, BaseDir, Position, Size)))
+	if (JW_FAILED(JWControl::Create(Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
 
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(ms_pWindow, ms_BaseDir)))
+		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 
 		m_pBackground->SetXRGB(DEFAULT_COLOR_NORMAL);
@@ -46,7 +46,7 @@ auto JWScrollBar::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Positio
 
 	if (m_pButtonA = new JWImageButton)
 	{
-		if (JW_FAILED(m_pButtonA->Create(pWindow, BaseDir, Position, GUI_BUTTON_SIZE)))
+		if (JW_FAILED(m_pButtonA->Create(Position, GUI_BUTTON_SIZE)))
 			return EError::IMAGEBUTTON_NOT_CREATED;
 
 		m_pButtonA->ShouldDrawBorder(false);
@@ -58,7 +58,7 @@ auto JWScrollBar::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Positio
 
 	if (m_pButtonB = new JWImageButton)
 	{
-		if (JW_FAILED(m_pButtonB->Create(pWindow, BaseDir, Position, GUI_BUTTON_SIZE)))
+		if (JW_FAILED(m_pButtonB->Create(Position, GUI_BUTTON_SIZE)))
 			return EError::IMAGEBUTTON_NOT_CREATED;
 
 		m_pButtonB->ShouldDrawBorder(false);
@@ -70,7 +70,7 @@ auto JWScrollBar::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Positio
 
 	if (m_pScroller = new JWTextButton)
 	{
-		if (JW_FAILED(m_pScroller->Create(pWindow, BaseDir, Position, GUI_BUTTON_SIZE)))
+		if (JW_FAILED(m_pScroller->Create(Position, GUI_BUTTON_SIZE)))
 			return EError::IMAGEBUTTON_NOT_CREATED;
 
 		m_pScroller->ShouldDrawBorder(false);
@@ -191,7 +191,7 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 
 		if (m_bScrollerCaptured)
 		{
-			if (ms_pWindow->GetWindowInputState()->MouseLeftPressed)
+			if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 			{
 				// When the scroller is being dragged.
 				POINT ClientMouseDownPosition = m_pScroller->GetClientMouseDownPosition();
@@ -330,7 +330,7 @@ void JWScrollBar::SetState(EControlState State)
 		m_pButtonA->SetState(State);
 		m_pButtonB->SetState(State);
 
-		if (!ms_pWindow->GetWindowInputState()->MouseLeftPressed)
+		if (!ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 		{
 			m_pScroller->SetState(State);
 		}

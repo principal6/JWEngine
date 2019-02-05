@@ -15,7 +15,7 @@ namespace JWENGINE
 		JWTextButton();
 		~JWTextButton() {};
 
-		auto Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError override;
+		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError override;
 		void Destroy() override;
 
 		void Draw() override;

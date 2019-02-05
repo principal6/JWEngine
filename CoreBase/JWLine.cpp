@@ -5,13 +5,14 @@ using namespace JWENGINE;
 // Static member variable declaration
 LPDIRECT3DDEVICE9 JWLine::ms_pDevice;
 
-auto JWLine::Create(LPDIRECT3DDEVICE9 pD3DDev)->EError
+auto JWLine::Create(LPDIRECT3DDEVICE9 pDevice)->EError
 {
-	if (nullptr == (ms_pDevice = pD3DDev))
+	if (nullptr == (ms_pDevice = pDevice))
 		return EError::NULLPTR_DEVICE;
 
 	m_pVB = nullptr;
 	m_pIB = nullptr;
+
 	Clear();
 
 	return EError::OK;
@@ -23,16 +24,17 @@ void JWLine::Clear()
 	m_Indices.clear();
 }
 
-void JWLine::CreateMax(LPDIRECT3DDEVICE9 pD3DDev)
+void JWLine::CreateMax(LPDIRECT3DDEVICE9 pDevice)
 {
-	Create(pD3DDev);
+	Create(pDevice);
+
 	CreateVertexBufferMax();
 	CreateIndexBufferMax();
 }
 
 void JWLine::Destroy()
 {
-	ms_pDevice = nullptr; // Just set to nullptr cuz it's newed in <JWWindow> class
+	ms_pDevice = nullptr; // Just set to nullptr, becuase it's newed in <JWWindow> class
 
 	m_Vertices.clear();
 	m_Indices.clear();

@@ -2,9 +2,18 @@
 
 using namespace JWENGINE;
 
+static auto CreateTexture(const WSTRING& Filename, LPDIRECT3DDEVICE9 pDevice,
+	LPDIRECT3DTEXTURE9* pTexture, D3DXIMAGE_INFO* pInfo)->EError
+{
+	if (FAILED(D3DXCreateTextureFromFileEx(pDevice, Filename.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
+		D3DX_DEFAULT, D3DX_DEFAULT, 0, pInfo, nullptr, pTexture)))
+		return EError::TEXTURE_NOT_CREATED;
+
+	return EError::OK;
+}
+
 JWGUI::JWGUI()
 {
-	m_pWindow = nullptr;
 	m_pControlWithFocus = nullptr;
 
 	m_pfMainLoop = nullptr;
@@ -12,17 +21,29 @@ JWGUI::JWGUI()
 
 auto JWGUI::Create(JWWindow* pWindow)->EError
 {
-	if (nullptr == (m_pWindow = pWindow))
+	if (nullptr == (m_SharedData.pWindow = pWindow))
 		return EError::NULLPTR_WINDOW;
 
 	// Set base directory
 	wchar_t tempDir[MAX_FILE_LEN]{};
 	GetCurrentDirectoryW(MAX_FILE_LEN, tempDir);
-	m_BaseDir = tempDir;
-	m_BaseDir = m_BaseDir.substr(0, m_BaseDir.find(PROJECT_FOLDER));
+	m_SharedData.BaseDir = tempDir;
+	m_SharedData.BaseDir = m_SharedData.BaseDir.substr(0, m_SharedData.BaseDir.find(PROJECT_FOLDER));
 
 	// Output base directory in console window
-	std::wcout << m_BaseDir.c_str() << std::endl;
+	std::wcout << m_SharedData.BaseDir.c_str() << std::endl;
+
+	// Create shared texture
+	WSTRING texture_filename;
+	texture_filename = m_SharedData.BaseDir;
+	texture_filename += ASSET_DIR;
+	texture_filename += GUI_TEXTURE_FILENAME;
+	if (JW_FAILED(CreateTexture(texture_filename, m_SharedData.pWindow->GetDevice(),
+		&m_SharedData.Texture_GUI, &m_SharedData.Texture_GUI_Info)))
+		return EError::TEXTURE_NOT_CREATED;
+
+	JWControl temp_control_to_set_shared_data;
+	temp_control_to_set_shared_data.SetSharedData(&m_SharedData);
 
 	return EError::OK;
 }
@@ -34,8 +55,6 @@ void JWGUI::Destroy()
 		JW_DESTROY(iterator);
 	}
 	m_Controls.clear();
-	
-	m_pWindow = nullptr;
 }
 
 void JWGUI::Run()
@@ -92,7 +111,7 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 		break;
 	}
 	
-	if (JW_FAILED(m_Controls[m_Controls.size() - 1]->Create(m_pWindow, m_BaseDir, Position, Size)))
+	if (JW_FAILED(m_Controls[m_Controls.size() - 1]->Create(Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
 
 	if (Text.length())
@@ -131,9 +150,9 @@ PRIVATE void JWGUI::HandleMessage()
 
 PRIVATE void JWGUI::MainLoop()
 {
-	m_pWindow->UpdateInputState();
+	m_SharedData.pWindow->UpdateInputState();
 
-	m_pWindow->BeginRender();
+	m_SharedData.pWindow->BeginRender();
 
 	JWControl* pControlWithMouse = nullptr;
 	JWControl* pControlWithNewFocus = nullptr;
@@ -241,7 +260,7 @@ PRIVATE void JWGUI::MainLoop()
 
 	Draw();
 
-	m_pWindow->EndRender();
+	m_SharedData.pWindow->EndRender();
 }
 
 PRIVATE void JWGUI::Draw()

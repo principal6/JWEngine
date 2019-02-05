@@ -24,14 +24,14 @@ JWImageButton::JWImageButton()
 	m_Color_Pressed = DEFAULT_COLOR_NORMAL;
 }
 
-auto JWImageButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWImageButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
-	if (JW_FAILED(JWControl::Create(pWindow, BaseDir, Position, Size)))
+	if (JW_FAILED(JWControl::Create(Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
 
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(ms_pWindow, ms_BaseDir)))
+		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		m_pBackground->SetXRGB(DEFAULT_COLOR_NORMAL);
 		m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
@@ -43,7 +43,7 @@ auto JWImageButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Posit
 
 	if (m_pButtonImage = new JWImage)
 	{
-		if (JW_FAILED(m_pButtonImage->Create(ms_pWindow, ms_BaseDir)))
+		if (JW_FAILED(m_pButtonImage->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		m_pButtonImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 	}
@@ -75,7 +75,7 @@ void JWImageButton::Destroy()
 void JWImageButton::MakeImageButton(WSTRING TextureAtlasFileName, D3DXVECTOR2 ButtonSizeInTexture, D3DXVECTOR2 NormalOffset,
 	D3DXVECTOR2 HoverOffset, D3DXVECTOR2 PressedOffset)
 {
-	m_pButtonImage->SetTexture(GUI_TEXTURE_FILENAME);
+	m_pButtonImage->SetTexture(TextureAtlasFileName);
 
 	m_ButtonSizeInTexture = ButtonSizeInTexture;
 
@@ -107,9 +107,16 @@ void JWImageButton::MakeSystemArrowButton(ESystemArrowDirection Direction)
 		m_bVertFlip = true;
 		break;
 	}
+	
+	m_pButtonImage->SetTexture(ms_pSharedData->Texture_GUI, &ms_pSharedData->Texture_GUI_Info);
 
-	MakeImageButton(GUI_TEXTURE_FILENAME, GUI_BUTTON_SIZE, D3DXVECTOR2(0, AtlasYOffset),
-		D3DXVECTOR2(GUI_BUTTON_SIZE.x, AtlasYOffset), D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, AtlasYOffset));
+	m_ButtonSizeInTexture = GUI_BUTTON_SIZE;
+
+	m_NormalOffset = D3DXVECTOR2(0, AtlasYOffset);
+	m_HoverOffset = D3DXVECTOR2(GUI_BUTTON_SIZE.x, AtlasYOffset);
+	m_PressedOffset = D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, AtlasYOffset);
+
+	SetSize(m_Size);
 }
 
 void JWImageButton::Draw()

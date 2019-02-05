@@ -13,14 +13,14 @@ JWTextButton::JWTextButton()
 	m_Color_Pressed = DEFAULT_COLOR_PRESSED;
 }
 
-auto JWTextButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWTextButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
-	if (JW_FAILED(JWControl::Create(pWindow, BaseDir, Position, Size)))
+	if (JW_FAILED(JWControl::Create(Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
 	
 	if (m_pImage = new JWImage)
 	{
-		if (JW_FAILED(m_pImage->Create(ms_pWindow, ms_BaseDir)))
+		if (JW_FAILED(m_pImage->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		m_pImage->SetSize(m_Size);
 		m_pImage->SetPosition(m_PositionClient);

@@ -54,7 +54,7 @@ namespace JWENGINE
 		JWFont();
 		~JWFont() {};
 
-		auto Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError;
+		auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError;
 		void Destroy();
 
 		auto MakeFont(WSTRING FileName_FNT)->EError;
@@ -148,11 +148,10 @@ namespace JWENGINE
 
 		static LPDIRECT3DTEXTURE9 ms_pFontTexture;
 
-		JWWindow* m_pJWWindow;
-		JWImage* m_pBackgroundBox;
-		WSTRING m_BaseDir;
+		const JWWindow* m_pJWWindow;
+		const WSTRING* m_pBaseDir;
 		const SWindowData* m_pWindowData;
-
+		
 		LPDIRECT3DDEVICE9 m_pDevice;
 		LPDIRECT3DVERTEXBUFFER9 m_pVertexBuffer;
 		LPDIRECT3DINDEXBUFFER9 m_pIndexBuffer;
@@ -171,6 +170,7 @@ namespace JWENGINE
 		DWORD m_FontColor;
 		DWORD m_BoxColor;
 
+		JWImage* m_pBackgroundBox;
 		D3DXVECTOR2 m_BoxPosition;
 		D3DXVECTOR2 m_BoxSize;
 

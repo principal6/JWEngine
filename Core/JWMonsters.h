@@ -39,7 +39,7 @@ namespace JWENGINE
 		JWMonster();
 		~JWMonster() {};
 
-		auto JWMonster::Create(JWWindow* pJWWindow, WSTRING BaseDir, JWMap* pMap)->EError;
+		auto JWMonster::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError;
 		void JWMonster::Destroy() override;
 
 		void JWMonster::SetMonsterType(JWMonsterType Type);
@@ -72,7 +72,7 @@ namespace JWENGINE
 		JWMonsterManager() {};
 		~JWMonsterManager() {};
 
-		auto JWMonsterManager::Create(JWWindow* pJWWindow, WSTRING BaseDir, JWMap* pMap)->EError;
+		auto JWMonsterManager::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError;
 		void JWMonsterManager::Destroy();
 
 		auto JWMonsterManager::AddMonsterType(JWMonsterType Value)->JWMonsterType*;
@@ -88,8 +88,8 @@ namespace JWENGINE
 	private:
 		static LPDIRECT3DDEVICE9 m_pDevice;
 		JWWindow* m_pJWWindow;
+		WSTRING* m_pBaseDir;
 		JWMap* m_pMap;
-		WSTRING m_BaseDir;
 
 		VECTOR<JWMonsterType> m_Types;
 		VECTOR<JWMonster> m_Instances;

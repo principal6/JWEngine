@@ -29,17 +29,17 @@ JWMonster::JWMonster()
 	m_HPBar = nullptr;
 }
 
-auto JWMonster::Create(JWWindow* pJWWindow, WSTRING BaseDir, JWMap* pMap)->EError
+auto JWMonster::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError
 {
-	if (JW_SUCCEEDED(JWLife::Create(pJWWindow, BaseDir, pMap)))
+	if (JW_SUCCEEDED(JWLife::Create(pJWWindow, pBaseDir, pMap)))
 	{
 		m_HPFrame = new JWImage;
-		m_HPFrame->Create(pJWWindow, BaseDir);
+		m_HPFrame->Create(pJWWindow, pBaseDir);
 		m_HPFrame->SetTexture(L"gamegui.png");
 		m_HPFrame->SetAtlasUV(D3DXVECTOR2(0, 0), D3DXVECTOR2(47, 10));
 
 		m_HPBar = new JWImage;
-		m_HPBar->Create(pJWWindow, BaseDir);
+		m_HPBar->Create(pJWWindow, pBaseDir);
 		m_HPBar->SetTexture(L"gamegui.png");
 		m_HPBar->SetAtlasUV(D3DXVECTOR2(0, 10), D3DXVECTOR2(47, 10));
 
@@ -137,7 +137,7 @@ void JWMonster::Draw()
 // Static member variable declaration
 LPDIRECT3DDEVICE9 JWMonsterManager::m_pDevice;
 
-auto JWMonsterManager::Create(JWWindow* pJWWindow, WSTRING BaseDir, JWMap* pMap)->EError
+auto JWMonsterManager::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError
 {
 	if (pJWWindow == nullptr)
 		return EError::NULLPTR_WINDOW;
@@ -147,7 +147,7 @@ auto JWMonsterManager::Create(JWWindow* pJWWindow, WSTRING BaseDir, JWMap* pMap)
 
 	m_pJWWindow = pJWWindow;
 	m_pDevice = pJWWindow->GetDevice();
-	m_BaseDir = BaseDir;
+	m_pBaseDir = pBaseDir;
 	m_pMap = pMap;
 
 	return EError::OK;
@@ -178,7 +178,7 @@ auto JWMonsterManager::Spawn(WSTRING MonsterName, D3DXVECTOR2 GlobalPosition)->J
 		if (TypeIterator.m_Name == MonsterName)
 		{
 			JWMonster Temp;
-			Temp.Create(m_pJWWindow, m_BaseDir, m_pMap);
+			Temp.Create(m_pJWWindow, m_pBaseDir, m_pMap);
 			Temp.SetMonsterType(TypeIterator);
 			Temp.MakeLife(TypeIterator.m_TextureFileName, TypeIterator.m_UnitSize, TypeIterator.m_TextureNumCols,
 				TypeIterator.m_TextureNumRows, 1.0f);

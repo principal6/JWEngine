@@ -5,8 +5,7 @@
 using namespace JWENGINE;
 
 // Static member variable
-WSTRING JWControl::ms_BaseDir;
-JWWindow* JWControl::ms_pWindow;
+const SGUISharedData* JWControl::ms_pSharedData;
 
 JWControl::JWControl()
 {
@@ -23,17 +22,16 @@ JWControl::JWControl()
 	m_MousePosition = { 0, 0 };
 }
 
-auto JWControl::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+void JWControl::SetSharedData(const SGUISharedData* SharedData)
 {
-	if (nullptr == (ms_pWindow = pWindow))
-		return EError::NULLPTR_WINDOW;
-
-	ms_BaseDir = BaseDir;
-
+	ms_pSharedData = SharedData;
+}
+auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+{
 	// Craete font
 	if (m_pFont = new JWFont)
 	{
-		if (JW_SUCCEEDED(m_pFont->Create(ms_pWindow, ms_BaseDir)))
+		if (JW_SUCCEEDED(m_pFont->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
 		{
 			m_pFont->MakeFont(DEFAULT_FONT);
 		}
@@ -105,7 +103,7 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 	if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
 	{
 		// Mouse position is inside RECT
-		if (ms_pWindow->GetWindowInputState()->MouseLeftPressed)
+		if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 		{
 			if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect))
 			{

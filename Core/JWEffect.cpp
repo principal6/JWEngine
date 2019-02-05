@@ -14,7 +14,7 @@ JWEffect::JWEffect()
 	m_pLastInstance = nullptr;
 }	
 
-auto JWEffect::Create(JWWindow* pJWWindow, WSTRING BaseDir, JWMap* pMap)->EError
+auto JWEffect::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError
 {
 	if (pJWWindow == nullptr)
 		return EError::NULLPTR_WINDOW;
@@ -22,7 +22,7 @@ auto JWEffect::Create(JWWindow* pJWWindow, WSTRING BaseDir, JWMap* pMap)->EError
 	if (pMap == nullptr)
 		return EError::NULLPTR_MAP;
 
-	EError Result = JWImage::Create(pJWWindow, BaseDir);
+	EError Result = JWImage::Create(pJWWindow, pBaseDir);
 	m_pMap = pMap;
 
 	JWImage::ClearVertexAndIndexData();

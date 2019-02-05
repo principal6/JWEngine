@@ -20,14 +20,14 @@ JWRectangle::JWRectangle()
 	ClearVertexAndIndexData();
 }
 
-auto JWRectangle::Create(JWWindow* pJWWindow, WSTRING BaseDir, UINT MaxNumBox)->EError
+auto JWRectangle::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, UINT MaxNumBox)->EError
 {
 	if (pJWWindow == nullptr)
 		return EError::NULLPTR_WINDOW;
 
 	m_pJWWindow = pJWWindow;
 	m_pDevice = pJWWindow->GetDevice();
-	m_BaseDir = BaseDir;
+	m_pBaseDir = pBaseDir;
 
 	// MaxNumBox >= 1
 	MaxNumBox = max(MaxNumBox, 1);

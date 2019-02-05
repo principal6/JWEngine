@@ -102,14 +102,14 @@ JWMap::JWMap()
 	m_OffsetZeroY = 0;
 }
 
-auto JWMap::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError
+auto JWMap::Create(JWWindow* pJWWindow, WSTRING* pBaseDir)->EError
 {
 	if (pJWWindow == nullptr)
 		return EError::NULLPTR_WINDOW;
 
 	m_pJWWindow = pJWWindow;
 	m_pDevice = m_pJWWindow->GetDevice();
-	m_BaseDir = BaseDir;
+	m_pBaseDir = pBaseDir;
 
 	ClearAllData();
 	m_Vertices.clear();
@@ -155,7 +155,7 @@ void JWMap::CreateMap(SMapInfo* InPtr_Info)
 void JWMap::LoadMap(WSTRING FileName)
 {
 	WSTRING NewFileName;
-	NewFileName = m_BaseDir;
+	NewFileName = *m_pBaseDir;
 	NewFileName += ASSET_DIR;
 	NewFileName += FileName;
 
@@ -424,7 +424,7 @@ PRIVATE void JWMap::SetMoveTexture(WSTRING FileName)
 	}
 
 	WSTRING NewFileName;
-	NewFileName = m_BaseDir;
+	NewFileName = *m_pBaseDir;
 	NewFileName += ASSET_DIR;
 	NewFileName += FileName;
 	

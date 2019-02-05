@@ -29,8 +29,8 @@ namespace JWENGINE
 		JWLine() {};
 		~JWLine() {};
 
-		auto Create(LPDIRECT3DDEVICE9 pD3DDev)->EError;
-		void CreateMax(LPDIRECT3DDEVICE9 pD3DDev);
+		auto Create(LPDIRECT3DDEVICE9 pDevice)->EError;
+		void CreateMax(LPDIRECT3DDEVICE9 pDevice);
 		void Clear();
 		void Destroy();
 
@@ -57,6 +57,7 @@ namespace JWENGINE
 
 	private:
 		static LPDIRECT3DDEVICE9 ms_pDevice;
+
 		LPDIRECT3DVERTEXBUFFER9 m_pVB;
 		LPDIRECT3DINDEXBUFFER9 m_pIB;
 

@@ -27,15 +27,15 @@ JWEdit::JWEdit()
 	m_YSizeSingleline = 0;
 }
 
-auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
-	if (JW_FAILED(JWControl::Create(pWindow, BaseDir, Position, Size)))
+	if (JW_FAILED(JWControl::Create(Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
 	
 	// Create line for border
 	if (m_pBorderLine = new JWLine)
 	{
-		if (JW_FAILED(m_pBorderLine->Create(pWindow->GetDevice())))
+		if (JW_FAILED(m_pBorderLine->Create(ms_pSharedData->pWindow->GetDevice())))
 			return EError::LINE_NOT_CREATED;
 
 		m_pBorderLine->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 100), D3DCOLOR_XRGB(0, 0, 0));
@@ -52,7 +52,7 @@ auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3
 	// Create line for caret
 	if (m_pCaret = new JWLine)
 	{
-		if (JW_FAILED(m_pCaret->Create(pWindow->GetDevice())))
+		if (JW_FAILED(m_pCaret->Create(ms_pSharedData->pWindow->GetDevice())))
 			return EError::LINE_NOT_CREATED;
 
 		m_pCaret->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 10), D3DCOLOR_XRGB(0, 0, 0));
@@ -66,7 +66,7 @@ auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3
 	// Create rectangle for selection
 	if (m_pSelection = new JWRectangle)
 	{
-		if (JW_FAILED(m_pSelection->Create(pWindow, BaseDir, m_pFont->GetMaximumLineCount())))
+		if (JW_FAILED(m_pSelection->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir, m_pFont->GetMaximumLineCount())))
 			return EError::RECTANGLE_NOT_CREATED;
 
 		m_pSelection->SetRectangleAlpha(100);
@@ -99,7 +99,7 @@ auto JWEdit::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3
 	m_Type = EControlType::Edit;
 
 	// Get the original viewport to reset it later
-	ms_pWindow->GetDevice()->GetViewport(&m_OriginalViewport);
+	ms_pSharedData->pWindow->GetDevice()->GetViewport(&m_OriginalViewport);
 
 	return EError::OK;
 }
@@ -113,9 +113,9 @@ void JWEdit::Destroy()
 
 void JWEdit::Draw()
 {
-	ms_pWindow->GetDevice()->SetViewport(&m_EditViewport);
+	ms_pSharedData->pWindow->GetDevice()->SetViewport(&m_EditViewport);
 
-	if (!ms_pWindow->IsIMEWriting())
+	if (!ms_pSharedData->pWindow->IsIMEWriting())
 	{
 		JWControl::Draw();
 	}
@@ -142,7 +142,7 @@ void JWEdit::Draw()
 
 	m_pBorderLine->Draw();
 
-	ms_pWindow->GetDevice()->SetViewport(&m_OriginalViewport);
+	ms_pSharedData->pWindow->GetDevice()->SetViewport(&m_OriginalViewport);
 }
 
 void JWEdit::Focus()
@@ -154,7 +154,7 @@ void JWEdit::Focus()
 
 PRIVATE void JWEdit::SelectOrMoveCaretToLeft(size_t Stride)
 {
-	if (ms_pWindow->GetWindowInputState()->ShiftPressed)
+	if (ms_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 	{
 		// Select
 		if (m_pCapturedSelPosition == &m_SelStart)
@@ -183,7 +183,7 @@ PRIVATE void JWEdit::SelectOrMoveCaretToLeft(size_t Stride)
 
 PRIVATE void JWEdit::SelectOrMoveCaretToRight(size_t Stride)
 {
-	if (ms_pWindow->GetWindowInputState()->ShiftPressed)
+	if (ms_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 	{
 		// Select
 		if (m_pCapturedSelPosition == &m_SelStart)
@@ -468,8 +468,65 @@ void JWEdit::SetUseMultiline(bool Value)
 	UpdateText();
 }
 
+// TODO: IME INPUT ERRORS NEED TO BE FIXED!
+void JWEdit::CheckIMEInput()
+{
+	m_bIMECompleted = false;
+
+	if (ms_pSharedData->pWindow->IsIMECompleted())
+	{
+		m_pIMECharacter = ms_pSharedData->pWindow->GetpIMEChar();
+
+		// For debugging
+		//std::cout << "[DEBUG] IsIMECompleted(): " << static_cast<size_t>(m_pIMECharacter[0]) << std::endl;
+
+		// If the character is '\0', it's deleted.
+		if (m_pIMECharacter[0])
+		{
+			m_bIMECompleted = true;
+		}
+		else
+		{
+			// For debugging
+			//std::cout << "[DEBUG] Zeroed.." << std::endl;
+			UpdateText();
+			UpdateCaretAndSelection();
+		}
+	}
+
+	if (ms_pSharedData->pWindow->IsIMEWriting())
+	{
+		if (IsTextSelected())
+		{
+			EraseSelectedText();
+		}
+
+		m_pIMECharacter = ms_pSharedData->pWindow->GetpIMEChar();
+
+		// For debugging
+		//std::cout << "[DEBUG] IsIMEWriting(): " << static_cast<size_t>(m_pIMECharacter[0]) << std::endl;
+
+		m_IMETempSel = m_SelStart;
+		m_IMETempText = m_Text;
+
+		InsertChar(m_pIMECharacter[0]);
+
+		m_Text = m_IMETempText;
+		m_SelStart = m_IMETempSel;
+		m_SelEnd = m_IMETempSel;
+	}
+}
+
 void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 {
+	if (m_bIMECompleted)
+	{
+		// For debugging
+		//std::cout << "[DEBUG] IMECompleted in OnKeyDown: " << m_pIMECharacter[0] << std::endl;
+		InsertChar(m_pIMECharacter[0]);
+		m_bIMECompleted = false;
+	}
+
 	size_t selection_size = 0;
 
 	size_t current_line_index = 0;
@@ -560,7 +617,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 				SelectOrMoveCaretToRight(current_line_length);
 			}
 
-			if (!ms_pWindow->GetWindowInputState()->ShiftPressed)
+			if (!ms_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 			{
 				m_SelStart = m_SelEnd;
 			}
@@ -587,7 +644,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 			SelectOrMoveCaretToLeft(compare_line_length);
 		}
 
-		if (!ms_pWindow->GetWindowInputState()->ShiftPressed)
+		if (!ms_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 		{
 			m_SelEnd = m_SelStart;
 		}
@@ -596,63 +653,16 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 	UpdateCaretAndSelection();
 }
 
-// TODO: IME INPUT ERRORS NEED TO BE FIXED!
-void JWEdit::CheckIMEInput()
-{
-	if (ms_pWindow->IsIMEWriting())
-	{
-		if (IsTextSelected())
-		{
-			EraseSelectedText();
-			UpdateText();
-
-			UpdateCaretAndSelection();
-		}
-
-		const TCHAR* pTCHAR = ms_pWindow->GetpIMEChar();
-
-		// For debugging
-		//std::cout << static_cast<size_t>(pTCHAR[0]) << std::endl;
-
-		m_IMETempSel = m_SelStart;
-		m_IMETempText = m_Text;
-
-		InsertChar(pTCHAR[0]);
-
-		UpdateText();
-
-		UpdateCaretAndSelection();
-
-		m_Text = m_IMETempText;
-		m_SelStart = m_IMETempSel;
-		m_SelEnd = m_IMETempSel;
-	}
-
-	if (ms_pWindow->IsIMECompleted())
-	{
-		const TCHAR* pTCHAR = ms_pWindow->GetpIMEChar();
-
-		std::cout << static_cast<size_t>(pTCHAR[0]) << std::endl;
-
-		// If new character is not '\0', insert it to the text
-		if (pTCHAR[0])
-		{
-			InsertChar(pTCHAR[0]);
-			
-			UpdateText();
-		}
-		else
-		{
-			// if it's '\0', then backspace or escape is pressed.
-			UpdateText();
-		}
-
-		UpdateCaretAndSelection();
-	}
-}
-
 void JWEdit::OnCharKey(WPARAM Char)
 {
+	if (m_bIMECompleted)
+	{
+		// For debugging
+		//std::cout << "[DEBUG] IMECompleted in OnCharKey: " << m_pIMECharacter[0] << std::endl;
+		InsertChar(m_pIMECharacter[0]);
+		m_bIMECompleted = false;
+	}
+
 	wchar_t wchar = static_cast<wchar_t>(Char);
 
 	if (wchar == 1) // Ctrl + a
@@ -673,7 +683,7 @@ void JWEdit::OnCharKey(WPARAM Char)
 	else if (wchar == 8) // Ctrl + h || Backspace
 	{
 		// Let's ignore <Ctrl + h>
-		if (!ms_pWindow->GetWindowInputState()->ControlPressed)
+		if (!ms_pSharedData->pWindow->GetWindowInputState()->ControlPressed)
 		{
 			if (IsTextSelected())
 			{
@@ -688,7 +698,7 @@ void JWEdit::OnCharKey(WPARAM Char)
 	else if (wchar == 13) // Ctrl + m || Enter
 	{
 		// Let's ignore <Ctrl + m>
-		if (!ms_pWindow->GetWindowInputState()->ControlPressed)
+		if (!ms_pSharedData->pWindow->GetWindowInputState()->ControlPressed)
 		{
 			if (IsTextSelected())
 			{
@@ -718,7 +728,7 @@ void JWEdit::OnCharKey(WPARAM Char)
 	else if (wchar == 27) // Ctrl + [ || Escape
 	{
 		// Let's ignore <Ctrl + [>
-		if (!ms_pWindow->GetWindowInputState()->ControlPressed)
+		if (!ms_pSharedData->pWindow->GetWindowInputState()->ControlPressed)
 		{
 			m_SelStart = *m_pCaretSelPosition;
 			m_SelEnd = *m_pCaretSelPosition;
@@ -730,6 +740,9 @@ void JWEdit::OnCharKey(WPARAM Char)
 		{
 			EraseSelectedText();
 		}
+
+		// For debugging
+		//std::cout << "[DEBUG] OnCharKey: " << wchar << std::endl;
 		InsertChar(wchar);
 	}
 }
@@ -957,7 +970,7 @@ void JWEdit::OnMouseDown(LPARAM MousePosition)
 {
 	JWControl::OnMouseDown(MousePosition);
 
-	if (ms_pWindow->GetWindowInputState()->ShiftPressed)
+	if (ms_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 	{
 		*m_pCaretSelPosition = m_pFont->GetCharIndexByMousePosition(m_MousePosition);
 
@@ -982,7 +995,7 @@ void JWEdit::OnMouseMove(LPARAM MousePosition)
 {
 	JWControl::OnMouseMove(MousePosition);
 
-	if (ms_pWindow->GetWindowInputState()->MouseLeftPressed)
+	if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 	{
 		*m_pCaretSelPosition = m_pFont->GetCharIndexByMousePosition(m_MousePosition);
 

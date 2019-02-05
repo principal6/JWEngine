@@ -70,18 +70,18 @@ void JWFont::ClearText()
 	m_UsedLetterBoxCount = 0;
 }
 
-auto JWFont::Create(JWWindow* pJWWindow, WSTRING BaseDir)->EError
+auto JWFont::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError
 {
 	if (pJWWindow == nullptr)
 		return EError::NULLPTR_WINDOW;
 
 	m_pJWWindow = pJWWindow;
 	m_pDevice = pJWWindow->GetDevice();
-	m_BaseDir = BaseDir;
+	m_pBaseDir = pBaseDir;
 
 	// Create background box
 	m_pBackgroundBox = new JWImage;
-	m_pBackgroundBox->Create(m_pJWWindow, m_BaseDir);
+	m_pBackgroundBox->Create(m_pJWWindow, m_pBaseDir);
 
 	return EError::OK;
 }
@@ -105,7 +105,7 @@ void JWFont::Destroy()
 auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
 {
 	WSTRING NewFileName;
-	NewFileName = m_BaseDir;
+	NewFileName = *m_pBaseDir;
 	NewFileName += ASSET_DIR;
 	NewFileName += FileName_FNT;
 
@@ -254,7 +254,7 @@ PRIVATE auto JWFont::CreateTexture(WSTRING FileName)->EError
 	}
 
 	WSTRING NewFileName;
-	NewFileName = m_BaseDir;
+	NewFileName = *m_pBaseDir;
 	NewFileName += ASSET_DIR;
 	NewFileName += FileName;
 
@@ -262,7 +262,7 @@ PRIVATE auto JWFont::CreateTexture(WSTRING FileName)->EError
 	if (FAILED(D3DXCreateTextureFromFileExW(m_pDevice, NewFileName.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
 		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &ms_pFontTexture)))
 		return EError::TEXTURE_NOT_CREATED;
-
+	
 	return EError::OK;
 }
 

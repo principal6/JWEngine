@@ -42,11 +42,9 @@ namespace JWENGINE
 		void Draw();
 
 	private:
-		JWWindow* m_pWindow;
+		SGUISharedData m_SharedData;
 
 		VECTOR<JWControl*> m_Controls;
-
-		WSTRING m_BaseDir;
 		MSG m_MSG;
 
 		SMouseData m_MouseData;

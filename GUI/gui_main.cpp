@@ -15,7 +15,7 @@ int main()
 		myGUI.Create(&myWindow);
 
 		myGUI.AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
-			
+		
 		myGUI.AddControl(EControlType::ImageButton, D3DXVECTOR2(120, 0), D3DXVECTOR2(100, 50));
 		myGUI.GetControlPointer()->MakeSystemArrowButton(ESystemArrowDirection::Left);
 

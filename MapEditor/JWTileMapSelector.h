@@ -18,7 +18,7 @@ namespace JWENGINE
 		JWTileMapSelector();
 		~JWTileMapSelector() {};
 
-		auto Create(JWWindow* pTileSelectorWindow, JWWindow* pMapWindow, WSTRING BaseDir)->EError;
+		auto Create(JWWindow* pTileSelectorWindow, JWWindow* pMapWindow, WSTRING* pBaseDir)->EError;
 		void Destroy();
 
 		void UpdateTileSelector();

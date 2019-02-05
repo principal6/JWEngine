@@ -376,19 +376,19 @@ auto JWMapEditor::Create(int Width, int Height)->EError
 	// Create tile image objects
 	if (ms_TileImage = MAKE_UNIQUE(JWImage)())
 	{
-		if (JW_FAILED(ms_TileImage->Create(ms_WindowLeft.get(), m_BaseDir)))
+		if (JW_FAILED(ms_TileImage->Create(ms_WindowLeft.get(), &m_BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 	}
 	if (ms_MoveImage = MAKE_UNIQUE(JWImage)())
 	{
-		if (JW_FAILED(ms_MoveImage->Create(ms_WindowLeft.get(), m_BaseDir)))
+		if (JW_FAILED(ms_MoveImage->Create(ms_WindowLeft.get(), &m_BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 	}
 
 	// Create tile background
 	if (ms_TileBG = MAKE_UNIQUE(JWImage)())
 	{
-		if (JW_FAILED(ms_TileBG->Create(ms_WindowLeft.get(), m_BaseDir)))
+		if (JW_FAILED(ms_TileBG->Create(ms_WindowLeft.get(), &m_BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		ms_TileBG->SetXRGB(D3DCOLOR_XRGB(20, 20, 120));
 	}
@@ -414,14 +414,14 @@ auto JWMapEditor::Create(int Width, int Height)->EError
 	// Create map object
 	if (ms_Map = MAKE_UNIQUE(JWMap)())
 	{
-		if (JW_FAILED(ms_Map->Create(ms_WindowRight.get(), m_BaseDir)))
+		if (JW_FAILED(ms_Map->Create(ms_WindowRight.get(), &m_BaseDir)))
 			return EError::MAP_NOT_CREATED;
 	}
 
 	// Create map background
 	if (ms_MapBG = MAKE_UNIQUE(JWImage)())
 	{
-		if (JW_FAILED(ms_MapBG->Create(ms_WindowRight.get(), m_BaseDir)))
+		if (JW_FAILED(ms_MapBG->Create(ms_WindowRight.get(), &m_BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		ms_MapBG->SetXRGB(D3DCOLOR_XRGB(20, 20, 80));
 	}
@@ -429,7 +429,7 @@ auto JWMapEditor::Create(int Width, int Height)->EError
 	// Create map-tile selector
 	if (ms_MapTileSelector = MAKE_UNIQUE(JWTileMapSelector)())
 	{
-		if (JW_FAILED(ms_MapTileSelector->Create(ms_WindowLeft.get(), ms_WindowRight.get(), m_BaseDir)))
+		if (JW_FAILED(ms_MapTileSelector->Create(ms_WindowLeft.get(), ms_WindowRight.get(), &m_BaseDir)))
 			return EError::TILESELECTOR_NOT_CREATED;
 	}
 
