@@ -17,6 +17,11 @@ JWImageButton::JWImageButton()
 	m_NormalOffset = D3DXVECTOR2(0, 0);
 	m_HoverOffset = D3DXVECTOR2(0, 0);
 	m_PressedOffset = D3DXVECTOR2(0, 0);
+
+	// Default color for image button is DEFAULT_COLOR_NORMAL for all state
+	m_Color_Normal = DEFAULT_COLOR_NORMAL;
+	m_Color_Hover = DEFAULT_COLOR_NORMAL;
+	m_Color_Pressed = DEFAULT_COLOR_NORMAL;
 }
 
 auto JWImageButton::Create(JWWindow* pWindow, WSTRING BaseDir, D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -112,12 +117,15 @@ void JWImageButton::Draw()
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
+		m_pBackground->SetXRGB(m_Color_Normal);
 		m_pButtonImage->SetAtlasUV(m_NormalOffset, m_ButtonSizeInTexture);
 		break;
 	case JWENGINE::Hover:
+		m_pBackground->SetXRGB(m_Color_Hover);
 		m_pButtonImage->SetAtlasUV(m_HoverOffset, m_ButtonSizeInTexture);
 		break;
 	case JWENGINE::Pressed:
+		m_pBackground->SetXRGB(m_Color_Pressed);
 		m_pButtonImage->SetAtlasUV(m_PressedOffset, m_ButtonSizeInTexture);
 		break;
 	case JWENGINE::Clicked:
@@ -170,4 +178,24 @@ void JWImageButton::SetSize(D3DXVECTOR2 Size)
 	JWControl::SetSize(Size);
 	m_pBackground->SetSize(Size);
 	m_pButtonImage->SetPosition(m_PositionClient + m_ButtonImagePositionOffset);
+}
+
+void JWImageButton::SetButtonColor(EControlState State, DWORD Color)
+{
+	switch (State)
+	{
+	case JWENGINE::Normal:
+		m_Color_Normal = Color;
+		break;
+	case JWENGINE::Hover:
+		m_Color_Hover = Color;
+		break;
+	case JWENGINE::Pressed:
+		m_Color_Pressed = Color;
+		break;
+	case JWENGINE::Clicked:
+		break;
+	default:
+		break;
+	}
 }

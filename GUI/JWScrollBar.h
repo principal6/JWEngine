@@ -33,13 +33,15 @@ namespace JWENGINE
 		void SetScrollPosition(size_t Position) override;
 
 	private:
-		void SetButtonSize();
-		void SetButtonPosition();
-		void MoveScroller(D3DXVECTOR2 Move);
+		void UpdateButtonSize();
+		void UpdateButtonPosition();
+		void MoveScrollerTo(D3DXVECTOR2 Position);
+
+		auto CalculateScrollerDigitalPosition(POINT MousesPosition) const->size_t;
 
 	private:
 		static const int DEFAULT_SCROLLER_PADDING = 2;
-		static const int DEFAULT_PAGE_STRIDE = 5;
+		static const int DEFAULT_PAGE_STRIDE = 1;
 
 		JWImage* m_pBackground;
 		JWImageButton* m_pButtonA;
@@ -48,12 +50,16 @@ namespace JWENGINE
 
 		EScrollBarDirection m_ScrollBarDirection;
 		D3DXVECTOR2 m_ScrollerSize;
+
+		// m_ScrollerPosition range = [GUI_BUTTON_SIZE, m_ScrollableRest]
 		D3DXVECTOR2 m_ScrollerPosition;
 		D3DXVECTOR2 m_CapturedScrollerPosition;
 		bool m_bScrollerCaptured;
 
+		// Scroll range = [0, ScrollMax]
 		size_t m_ScrollMax;
 		size_t m_ScrollPosition;
 		float m_ScrollableSize;
+		float m_ScrollableRest;
 	};
 };

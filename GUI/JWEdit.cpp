@@ -611,7 +611,8 @@ void JWEdit::CheckIMEInput()
 
 		const TCHAR* pTCHAR = ms_pWindow->GetpIMEChar();
 
-		std::cout << static_cast<size_t>(pTCHAR[0]) << std::endl;
+		// For debugging
+		//std::cout << static_cast<size_t>(pTCHAR[0]) << std::endl;
 
 		m_IMETempSel = m_SelStart;
 		m_IMETempText = m_Text;

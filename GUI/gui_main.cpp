@@ -35,12 +35,12 @@ int main()
 
 		myGUI.AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 0), D3DXVECTOR2(160, 20));
 		myGUI.GetControlPointer()->MakeScrollBar(EScrollBarDirection::Horizontal);
-		myGUI.GetControlPointer()->SetScrollRange(10);
+		myGUI.GetControlPointer()->SetScrollRange(3);
 		myGUI.GetControlPointer()->SetScrollPosition(0);
 
 		myGUI.AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 100), D3DXVECTOR2(20, 160));
 		myGUI.GetControlPointer()->MakeScrollBar(EScrollBarDirection::Vertical);
-		myGUI.GetControlPointer()->SetScrollRange(10);
+		myGUI.GetControlPointer()->SetScrollRange(30);
 		myGUI.GetControlPointer()->SetScrollPosition(1);
 
 		myGUI.SetMainLoopFunction(MainLoop);
