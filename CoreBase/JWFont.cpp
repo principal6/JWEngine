@@ -131,7 +131,8 @@ auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
 
 PRIVATE auto JWFont::CreateMaxVertexIndexBuffer()->EError
 {
-	m_pWindowData = m_pJWWindow->GetWindowData();
+	if (nullptr == (m_pWindowData = m_pJWWindow->GetWindowData()))
+		return EError::NULLPTR_WINDOWDATA;
 
 	UINT ScreenWidth = m_pWindowData->ScreenSize.x;
 	UINT ScreenHeight = m_pWindowData->ScreenSize.y;

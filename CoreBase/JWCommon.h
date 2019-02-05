@@ -83,7 +83,7 @@ namespace JWENGINE
 	static const DWORD DEFAULT_COLOR_BLACK = D3DCOLOR_XRGB(0, 0, 0);
 
 	const wchar_t ASSET_DIR[] = L"\\Asset\\";
-	const wchar_t DEFAULT_FONT[] = L"megt20all.fnt";
+	const wchar_t DEFAULT_FONT[] = L"d2coding16all.fnt";
 
 	enum class EError
 	{
@@ -125,6 +125,7 @@ namespace JWENGINE
 		/** Null pointer */
 		NULLPTR_DEVICE,
 		NULLPTR_WINDOW,
+		NULLPTR_WINDOWDATA,
 		NULLPTR_MAP,
 		NULLPTR_MAP_INFO,
 		NULLPTR_IMAGE,
