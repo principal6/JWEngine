@@ -14,6 +14,9 @@ JWScrollBar::JWScrollBar()
 	m_pButtonB = nullptr;
 	m_pScroller = nullptr;
 
+	m_ButtonABPressInterval = 0;
+	m_ButtonABPressIntervalTick = 20;
+
 	m_ScrollerSize = D3DXVECTOR2(20, 20);
 	m_ScrollerPosition = D3DXVECTOR2(0, 0);
 
@@ -125,6 +128,11 @@ void JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)
 
 void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 {
+	if (m_ButtonABPressInterval < BUTTON_INTERVAL_UPPER_LIMIT)
+	{
+		m_ButtonABPressInterval++;
+	}
+
 	JWControl::UpdateControlState(MouseData);
 
 	m_pButtonA->UpdateControlState(MouseData);
@@ -133,16 +141,45 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 	EControlState ButtonAState = m_pButtonA->GetState();
 	EControlState ButtonBState = m_pButtonB->GetState();
 
-	if (ButtonAState == EControlState::Clicked)
+	if ((ButtonAState == EControlState::Clicked) || (ButtonAState == EControlState::Pressed))
 	{
-		if (m_ScrollPosition)
+		if (m_ButtonABPressInterval == BUTTON_INTERVAL_UPPER_LIMIT)
 		{
-			SetScrollPosition(m_ScrollPosition - 1);
+			if (m_ScrollPosition)
+			{
+				SetScrollPosition(m_ScrollPosition - 1);
+			}
+
+			m_ButtonABPressInterval = 0;
+			m_ButtonABPressIntervalTick = 30;
+		}
+		else if (m_ButtonABPressInterval >= m_ButtonABPressIntervalTick)
+		{
+			if (m_ScrollPosition)
+			{
+				SetScrollPosition(m_ScrollPosition - 1);
+			}
+
+			m_ButtonABPressInterval = 0;
+			m_ButtonABPressIntervalTick = 5;
 		}
 	}
-	else if (ButtonBState == EControlState::Clicked)
+	else if ((ButtonBState == EControlState::Clicked) || (ButtonBState == EControlState::Pressed))
 	{
-		SetScrollPosition(m_ScrollPosition + 1);
+		if (m_ButtonABPressInterval == BUTTON_INTERVAL_UPPER_LIMIT)
+		{
+			SetScrollPosition(m_ScrollPosition + 1);
+
+			m_ButtonABPressInterval = 0;
+			m_ButtonABPressIntervalTick = 30;
+		}
+		else if (m_ButtonABPressInterval >= m_ButtonABPressIntervalTick)
+		{
+			SetScrollPosition(m_ScrollPosition + 1);
+
+			m_ButtonABPressInterval = 0;
+			m_ButtonABPressIntervalTick = 5;
+		}
 	}
 	else if (m_pScroller->GetState() == EControlState::Pressed)
 	{
@@ -232,6 +269,8 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 		// release the scroller
 		m_bScrollerCaptured = false;
 		m_pScroller->UpdateControlState(MouseData);
+
+		m_ButtonABPressInterval = BUTTON_INTERVAL_UPPER_LIMIT;
 	}
 }
 

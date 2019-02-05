@@ -42,11 +42,15 @@ namespace JWENGINE
 	private:
 		static const int DEFAULT_SCROLLER_PADDING = 2;
 		static const int DEFAULT_PAGE_STRIDE = 1;
+		static const int BUTTON_INTERVAL_UPPER_LIMIT = 100;
 
 		JWImage* m_pBackground;
 		JWImageButton* m_pButtonA;
 		JWImageButton* m_pButtonB;
 		JWTextButton* m_pScroller;
+
+		size_t m_ButtonABPressInterval;
+		size_t m_ButtonABPressIntervalTick;
 
 		EScrollBarDirection m_ScrollBarDirection;
 		D3DXVECTOR2 m_ScrollerSize;
