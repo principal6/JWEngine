@@ -7,6 +7,7 @@ namespace JWENGINE
 	// ***
 	// *** Forward declaration ***
 	class JWWindow;
+	class JWImage;
 	class JWLine;
 	class JWRectangle;
 	// ***
@@ -63,12 +64,16 @@ namespace JWENGINE
 		void SelectAll();
 
 	private:
-		static const BYTE DEFUALT_ALPHA_BACKGROUND_EDIT = 255;
-		static const DWORD DEFAULT_COLOR_BACKGROUND_EDIT = DEFAULT_COLOR_NORMAL;
-		static const DWORD DEFAULT_COLOR_FONT_EDIT = DEFAULT_COLOR_BLACK;
+		static const BYTE DEFAULT_ALPHA_BACKGROUND_EDIT = 255;
+		static const DWORD DEFAULT_COLOR_BACKGROUND_EDIT = DEFAULT_COLOR_LESS_BLACK;
+		static const DWORD DEFAULT_COLOR_FONT_EDIT = DEFAULT_COLOR_WHITE;
+		static const DWORD DEFAULT_COLOR_CARET = D3DCOLOR_XRGB(180, 180, 255);
 		static const DWORD DEFAULT_COLOR_SELECTION = D3DCOLOR_XRGB(50, 100, 255); // 0 100 255
 		static const ULONGLONG DEFAULT_CARET_TICK = 30;
+		static const float EDIT_PADDING_X;
+		static const float EDIT_PADDING_Y;
 
+		JWImage* m_pBackground;
 		JWLine* m_pBorderLine;
 
 		D3DVIEWPORT9 m_OriginalViewport;

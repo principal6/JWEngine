@@ -1,10 +1,15 @@
 #include "JWEdit.h"
 #include "../CoreBase/JWFont.h"
 #include "../CoreBase/JWWindow.h"
+#include "../CoreBase/JWImage.h"
 #include "../CoreBase/JWLine.h"
 #include "../CoreBase/JWRectangle.h"
 
 using namespace JWENGINE;
+
+// Static constant
+const float JWEdit::EDIT_PADDING_X = 1.0f;
+const float JWEdit::EDIT_PADDING_Y = 3.0f;
 
 JWEdit::JWEdit()
 {
@@ -55,7 +60,7 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		if (JW_FAILED(m_pCaret->Create(ms_pSharedData->pWindow->GetDevice())))
 			return EError::LINE_NOT_CREATED;
 
-		m_pCaret->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 10), D3DCOLOR_XRGB(0, 0, 0));
+		m_pCaret->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 10), DEFAULT_COLOR_CARET);
 		m_pCaret->AddEnd();
 	}
 	else
@@ -77,14 +82,27 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		return EError::RECTANGLE_NOT_CREATED;
 	}
 
+	// Create image for background
+	if (m_pBackground = new JWImage)
+	{
+		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+			return EError::RECTANGLE_NOT_CREATED;
+
+		m_pBackground->SetAlpha(DEFAULT_ALPHA_BACKGROUND_EDIT);
+		m_pBackground->SetXRGB(DEFAULT_COLOR_BACKGROUND_EDIT);
+	}
+	else
+	{
+		return EError::RECTANGLE_NOT_CREATED;
+	}
+
 	// Set default color
 	m_pFont->SetFontXRGB(DEFAULT_COLOR_FONT_EDIT);
-	m_pFont->SetBoxAlpha(DEFUALT_ALPHA_BACKGROUND_EDIT);
-	m_pFont->SetBoxXRGB(DEFAULT_COLOR_BACKGROUND_EDIT);
+	m_pFont->SetBoxAlpha(0);
 
 	// Set multiline and singleline y size
 	m_YSizeMultiline = Size.y;
-	m_YSizeSingleline = m_pFont->GetLineHeight();
+	m_YSizeSingleline = m_pFont->GetLineHeight() + EDIT_PADDING_Y * 2;
 
 	// Set edit position
 	SetPosition(m_PositionClient);
@@ -108,6 +126,9 @@ void JWEdit::Destroy()
 {
 	JWControl::Destroy();
 
+	JW_DESTROY(m_pBackground);
+	JW_DESTROY(m_pBorderLine);
+	JW_DESTROY(m_pCaret);
 	JW_DESTROY(m_pSelection);
 }
 
@@ -120,14 +141,16 @@ void JWEdit::Draw()
 		JWControl::Draw();
 	}
 
+	m_pBackground->Draw();
+
 	m_pFont->Draw();
 
 	if (m_bHasFocus)
 	{
 		if (m_CaretTickCount <= DEFAULT_CARET_TICK)
 		{
-			m_pCaret->Draw();
 			m_CaretTickCount++;
+			m_pCaret->Draw();
 		}
 		else
 		{
@@ -250,10 +273,12 @@ PRIVATE void JWEdit::UpdateViewport()
 PRIVATE void JWEdit::UpdateText()
 {
 	D3DXVECTOR2 text_position = m_PositionClient;
-	text_position.x += 1.0f;
+	text_position.x += EDIT_PADDING_X;
+	text_position.y += EDIT_PADDING_Y;
 
 	D3DXVECTOR2 text_size = m_Size;
-	text_size.x -= 2.0f;
+	text_size.x -= EDIT_PADDING_X * 2;
+	text_size.y -= EDIT_PADDING_Y * 2;
 
 	m_pFont->SetText(m_Text, text_position, text_size);
 }
@@ -332,7 +357,7 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 				// SelStart and SelEnd are in different lines (multiple-line selection)
 				// Firstly, we must select the SelStart line
 				SelectionPosition.x = SelStartXPosition;
-				SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(sel_start_line_index);
+				SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(sel_start_line_index) + EDIT_PADDING_Y;
 
 				SelectionSize.x = m_pFont->GetLineWidthByCharIndex(m_SelStart) - SelStartXPosition + m_PositionClient.x;
 				SelectionSize.y = m_pFont->GetLineHeight();
@@ -347,7 +372,7 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 						// This is the last line
 						// so, select from the first letter to SelEnd
 						SelectionPosition.x = m_PositionClient.x;
-						SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(sel_end_line_index);
+						SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(sel_end_line_index) + EDIT_PADDING_Y;
 
 						SelectionSize.x = SelEndXPosition - m_PositionClient.x;
 						SelectionSize.y = m_pFont->GetLineHeight();
@@ -359,9 +384,9 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 						// This isn't the last line
 						// so, we must select the whole line
 						SelectionPosition.x = m_PositionClient.x;
-						SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(iterator_line);
+						SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(iterator_line) + EDIT_PADDING_Y;
 
-						SelectionSize.x = m_pFont->GetLineWidth(iterator_line);
+						SelectionSize.x = m_pFont->GetLineWidth(iterator_line) + 1.0f;
 						SelectionSize.y = m_pFont->GetLineHeight();
 
 						m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
@@ -410,8 +435,10 @@ void JWEdit::SetSize(D3DXVECTOR2 Size)
 	{
 		Size.y = m_YSizeSingleline;
 	}
-	
+
 	JWControl::SetSize(Size);
+
+	m_pBackground->SetSize(Size);
 
 	UpdateBorderline();
 	UpdateViewport();
@@ -420,6 +447,8 @@ void JWEdit::SetSize(D3DXVECTOR2 Size)
 void JWEdit::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
+
+	m_pBackground->SetPosition(Position);
 
 	UpdateBorderline();
 	UpdateViewport();
@@ -431,7 +460,7 @@ PRIVATE void JWEdit::UpdateBorderline()
 	D3DXVECTOR2 border_size = D3DXVECTOR2(0, 0);
 
 	const DWORD& ColorA = DEFAULT_COLOR_PRESSED;
-	const DWORD& ColorB = DEFAULT_COLOR_DARK;
+	const DWORD& ColorB = DEFAULT_COLOR_DARK_HIGHLIGHT;
 	
 	// Up
 	border_position = m_PositionClient;
@@ -484,6 +513,7 @@ void JWEdit::CheckIMEInput()
 		if (m_pIMECharacter[0])
 		{
 			m_bIMECompleted = true;
+			InsertChar(m_pIMECharacter[0]);
 		}
 		else
 		{
@@ -519,14 +549,6 @@ void JWEdit::CheckIMEInput()
 
 void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 {
-	if (m_bIMECompleted)
-	{
-		// For debugging
-		//std::cout << "[DEBUG] IMECompleted in OnKeyDown: " << m_pIMECharacter[0] << std::endl;
-		InsertChar(m_pIMECharacter[0]);
-		m_bIMECompleted = false;
-	}
-
 	size_t selection_size = 0;
 
 	size_t current_line_index = 0;
@@ -655,14 +677,6 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 
 void JWEdit::OnCharKey(WPARAM Char)
 {
-	if (m_bIMECompleted)
-	{
-		// For debugging
-		//std::cout << "[DEBUG] IMECompleted in OnCharKey: " << m_pIMECharacter[0] << std::endl;
-		InsertChar(m_pIMECharacter[0]);
-		m_bIMECompleted = false;
-	}
-
 	wchar_t wchar = static_cast<wchar_t>(Char);
 
 	if (wchar == 1) // Ctrl + a
@@ -743,7 +757,19 @@ void JWEdit::OnCharKey(WPARAM Char)
 
 		// For debugging
 		//std::cout << "[DEBUG] OnCharKey: " << wchar << std::endl;
-		InsertChar(wchar);
+
+		// To avoid duplicate input
+		if (!m_bIMECompleted)
+		{
+			InsertChar(wchar);
+		}
+		else
+		{
+			if (m_pIMECharacter[0] != wchar)
+			{
+				InsertChar(wchar);
+			}
+		}
 	}
 }
 

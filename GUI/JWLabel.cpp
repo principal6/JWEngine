@@ -12,8 +12,8 @@ auto JWLabel::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	m_Type = EControlType::Label;
 
 	// Set default background color
-	m_pFont->SetBoxAlpha(DEFUALT_ALPHA_BACKGROUND);
-	m_pFont->SetBoxXRGB(DEFAULT_COLOR_BACKGROUND);
+	m_pFont->SetBoxAlpha(DEFUALT_ALPHA_BACKGROUND_LABEL);
+	m_pFont->SetBoxXRGB(DEFAULT_COLOR_BACKGROUND_LABEL);
 
 	return EError::OK;
 }

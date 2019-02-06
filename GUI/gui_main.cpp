@@ -10,7 +10,7 @@ int main()
 {
 	static JWWindow myWindow;
 
-	if (JW_SUCCEEDED(myWindow.CreateGUIWindow(0, 100, 800, 600, DEFAULT_COLOR_BACKGROUND)))
+	if (JW_SUCCEEDED(myWindow.CreateGUIWindow(0, 100, 800, 600, DEFAULT_COLOR_ALMOST_BLACK)))
 	{
 		myGUI.Create(&myWindow);
 
