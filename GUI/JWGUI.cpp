@@ -81,8 +81,10 @@ void JWGUI::Run()
 	Destroy();
 }
 
-auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text)->EError
+auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text)->const THandle
 {
+	THandle Result = 0;
+
 	switch (Type)
 	{
 	case JWENGINE::TextButton:
@@ -107,26 +109,32 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 		m_Controls.push_back(new JWScrollBar);
 		break;
 	default:
-		return EError::INVALID_CONTROL_TYPE;
+		return NULL_HANDLE;
 		break;
 	}
 	
 	if (JW_FAILED(m_Controls[m_Controls.size() - 1]->Create(Position, Size)))
-		return EError::CONTROL_NOT_CREATED;
+		return NULL_HANDLE;
 
 	if (Text.length())
 	{
 		m_Controls[m_Controls.size() - 1]->SetText(Text);
 	}
 
-	return EError::OK;
+	Result = static_cast<THandle>(m_Controls.size() - 1);
+	return Result;
 }
 
-auto JWGUI::GetControlPointer(size_t ControlIndex)->JWControl*
+auto JWGUI::GetControlPointer(const THandle ControlHandle)->JWControl*
 {
-	ControlIndex = min(ControlIndex, m_Controls.size() - 1);
-
-	return m_Controls[ControlIndex];
+	if (ControlHandle == NULL_HANDLE)
+	{
+		return nullptr;
+	}
+	else
+	{
+		return m_Controls[ControlHandle];
+	}
 }
 
 PRIVATE void JWGUI::HandleMessage()
@@ -255,15 +263,14 @@ PRIVATE void JWGUI::MainLoop()
 
 	if (m_pfMainLoop)
 	{
+		// Call the outter main loop
 		m_pfMainLoop();
 	}
-
-	Draw();
 
 	m_SharedData.pWindow->EndRender();
 }
 
-PRIVATE void JWGUI::Draw()
+void JWGUI::DrawAllControls()
 {
 	for (JWControl* iterator : m_Controls)
 	{

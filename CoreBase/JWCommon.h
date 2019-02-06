@@ -56,14 +56,17 @@ namespace JWENGINE
 	#define JW_DESTROY_SMART(obj) {if(obj) {obj->Destroy();}}
 	#define JW_RELEASE(obj) {if(obj) {obj->Release(); obj = nullptr;}}
 
-	using CINT = const int;
+	using CINT = const __int32;
 
-	static constexpr int MAX_FILE_LEN = 260;
+	using THandle = unsigned __int32;
+	static constexpr THandle NULL_HANDLE = UINT32_MAX;
+
+	static constexpr __int32 MAX_FILE_LEN = 260;
 
 	// @warning: This value must be 256 for Direct Input
-	static constexpr int NUM_KEYS = 256;
+	static constexpr __int32 NUM_KEYS = 256;
 
-	static constexpr int MAX_UNIT_COUNT = 100;
+	static constexpr __int32 MAX_UNIT_COUNT = 100;
 
 	static const wchar_t GUI_TEXTURE_FILENAME[] = L"jwgui_button.png";
 	static const D3DXVECTOR2 GUI_BUTTON_SIZE = D3DXVECTOR2(15.0f, 15.0f);
@@ -175,12 +178,12 @@ namespace JWENGINE
 	struct SAnimationData
 	{
 		EAnimationID AnimID;
-		int FrameS, FrameE;
+		__int32 FrameS, FrameE;
 		bool bForceCycle;
 		bool bSetStartFrameEverytime;
 
 		SAnimationData() : FrameS(0), FrameE(0) {};
-		SAnimationData(EAnimationID _AnimID, int StartFrame, int EndFrame, bool ForceCycle = false,
+		SAnimationData(EAnimationID _AnimID, __int32 StartFrame, __int32 EndFrame, bool ForceCycle = false,
 			bool SetStartFrameEverytime = false) :
 			AnimID(_AnimID), FrameS(StartFrame), FrameE(EndFrame), bForceCycle(ForceCycle),
 			bSetStartFrameEverytime(SetStartFrameEverytime) {};
@@ -210,7 +213,7 @@ namespace JWENGINE
 
 		SIndex3() :
 			_0(0), _1(0), _2(0) {};
-		SIndex3(int ID0, int ID1, int ID2) :
+		SIndex3(__int32 ID0, __int32 ID1, __int32 ID2) :
 			_0(ID0), _1(ID1), _2(ID2) {};
 		SIndex3(size_t ID0, size_t ID1, size_t ID2)
 		{
@@ -238,10 +241,10 @@ namespace JWENGINE
 		SGUISharedData() : pWindow(nullptr), Texture_GUI(nullptr) {};
 	};
 
-	inline static void ConvertFrameIDIntoUV(int FrameID, POINT SpriteSize, POINT SheetSize, int NumCols, int NumRows, STextureUV* UV)
+	inline static void ConvertFrameIDIntoUV(__int32 FrameID, POINT SpriteSize, POINT SheetSize, __int32 NumCols, __int32 NumRows, STextureUV* UV)
 	{
-		int FrameXPos = FrameID % NumCols;
-		int FrameYPos = FrameID / NumCols;
+		__int32 FrameXPos = FrameID % NumCols;
+		__int32 FrameYPos = FrameID / NumCols;
 
 		UV->u1 = static_cast<float>(FrameXPos * SpriteSize.x) / static_cast<float>(SheetSize.x);
 		UV->u2 = UV->u1 + (static_cast<float>(SpriteSize.x) / static_cast<float>(SheetSize.x));
@@ -249,11 +252,11 @@ namespace JWENGINE
 		UV->v2 = UV->v1 + (static_cast<float>(SpriteSize.y) / static_cast<float>(SheetSize.y));
 	}
 
-	inline static void ConvertFrameIDIntoUV(int FrameID, D3DXVECTOR2 UnitSize, D3DXVECTOR2 SheetSize, int NumCols, int NumRows,
+	inline static void ConvertFrameIDIntoUV(__int32 FrameID, D3DXVECTOR2 UnitSize, D3DXVECTOR2 SheetSize, __int32 NumCols, __int32 NumRows,
 		STextureUV* UV)
 	{
-		int FrameXPos = FrameID % NumCols;
-		int FrameYPos = FrameID / NumCols;
+		__int32 FrameXPos = FrameID % NumCols;
+		__int32 FrameYPos = FrameID / NumCols;
 
 		UV->u1 = (static_cast<float>(FrameXPos) * UnitSize.x) / SheetSize.x;
 		UV->u2 = UV->u1 + (UnitSize.x / SheetSize.x);
@@ -261,14 +264,14 @@ namespace JWENGINE
 		UV->v2 = UV->v1 + (UnitSize.y / SheetSize.y);
 	}
 
-	inline static void GetTileCols(int SheetWidth, int TileWidth, int* TileCols)
+	inline static void GetTileCols(__int32 SheetWidth, __int32 TileWidth, __int32* TileCols)
 	{
-		*TileCols = static_cast<int>(SheetWidth / TileWidth);
+		*TileCols = static_cast<__int32>(SheetWidth / TileWidth);
 	}
 
-	inline static void GetTileRows(int SheetHeight, int TileHeight, int* TileRows)
+	inline static void GetTileRows(__int32 SheetHeight, __int32 TileHeight, __int32* TileRows)
 	{
-		*TileRows = static_cast<int>(SheetHeight / TileHeight);
+		*TileRows = static_cast<__int32>(SheetHeight / TileHeight);
 	}
 
 	inline void SetColorAlpha(DWORD* Color, BYTE Alpha)
@@ -291,7 +294,7 @@ namespace JWENGINE
 
 	inline auto GetColorXRGB(DWORD Color)->DWORD { return ((Color << 8) >> 8); }
 
-	inline auto ConvertIntToWSTRING(int In)->WSTRING
+	inline auto ConvertIntToWSTRING(__int32 In)->WSTRING
 	{
 		WSTRING Result;
 		wchar_t temp[MAX_FILE_LEN]{};

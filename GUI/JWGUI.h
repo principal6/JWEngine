@@ -31,16 +31,17 @@ namespace JWENGINE
 
 		void Run();
 
-		auto AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text = L"")->EError;
-		auto GetControlPointer(size_t ControlIndex = MAXSIZE_T)->JWControl*;
+		auto AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text = L"")->const THandle;
+		auto GetControlPointer(const THandle ControlHandle)->JWControl*;
 		
 		void SetMainLoopFunction(PF_MAINLOOP pfMainLoop);
+
+		void DrawAllControls();
 
 	private:
 		void MainLoop();
 		void HandleMessage();
-		void Draw();
-
+		
 	private:
 		SGUISharedData m_SharedData;
 
