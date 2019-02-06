@@ -1,6 +1,7 @@
 #include "JWControl.h"
 #include "../CoreBase/JWWindow.h"
 #include "../CoreBase/JWFont.h"
+#include "../CoreBase/JWLine.h"
 
 using namespace JWENGINE;
 
@@ -10,13 +11,21 @@ const SGUISharedData* JWControl::ms_pSharedData;
 JWControl::JWControl()
 {
 	m_pFont = nullptr;
+
+	// Set default color for each control state.
+	m_Color_Normal = DEFAULT_COLOR_NORMAL;
+	m_Color_Hover = DEFAULT_COLOR_HOVER;
+	m_Color_Pressed = DEFAULT_COLOR_PRESSED;
+
 	m_PositionClient = D3DXVECTOR2(0, 0);
 	m_Size = D3DXVECTOR2(0, 0);
 	m_Rect = { 0, 0, 0, 0 };
 
 	m_Type = EControlType::NotDefined;
 	m_ControlState = EControlState::Normal;
-	m_bShouldDrawBorder = true;
+
+	m_bShouldDrawBorder = false;
+	m_bShouldUseViewport = true;
 	m_bHasFocus = false;
 
 	m_MousePosition = { 0, 0 };
@@ -44,13 +53,37 @@ auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	{
 		return EError::FONT_NOT_CREATED;
 	}
+
+	// Craete line for border
+	if (m_pBorderLine = new JWLine)
+	{
+		if (JW_SUCCEEDED(m_pBorderLine->Create(ms_pSharedData->pWindow->GetDevice())))
+		{
+			m_pBorderLine->AddBox(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), DEFAULT_COLOR_BORDER);
+			m_pBorderLine->AddEnd();
+		}
+		else
+		{
+			return EError::FONT_NOT_CREATED;
+		}
+	}
+	else
+	{
+		return EError::FONT_NOT_CREATED;
+	}
 	
-	// Set control position and size
+	// Set control position and size.
 	m_PositionClient = Position;
 	m_Size = Size;
 
-	// Set control rect
+	// Update border position and size.
+	UpdateBorderPositionAndSize();
+
+	// Set control rect.
 	CalculateRECT();
+
+	// Get the original viewport to reset it later
+	ms_pSharedData->pWindow->GetDevice()->GetViewport(&m_OriginalViewport);
 
 	return EError::OK;
 }
@@ -66,6 +99,7 @@ PROTECTED void JWControl::CalculateRECT()
 void JWControl::Destroy()
 {
 	JW_DESTROY(m_pFont);
+	JW_DESTROY(m_pBorderLine);
 }
 
 auto JWControl::IsMouseOver(const SMouseData& MouseData)->bool
@@ -135,10 +169,51 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 	}
 }
 
-PRIVATE void JWControl::UpdateText()
+void JWControl::BeginDrawing()
+{
+	if (m_bShouldUseViewport)
+	{
+		ms_pSharedData->pWindow->GetDevice()->SetViewport(&m_ControlViewport);
+	}
+}
+
+void JWControl::EndDrawing()
+{
+	if (m_bShouldDrawBorder)
+	{
+		m_pBorderLine->Draw();
+	}
+
+	if (m_bShouldUseViewport)
+	{
+		ms_pSharedData->pWindow->GetDevice()->SetViewport(&m_OriginalViewport);
+	}
+}
+
+PROTECTED void JWControl::UpdateBorderPositionAndSize()
+{
+	D3DXVECTOR2 border_position = m_PositionClient;
+
+	D3DXVECTOR2 border_size = m_Size;
+	border_size.x -= 1.0f;
+	border_size.y -= 1.0f;
+
+	m_pBorderLine->SetBox(border_position, border_size);
+}
+
+PROTECTED void JWControl::UpdateText()
 {
 	m_pFont->ClearText();
 	m_pFont->SetText(m_Text, m_PositionClient, m_Size);
+}
+
+PROTECTED void JWControl::UpdateViewport()
+{
+	m_ControlViewport = m_OriginalViewport;
+	m_ControlViewport.X = static_cast<DWORD>(m_PositionClient.x);
+	m_ControlViewport.Y = static_cast<DWORD>(m_PositionClient.y);
+	m_ControlViewport.Width = static_cast<DWORD>(m_Size.x);
+	m_ControlViewport.Height = static_cast<DWORD>(m_Size.y);
 }
 
 void JWControl::SetState(EControlState State)
@@ -146,16 +221,46 @@ void JWControl::SetState(EControlState State)
 	m_ControlState = State;
 }
 
+void JWControl::SetStateColor(EControlState State, DWORD Color)
+{
+	switch (State)
+	{
+	case JWENGINE::Normal:
+		m_Color_Normal = Color;
+		break;
+	case JWENGINE::Hover:
+		m_Color_Hover = Color;
+		break;
+	case JWENGINE::Pressed:
+		m_Color_Pressed = Color;
+		break;
+	case JWENGINE::Clicked:
+		break;
+	default:
+		break;
+	}
+}
+
 void JWControl::SetPosition(D3DXVECTOR2 Position)
 {
 	m_PositionClient = Position;
+
+	UpdateBorderPositionAndSize();
+
 	CalculateRECT();
+
+	UpdateViewport();
 }
 
 void JWControl::SetSize(D3DXVECTOR2 Size)
 {
 	m_Size = Size;
+
+	UpdateBorderPositionAndSize();
+
 	CalculateRECT();
+
+	UpdateViewport();
 }
 
 void JWControl::SetText(WSTRING Text)
@@ -163,6 +268,16 @@ void JWControl::SetText(WSTRING Text)
 	m_Text = Text;
 
 	UpdateText();
+}
+
+void JWControl::SetBorderColor(DWORD Color)
+{
+	m_pBorderLine->SetBoxColor(Color);
+}
+
+void JWControl::SetBorderColor(DWORD ColorA, DWORD ColorB)
+{
+	m_pBorderLine->SetBoxColor(ColorA, ColorB);
 }
 
 void JWControl::Focus()
@@ -236,4 +351,9 @@ auto JWControl::GetClientMouseDownPosition() const->POINT
 void JWControl::ShouldDrawBorder(bool Value)
 {
 	m_bShouldDrawBorder = Value;
+}
+
+void JWControl::ShouldUseViewport(bool Value)
+{
+	m_bShouldUseViewport = Value;
 }

@@ -6,6 +6,9 @@ using namespace JWENGINE;
 
 JWCheckBox::JWCheckBox()
 {
+	// A checkbox has always its border.
+	m_bShouldDrawBorder = true;
+
 	m_pBackground = nullptr;
 	m_pCheckImage = nullptr;
 
@@ -45,14 +48,15 @@ auto JWCheckBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		return EError::IMAGE_NOT_CREATED;
 	}
 
-	SetSize(m_Size);
-	SetPosition(m_PositionClient);
-
 	// Set default font alignment
 	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_Type = EControlType::CheckBox;
+
+	// Set control's size and position.
+	SetSize(Size);
+	SetPosition(Position);
 
 	return EError::OK;
 }
@@ -67,6 +71,8 @@ void JWCheckBox::Destroy()
 
 void JWCheckBox::Draw()
 {
+	JWControl::BeginDrawing();
+
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
@@ -82,20 +88,19 @@ void JWCheckBox::Draw()
 		break;
 	}
 
-	JWControl::Draw();
-
+	// Draw background image.
 	m_pBackground->Draw();
 
+	// Draw check image if it's checked.
 	if (m_bChecked)
 	{
 		m_pCheckImage->Draw();
 	}
-	
-	// Checkbox has always border
-	m_pBackground->DrawBoundingBox();
 
-	// Draw text
+	// Draw text.
 	m_pFont->Draw();
+
+	JWControl::EndDrawing();
 }
 
 void JWCheckBox::SetPosition(D3DXVECTOR2 Position)

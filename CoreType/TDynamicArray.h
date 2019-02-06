@@ -4,18 +4,24 @@
 
 namespace JWENGINE
 {
+	// Dynamic array class using template.
+	// 'T' for type (or it could also be interpreted as 'template').
 	template <typename T>
-	class JWDynamicArray
+	class TDynamicArray
 	{
 	public:
-		JWDynamicArray()
+		// ctor()
+		// We must initialize here our member variables.
+		TDynamicArray()
 		{
 			m_pData = nullptr;
 			m_Size = 0;
 			m_Capacity = 0;
 		};
 
-		~JWDynamicArray()
+		// dtor()
+		// We must delete all the newed data.
+		~TDynamicArray()
 		{
 			m_Size = 0;
 			DeleteArray();
@@ -77,17 +83,16 @@ namespace JWENGINE
 			// its size must be increased.
 			m_Size++;
 
-			// Add this new element to the dynamic array.
-			m_pData[m_Size - 1] = element;
-
 			if (m_Size >= m_Capacity)
 			{
-				// If the size meets the capacity,
+				// IF:
+				// the size meets the capacity,
 				// we need to double the capacity of the dynamic array.
-				// if the size is less than the capacity,
-				// there's no need to expand the capacity.
 
-				// Save the current dynamic array's data in a temporary dynamic array.
+				// First, add this new element.
+				m_pData[m_Size - 1] = element;
+
+				// Now, save the current dynamic array's data in a temporary dynamic array.
 				size_t temp_capacity = m_Capacity;
 				T* temp_p_data = new T[temp_capacity];
 				memcpy(temp_p_data, m_pData, temp_capacity * sizeof(T));
@@ -103,6 +108,15 @@ namespace JWENGINE
 				memcpy(m_pData, temp_p_data, temp_capacity * sizeof(T));
 				delete[] temp_p_data;
 				temp_p_data = nullptr;
+			}
+			else
+			{
+				// IF:
+				// the size is less than the capacity,
+				// no need to expand the capacity of the dynamic array,
+				// and we just need to add this new element.
+
+				m_pData[m_Size - 1] = element;
 			}
 		}
 
@@ -123,16 +137,21 @@ namespace JWENGINE
 			}
 		}
 
-		// Operator overloading
+		// Operator to access an item of the dynamic array.
+		// It returns non-const reference, so you can modify the value.
 		T& operator[] (size_t index)
 		{
 			if (m_Size)
 			{
-				// Memory space for the dynamic array has already been allocated.
-				// If the index value exceeds the size of the dynamic array,
-				// retrun the reference of the last element that has data.
+				// IF:
+				// memory space for the dynamic array has already been allocated.
+				
 				if (index > m_Size - 1)
 				{
+					// IF:
+					// the index value exceeds the size of the dynamic array,
+					// retrun the reference of the last element which has data.
+
 					index = m_Size - 1;
 				}
 
@@ -140,21 +159,30 @@ namespace JWENGINE
 			}
 			else
 			{
-				// Memory space for our dynamic array is not allocated yet.
+				// IF:
+				// memory space for our dynamic array is not allocated yet,
+				// abort the program.
+
 				abort();
 				return m_pData[0];
 			}
 		}
 
+		// Operator to access an item of the dynamic array.
+		// It returns const reference, so you cannot modify the value.
 		const T& operator[] (size_t index) const
 		{
 			if (m_Size)
 			{
-				// Memory space for the dynamic array has already been allocated.
-				// If the index value exceeds the size of the dynamic array,
-				// retrun the reference of the last element that has data.
+				// IF:
+				// memory space for the dynamic array has already been allocated.
+
 				if (index > m_Size - 1)
 				{
+					// IF:
+					// the index value exceeds the size of the dynamic array,
+					// retrun the reference of the last element which has data.
+
 					index = m_Size - 1;
 				}
 
@@ -162,14 +190,17 @@ namespace JWENGINE
 			}
 			else
 			{
-				// Memory space for our dynamic array is not allocated yet.
+				// IF:
+				// memory space for our dynamic array is not allocated yet,
+				// abort the program.
+
 				abort();
 				return m_pData[0];
 			}
 		}
 
 	private:
-		// PRIVATE function that allocates memory space for the dynamic array.
+		// Private function that allocates memory space for our dynamic array.
 		void NewArray(size_t Capacity)
 		{
 			// We must allocate memory space for our dynamic array,
@@ -182,7 +213,7 @@ namespace JWENGINE
 			}
 		}
 
-		// PRIVATE function that frees the memory space for our dynamic array.
+		// Private function that frees the allocated memory space for our dynamic array.
 		void DeleteArray()
 		{
 			// We must free the memory space,
@@ -196,16 +227,15 @@ namespace JWENGINE
 		}
 
 	private:
-		// Struct that holds data for our dynamic array.
+		// Variable or structure that holds all the data for our dynamic array.
 		T* m_pData;
 
 		// Current size of the dynamic array,
-		// which represents the number of the elements.
+		// which equals to the number of the elements which have data.
 		size_t m_Size;
 
-		// Current maximum size of the array.
-		// Though it's a maximum size, we use adjective 'current',
-		// because this is a dynamic array,
+		// Current capacity(= maximum size) of the array.
+		// Though it's a maximum size, we use adjective 'current', because this is a dynamic array,
 		// and a dynamic array must be able to change its capacity.
 		size_t m_Capacity;
 	};

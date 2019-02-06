@@ -2,17 +2,19 @@
 #include "../CoreBase/JWFont.h"
 #include "../CoreBase/JWWindow.h"
 #include "../CoreBase/JWImage.h"
-#include "../CoreBase/JWLine.h"
 #include "../CoreBase/JWRectangle.h"
 
 using namespace JWENGINE;
 
 // Static constant
-const float JWEdit::EDIT_PADDING_X = 1.0f;
+const float JWEdit::EDIT_PADDING_X = 2.0f;
 const float JWEdit::EDIT_PADDING_Y = 3.0f;
 
 JWEdit::JWEdit()
 {
+	// An edit would normally have its border.
+	m_bShouldDrawBorder = true;
+
 	m_pCaret = nullptr;
 	m_CaretSize = D3DXVECTOR2(0, 0);
 	m_CaretPosition = D3DXVECTOR2(0, 0);
@@ -37,23 +39,6 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	if (JW_FAILED(JWControl::Create(Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
 	
-	// Create line for border
-	if (m_pBorderLine = new JWLine)
-	{
-		if (JW_FAILED(m_pBorderLine->Create(ms_pSharedData->pWindow->GetDevice())))
-			return EError::LINE_NOT_CREATED;
-
-		m_pBorderLine->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 100), D3DCOLOR_XRGB(0, 0, 0));
-		m_pBorderLine->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 100), D3DCOLOR_XRGB(0, 0, 0));
-		m_pBorderLine->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 100), D3DCOLOR_XRGB(0, 0, 0));
-		m_pBorderLine->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 100), D3DCOLOR_XRGB(0, 0, 0));
-		m_pBorderLine->AddEnd();
-	}
-	else
-	{
-		return EError::LINE_NOT_CREATED;
-	}
-
 	// Create line for caret
 	if (m_pCaret = new JWLine)
 	{
@@ -100,15 +85,12 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	m_pFont->SetFontXRGB(DEFAULT_COLOR_FONT_EDIT);
 	m_pFont->SetBoxAlpha(0);
 
+	// Set borderline color
+	m_pBorderLine->SetBoxColor(DEFAULT_COLOR_PRESSED, DEFAULT_COLOR_DARK_HIGHLIGHT);
+
 	// Set multiline and singleline y size
 	m_YSizeMultiline = Size.y;
 	m_YSizeSingleline = m_pFont->GetLineHeight() + EDIT_PADDING_Y * 2;
-
-	// Set edit position
-	SetPosition(m_PositionClient);
-
-	// Set edit size
-	SetSize(m_Size);
 
 	// Set caret size
 	m_CaretSize = D3DXVECTOR2(0, m_pFont->GetLineHeight());
@@ -116,8 +98,9 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	// Set control type
 	m_Type = EControlType::Edit;
 
-	// Get the original viewport to reset it later
-	ms_pSharedData->pWindow->GetDevice()->GetViewport(&m_OriginalViewport);
+	// Set control's size and position.
+	SetSize(Size);
+	SetPosition(Position);
 
 	return EError::OK;
 }
@@ -127,19 +110,13 @@ void JWEdit::Destroy()
 	JWControl::Destroy();
 
 	JW_DESTROY(m_pBackground);
-	JW_DESTROY(m_pBorderLine);
 	JW_DESTROY(m_pCaret);
 	JW_DESTROY(m_pSelection);
 }
 
 void JWEdit::Draw()
 {
-	ms_pSharedData->pWindow->GetDevice()->SetViewport(&m_EditViewport);
-
-	if (!ms_pSharedData->pWindow->IsIMEWriting())
-	{
-		JWControl::Draw();
-	}
+	JWControl::BeginDrawing();
 
 	m_pBackground->Draw();
 
@@ -163,9 +140,7 @@ void JWEdit::Draw()
 		m_pSelection->Draw();
 	}
 
-	m_pBorderLine->Draw();
-
-	ms_pSharedData->pWindow->GetDevice()->SetViewport(&m_OriginalViewport);
+	JWControl::EndDrawing();
 }
 
 void JWEdit::Focus()
@@ -259,15 +234,6 @@ PRIVATE void JWEdit::MoveCaretToRight(size_t Stride)
 		SIZE_T_PLUS(m_SelEnd, Stride, GetTextLength());
 		m_SelStart = m_SelEnd;
 	}
-}
-
-PRIVATE void JWEdit::UpdateViewport()
-{
-	m_EditViewport = m_OriginalViewport;
-	m_EditViewport.X = static_cast<DWORD>(m_PositionClient.x);
-	m_EditViewport.Y = static_cast<DWORD>(m_PositionClient.y);
-	m_EditViewport.Width = static_cast<DWORD>(m_Size.x);
-	m_EditViewport.Height = static_cast<DWORD>(m_Size.y);
 }
 
 PRIVATE void JWEdit::UpdateText()
@@ -440,7 +406,6 @@ void JWEdit::SetSize(D3DXVECTOR2 Size)
 
 	m_pBackground->SetSize(Size);
 
-	UpdateBorderline();
 	UpdateViewport();
 }
 
@@ -450,41 +415,7 @@ void JWEdit::SetPosition(D3DXVECTOR2 Position)
 
 	m_pBackground->SetPosition(Position);
 
-	UpdateBorderline();
 	UpdateViewport();
-}
-
-PRIVATE void JWEdit::UpdateBorderline()
-{
-	D3DXVECTOR2 border_position = D3DXVECTOR2(0, 0);
-	D3DXVECTOR2 border_size = D3DXVECTOR2(0, 0);
-
-	const DWORD& ColorA = DEFAULT_COLOR_PRESSED;
-	const DWORD& ColorB = DEFAULT_COLOR_DARK_HIGHLIGHT;
-	
-	// Up
-	border_position = m_PositionClient;
-	border_size = m_Size;
-	border_size.y = 0;
-	m_pBorderLine->SetLine(0, border_position, border_size);
-	m_pBorderLine->SetLineColor(0, ColorA, ColorB);
-	
-	// Bottom
-	border_position.y += (m_Size.y - 1.0f);
-	m_pBorderLine->SetLine(1, border_position, border_size);
-	m_pBorderLine->SetLineColor(1, ColorB);
-
-	// Left
-	border_position = m_PositionClient;
-	border_size = m_Size;
-	border_size.x = 0;
-	m_pBorderLine->SetLine(2, border_position, border_size);
-	m_pBorderLine->SetLineColor(2, ColorA, ColorB);
-
-	// Right
-	border_position.x += (m_Size.x - 1.0f);
-	m_pBorderLine->SetLine(3, border_position, border_size);
-	m_pBorderLine->SetLineColor(3, ColorB);
 }
 
 void JWEdit::SetUseMultiline(bool Value)

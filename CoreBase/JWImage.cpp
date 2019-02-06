@@ -203,6 +203,7 @@ void JWImage::FlipVertical()
 void JWImage::SetSize(D3DXVECTOR2 Size)
 {
 	m_Size = Size;
+
 	m_ScaledSize.x = m_Size.x * m_Scale.x;
 	m_ScaledSize.y = m_Size.y * m_Scale.y;
 
@@ -377,14 +378,14 @@ auto JWImage::SetBoundingBox(D3DXVECTOR2 ExtraSize)->JWImage*
 auto JWImage::SetBoundingBoxAlpha(BYTE Alpha)->JWImage*
 {
 	SetColorAlpha(&m_BoundingBoxColor, Alpha);
-	m_BoundingBoxLine.SetAlpha(Alpha);
+	m_BoundingBoxLine.SetEntireAlpha(Alpha);
 	return this;
 }
 
 auto JWImage::SetBoundingBoxXRGB(DWORD XRGB)->JWImage*
 {
 	SetColorXRGB(&m_BoundingBoxColor, XRGB);
-	m_BoundingBoxLine.SetXRGB(XRGB);
+	m_BoundingBoxLine.SetEntireXRGB(XRGB);
 	return this;
 }
 

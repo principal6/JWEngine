@@ -108,6 +108,9 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 	case JWENGINE::ScrollBar:
 		m_Controls.push_back(new JWScrollBar);
 		break;
+	case JWENGINE::ListBox:
+		m_Controls.push_back(new JWListBox);
+		break;
 	default:
 		return NULL_HANDLE;
 		break;
@@ -263,8 +266,14 @@ PRIVATE void JWGUI::MainLoop()
 
 	if (m_pfMainLoop)
 	{
-		// Call the outter main loop
+		// Call the outter main loop.
 		m_pfMainLoop();
+	}
+	else
+	{
+		// If the main loop function is not asigned,
+		// just draw all the controls.
+		DrawAllControls();
 	}
 
 	m_SharedData.pWindow->EndRender();

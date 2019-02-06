@@ -132,9 +132,12 @@
     <ClInclude Include="..\CoreBase\JWLine.h" />
     <ClInclude Include="..\CoreBase\JWRectangle.h" />
     <ClInclude Include="..\CoreBase\JWWindow.h" />
+    <ClInclude Include="..\CoreType\TDynamicArray.h" />
+    <ClInclude Include="..\CoreType\TLinkedList.h" />
     <ClInclude Include="..\Dependency\tinyxml2.h" />
     <ClInclude Include="JWCheckBox.h" />
     <ClInclude Include="JWImageButton.h" />
+    <ClInclude Include="JWListBox.h" />
     <ClInclude Include="JWRadioBox.h" />
     <ClInclude Include="JWScrollBar.h" />
     <ClInclude Include="JWTextButton.h" />
@@ -155,6 +158,7 @@
     <ClCompile Include="gui_main.cpp" />
     <ClCompile Include="JWCheckBox.cpp" />
     <ClCompile Include="JWImageButton.cpp" />
+    <ClCompile Include="JWListBox.cpp" />
     <ClCompile Include="JWRadioBox.cpp" />
     <ClCompile Include="JWScrollBar.cpp" />
     <ClCompile Include="JWTextButton.cpp" />

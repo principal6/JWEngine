@@ -8,7 +8,6 @@ namespace JWENGINE
 	// *** Forward declaration ***
 	class JWWindow;
 	class JWImage;
-	class JWLine;
 	class JWRectangle;
 	// ***
 
@@ -41,9 +40,6 @@ namespace JWENGINE
 		void MoveCaretToLeft(size_t Stride = 1); // Move the caret to the left
 		void MoveCaretToRight(size_t Stride = 1); // Move the caret to the right
 
-		void UpdateBorderline();
-		void UpdateViewport();
-
 		void UpdateText();
 		void UpdateCaretAndSelection();
 		
@@ -65,7 +61,7 @@ namespace JWENGINE
 
 	private:
 		static const BYTE DEFAULT_ALPHA_BACKGROUND_EDIT = 255;
-		static const DWORD DEFAULT_COLOR_BACKGROUND_EDIT = DEFAULT_COLOR_LESS_BLACK;
+		static const DWORD DEFAULT_COLOR_BACKGROUND_EDIT = DEFAULT_COLOR_ALMOST_BLACK;
 		static const DWORD DEFAULT_COLOR_FONT_EDIT = DEFAULT_COLOR_WHITE;
 		static const DWORD DEFAULT_COLOR_CARET = D3DCOLOR_XRGB(180, 180, 255);
 		static const DWORD DEFAULT_COLOR_SELECTION = D3DCOLOR_XRGB(50, 100, 255); // 0 100 255
@@ -74,10 +70,6 @@ namespace JWENGINE
 		static const float EDIT_PADDING_Y;
 
 		JWImage* m_pBackground;
-		JWLine* m_pBorderLine;
-
-		D3DVIEWPORT9 m_OriginalViewport;
-		D3DVIEWPORT9 m_EditViewport;
 
 		JWLine* m_pCaret;
 		D3DXVECTOR2 m_CaretSize;

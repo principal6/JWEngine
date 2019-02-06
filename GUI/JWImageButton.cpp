@@ -6,6 +6,9 @@ using namespace JWENGINE;
 
 JWImageButton::JWImageButton()
 {
+	// An image button would normally have its border.
+	m_bShouldDrawBorder = true;
+
 	m_pBackground = nullptr;
 	m_pButtonImage = nullptr;
 
@@ -18,7 +21,7 @@ JWImageButton::JWImageButton()
 	m_HoverOffset = D3DXVECTOR2(0, 0);
 	m_PressedOffset = D3DXVECTOR2(0, 0);
 
-	// Default color for image button is DEFAULT_COLOR_NORMAL for all state
+	// Set default color for every control state.
 	m_Color_Normal = DEFAULT_COLOR_NORMAL;
 	m_Color_Hover = DEFAULT_COLOR_NORMAL;
 	m_Color_Pressed = DEFAULT_COLOR_NORMAL;
@@ -52,14 +55,15 @@ auto JWImageButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		return EError::IMAGE_NOT_CREATED;
 	}
 
-	SetSize(m_Size);
-	SetPosition(m_PositionClient);
-	
 	// Set default font alignment
 	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_Type = EControlType::ImageButton;
+
+	// Set control's size and position.
+	SetSize(Size);
+	SetPosition(Position);
 
 	return EError::OK;
 }
@@ -121,6 +125,8 @@ void JWImageButton::MakeSystemArrowButton(ESystemArrowDirection Direction)
 
 void JWImageButton::Draw()
 {
+	JWControl::BeginDrawing();
+
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
@@ -150,25 +156,29 @@ void JWImageButton::Draw()
 		m_pButtonImage->FlipVertical();
 	}
 
-	JWControl::Draw();
-
 	m_pBackground->Draw();
 
 	m_pButtonImage->Draw();
-	if (m_bShouldDrawBorder)
-	{
-		m_pBackground->DrawBoundingBox();
-	}
-	
+
 	// Draw text
 	m_pFont->Draw();
+
+	JWControl::EndDrawing();
 }
 
 void JWImageButton::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
-	m_pBackground->SetPosition(Position);
-	m_pButtonImage->SetPosition(Position + m_ButtonImagePositionOffset);
+
+	if (m_pBackground)
+	{
+		m_pBackground->SetPosition(Position);
+	}
+	
+	if (m_pButtonImage)
+	{
+		m_pButtonImage->SetPosition(Position + m_ButtonImagePositionOffset);
+	}
 }
 
 void JWImageButton::SetSize(D3DXVECTOR2 Size)
@@ -183,26 +193,14 @@ void JWImageButton::SetSize(D3DXVECTOR2 Size)
 	m_ButtonImagePositionOffset.y = (Size.y - m_ButtonSizeInTexture.y) / 2.0f;
 
 	JWControl::SetSize(Size);
-	m_pBackground->SetSize(Size);
-	m_pButtonImage->SetPosition(m_PositionClient + m_ButtonImagePositionOffset);
-}
 
-void JWImageButton::SetButtonColor(EControlState State, DWORD Color)
-{
-	switch (State)
+	if (m_pBackground)
 	{
-	case JWENGINE::Normal:
-		m_Color_Normal = Color;
-		break;
-	case JWENGINE::Hover:
-		m_Color_Hover = Color;
-		break;
-	case JWENGINE::Pressed:
-		m_Color_Pressed = Color;
-		break;
-	case JWENGINE::Clicked:
-		break;
-	default:
-		break;
+		m_pBackground->SetSize(Size);
+	}
+
+	if (m_pButtonImage)
+	{
+		m_pButtonImage->SetPosition(m_PositionClient + m_ButtonImagePositionOffset);
 	}
 }

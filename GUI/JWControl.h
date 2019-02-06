@@ -8,6 +8,7 @@ namespace JWENGINE
 	// *** Forward declaration ***
 	class JWWindow;
 	class JWFont;
+	class JWLine;
 
 	enum class EHorizontalAlignment;
 	enum class EVerticalAlignment;
@@ -23,6 +24,7 @@ namespace JWENGINE
 		CheckBox,
 		RadioBox,
 		ScrollBar,
+		ListBox,
 	};
 
 	enum EControlState
@@ -91,10 +93,21 @@ namespace JWENGINE
 		// Update
 		virtual void UpdateControlState(const SMouseData& MouseData);
 
-		// Draw
+		/** Draw functions
+		*/
+		// BeginDrawing() sets the viewport for the control.
+		virtual void BeginDrawing();
+
+		// Draw() is defined in sub-classes.
 		virtual void Draw() {};
 
-		// Font
+		// EndDrawing() draws control's borderline if m_bShouldDrawBorder is set true.
+		// and it resets the original viewport.
+		virtual void EndDrawing();
+
+
+		/** Font-related functions
+		*/
 		virtual void SetAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment);
 		virtual void SetHorizontalAlignment(EHorizontalAlignment Alignment);
 		virtual void SetVerticalAlignment(EVerticalAlignment Alignment);
@@ -107,9 +120,12 @@ namespace JWENGINE
 
 		// Setter
 		virtual void SetState(EControlState State);
+		virtual void SetStateColor(EControlState State, DWORD Color);
 		virtual void SetPosition(D3DXVECTOR2 Position);
 		virtual void SetSize(D3DXVECTOR2 Size);
 		virtual void SetText(WSTRING Text);
+		virtual void SetBorderColor(DWORD Color);
+		virtual void SetBorderColor(DWORD ColorA, DWORD ColorB);
 		
 		// Getter
 		virtual auto GetState() const->EControlState;
@@ -121,21 +137,35 @@ namespace JWENGINE
 
 		// Property setter/getter
 		virtual void ShouldDrawBorder(bool Value);
-		virtual void SetButtonColor(EControlState State, DWORD Color) {}; // TextButton
+		virtual void ShouldUseViewport(bool Value);
 		virtual void SetCheckState(bool Value) {}; // CheckBox / RadioBox
 		virtual auto GetCheckState() const->bool { return true; }; // CheckBox / RadioBox
 		virtual void SetScrollRange(size_t Max) {}; // ScrollBar
 		virtual void SetScrollPosition(size_t Position) {}; // ScrollBar
+		virtual auto GetScrollRange() const->size_t { return 0; } // ScrollBar
+		virtual auto GetScrollPosition() const->size_t { return 0; } // ScrollBar
 		virtual void SetUseMultiline(bool Value) {}; // Edit
+		virtual void AddTextItem(WSTRING Text) {}; // ListBox
 
 	protected:
 		virtual void CalculateRECT();
+		
+		virtual void UpdateBorderPositionAndSize();
 		virtual void UpdateText();
+		virtual void UpdateViewport();
 
 	protected:
 		static const SGUISharedData* ms_pSharedData;
 
+		D3DVIEWPORT9 m_OriginalViewport;
+		D3DVIEWPORT9 m_ControlViewport;
+
 		JWFont* m_pFont;
+		JWLine* m_pBorderLine;
+
+		DWORD m_Color_Normal;
+		DWORD m_Color_Hover;
+		DWORD m_Color_Pressed;
 
 		D3DXVECTOR2 m_PositionClient;
 		D3DXVECTOR2 m_Size;
@@ -146,6 +176,7 @@ namespace JWENGINE
 		WSTRING m_Text;
 
 		bool m_bShouldDrawBorder;
+		bool m_bShouldUseViewport;
 		bool m_bHasFocus;
 
 		// Mouse

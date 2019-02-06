@@ -6,11 +6,10 @@ using namespace JWENGINE;
 
 JWTextButton::JWTextButton()
 {
-	m_pImage = nullptr;
+	// A text button would normally have its border.
+	m_bShouldDrawBorder = true;
 
-	m_Color_Normal = DEFAULT_COLOR_NORMAL;
-	m_Color_Hover = DEFAULT_COLOR_HOVER;
-	m_Color_Pressed = DEFAULT_COLOR_PRESSED;
+	m_pImage = nullptr;
 }
 
 auto JWTextButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -38,6 +37,10 @@ auto JWTextButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	// Set control type
 	m_Type = EControlType::TextButton;
 
+	// Set control's size and position.
+	SetSize(Size);
+	SetPosition(Position);
+
 	return EError::OK;
 }
 
@@ -50,6 +53,8 @@ void JWTextButton::Destroy()
 
 void JWTextButton::Draw()
 {
+	JWControl::BeginDrawing();
+
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
@@ -67,46 +72,30 @@ void JWTextButton::Draw()
 		break;
 	}
 
-	JWControl::Draw();
-
 	m_pImage->Draw();
-	if (m_bShouldDrawBorder)
-	{
-		m_pImage->DrawBoundingBox();
-	}
 
 	// Draw text
 	m_pFont->Draw();
+
+	JWControl::EndDrawing();
 }
 
 void JWTextButton::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
-	m_pImage->SetPosition(Position);
+
+	if (m_pImage)
+	{
+		m_pImage->SetPosition(Position);
+	}
 }
 
 void JWTextButton::SetSize(D3DXVECTOR2 Size)
 {
 	JWControl::SetSize(Size);
-	m_pImage->SetSize(Size);
-}
 
-void JWTextButton::SetButtonColor(EControlState State, DWORD Color)
-{
-	switch (State)
+	if (m_pImage)
 	{
-	case JWENGINE::Normal:
-		m_Color_Normal = Color;
-		break;
-	case JWENGINE::Hover:
-		m_Color_Hover = Color;
-		break;
-	case JWENGINE::Pressed:
-		m_Color_Pressed = Color;
-		break;
-	case JWENGINE::Clicked:
-		break;
-	default:
-		break;
+		m_pImage->SetSize(Size);
 	}
 }

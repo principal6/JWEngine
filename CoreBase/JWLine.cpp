@@ -54,10 +54,10 @@ void JWLine::AddLine(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Length, DWORD Color)
 
 void JWLine::AddBox(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size, DWORD Color)
 {
-	AddLine(StartPosition, D3DXVECTOR2(Size.x, 0), Color);
-	AddLine(StartPosition, D3DXVECTOR2(0, Size.y), Color);
-	AddLine(D3DXVECTOR2(StartPosition.x + Size.x, StartPosition.y), D3DXVECTOR2(0, Size.y), Color);
-	AddLine(D3DXVECTOR2(StartPosition.x, StartPosition.y + Size.y), D3DXVECTOR2(Size.x, 0), Color);
+	AddLine(StartPosition, D3DXVECTOR2(Size.x, 0), Color); // Top
+	AddLine(StartPosition, D3DXVECTOR2(0, Size.y), Color); // Left
+	AddLine(D3DXVECTOR2(StartPosition.x + Size.x, StartPosition.y), D3DXVECTOR2(0, Size.y), Color); // Right
+	AddLine(D3DXVECTOR2(StartPosition.x, StartPosition.y + Size.y), D3DXVECTOR2(Size.x, 0), Color); // Bottom
 }
 
 void JWLine::AddEnd()
@@ -117,7 +117,23 @@ void JWLine::SetBox(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size)
 	}
 }
 
-void JWLine::SetAlpha(BYTE Alpha)
+void JWLine::SetBoxColor(DWORD Color)
+{
+	SetLineColor(0, Color);
+	SetLineColor(1, Color);
+	SetLineColor(2, Color);
+	SetLineColor(3, Color);
+}
+
+void JWLine::SetBoxColor(DWORD ColorA, DWORD ColorB)
+{
+	SetLineColor(0, ColorA, ColorB);
+	SetLineColor(1, ColorA, ColorB);
+	SetLineColor(2, ColorB, ColorB);
+	SetLineColor(3, ColorB, ColorB);
+}
+
+void JWLine::SetEntireAlpha(BYTE Alpha)
 {
 	if (m_Vertices.size())
 	{
@@ -129,7 +145,7 @@ void JWLine::SetAlpha(BYTE Alpha)
 	}
 }
 
-void JWLine::SetXRGB(DWORD Color)
+void JWLine::SetEntireXRGB(DWORD Color)
 {
 	if (m_Vertices.size())
 	{
@@ -148,6 +164,7 @@ void JWLine::CreateVertexBuffer()
 		m_pVB->Release();
 		m_pVB = nullptr;
 	}
+
 	int rVertSize = sizeof(SVertexLine) * static_cast<int>(m_Vertices.size());
 	if (FAILED(ms_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
 		return;
@@ -160,6 +177,7 @@ void JWLine::CreateIndexBuffer()
 		m_pIB->Release();
 		m_pIB = nullptr;
 	}
+
 	int rIndSize = sizeof(SIndex2) * static_cast<int>(m_Indices.size());
 	if (FAILED(ms_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
 		return;
@@ -172,6 +190,7 @@ void JWLine::CreateVertexBufferMax()
 		m_pVB->Release();
 		m_pVB = nullptr;
 	}
+
 	int rVertSize = sizeof(SVertexLine) * MAX_UNIT_COUNT * 8;
 	if (FAILED(ms_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
 		return;
@@ -184,6 +203,7 @@ void JWLine::CreateIndexBufferMax()
 		m_pIB->Release();
 		m_pIB = nullptr;
 	}
+
 	int rIndSize = sizeof(SIndex2) * MAX_UNIT_COUNT * 4;
 	if (FAILED(ms_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
 		return;

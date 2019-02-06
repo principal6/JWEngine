@@ -1,4 +1,9 @@
 #include "JWGUI.h"
+#include <crtdbg.h>
+
+#ifdef _DEBUG
+#define new new( _CLIENT_BLOCK, __FILE__, __LINE__)
+#endif
 
 using namespace JWENGINE;
 
@@ -10,7 +15,7 @@ int main()
 {
 	static JWWindow myWindow;
 
-	if (JW_SUCCEEDED(myWindow.CreateGUIWindow(100, 100, 800, 600, DEFAULT_COLOR_ALMOST_BLACK)))
+	if (JW_SUCCEEDED(myWindow.CreateGUIWindow(100, 100, 800, 600, DEFAULT_COLOR_LESS_BLACK)))
 	{
 		myGUI.Create(&myWindow);
 
@@ -22,6 +27,7 @@ int main()
 		THandle checkbox1 = myGUI.AddControl(EControlType::CheckBox, D3DXVECTOR2(250, 0), D3DXVECTOR2(50, 50));
 
 		THandle label1 = myGUI.AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 40), L"레이블입니다");
+		myGUI.GetControlPointer(label1)->SetVerticalAlignment(EVerticalAlignment::Middle);
 
 		THandle edit1 = myGUI.AddControl(EControlType::Edit, D3DXVECTOR2(100, 140), D3DXVECTOR2(160, 0),
 			L"This is JWEdit control");
@@ -42,6 +48,12 @@ int main()
 		myGUI.GetControlPointer(sb2)->MakeScrollBar(EScrollBarDirection::Vertical);
 		myGUI.GetControlPointer(sb2)->SetScrollRange(30);
 		myGUI.GetControlPointer(sb2)->SetScrollPosition(1);
+
+		THandle lb1 = myGUI.AddControl(EControlType::ListBox, D3DXVECTOR2(400, 100), D3DXVECTOR2(100, 160));
+		myGUI.GetControlPointer(lb1)->AddTextItem(L"1. 가나다라");
+		myGUI.GetControlPointer(lb1)->AddTextItem(L"2. ABCD");
+		myGUI.GetControlPointer(lb1)->AddTextItem(L"3. abecede");
+		myGUI.GetControlPointer(lb1)->AddTextItem(L"4. aiueo");
 
 		myGUI.SetMainLoopFunction(MainLoop);
 

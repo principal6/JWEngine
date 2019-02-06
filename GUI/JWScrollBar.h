@@ -32,6 +32,9 @@ namespace JWENGINE
 		void SetScrollRange(size_t Max) override;
 		void SetScrollPosition(size_t Position) override;
 
+		auto GetScrollRange() const->size_t override;
+		auto GetScrollPosition() const->size_t override;
+
 	private:
 		void UpdateButtonSize();
 		void UpdateButtonPosition();

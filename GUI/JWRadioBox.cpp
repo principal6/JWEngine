@@ -6,6 +6,9 @@ using namespace JWENGINE;
 
 JWRadioBox::JWRadioBox()
 {
+	// RadioBox never has border
+	m_bShouldDrawBorder = false;
+
 	m_pBackground = nullptr;
 
 	m_bChecked = false;
@@ -29,16 +32,17 @@ auto JWRadioBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		return EError::IMAGE_NOT_CREATED;
 	}
 
-	// @Warning:
-	// 'D3DXVECTOR2 Size' is not used but GUI_BUTTON_SIZE
-	SetSize(GUI_BUTTON_SIZE);
-	SetPosition(m_PositionClient);
-
 	// Set default font alignment
 	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_Type = EControlType::RadioBox;
+
+	// Set control's size and position.
+	// @ WARNING:
+	// 'D3DXVECTOR2 Size' is not used but 'GUI_BUTTON_SIZE'
+	SetSize(GUI_BUTTON_SIZE);
+	SetPosition(Position);
 
 	return EError::OK;
 }
@@ -52,6 +56,8 @@ void JWRadioBox::Destroy()
 
 void JWRadioBox::Draw()
 {
+	JWControl::BeginDrawing();
+
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
@@ -67,8 +73,6 @@ void JWRadioBox::Draw()
 		break;
 	}
 
-	JWControl::Draw();
-
 	if (m_bChecked)
 	{
 		m_pBackground->SetAtlasUV(D3DXVECTOR2(GUI_BUTTON_SIZE.x, GUI_BUTTON_SIZE.y * 2), GUI_BUTTON_SIZE);
@@ -80,13 +84,10 @@ void JWRadioBox::Draw()
 
 	m_pBackground->Draw();
 
-	// RadioBox never has border
-	/*
-	m_pBackground->DrawBoundingBox();
-	*/
-
 	// Draw text
 	m_pFont->Draw();
+
+	JWControl::EndDrawing();
 }
 
 void JWRadioBox::SetPosition(D3DXVECTOR2 Position)

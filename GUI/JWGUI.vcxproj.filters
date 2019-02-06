@@ -14,6 +14,9 @@
     <Filter Include="Dependency">
       <UniqueIdentifier>{79bd3b7d-c9a2-407c-843a-f00c968d7244}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CoreType">
+      <UniqueIdentifier>{e3be3cde-4516-4971-94a2-f857483c5e84}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CoreBase\JWCommon.h">
@@ -68,6 +71,15 @@
     <ClInclude Include="JWScrollBar.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="JWListBox.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreType\TLinkedList.h">
+      <Filter>CoreType</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreType\TDynamicArray.h">
+      <Filter>CoreType</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWImage.cpp">
@@ -118,6 +130,9 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="JWScrollBar.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="JWListBox.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>

@@ -26,7 +26,6 @@ namespace JWENGINE
 
 		void SetPosition(D3DXVECTOR2 Position) override;
 		void SetSize(D3DXVECTOR2 Size) override;
-		void SetButtonColor(EControlState State, DWORD Color) override;
 
 	private:
 		JWImage* m_pBackground;
@@ -40,9 +39,5 @@ namespace JWENGINE
 		D3DXVECTOR2 m_NormalOffset;
 		D3DXVECTOR2 m_HoverOffset;
 		D3DXVECTOR2 m_PressedOffset;
-
-		DWORD m_Color_Normal;
-		DWORD m_Color_Hover;
-		DWORD m_Color_Pressed;
 	};
 };
