@@ -147,6 +147,20 @@ namespace JWENGINE
 		INVALID_CONTROL_TYPE,
 	};
 
+	enum class EHorizontalAlignment
+	{
+		Left,
+		Center,
+		Right,
+	};
+
+	enum class EVerticalAlignment
+	{
+		Top,
+		Middle,
+		Bottom,
+	};
+
 	enum class EAnimationDirection
 	{
 		Left,

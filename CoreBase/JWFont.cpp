@@ -276,11 +276,15 @@ void JWFont::SetAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAli
 void JWFont::SetHorizontalAlignment(EHorizontalAlignment Alignment)
 {
 	m_HorizontalAlignment = Alignment;
+
+	SetText(m_ImageStringOriginalText, m_BoxPosition, m_BoxSize);
 }
 
 void JWFont::SetVerticalAlignment(EVerticalAlignment Alignment)
 {
 	m_VerticalAlignment = Alignment;
+
+	SetText(m_ImageStringOriginalText, m_BoxPosition, m_BoxSize);
 }
 
 void JWFont::SetFontAlpha(BYTE Alpha)

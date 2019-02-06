@@ -14,20 +14,6 @@ namespace JWENGINE
 	struct SWindowData;
 	// ***
 
-	enum class EHorizontalAlignment
-	{
-		Left,
-		Center,
-		Right,
-	};
-
-	enum class EVerticalAlignment
-	{
-		Top,
-		Middle,
-		Bottom,
-	};
-
 	struct STextInfo
 	{
 		wchar_t Character;
