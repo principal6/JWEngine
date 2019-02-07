@@ -189,8 +189,9 @@ namespace JWENGINE
 	{
 		POINT MousePosition;
 		POINT MouseDownPosition;
+		int MouseWheeled;
 
-		SMouseData() : MousePosition({ 0, 0 }), MouseDownPosition({ 0, 0 }) {};
+		SMouseData() : MousePosition({ 0, 0 }), MouseDownPosition({ 0, 0 }), MouseWheeled(0) {};
 	};
 
 	struct SAnimationData

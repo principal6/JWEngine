@@ -1,6 +1,7 @@
 #include "JWTextButton.h"
 #include "../CoreBase/JWFont.h"
 #include "../CoreBase/JWImage.h"
+#include "../CoreBase/JWWindow.h"
 
 using namespace JWENGINE;
 
@@ -49,6 +50,68 @@ void JWTextButton::Destroy()
 	JWControl::Destroy();
 
 	JW_DESTROY_SMART(m_pImage);
+}
+
+void JWTextButton::UpdateControlState(const SMouseData& MouseData)
+{
+	m_UpdatedMousedata = MouseData;
+
+	if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
+	{
+		// Mouse pressed
+
+		if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect))
+		{
+			// Mouse down position is inside RECT
+			if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
+			{
+				m_ControlState = EControlState::Pressed;
+			}
+			else
+			{
+				m_ControlState = EControlState::Hover;
+			}
+		}
+		else if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
+		{
+			// Mouse position is inside RECT
+			m_ControlState = EControlState::Hover;
+		}
+		else
+		{
+			// Mouse position is out of RECT
+			m_ControlState = EControlState::Normal;
+		}
+	}
+	else
+	{
+		// Mouse released
+
+		if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
+		{
+			// Mouse position is inside RECT
+
+			if (m_ControlState == EControlState::Pressed)
+			{
+				// IF:
+				// the button was pressed before,
+				// it is now clicked.
+				m_ControlState = EControlState::Clicked;
+			}
+			else
+			{
+				// IF:
+				// the button wasn't pressed before,
+				// it's just hovered.
+				m_ControlState = EControlState::Hover;
+			}
+		}
+		else
+		{
+			// Mouse position is out of RECT
+			m_ControlState = EControlState::Normal;
+		}
+	}
 }
 
 void JWTextButton::Draw()

@@ -154,6 +154,9 @@ PRIVATE void JWGUI::HandleMessage()
 		break;
 	case WM_LBUTTONUP:
 		break;
+	case WM_MOUSEWHEEL:
+		m_MouseData.MouseWheeled = static_cast<__int16>(HIWORD(m_MSG.wParam));
+		break;
 	default:
 		break;
 	}
@@ -182,7 +185,6 @@ PRIVATE void JWGUI::MainLoop()
 		else
 		{
 			iterator->UpdateControlState(m_MouseData); // To give mouse data to the controls
-			iterator->SetState(EControlState::Normal);
 		}
 	}
 

@@ -164,6 +164,7 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 	}
 	else
 	{
+		// Scroll items
 		m_ItemOffsetY = -static_cast<float>(m_pScrollBar->GetScrollPosition()) * DEFUALT_ITEM_HEIGHT;
 
 		D3DXVECTOR2 item_position = D3DXVECTOR2(0, 0);

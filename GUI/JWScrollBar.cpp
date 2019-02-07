@@ -190,6 +190,8 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 	}
 	else if (m_pScroller->GetState() == EControlState::Pressed)
 	{
+		SetState(EControlState::Pressed);
+
 		if (!m_bScrollerCaptured)
 		{
 			m_CapturedScrollPosition = m_ScrollPosition;
@@ -232,41 +234,18 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 				m_pScroller->UpdateControlState(MouseData);
 
 				m_CapturedScrollPosition = 0;
-
-				/*
-				// Calculate digital position
-				float position_float = 0;
-				int position_int = 0;
-				switch (m_ScrollBarDirection)
-				{
-				case JWENGINE::EScrollBarDirection::Horizontal:
-					position_float = (m_ScrollerPosition.x - GUI_BUTTON_SIZE.x) / (m_ScrollableRest - GUI_BUTTON_SIZE.x);
-					position_float *= m_ScrollMax;
-					position_int = static_cast<int>(position_float);
-					SetScrollPosition(position_int);
-					break;
-				case JWENGINE::EScrollBarDirection::Vertical:
-					position_float = (m_ScrollerPosition.y - GUI_BUTTON_SIZE.y) / (m_ScrollableRest - GUI_BUTTON_SIZE.y);
-					position_float *= m_ScrollMax;
-					position_int = static_cast<int>(position_float);
-					SetScrollPosition(position_int);
-					break;
-				default:
-					break;
-				}
-				*/
 			}
 		}
 	}
 	else if ((m_ControlState == EControlState::Pressed) && (m_pScroller->GetState() == EControlState::Normal)
 		&& (ButtonAState == EControlState::Normal) && (ButtonBState == EControlState::Normal))
 	{
+		// Press on the body of the scrollbar => Page scroll
+
 		// Calculate digital position
 		size_t ObjectDigitalPosition = CalculateScrollerDigitalPosition(MouseData.MouseDownPosition);
 
-		// Press on the body of the scrollbar => Page scroll
 		long long ScrollStride = 0;
-
 		ScrollStride = ObjectDigitalPosition - m_ScrollPosition;
 
 		if (ScrollStride > 0)
@@ -284,7 +263,10 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 			}
 		}
 
-		SetScrollPosition(m_ScrollPosition + ScrollStride);
+		long long new_scroll_position = m_ScrollPosition + ScrollStride;
+		new_scroll_position = max(new_scroll_position, 0);
+
+		SetScrollPosition(new_scroll_position);
 
 		return;
 	}
