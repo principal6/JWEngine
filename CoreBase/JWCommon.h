@@ -59,9 +59,12 @@ namespace JWENGINE
 	using CINT = const __int32;
 
 	using THandle = unsigned __int32;
-	static constexpr THandle NULL_HANDLE = UINT32_MAX;
+	static constexpr THandle THandle_Null = UINT32_MAX;
 
-	static const size_t JW_NOT_SPECIFIED = static_cast<size_t>(-1);
+	using THandleItem = THandle;
+
+	using TIndex = size_t;
+	static const size_t TIndex_NotSpecified = static_cast<size_t>(-1);
 
 	static constexpr __int32 MAX_FILE_LEN = 260;
 
@@ -149,6 +152,9 @@ namespace JWENGINE
 
 		/** Invalid type */
 		INVALID_CONTROL_TYPE,
+
+		/** Memory allocation failure */
+		ALLOCATION_FAILURE,
 	};
 
 	enum class EHorizontalAlignment

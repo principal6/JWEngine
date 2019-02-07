@@ -80,6 +80,9 @@
     <ClInclude Include="..\CoreType\TDynamicArray.h">
       <Filter>CoreType</Filter>
     </ClInclude>
+    <ClInclude Include="JWMenuBar.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWImage.cpp">
@@ -133,6 +136,9 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="JWListBox.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="JWMenuBar.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>

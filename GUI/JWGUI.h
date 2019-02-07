@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../CoreType/TDynamicArray.h"
 #include "../CoreBase/JWImage.h"
 #include "../CoreBase/JWLine.h"
 #include "../CoreBase/JWWindow.h"
@@ -12,6 +13,7 @@
 #include "JWRadioBox.h"
 #include "JWScrollBar.h"
 #include "JWListBox.h"
+#include "JWMenuBar.h"
 
 // @WARNING: ONE GUI PER ONE WINDOW!!
 
@@ -33,7 +35,7 @@ namespace JWENGINE
 		void Run();
 
 		auto AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text = L"")->const THandle;
-		auto GetControlPointer(const THandle ControlHandle)->JWControl*;
+		auto GetControlPtr(const THandle ControlHandle)->JWControl*;
 		
 		void SetMainLoopFunction(PF_MAINLOOP pfMainLoop);
 
@@ -46,13 +48,16 @@ namespace JWENGINE
 	private:
 		SGUISharedData m_SharedData;
 
-		VECTOR<JWControl*> m_Controls;
+		TDynamicArray<JWControl*> m_Controls;
 		MSG m_MSG;
 
 		SMouseData m_MouseData;
 
 		JWControl* m_pControlWithFocus;
+		JWControl* m_pMenuBar;
 
 		PF_MAINLOOP m_pfMainLoop;
+
+		bool m_bHasMenuBar;
 	};
 };

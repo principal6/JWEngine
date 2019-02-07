@@ -315,7 +315,8 @@ void JWScrollBar::Draw()
 void JWScrollBar::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
-	m_pBackground->SetPosition(Position);
+
+	m_pBackground->SetPosition(m_PositionClient);
 
 	UpdateButtonPosition();
 }
@@ -341,7 +342,8 @@ void JWScrollBar::SetSize(D3DXVECTOR2 Size)
 	}
 
 	JWControl::SetSize(Size);
-	m_pBackground->SetSize(Size);
+
+	m_pBackground->SetSize(m_Size);
 
 	UpdateButtonPosition();
 	UpdateButtonSize();

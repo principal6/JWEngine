@@ -25,6 +25,7 @@ namespace JWENGINE
 		RadioBox,
 		ScrollBar,
 		ListBox,
+		MenuBar,
 	};
 
 	enum EControlState
@@ -67,7 +68,10 @@ namespace JWENGINE
 		JWControl();
 		virtual ~JWControl() {};
 
+		// Static
 		virtual void SetSharedData(const SGUISharedData* SharedData);
+
+		// Create, destroy
 		virtual auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError;
 		virtual void Destroy();
 
@@ -126,6 +130,7 @@ namespace JWENGINE
 		virtual void SetText(WSTRING Text);
 		virtual void SetBorderColor(DWORD Color);
 		virtual void SetBorderColor(DWORD ColorA, DWORD ColorB);
+		virtual void SetBackgroundColor(DWORD Color) {};
 		
 		// Getter
 		virtual auto GetState() const->EControlState;
@@ -146,6 +151,7 @@ namespace JWENGINE
 		virtual auto GetScrollPosition() const->size_t { return 0; } // ScrollBar
 		virtual void SetUseMultiline(bool Value) {}; // Edit
 		virtual void AddTextItem(WSTRING Text) {}; // ListBox
+		virtual auto AddMenuBarItem(WSTRING Text)->THandleItem { return THandle_Null; }; // MenuBar
 
 	protected:
 		virtual void CalculateRECT();

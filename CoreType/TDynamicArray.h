@@ -145,7 +145,7 @@ namespace JWENGINE
 			{
 				// IF:
 				// memory space for the dynamic array has already been allocated.
-				
+
 				if (index > m_Size - 1)
 				{
 					// IF:
@@ -196,6 +196,44 @@ namespace JWENGINE
 
 				abort();
 				return m_pData[0];
+			}
+		}
+
+		// begin() for for iterator
+		auto begin()->T*
+		{
+			return &m_pData[0];
+		}
+
+		// const begin() for for iterator
+		auto begin() const->const T*
+		{
+			return &m_pData[0];
+		}
+
+		// end() for for iterator
+		auto end()->T*
+		{
+			if (m_Size)
+			{
+				return &m_pData[m_Size];
+			}
+			else
+			{
+				return &m_pData[0];
+			}
+		}
+
+		// const end() for for iterator
+		auto end() const->const T*
+		{
+			if (m_Size)
+			{
+				return &m_pData[m_Size];
+			}
+			else
+			{
+				return &m_pData[0];
 			}
 		}
 

@@ -423,9 +423,18 @@ void JWWindow::UpdateInputState()
 	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
 	{
 		m_InputState.MouseLeftPressed = true;
+		m_InputState.MouseLeftReleased = false;
 	}
 	else
 	{
+		if (m_InputState.MouseLeftPressed)
+		{
+			m_InputState.MouseLeftReleased = true;
+		}
+		else
+		{
+			m_InputState.MouseLeftReleased = false;
+		}
 		m_InputState.MouseLeftPressed = false;
 	}
 

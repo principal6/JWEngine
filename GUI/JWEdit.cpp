@@ -390,6 +390,15 @@ PRIVATE auto JWEdit::GetTextLength() const->size_t
 	return m_pFont->GetTextLength();
 }
 
+void JWEdit::SetPosition(D3DXVECTOR2 Position)
+{
+	JWControl::SetPosition(Position);
+
+	m_pBackground->SetPosition(m_PositionClient);
+
+	UpdateViewport();
+}
+
 void JWEdit::SetSize(D3DXVECTOR2 Size)
 {
 	// If single line, set y size to single-line y size
@@ -404,16 +413,7 @@ void JWEdit::SetSize(D3DXVECTOR2 Size)
 
 	JWControl::SetSize(Size);
 
-	m_pBackground->SetSize(Size);
-
-	UpdateViewport();
-}
-
-void JWEdit::SetPosition(D3DXVECTOR2 Position)
-{
-	JWControl::SetPosition(Position);
-
-	m_pBackground->SetPosition(Position);
+	m_pBackground->SetSize(m_Size);
 
 	UpdateViewport();
 }

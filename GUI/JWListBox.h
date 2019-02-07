@@ -28,6 +28,7 @@ namespace JWENGINE
 
 		void Draw() override;
 
+		void SetBackgroundColor(DWORD Color) override;
 		void SetPosition(D3DXVECTOR2 Position) override;
 		void SetSize(D3DXVECTOR2 Size) override;
 
@@ -42,7 +43,7 @@ namespace JWENGINE
 
 		bool m_bShouldHaveScrollBar;
 
-		size_t m_SelectedItemIndex;
+		TIndex m_SelectedItemIndex;
 		float m_ItemOffsetY;
 	};
 };

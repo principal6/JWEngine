@@ -149,7 +149,7 @@ void JWTextButton::SetPosition(D3DXVECTOR2 Position)
 
 	if (m_pImage)
 	{
-		m_pImage->SetPosition(Position);
+		m_pImage->SetPosition(m_PositionClient);
 	}
 }
 
@@ -159,6 +159,6 @@ void JWTextButton::SetSize(D3DXVECTOR2 Size)
 
 	if (m_pImage)
 	{
-		m_pImage->SetSize(Size);
+		m_pImage->SetSize(m_Size);
 	}
 }

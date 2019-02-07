@@ -106,8 +106,9 @@ void JWCheckBox::Draw()
 void JWCheckBox::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
-	m_pBackground->SetPosition(Position);
-	m_pCheckImage->SetPosition(Position + m_ButtonImageOffset);
+
+	m_pBackground->SetPosition(m_PositionClient);
+	m_pCheckImage->SetPosition(m_PositionClient + m_ButtonImageOffset);
 }
 
 void JWCheckBox::SetSize(D3DXVECTOR2 Size)
@@ -122,7 +123,8 @@ void JWCheckBox::SetSize(D3DXVECTOR2 Size)
 	m_ButtonImageOffset.y = (Size.y - GUI_BUTTON_SIZE.y) / 2.0f;
 
 	JWControl::SetSize(Size);
-	m_pBackground->SetSize(Size);
+
+	m_pBackground->SetSize(m_Size);
 	m_pCheckImage->SetPosition(m_PositionClient + m_ButtonImageOffset);
 }
 

@@ -46,6 +46,7 @@ namespace JWENGINE
 	struct SWindowInputState
 	{
 		bool MouseLeftPressed;
+		bool MouseLeftReleased;
 		bool MouseRightPressed;
 		bool ControlPressed;
 		bool AltPressed;
@@ -53,7 +54,7 @@ namespace JWENGINE
 		POINT MousePosition;
 		POINT MouseDownPosition;
 
-		SWindowInputState() : MouseLeftPressed(false), MouseRightPressed(false),
+		SWindowInputState() : MouseLeftPressed(false), MouseLeftReleased(false), MouseRightPressed(false),
 			ControlPressed(false), AltPressed(false), ShiftPressed(false),
 			MousePosition({ 0, 0 }), MouseDownPosition({ 0, 0 }) {};
 	};

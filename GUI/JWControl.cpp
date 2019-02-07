@@ -35,6 +35,7 @@ void JWControl::SetSharedData(const SGUISharedData* SharedData)
 {
 	ms_pSharedData = SharedData;
 }
+
 auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
 	// Craete font
@@ -71,7 +72,7 @@ auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	{
 		return EError::FONT_NOT_CREATED;
 	}
-	
+
 	// Set control position and size.
 	m_PositionClient = Position;
 	m_Size = Size;
@@ -322,7 +323,9 @@ auto JWControl::GetState() const->EControlState
 
 auto JWControl::GetPosition()->D3DXVECTOR2
 {
-	return m_PositionClient;
+	D3DXVECTOR2 Result = m_PositionClient;
+
+	return Result;
 }
 
 auto JWControl::GetSize()->D3DXVECTOR2

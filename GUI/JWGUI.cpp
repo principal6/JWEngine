@@ -15,8 +15,11 @@ static auto CreateTexture(const WSTRING& Filename, LPDIRECT3DDEVICE9 pDevice,
 JWGUI::JWGUI()
 {
 	m_pControlWithFocus = nullptr;
+	m_pMenuBar = nullptr;
 
 	m_pfMainLoop = nullptr;
+
+	m_bHasMenuBar = false;
 }
 
 auto JWGUI::Create(JWWindow* pWindow)->EError
@@ -85,6 +88,20 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 {
 	THandle Result = 0;
 
+	if (m_bHasMenuBar)
+	{
+		if (Type == EControlType::MenuBar)
+		{
+			// If JWGUI already has a menubar, you can't add another one.
+			return THandle_Null;
+		}
+		else
+		{
+			// Adjust y position of every other control.
+			Position.y += m_pMenuBar->GetSize().y;
+		}
+	}
+
 	switch (Type)
 	{
 	case JWENGINE::TextButton:
@@ -111,13 +128,18 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 	case JWENGINE::ListBox:
 		m_Controls.push_back(new JWListBox);
 		break;
+	case JWENGINE::MenuBar:
+		m_Controls.push_back(new JWMenuBar);
+		m_bHasMenuBar = true;
+		m_pMenuBar = m_Controls[m_Controls.size() - 1];
+		break;
 	default:
-		return NULL_HANDLE;
+		return THandle_Null;
 		break;
 	}
 	
 	if (JW_FAILED(m_Controls[m_Controls.size() - 1]->Create(Position, Size)))
-		return NULL_HANDLE;
+		return THandle_Null;
 
 	if (Text.length())
 	{
@@ -128,9 +150,9 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 	return Result;
 }
 
-auto JWGUI::GetControlPointer(const THandle ControlHandle)->JWControl*
+auto JWGUI::GetControlPtr(const THandle ControlHandle)->JWControl*
 {
-	if (ControlHandle == NULL_HANDLE)
+	if (ControlHandle == THandle_Null)
 	{
 		return nullptr;
 	}
@@ -173,22 +195,65 @@ PRIVATE void JWGUI::MainLoop()
 	JWControl* pControlWithMouse = nullptr;
 	JWControl* pControlWithNewFocus = nullptr;
 
-	for (JWControl* iterator : m_Controls)
+	if (m_pMenuBar)
 	{
-		// A control that has mouse pointer on must be only one
-		if (iterator->IsMouseOver(m_MouseData))
+		if (m_pMenuBar->IsMouseOver(m_MouseData))
 		{
-			if (pControlWithMouse)
+			pControlWithMouse = m_pMenuBar;
+
+			for (JWControl* iterator : m_Controls)
 			{
-				pControlWithMouse->SetState(EControlState::Normal);
+				if (iterator != m_pMenuBar)
+				{
+					iterator->SetState(EControlState::Normal);
+				}
 			}
-			pControlWithMouse = iterator;
 		}
 		else
 		{
-			iterator->UpdateControlState(m_MouseData); // To give mouse data to the controls
+			m_pMenuBar->UpdateControlState(m_MouseData);
+
+			for (JWControl* iterator : m_Controls)
+			{
+				if (iterator != m_pMenuBar)
+				{
+					// A control that has mouse pointer on must be only one
+					if (iterator->IsMouseOver(m_MouseData))
+					{
+						if (pControlWithMouse)
+						{
+							pControlWithMouse->SetState(EControlState::Normal);
+						}
+						pControlWithMouse = iterator;
+					}
+					else
+					{
+						iterator->UpdateControlState(m_MouseData); // To give mouse data to the controls
+					}
+				}
+			}
 		}
 	}
+	else
+	{
+		for (JWControl* iterator : m_Controls)
+		{
+			// A control that has mouse pointer on must be only one
+			if (iterator->IsMouseOver(m_MouseData))
+			{
+				if (pControlWithMouse)
+				{
+					pControlWithMouse->SetState(EControlState::Normal);
+				}
+				pControlWithMouse = iterator;
+			}
+			else
+			{
+				iterator->UpdateControlState(m_MouseData); // To give mouse data to the controls
+			}
+		}
+	}
+	
 
 	// Mouse cursor is on a control
 	if (pControlWithMouse)
@@ -287,7 +352,16 @@ void JWGUI::DrawAllControls()
 {
 	for (JWControl* iterator : m_Controls)
 	{
-		iterator->Draw();
+		if (iterator != m_pMenuBar)
+		{
+			iterator->Draw();
+		}
+	}
+
+	// If there is a menu bar, it should be drawn on top of any other controls.
+	if (m_pMenuBar)
+	{
+		m_pMenuBar->Draw();
 	}
 }
 

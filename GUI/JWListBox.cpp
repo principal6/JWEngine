@@ -16,7 +16,7 @@ JWListBox::JWListBox()
 
 	m_bShouldHaveScrollBar = false;
 
-	m_SelectedItemIndex = JW_NOT_SPECIFIED;
+	m_SelectedItemIndex = TIndex_NotSpecified;
 }
 
 auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -25,7 +25,7 @@ auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		return EError::CONTROL_NOT_CREATED;
 
 	// Set control type
-	m_Type = EControlType::Label;
+	m_Type = EControlType::ListBox;
 
 	// Set default color
 	m_pFont->SetBoxAlpha(0);
@@ -260,6 +260,12 @@ void JWListBox::Draw()
 	}
 
 	JWControl::EndDrawing();
+}
+
+void JWListBox::SetBackgroundColor(DWORD Color)
+{
+	m_pBackground->SetAlpha(GetColorAlpha(Color));
+	m_pBackground->SetXRGB(GetColorXRGB(Color));
 }
 
 void JWListBox::SetPosition(D3DXVECTOR2 Position)

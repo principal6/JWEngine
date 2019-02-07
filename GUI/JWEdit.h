@@ -24,8 +24,8 @@ namespace JWENGINE
 
 		void Focus() override;
 
-		void SetSize(D3DXVECTOR2 Size) override;
 		void SetPosition(D3DXVECTOR2 Position) override;
+		void SetSize(D3DXVECTOR2 Size) override;
 		void SetUseMultiline(bool Value) override;
 
 		void OnKeyDown(WPARAM VirtualKeyCode) override;

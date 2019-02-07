@@ -235,12 +235,12 @@ void JWImageButton::SetPosition(D3DXVECTOR2 Position)
 
 	if (m_pBackground)
 	{
-		m_pBackground->SetPosition(Position);
+		m_pBackground->SetPosition(m_PositionClient);
 	}
 	
 	if (m_pButtonImage)
 	{
-		m_pButtonImage->SetPosition(Position + m_ButtonImagePositionOffset);
+		m_pButtonImage->SetPosition(m_PositionClient + m_ButtonImagePositionOffset);
 	}
 }
 
@@ -255,11 +255,11 @@ void JWImageButton::SetSize(D3DXVECTOR2 Size)
 	m_ButtonImagePositionOffset.x = (Size.x - m_ButtonSizeInTexture.x) / 2.0f;
 	m_ButtonImagePositionOffset.y = (Size.y - m_ButtonSizeInTexture.y) / 2.0f;
 
-	JWControl::SetSize(Size);
+	JWControl::SetSize(m_Size);
 
 	if (m_pBackground)
 	{
-		m_pBackground->SetSize(Size);
+		m_pBackground->SetSize(m_Size);
 	}
 
 	if (m_pButtonImage)

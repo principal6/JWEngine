@@ -93,7 +93,8 @@ void JWRadioBox::Draw()
 void JWRadioBox::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
-	m_pBackground->SetPosition(Position);
+
+	m_pBackground->SetPosition(m_PositionClient);
 }
 
 void JWRadioBox::SetCheckState(bool Value)
