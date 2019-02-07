@@ -140,7 +140,7 @@ namespace JWENGINE
 		virtual void ShouldUseViewport(bool Value);
 		virtual void SetCheckState(bool Value) {}; // CheckBox / RadioBox
 		virtual auto GetCheckState() const->bool { return true; }; // CheckBox / RadioBox
-		virtual void SetScrollRange(size_t Max) {}; // ScrollBar
+		virtual void SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount) {}; // ScrollBar
 		virtual void SetScrollPosition(size_t Position) {}; // ScrollBar
 		virtual auto GetScrollRange() const->size_t { return 0; } // ScrollBar
 		virtual auto GetScrollPosition() const->size_t { return 0; } // ScrollBar

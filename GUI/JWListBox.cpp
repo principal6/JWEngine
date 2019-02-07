@@ -118,7 +118,7 @@ void JWListBox::UpdateScrollBarData()
 		size_t item_count_in_size = static_cast<size_t>(m_Size.y / DEFUALT_ITEM_HEIGHT);
 		size_t item_rest = m_pItems.size() - item_count_in_size;
 		
-		m_pScrollBar->SetScrollRange(item_rest);
+		m_pScrollBar->SetScrollRange(item_count_in_size, m_pItems.size());
 
 		D3DXVECTOR2 scrollbar_size = m_Size;
 		scrollbar_size.x = 10.0f;

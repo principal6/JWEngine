@@ -29,7 +29,7 @@ namespace JWENGINE
 		void SetPosition(D3DXVECTOR2 Position) override;
 		void SetSize(D3DXVECTOR2 Size) override;
 		void SetState(EControlState State) override; // Must override
-		void SetScrollRange(size_t Max) override;
+		void SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount) override;
 		void SetScrollPosition(size_t Position) override;
 
 		auto GetScrollRange() const->size_t override;
@@ -60,12 +60,14 @@ namespace JWENGINE
 
 		// m_ScrollerPosition range = [GUI_BUTTON_SIZE, m_ScrollableRest]
 		D3DXVECTOR2 m_ScrollerPosition;
-		D3DXVECTOR2 m_CapturedScrollerPosition;
 		bool m_bScrollerCaptured;
 
 		// Scroll range = [0, ScrollMax]
 		size_t m_ScrollMax;
+		size_t m_VisibleUnitCount;
+		size_t m_TotalUnitCount;
 		size_t m_ScrollPosition;
+		size_t m_CapturedScrollPosition;
 		float m_ScrollableSize;
 		float m_ScrollableRest;
 	};

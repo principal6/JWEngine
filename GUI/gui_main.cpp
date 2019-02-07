@@ -41,19 +41,20 @@ int main()
 
 		THandle sb1 = myGUI.AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 0), D3DXVECTOR2(160, 20));
 		myGUI.GetControlPointer(sb1)->MakeScrollBar(EScrollBarDirection::Horizontal);
-		myGUI.GetControlPointer(sb1)->SetScrollRange(3);
+		myGUI.GetControlPointer(sb1)->SetScrollRange(3, 5);
 		myGUI.GetControlPointer(sb1)->SetScrollPosition(0);
 
 		THandle sb2 = myGUI.AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 100), D3DXVECTOR2(20, 160));
 		myGUI.GetControlPointer(sb2)->MakeScrollBar(EScrollBarDirection::Vertical);
-		myGUI.GetControlPointer(sb2)->SetScrollRange(30);
+		myGUI.GetControlPointer(sb2)->SetScrollRange(20, 30);
 		myGUI.GetControlPointer(sb2)->SetScrollPosition(1);
 
-		THandle lb1 = myGUI.AddControl(EControlType::ListBox, D3DXVECTOR2(400, 100), D3DXVECTOR2(100, 160));
+		THandle lb1 = myGUI.AddControl(EControlType::ListBox, D3DXVECTOR2(400, 100), D3DXVECTOR2(100, 60));
 		myGUI.GetControlPointer(lb1)->AddTextItem(L"1. 가나다라");
 		myGUI.GetControlPointer(lb1)->AddTextItem(L"2. ABCD");
 		myGUI.GetControlPointer(lb1)->AddTextItem(L"3. abecede");
 		myGUI.GetControlPointer(lb1)->AddTextItem(L"4. aiueo");
+		myGUI.GetControlPointer(lb1)->AddTextItem(L"5. ..?");
 
 		myGUI.SetMainLoopFunction(MainLoop);
 
