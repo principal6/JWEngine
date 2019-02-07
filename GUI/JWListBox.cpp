@@ -128,6 +128,19 @@ void JWListBox::UpdateScrollBarData()
 		scrollbar_position.x += m_Size.x;
 		scrollbar_position.x -= m_pScrollBar->GetSize().x;
 		m_pScrollBar->SetPosition(scrollbar_position);
+
+		// Update items' width
+		if (m_pItems.size())
+		{
+			D3DXVECTOR2 item_size = D3DXVECTOR2(0, 0);
+			for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
+			{
+				item_size.x = m_Size.x - m_pScrollBar->GetSize().x - 1.0f;
+				item_size.y = m_pItems[iterator]->GetSize().y;
+
+				m_pItems[iterator]->SetSize(item_size);
+			}
+		}
 	}
 	else
 	{
@@ -144,6 +157,33 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 	if (!m_bShouldHaveScrollBar)
 	{
 		m_pScrollBar->SetState(EControlState::Normal);
+	}
+	else
+	{
+		if (IsMouseOver(MouseData))
+		{
+			// We use mouse wheel scroll only when the mouse is over the control.
+			if (MouseData.MouseWheeled)
+			{
+				long long current_scroll_position = m_pScrollBar->GetScrollPosition();
+
+				if (MouseData.MouseWheeled > 0)
+				{
+					current_scroll_position--;
+					current_scroll_position = max(current_scroll_position, 0);
+
+					m_pScrollBar->SetScrollPosition(current_scroll_position);
+				}
+				else
+				{
+					current_scroll_position++;
+
+					m_pScrollBar->SetScrollPosition(current_scroll_position);
+				}
+
+				m_pScrollBar->SetState(EControlState::Hover);
+			}
+		}
 	}
 
 	if (m_pScrollBar->GetState() == EControlState::Normal)

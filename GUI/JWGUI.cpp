@@ -142,6 +142,8 @@ auto JWGUI::GetControlPointer(const THandle ControlHandle)->JWControl*
 
 PRIVATE void JWGUI::HandleMessage()
 {
+	m_MouseData.MouseWheeled = 0;
+
 	switch (m_MSG.message)
 	{
 	case WM_MOUSEMOVE:
