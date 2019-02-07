@@ -241,13 +241,13 @@ auto JWImage::SetAlpha(BYTE Alpha)->JWImage*
 	return this;
 }
 
-auto JWImage::SetXRGB(DWORD Color)->JWImage*
+auto JWImage::SetXRGB(DWORD XRGB)->JWImage*
 {
 	if(m_Vertices.size())
 	{
 		for (SVertexImage& iterator : m_Vertices)
 		{
-			SetColorXRGB(&iterator.color, Color);
+			SetColorXRGB(&iterator.color, XRGB);
 		}
 		UpdateVertexBuffer();
 	}

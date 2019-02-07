@@ -51,18 +51,19 @@ namespace JWENGINE
 		void SetVerticalAlignment(EVerticalAlignment Alignment);
 
 		// Font color
-		void SetFontAlpha(BYTE Alpha);
-		void SetFontXRGB(DWORD XRGB);
+		void SetFontColor(DWORD Color);
 
 		// Box color
-		void SetBoxAlpha(BYTE Alpha);
-		void SetBoxXRGB(DWORD XRGB);
+		void SetBoxColor(DWORD Color);
 
 		// Text
 		void ClearText();
-		auto SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize)->EError;
+		auto SetText(WSTRING MultilineText, D3DXVECTOR2 Position, D3DXVECTOR2 BoxSize, bool bUseConstraint = false)->EError;
 		auto GetTextLength() const->size_t;
+
+		// SetUseMultiline() is only available in JWEdit control
 		void SetUseMultiline(bool Value);
+		
 		auto GetUseMultiline() const->bool;
 		auto GetCharIndexByMousePosition(POINT Position) const->size_t;
 		auto GetCharXPosition(size_t CharIndex) const->float;
@@ -100,6 +101,7 @@ namespace JWENGINE
 		
 		// Draw
 		void Draw() const;
+		void DrawInstantText(WSTRING SingleLineText, D3DXVECTOR2 Position, EHorizontalAlignment HorizontalAlignment = EHorizontalAlignment::Left);
 
 	private:
 		auto CreateMaxVertexIndexBuffer()->EError;

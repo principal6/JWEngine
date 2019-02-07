@@ -39,7 +39,7 @@ auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	m_Type = EControlType::MenuBar;
 
 	// Set default color
-	m_pFont->SetBoxAlpha(0);
+	m_pFont->SetBoxColor(GetMixedColor(0, DEFAULT_COLOR_NORMAL));
 
 	// Create image for background
 	if (m_pBackground = new JWImage)

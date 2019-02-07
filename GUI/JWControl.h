@@ -115,8 +115,7 @@ namespace JWENGINE
 		virtual void SetAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment);
 		virtual void SetHorizontalAlignment(EHorizontalAlignment Alignment);
 		virtual void SetVerticalAlignment(EVerticalAlignment Alignment);
-		virtual void SetFontAlpha(BYTE Alpha);
-		virtual void SetFontXRGB(DWORD XRGB);
+		virtual void SetFontColor(DWORD Color);
 
 		// Focus
 		virtual void Focus();
@@ -149,7 +148,10 @@ namespace JWENGINE
 		virtual void SetScrollPosition(size_t Position) {}; // ScrollBar
 		virtual auto GetScrollRange() const->size_t { return 0; } // ScrollBar
 		virtual auto GetScrollPosition() const->size_t { return 0; } // ScrollBar
-		virtual void SetUseMultiline(bool Value) {}; // Edit
+
+		// SetUseMultiline() is available only for JWEdit or JWLabel control
+		virtual void SetUseMultiline(bool Value) {}; // Edit, Label
+
 		virtual void AddTextItem(WSTRING Text) {}; // ListBox
 		virtual auto AddMenuBarItem(WSTRING Text)->THandleItem { return THandle_Null; }; // MenuBar
 

@@ -42,7 +42,7 @@ namespace JWENGINE
 		virtual void SetTexture(WSTRING FileName);
 		virtual void SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo);
 		virtual auto SetAlpha(BYTE Alpha)->JWImage*;
-		virtual auto SetXRGB(DWORD Color)->JWImage*;
+		virtual auto SetXRGB(DWORD XRGB)->JWImage*;
 		virtual auto SetScale(D3DXVECTOR2 Scale)->JWImage*;
 		virtual auto SetVisibleRange(D3DXVECTOR2 Range)->JWImage*;
 		virtual auto SetAtlasUV(D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 Size,

@@ -82,8 +82,8 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	}
 
 	// Set default color
-	m_pFont->SetFontXRGB(DEFAULT_COLOR_FONT_EDIT);
-	m_pFont->SetBoxAlpha(0);
+	m_pFont->SetFontColor(DEFAULT_COLOR_FONT_EDIT);
+	m_pFont->SetBoxColor(GetMixedColor(0, DEFAULT_COLOR_NORMAL));
 
 	// Set borderline color
 	m_pBorderLine->SetBoxColor(DEFAULT_COLOR_PRESSED, DEFAULT_COLOR_DARK_HIGHLIGHT);
@@ -246,7 +246,7 @@ PRIVATE void JWEdit::UpdateText()
 	text_size.x -= EDIT_PADDING_X * 2;
 	text_size.y -= EDIT_PADDING_Y * 2;
 
-	m_pFont->SetText(m_Text, text_position, text_size);
+	m_pFont->SetText(m_Text, text_position, text_size, true);
 }
 
 PRIVATE void JWEdit::UpdateCaretAndSelection()
@@ -325,7 +325,7 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 				SelectionPosition.x = SelStartXPosition;
 				SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(sel_start_line_index) + EDIT_PADDING_Y;
 
-				SelectionSize.x = m_pFont->GetLineWidthByCharIndex(m_SelStart) - SelStartXPosition + m_PositionClient.x;
+				SelectionSize.x = m_pFont->GetLineWidthByCharIndex(m_SelStart) - SelStartXPosition + m_PositionClient.x + EDIT_PADDING_X;
 				SelectionSize.y = m_pFont->GetLineHeight();
 
 				m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
@@ -352,10 +352,14 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 						SelectionPosition.x = m_PositionClient.x;
 						SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(iterator_line) + EDIT_PADDING_Y;
 
-						SelectionSize.x = m_pFont->GetLineWidth(iterator_line) + 1.0f;
+						SelectionSize.x = m_pFont->GetLineWidth(iterator_line) + EDIT_PADDING_X;
 						SelectionSize.y = m_pFont->GetLineHeight();
 
-						m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
+						// Add selection box only when it's inside the Edit control's visible region.
+						if ((SelectionPosition.y >= m_PositionClient.y) && (SelectionPosition.y <= m_PositionClient.y + m_Size.y))
+						{
+							m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
+						}
 					}
 				}
 			}

@@ -306,14 +306,9 @@ void JWControl::SetVerticalAlignment(EVerticalAlignment Alignment)
 	m_pFont->SetVerticalAlignment(Alignment);
 }
 
-void JWControl::SetFontAlpha(BYTE Alpha)
+void JWControl::SetFontColor(DWORD Color)
 {
-	m_pFont->SetFontAlpha(Alpha);
-}
-
-void JWControl::SetFontXRGB(DWORD XRGB)
-{
-	m_pFont->SetFontXRGB(XRGB);
+	m_pFont->SetFontColor(Color);
 }
 
 auto JWControl::GetState() const->EControlState

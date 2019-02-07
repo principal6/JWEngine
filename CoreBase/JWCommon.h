@@ -309,6 +309,16 @@ namespace JWENGINE
 		*Color = ((*Color >> 24) << 24) | ((XRGB << 8) >> 8);
 	}
 
+	inline auto GetMixedColor(BYTE Alpha, DWORD XRGB)->const DWORD
+	{
+		DWORD new_color;
+		
+		SetColorAlpha(&new_color, Alpha);
+		SetColorXRGB(&new_color, XRGB);
+
+		return new_color;
+	}
+
 	inline auto GetColorR(DWORD Color)->BYTE { return ((Color << 8) >> 24); }
 
 	inline auto GetColorG(DWORD Color)->BYTE { return ((Color << 16) >> 24); }

@@ -20,8 +20,7 @@ auto JWLabel::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	m_Type = EControlType::Label;
 
 	// Set default background color
-	m_pFont->SetBoxAlpha(DEFUALT_ALPHA_BACKGROUND_LABEL);
-	m_pFont->SetBoxXRGB(DEFAULT_COLOR_BACKGROUND_LABEL);
+	m_pFont->SetBoxColor(GetMixedColor(DEFUALT_ALPHA_BACKGROUND_LABEL, DEFAULT_COLOR_BACKGROUND_LABEL));
 
 	// Set control's size and position.
 	SetSize(Size);
@@ -37,13 +36,13 @@ void JWLabel::Draw()
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
-		m_pFont->SetBoxXRGB(m_Color_Normal);
+		m_pFont->SetBoxColor(m_Color_Normal);
 		break;
 	case JWENGINE::Hover:
-		m_pFont->SetBoxXRGB(m_Color_Hover);
+		m_pFont->SetBoxColor(m_Color_Hover);
 		break;
 	case JWENGINE::Pressed:
-		m_pFont->SetBoxXRGB(m_Color_Pressed);
+		m_pFont->SetBoxColor(m_Color_Pressed);
 		break;
 	case JWENGINE::Clicked:
 		break;
@@ -57,14 +56,9 @@ void JWLabel::Draw()
 	JWControl::EndDrawing();
 }
 
-void JWLabel::SetBackgroundAlpha(BYTE Alpha)
+void JWLabel::SetBackgroundColor(DWORD Color)
 {
-	m_pFont->SetBoxAlpha(Alpha);
-}
-
-void JWLabel::SetBackgroundXRGB(DWORD XRGB)
-{
-	m_pFont->SetBoxXRGB(XRGB);
+	m_pFont->SetBoxColor(Color);
 }
 
 void JWLabel::SetPosition(D3DXVECTOR2 Position)
@@ -79,4 +73,10 @@ void JWLabel::SetSize(D3DXVECTOR2 Size)
 	JWControl::SetSize(Size);
 
 	m_pFont->SetText(m_Text, m_PositionClient, m_Size);
+}
+
+void JWLabel::SetUseMultiline(bool Value)
+{
+	m_pFont->SetUseMultiline(Value);
+	UpdateText();
 }

@@ -30,7 +30,8 @@ int main()
 
 		THandle checkbox1 = myGUI.AddControl(EControlType::CheckBox, D3DXVECTOR2(250, 0), D3DXVECTOR2(50, 50));
 
-		THandle label1 = myGUI.AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 40), L"레이블입니다");
+		THandle label1 = myGUI.AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 40), L"레이블입니다!\n두 줄!");
+		myGUI.GetControlPtr(label1)->SetUseMultiline(true);
 		myGUI.GetControlPtr(label1)->SetVerticalAlignment(EVerticalAlignment::Middle);
 
 		THandle edit1 = myGUI.AddControl(EControlType::Edit, D3DXVECTOR2(100, 140), D3DXVECTOR2(160, 0),
