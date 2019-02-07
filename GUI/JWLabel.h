@@ -14,8 +14,6 @@ namespace JWENGINE
 
 		void Draw() override;
 
-		void SetBackgroundColor(DWORD Color);
-
 		void SetPosition(D3DXVECTOR2 Position) override;
 		void SetSize(D3DXVECTOR2 Size) override;
 		void SetUseMultiline(bool Value) override;

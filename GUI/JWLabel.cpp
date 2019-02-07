@@ -56,11 +56,6 @@ void JWLabel::Draw()
 	JWControl::EndDrawing();
 }
 
-void JWLabel::SetBackgroundColor(DWORD Color)
-{
-	m_pFont->SetBoxColor(Color);
-}
-
 void JWLabel::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);

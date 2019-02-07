@@ -14,6 +14,7 @@
 #include "JWScrollBar.h"
 #include "JWListBox.h"
 #include "JWMenuBar.h"
+#include "JWImageBox.h"
 
 // @WARNING: ONE GUI PER ONE WINDOW!!
 
@@ -40,6 +41,8 @@ namespace JWENGINE
 		void SetMainLoopFunction(PF_MAINLOOP pfMainLoop);
 
 		void DrawAllControls();
+
+		auto CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* pTexture, D3DXIMAGE_INFO* pInfo)->EError;
 
 	private:
 		void MainLoop();

@@ -26,6 +26,7 @@ namespace JWENGINE
 		ScrollBar,
 		ListBox,
 		MenuBar,
+		ImageBox,
 	};
 
 	enum EControlState
@@ -129,8 +130,8 @@ namespace JWENGINE
 		virtual void SetText(WSTRING Text);
 		virtual void SetBorderColor(DWORD Color);
 		virtual void SetBorderColor(DWORD ColorA, DWORD ColorB);
-		virtual void SetBackgroundColor(DWORD Color) {};
-		
+		virtual void SetBackgroundColor(DWORD Color);
+
 		// Getter
 		virtual auto GetState() const->EControlState;
 		virtual auto GetPosition()->D3DXVECTOR2;
@@ -140,6 +141,8 @@ namespace JWENGINE
 		virtual auto GetClientMouseDownPosition() const->POINT;
 
 		// Property setter/getter
+		virtual void SetTextureAtlas(LPDIRECT3DTEXTURE9 pTextureAtlas, D3DXIMAGE_INFO* pTextureAtlasInfo) {}; // ImageBox
+		virtual void SetAtlasUV(D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 Size) {}; // ImageBox
 		virtual void ShouldDrawBorder(bool Value);
 		virtual void ShouldUseViewport(bool Value);
 		virtual void SetCheckState(bool Value) {}; // CheckBox / RadioBox
@@ -152,7 +155,9 @@ namespace JWENGINE
 		// SetUseMultiline() is available only for JWEdit or JWLabel control
 		virtual void SetUseMultiline(bool Value) {}; // Edit, Label
 
-		virtual void AddTextItem(WSTRING Text) {}; // ListBox
+		virtual void UseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo) {}; // ListBox
+		virtual void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0), D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0)) {}; // ListBox
+		virtual void SetMinimumItemHeight(float Value) {}; // ListBox
 		virtual auto AddMenuBarItem(WSTRING Text)->THandleItem { return THandle_Null; }; // MenuBar
 
 	protected:

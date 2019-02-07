@@ -281,6 +281,13 @@ void JWControl::SetBorderColor(DWORD ColorA, DWORD ColorB)
 	m_pBorderLine->SetBoxColor(ColorA, ColorB);
 }
 
+void JWControl::SetBackgroundColor(DWORD Color)
+{
+	m_Color_Normal = Color;
+	m_Color_Hover = Color;
+	m_Color_Pressed = Color;
+}
+
 void JWControl::Focus()
 {
 	m_bHasFocus = true;

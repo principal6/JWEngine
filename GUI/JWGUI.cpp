@@ -2,16 +2,6 @@
 
 using namespace JWENGINE;
 
-static auto CreateTexture(const WSTRING& Filename, LPDIRECT3DDEVICE9 pDevice,
-	LPDIRECT3DTEXTURE9* pTexture, D3DXIMAGE_INFO* pInfo)->EError
-{
-	if (FAILED(D3DXCreateTextureFromFileEx(pDevice, Filename.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-		D3DX_DEFAULT, D3DX_DEFAULT, 0, pInfo, nullptr, pTexture)))
-		return EError::TEXTURE_NOT_CREATED;
-
-	return EError::OK;
-}
-
 JWGUI::JWGUI()
 {
 	m_pControlWithFocus = nullptr;
@@ -37,12 +27,7 @@ auto JWGUI::Create(JWWindow* pWindow)->EError
 	std::wcout << m_SharedData.BaseDir.c_str() << std::endl;
 
 	// Create shared texture
-	WSTRING texture_filename;
-	texture_filename = m_SharedData.BaseDir;
-	texture_filename += ASSET_DIR;
-	texture_filename += GUI_TEXTURE_FILENAME;
-	if (JW_FAILED(CreateTexture(texture_filename, m_SharedData.pWindow->GetDevice(),
-		&m_SharedData.Texture_GUI, &m_SharedData.Texture_GUI_Info)))
+	if (JW_FAILED(CreateTexture(GUI_TEXTURE_FILENAME, &m_SharedData.Texture_GUI, &m_SharedData.Texture_GUI_Info)))
 		return EError::TEXTURE_NOT_CREATED;
 
 	JWControl temp_control_to_set_shared_data;
@@ -132,6 +117,9 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 		m_Controls.push_back(new JWMenuBar);
 		m_bHasMenuBar = true;
 		m_pMenuBar = m_Controls[m_Controls.size() - 1];
+		break;
+	case JWENGINE::ImageBox:
+		m_Controls.push_back(new JWImageBox);
 		break;
 	default:
 		return THandle_Null;
@@ -368,4 +356,18 @@ void JWGUI::DrawAllControls()
 void JWGUI::SetMainLoopFunction(PF_MAINLOOP pfMainLoop)
 {
 	m_pfMainLoop = pfMainLoop;
+}
+
+auto JWGUI::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* pTexture, D3DXIMAGE_INFO* pInfo)->EError
+{
+	WSTRING texture_filename;
+	texture_filename = m_SharedData.BaseDir;
+	texture_filename += ASSET_DIR;
+	texture_filename += Filename;
+
+	if (FAILED(D3DXCreateTextureFromFileEx(m_SharedData.pWindow->GetDevice(), texture_filename.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
+		D3DX_DEFAULT, D3DX_DEFAULT, 0, pInfo, nullptr, pTexture)))
+		return EError::TEXTURE_NOT_CREATED;
+
+	return EError::OK;
 }

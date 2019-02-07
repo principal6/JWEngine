@@ -3,11 +3,15 @@
 #include "../CoreBase/JWImage.h"
 #include "JWLabel.h"
 #include "JWScrollBar.h"
+#include "JWImageBox.h"
 
 using namespace JWENGINE;
 
 // Static const
-const float JWListBox::DEFUALT_ITEM_HEIGHT = 20.0f;
+const float JWListBox::MINIMUM_ITEM_HEIGHT = 16.0f;
+const float JWListBox::DEFAULT_ITEM_HEIGHT = 22.0f;
+const float JWListBox::DEFAULT_ITEM_PADDING_X = 1.0f;
+const float JWListBox::DEFAULT_ITEM_PADDING_Y = 1.0f;
 
 JWListBox::JWListBox()
 {
@@ -15,8 +19,13 @@ JWListBox::JWListBox()
 	m_bShouldDrawBorder = true;
 
 	m_bShouldHaveScrollBar = false;
+	m_bUseImageItems = false;
 
 	m_SelectedItemIndex = TIndex_NotSpecified;
+
+	m_pTextureForImageItem = nullptr;
+
+	m_MinimumItemHeight = DEFAULT_ITEM_HEIGHT;
 }
 
 auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
@@ -68,11 +77,11 @@ auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 
 void JWListBox::Destroy()
 {
-	if (m_pItems.size())
+	if (m_pTextItems.size())
 	{
-		for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
+		for (size_t iterator = 0; iterator < m_pTextItems.size(); iterator++)
 		{
-			JW_DESTROY(m_pItems[iterator]);
+			JW_DESTROY(m_pTextItems[iterator]);
 		}
 	}
 
@@ -82,43 +91,128 @@ void JWListBox::Destroy()
 	JWControl::Destroy();
 }
 
-void JWListBox::AddTextItem(WSTRING Text)
+void JWListBox::SetMinimumItemHeight(float Value)
+{
+	m_MinimumItemHeight = Value;
+	m_MinimumItemHeight = max(m_MinimumItemHeight, MINIMUM_ITEM_HEIGHT);
+}
+
+void JWListBox::UseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo)
+{
+	m_bUseImageItems = true;
+
+	m_pTextureForImageItem = pTexture;
+	m_pTextureForImageItemInfo = pInfo;
+}
+
+void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 SizeInAtlas)
 {
 	Text = L" " + Text;
-	size_t item_index = m_pItems.size();
+	size_t item_index = m_pTextItems.size();
 	
-	JWLabel* new_item = new JWLabel;
 	D3DXVECTOR2 item_position = D3DXVECTOR2(0, 0);
 	D3DXVECTOR2 item_size = D3DXVECTOR2(0, 0);
 	item_position = m_PositionClient;
-	item_position.x += 1.0f;
-	item_position.y += 1.0f + static_cast<float>(DEFUALT_ITEM_HEIGHT * item_index);
-	item_size.x = m_Size.x - 1.0f;
-	item_size.y = DEFUALT_ITEM_HEIGHT;
+	item_position.x += DEFAULT_ITEM_PADDING_X;
+	item_position.y += DEFAULT_ITEM_PADDING_Y;
+	if (item_index)
+	{
+		item_position.y = m_ItemInfo[item_index - 1].ItemPosition.y + m_ItemInfo[item_index - 1].ItemSize.y;
+	}
+	item_size.x = m_Size.x - DEFAULT_ITEM_PADDING_Y;
+	item_size.y = m_MinimumItemHeight;
 
-	new_item->Create(item_position, item_size);
-	new_item->SetText(Text);
-	new_item->SetVerticalAlignment(EVerticalAlignment::Middle);
-	new_item->SetStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
-	new_item->SetStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_BLACK);
-	new_item->SetStateColor(EControlState::Pressed, DEFAULT_COLOR_LESS_BLACK);
-	new_item->ShouldUseViewport(false);
+	// Add image item
+	if (m_bUseImageItems)
+	{
+		JWImageBox* new_image_item = new JWImageBox;
 
-	m_pItems.push_back(new_item);
+		D3DXVECTOR2 image_item_size = item_size;
+		image_item_size.y = SizeInAtlas.y;
+
+		if (image_item_size.y > item_size.y)
+		{
+			item_size.y = image_item_size.y;
+		}
+
+		new_image_item->Create(item_position, image_item_size);
+		new_image_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));
+		new_image_item->SetTextureAtlas(m_pTextureForImageItem, m_pTextureForImageItemInfo);
+		new_image_item->SetAtlasUV(OffsetInAtlas, SizeInAtlas);
+		new_image_item->ShouldUseViewport(false);
+
+		m_pImageItems.push_back(new_image_item);
+	}
+
+	// Add text item
+	JWLabel* new_text_item = new JWLabel;
+
+	D3DXVECTOR2 text_item_position = item_position;
+	text_item_position.x += SizeInAtlas.x;
+
+	D3DXVECTOR2 text_item_size = item_size;
+	text_item_size.x -= SizeInAtlas.x;
+
+	new_text_item->Create(text_item_position, text_item_size);
+	new_text_item->SetText(Text);
+	new_text_item->SetVerticalAlignment(EVerticalAlignment::Middle);
+	new_text_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));
+	new_text_item->ShouldUseViewport(false);
+
+	m_pTextItems.push_back(new_text_item);
+
+
+	// Add item's background
+	JWImageBox* new_item_background = new JWImageBox;
+	new_item_background->Create(item_position, item_size);
+	new_item_background->ShouldUseViewport(false);
+	new_item_background->SetStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
+	new_item_background->SetStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_BLACK);
+	new_item_background->SetStateColor(EControlState::Pressed, DEFAULT_COLOR_LESS_BLACK);
+
+	m_pItemBackground.push_back(new_item_background);
+
+
+	// Add item info
+	SListBoxItemInfo new_info;
+	new_info.ItemPosition = item_position;
+	new_info.ItemSize = item_size;
+	new_info.ImageItemSize = SizeInAtlas;
+
+	m_ItemInfo.push_back(new_info);
 
 	UpdateScrollBarData();
 }
 
 void JWListBox::UpdateScrollBarData()
 {
-	if (static_cast<float>(1.0f + DEFUALT_ITEM_HEIGHT * m_pItems.size()) >= m_Size.y)
-	{
-		m_bShouldHaveScrollBar = true;
+	m_bShouldHaveScrollBar = false;
 
-		size_t item_count_in_size = static_cast<size_t>(m_Size.y / DEFUALT_ITEM_HEIGHT);
-		size_t item_rest = m_pItems.size() - item_count_in_size;
+	float item_y_size_sum = 0;
+	size_t item_count_in_size = 0;
+
+	if (m_ItemInfo.size())
+	{
+		for (size_t iterator = 0; iterator < m_ItemInfo.size(); iterator++)
+		{
+			item_y_size_sum += m_ItemInfo[iterator].ItemSize.y;
+
+			if (item_y_size_sum >= m_Size.y)
+			{
+				if (!m_bShouldHaveScrollBar)
+				{
+					m_bShouldHaveScrollBar = true;
+					item_count_in_size = iterator - 1;
+				}
+			}
+		}
+	}
+
+	if (m_bShouldHaveScrollBar)
+	{
+		size_t item_rest = m_ItemInfo.size() - item_count_in_size;
 		
-		m_pScrollBar->SetScrollRange(item_count_in_size, m_pItems.size());
+		m_pScrollBar->SetScrollRange(item_count_in_size, m_ItemInfo.size());
 
 		D3DXVECTOR2 scrollbar_size = m_Size;
 		scrollbar_size.x = 10.0f;
@@ -128,23 +222,6 @@ void JWListBox::UpdateScrollBarData()
 		scrollbar_position.x += m_Size.x;
 		scrollbar_position.x -= m_pScrollBar->GetSize().x;
 		m_pScrollBar->SetPosition(scrollbar_position);
-
-		// Update items' width
-		if (m_pItems.size())
-		{
-			D3DXVECTOR2 item_size = D3DXVECTOR2(0, 0);
-			for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
-			{
-				item_size.x = m_Size.x - m_pScrollBar->GetSize().x - 1.0f;
-				item_size.y = m_pItems[iterator]->GetSize().y;
-
-				m_pItems[iterator]->SetSize(item_size);
-			}
-		}
-	}
-	else
-	{
-		m_bShouldHaveScrollBar = false;
 	}
 }
 
@@ -189,13 +266,13 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 	if (m_pScrollBar->GetState() == EControlState::Normal)
 	{
 		// Update items' control state
-		if (m_pItems.size())
+		if (m_ItemInfo.size())
 		{
-			for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
+			for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
 			{
-				m_pItems[iterator]->UpdateControlState(MouseData);
+				m_pItemBackground[iterator]->UpdateControlState(MouseData);
 
-				if (m_pItems[iterator]->GetState() == EControlState::Clicked)
+				if (m_pItemBackground[iterator]->GetState() == EControlState::Clicked)
 				{
 					m_SelectedItemIndex = iterator;
 				}
@@ -205,31 +282,39 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 	else
 	{
 		// Scroll items
-		m_ItemOffsetY = -static_cast<float>(m_pScrollBar->GetScrollPosition()) * DEFUALT_ITEM_HEIGHT;
+		m_ItemOffsetY = m_PositionClient.y + DEFAULT_ITEM_PADDING_Y - m_ItemInfo[m_pScrollBar->GetScrollPosition()].ItemPosition.y;
 
 		D3DXVECTOR2 item_position = D3DXVECTOR2(0, 0);
-		for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
+		for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
 		{
-			item_position = m_PositionClient;
-			item_position.x += 1.0f;
-			item_position.y += 1.0f + static_cast<float>(DEFUALT_ITEM_HEIGHT * iterator) + m_ItemOffsetY;
+			item_position = m_ItemInfo[iterator].ItemPosition;
+			item_position.y += m_ItemOffsetY;
 
-			m_pItems[iterator]->SetPosition(item_position);
+			m_pItemBackground[iterator]->SetPosition(item_position);
+			
+			if (m_bUseImageItems)
+			{
+				m_pImageItems[iterator]->SetPosition(item_position);
+			}
+
+			item_position.x += m_ItemInfo[iterator].ImageItemSize.x;
+
+			m_pTextItems[iterator]->SetPosition(item_position);
 		}
 	}
 
 	// Set selected item's color
-	for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
+	for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
 	{
 		if (iterator == m_SelectedItemIndex)
 		{
-			m_pItems[iterator]->SetStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_BLACK);
-			m_pItems[iterator]->SetStateColor(EControlState::Hover, DEFAULT_COLOR_LESS_BLACK);
+			m_pItemBackground[iterator]->SetStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_BLACK);
+			m_pItemBackground[iterator]->SetStateColor(EControlState::Hover, DEFAULT_COLOR_LESS_BLACK);
 		}
 		else
 		{
-			m_pItems[iterator]->SetStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
-			m_pItems[iterator]->SetStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_BLACK);
+			m_pItemBackground[iterator]->SetStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
+			m_pItemBackground[iterator]->SetStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_BLACK);
 		}
 	}
 }
@@ -245,11 +330,24 @@ void JWListBox::Draw()
 	m_pFont->Draw();
 
 	// Draw items
-	if (m_pItems.size())
+	if (m_ItemInfo.size())
 	{
-		for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
+		for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
 		{
-			m_pItems[iterator]->Draw();
+			m_pItemBackground[iterator]->Draw();
+		}
+
+		if (m_bUseImageItems)
+		{
+			for (size_t iterator = 0; iterator < m_pImageItems.size(); iterator++)
+			{
+				m_pImageItems[iterator]->Draw();
+			}
+		}
+
+		for (size_t iterator = 0; iterator < m_pTextItems.size(); iterator++)
+		{
+			m_pTextItems[iterator]->Draw();
 		}
 	}
 
@@ -264,6 +362,8 @@ void JWListBox::Draw()
 
 void JWListBox::SetBackgroundColor(DWORD Color)
 {
+	JWControl::SetBackgroundColor(Color);
+
 	m_pBackground->SetAlpha(GetColorAlpha(Color));
 	m_pBackground->SetXRGB(GetColorXRGB(Color));
 }

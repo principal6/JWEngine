@@ -54,14 +54,25 @@ int main()
 		myGUI.GetControlPtr(sb2)->SetScrollRange(10, 30);
 		myGUI.GetControlPtr(sb2)->SetScrollPosition(1);
 
-		THandle lb1 = myGUI.AddControl(EControlType::ListBox, D3DXVECTOR2(400, 100), D3DXVECTOR2(140, 70));
-		myGUI.GetControlPtr(lb1)->AddTextItem(L"1. ¾È³çÇÏ¼¼¿ä?");
-		myGUI.GetControlPtr(lb1)->AddTextItem(L"2. Hello.");
-		myGUI.GetControlPtr(lb1)->AddTextItem(L"3. Hola.");
-		myGUI.GetControlPtr(lb1)->AddTextItem(L"4. ª³ªóªËªÁªÏ¡£");
-		myGUI.GetControlPtr(lb1)->AddTextItem(L"5. Nihao");
-		myGUI.GetControlPtr(lb1)->AddTextItem(L"6. ¬±¬â¬Ú¬Ó¬Ö¬ä");
-		myGUI.GetControlPtr(lb1)->AddTextItem(L"7. ...");
+		LPDIRECT3DTEXTURE9 test_texture;
+		D3DXIMAGE_INFO test_texture_info;
+
+		THandle lb1 = myGUI.AddControl(EControlType::ListBox, D3DXVECTOR2(360, 100), D3DXVECTOR2(200, 90));
+		myGUI.CreateTexture(L"test_atlas.png", &test_texture, &test_texture_info);
+		myGUI.GetControlPtr(lb1)->UseImageItem(test_texture, &test_texture_info);
+
+		myGUI.GetControlPtr(lb1)->AddListBoxItem(L"1. ¾È³çÇÏ¼¼¿ä?", D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32));
+		myGUI.GetControlPtr(lb1)->AddListBoxItem(L"2. Hello.", D3DXVECTOR2(32, 64), D3DXVECTOR2(16, 16));
+		myGUI.GetControlPtr(lb1)->AddListBoxItem(L"3. Hola.", D3DXVECTOR2(0, 0), D3DXVECTOR2(64, 64));
+		myGUI.GetControlPtr(lb1)->AddListBoxItem(L"4. ª³ªóªËªÁªÏ¡£", D3DXVECTOR2(0, 0), D3DXVECTOR2(64, 64));
+		myGUI.GetControlPtr(lb1)->AddListBoxItem(L"5. Nihao", D3DXVECTOR2(0, 0), D3DXVECTOR2(64, 64));
+		myGUI.GetControlPtr(lb1)->AddListBoxItem(L"6. ¬±¬â¬Ú¬Ó¬Ö¬ä");
+		myGUI.GetControlPtr(lb1)->AddListBoxItem(L"7. ...");
+
+		THandle image1 = myGUI.AddControl(EControlType::ImageBox, D3DXVECTOR2(600, 100), D3DXVECTOR2(140, 90));
+		myGUI.GetControlPtr(image1)->SetTextureAtlas(test_texture, &test_texture_info);
+		myGUI.GetControlPtr(image1)->SetAtlasUV(D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32));
+		myGUI.GetControlPtr(image1)->SetSize(D3DXVECTOR2(100, 20));
 
 		myGUI.SetMainLoopFunction(MainLoop);
 
