@@ -250,8 +250,7 @@ PRIVATE void JWListBox::UpdateAutomaticScrollBar()
 		
 		m_pScrollBar->SetScrollRange(item_count_in_size, m_ItemInfo.size());
 
-		D3DXVECTOR2 scrollbar_size = m_Size;
-		scrollbar_size.x = 10.0f;
+		D3DXVECTOR2 scrollbar_size = D3DXVECTOR2(0, m_Size.y);
 		m_pScrollBar->SetSize(scrollbar_size);
 
 		D3DXVECTOR2 scrollbar_position = m_PositionClient;

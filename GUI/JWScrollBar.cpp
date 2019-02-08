@@ -7,6 +7,10 @@
 
 using namespace JWENGINE;
 
+// Static const
+const D3DXVECTOR2 JWScrollBar::HORIZONTAL_MINIMUM_SIZE = D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, GUI_BUTTON_SIZE.y);
+const D3DXVECTOR2 JWScrollBar::VERTICAL_MINIMUM_SIZE = D3DXVECTOR2(GUI_BUTTON_SIZE.x, GUI_BUTTON_SIZE.y * 2);
+
 JWScrollBar::JWScrollBar()
 {
 	m_pBackground = nullptr;
@@ -92,8 +96,10 @@ auto JWScrollBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	// Set control type
 	m_Type = EControlType::ScrollBar;
 
-	// Set control's size and position.
-	SetSize(Size);
+	// Set control's position.
+	// SetSize() must be called in MakeScrollBar()
+	// in order to adjust the size according to the ScrollBar's direction.
+	// (Because the direction is decided when MakeScrollBar() is called.)
 	SetPosition(Position);
 
 	return EError::OK;
@@ -212,11 +218,21 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 				switch (m_ScrollBarDirection)
 				{
 				case JWENGINE::EScrollBarDirection::Horizontal:
-					scroller_stride_x = scroller_stride_x / stride_unit;
+					if (stride_unit)
+					{
+						// To avoid division by 0.
+						scroller_stride_x = scroller_stride_x / stride_unit;
+					}
+					
 					new_scroll_position += scroller_stride_x;
 					break;
 				case JWENGINE::EScrollBarDirection::Vertical:
-					scroller_stride_y = scroller_stride_y / stride_unit;
+					if (stride_unit)
+					{
+						// To avoid division by 0.
+						scroller_stride_y = scroller_stride_y / stride_unit;
+					}
+
 					new_scroll_position += scroller_stride_y;
 					break;
 				default:
@@ -326,16 +342,12 @@ void JWScrollBar::SetSize(D3DXVECTOR2 Size)
 	switch (m_ScrollBarDirection)
 	{
 	case JWENGINE::EScrollBarDirection::Horizontal:
-		if (Size.y <= GUI_BUTTON_SIZE.y)
-		{
-			Size.y = GUI_BUTTON_SIZE.y;
-		}
+		Size.x = max(Size.x, HORIZONTAL_MINIMUM_SIZE.x);
+		Size.y = max(Size.y, HORIZONTAL_MINIMUM_SIZE.y);
 		break;
 	case JWENGINE::EScrollBarDirection::Vertical:
-		if (Size.x <= GUI_BUTTON_SIZE.x)
-		{
-			Size.x = GUI_BUTTON_SIZE.x;
-		}
+		Size.x = max(Size.x, VERTICAL_MINIMUM_SIZE.x);
+		Size.y = max(Size.y, VERTICAL_MINIMUM_SIZE.y);
 		break;
 	default:
 		break;

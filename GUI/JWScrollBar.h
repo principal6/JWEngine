@@ -46,6 +46,8 @@ namespace JWENGINE
 		static const int DEFAULT_SCROLLER_PADDING = 2;
 		static const int DEFAULT_PAGE_STRIDE = 1;
 		static const int BUTTON_INTERVAL_UPPER_LIMIT = 100;
+		static const D3DXVECTOR2 HORIZONTAL_MINIMUM_SIZE;
+		static const D3DXVECTOR2 VERTICAL_MINIMUM_SIZE;
 
 		JWImage* m_pBackground;
 		JWImageButton* m_pButtonA;

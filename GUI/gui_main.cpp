@@ -48,15 +48,15 @@ int main()
 	THandle radio1 = myGUI.AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 0), D3DXVECTOR2(0, 0));
 	THandle radio2 = myGUI.AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 20), D3DXVECTOR2(0, 0));
 
-	THandle sb1 = myGUI.AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 0), D3DXVECTOR2(160, 20));
+	THandle sb1 = myGUI.AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 0), D3DXVECTOR2(160, 0));
 	myGUI.GetControlPtr(sb1)->MakeScrollBar(EScrollBarDirection::Horizontal);
 	myGUI.GetControlPtr(sb1)->SetScrollRange(2, 5);
 	myGUI.GetControlPtr(sb1)->SetScrollPosition(0);
 
-	THandle sb2 = myGUI.AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 100), D3DXVECTOR2(20, 240));
+	THandle sb2 = myGUI.AddControl(EControlType::ScrollBar, D3DXVECTOR2(300, 100), D3DXVECTOR2(0, 200));
 	myGUI.GetControlPtr(sb2)->MakeScrollBar(EScrollBarDirection::Vertical);
 	myGUI.GetControlPtr(sb2)->SetScrollRange(10, 30);
-	myGUI.GetControlPtr(sb2)->SetScrollPosition(1);
+	myGUI.GetControlPtr(sb2)->SetScrollPosition(0);
 
 	LPDIRECT3DTEXTURE9 test_texture;
 	D3DXIMAGE_INFO test_texture_info;
