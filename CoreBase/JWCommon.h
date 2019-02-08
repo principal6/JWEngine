@@ -58,8 +58,8 @@ namespace JWENGINE
 
 	using CINT = const __int32;
 
-	using THandle = unsigned __int32;
-	static constexpr THandle THandle_Null = UINT32_MAX;
+	using THandle = unsigned __int64;
+	static constexpr THandle THandle_Null = UINT64_MAX;
 
 	using THandleItem = THandle;
 
@@ -76,6 +76,9 @@ namespace JWENGINE
 	static const wchar_t GUI_TEXTURE_FILENAME[] = L"jwgui_button.png";
 	static const D3DXVECTOR2 GUI_BUTTON_SIZE = D3DXVECTOR2(15.0f, 15.0f);
 
+	const wchar_t ASSET_DIR[] = L"\\Asset\\";
+	const wchar_t DEFAULT_FONT[] = L"dotumche12all.fnt";
+
 	static const DWORD D3DFVF_TEXTURE = D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1;
 	static const DWORD D3DFVF_LINE = D3DFVF_XYZRHW | D3DFVF_DIFFUSE;
 
@@ -90,9 +93,6 @@ namespace JWENGINE
 	static const DWORD DEFAULT_COLOR_LESS_WHITE = D3DCOLOR_XRGB(185, 185, 185);
 	static const DWORD DEFAULT_COLOR_ALMOST_WHITE = D3DCOLOR_XRGB(220, 220, 220);
 	static const DWORD DEFAULT_COLOR_WHITE = D3DCOLOR_XRGB(255, 255, 255);
-
-	const wchar_t ASSET_DIR[] = L"\\Asset\\";
-	const wchar_t DEFAULT_FONT[] = L"dotumche12all.fnt";
 
 	enum class EError
 	{

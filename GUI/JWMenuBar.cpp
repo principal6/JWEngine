@@ -16,8 +16,10 @@ JWMenuBar::JWMenuBar()
 	m_bShouldDrawBorder = false;
 
 	m_pBackground = nullptr;
-	m_pFocusedItem = nullptr;
-	m_pSubItemBox = nullptr;
+
+	m_pSelectedItem = nullptr;
+	m_SelectedItemIndex = TIndex_NotSpecified;
+	m_pSelectedSubItemBox = nullptr;
 
 	m_bMouseReleasedForTheFisrtTime = true;
 }
@@ -29,7 +31,7 @@ auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	Position.y = 0;
 
 	// MenuBar's size is fixed!
-	Size.x = static_cast<float>(ms_pSharedData->pWindow->GetWindowData()->WindowWidth);
+	Size.x = static_cast<float>(ms_pSharedData->pWindow->GetWindowData()->ScreenSize.x);
 	Size.y = static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
 
 	if (JW_FAILED(JWControl::Create(Position, Size)))
@@ -51,19 +53,6 @@ auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		m_pBackground->SetSize(Size);
 		m_pBackground->SetAlpha(DEFUALT_ALPHA_BACKGROUND_MENUBAR);
 		m_pBackground->SetXRGB(DEFAULT_COLOR_BACKGROUND_MENUBAR);
-	}
-	else
-	{
-		return EError::ALLOCATION_FAILURE;
-	}
-
-	// Create menu subitem box
-	if (m_pSubItemBox = new MenuSubItemBox)
-	{
-		if (JW_FAILED(m_pSubItemBox->Create(D3DXVECTOR2(0, 0), BLANK_SUBITEMBOX_SIZE)))
-			return EError::IMAGE_NOT_CREATED;
-		
-		m_pSubItemBox->SetBackgroundColor(DEFAULT_COLOR_ALMOST_BLACK);
 	}
 	else
 	{
@@ -94,7 +83,7 @@ void JWMenuBar::Destroy()
 
 auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 {
-	THandle Result = MENU_ITEM_THANDLE_BASE;
+	THandleItem Result = MENU_ITEM_THANDLE_BASE;
 
 	MenuItem* new_item = new MenuItem;
 
@@ -118,8 +107,48 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 
 	m_pItems.push_back(new_item);
 
-	Result += static_cast<THandle>(m_pItems.size()) - 1;
+	Result += (static_cast<THandle>(m_pItems.size()) - 1) * MENU_ITEM_THANDLE_STRIDE;
 
+	// Create sub-item box
+	MenuSubItemBox* new_subitem_box = new MenuSubItemBox;
+	D3DXVECTOR2 subitembox_position = item_position;
+	subitembox_position.y += static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
+	new_subitem_box->Create(subitembox_position, BLANK_SUBITEMBOX_SIZE);
+	new_subitem_box->SetBackgroundColor(DEFAULT_COLOR_LESS_BLACK);
+	new_subitem_box->ShouldUseAutomaticScrollBar(false);
+	new_subitem_box->ShouldUseToggleSelection(false);
+
+	m_pSubItemBoxes.push_back(new_subitem_box);
+
+	return GetTHandleItemOfMenuBarItem(m_pItems.size() - 1);
+	//return Result;
+}
+
+auto JWMenuBar::AddMenuBarSubItem(THandleItem hItem, WSTRING Text)->THandleItem
+{
+	TIndex item_index = GetTIndexOfMenuBarItem(hItem);
+
+	m_pSubItemBoxes[item_index]->AddListBoxItem(Text);
+
+	D3DXVECTOR2 new_size = BLANK_SUBITEMBOX_SIZE;
+	new_size.y = m_pSubItemBoxes[item_index]->GetListBoxItemHeight();
+	m_pSubItemBoxes[item_index]->SetSize(new_size);
+
+	THandleItem Result = hItem + m_pSubItemBoxes[item_index]->GetListBoxItemCount();
+	return Result;
+}
+
+PRIVATE auto JWMenuBar::GetTHandleItemOfMenuBarItem(TIndex ItemIndex)->THandleItem
+{
+	THandleItem Result = MENU_ITEM_THANDLE_BASE;
+	Result += (static_cast<THandleItem>(ItemIndex) * MENU_ITEM_THANDLE_STRIDE);
+	return Result;
+}
+
+PRIVATE auto JWMenuBar::GetTIndexOfMenuBarItem(THandleItem hItem)->TIndex
+{
+	TIndex Result = static_cast<TIndex>(hItem - MENU_ITEM_THANDLE_BASE);
+	Result = Result / MENU_ITEM_THANDLE_STRIDE;
 	return Result;
 }
 
@@ -140,9 +169,9 @@ void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
 			}
 		}
 
-		if (m_pFocusedItem)
+		if (m_pSelectedItem)
 		{
-			if (m_pSubItemBox->IsMouseOver(MouseData))
+			if (m_pSelectedSubItemBox->IsMouseOver(MouseData))
 			{
 				FocusCheck = true;
 			}
@@ -150,11 +179,9 @@ void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
 
 		if (!FocusCheck)
 		{
-			if (m_pFocusedItem)
+			if (m_pSelectedItem)
 			{
-				m_pFocusedItem->SetState(EControlState::Normal);
-				m_pFocusedItem = nullptr;
-				m_bMouseReleasedForTheFisrtTime = true;
+				UnselectItem();
 
 				SetState(EControlState::Normal);
 			}
@@ -166,13 +193,11 @@ void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
 	{
 		if (m_pItems[iterator]->IsMouseOver(MouseData))
 		{
-			if (m_pFocusedItem)
+			if (m_pSelectedItem)
 			{
-				if (m_pFocusedItem != m_pItems[iterator])
+				if (m_pSelectedItem != m_pItems[iterator])
 				{
-					m_pFocusedItem->SetState(EControlState::Normal);
-					m_pFocusedItem = m_pItems[iterator];
-					m_pFocusedItem->SetState(EControlState::Pressed);
+					SelectItem(iterator);
 				}
 				else
 				{
@@ -185,9 +210,7 @@ void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
 						}
 						else
 						{
-							m_pFocusedItem->SetState(EControlState::Normal);
-							m_pFocusedItem = nullptr;
-							m_bMouseReleasedForTheFisrtTime = true;
+							UnselectItem();
 						}
 					}
 				}
@@ -196,8 +219,7 @@ void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
 			{
 				if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 				{
-					m_pFocusedItem = m_pItems[iterator];
-					m_pFocusedItem->SetState(EControlState::Pressed);
+					SelectItem(iterator);
 				}
 				else
 				{
@@ -207,19 +229,33 @@ void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
 		}
 		else
 		{
-			if (m_pFocusedItem != m_pItems[iterator])
+			if (m_pSelectedItem != m_pItems[iterator])
 			{
+				// Set not-selected items' control state to Normal.
 				m_pItems[iterator]->SetState(EControlState::Normal);
 			}
 		}
 	}
 
-	if (m_pFocusedItem)
+	m_hSelectedSubItem = THandle_Null;
+	if (m_pSelectedItem)
 	{
-		D3DXVECTOR2 subitembox_position = m_pFocusedItem->GetPosition();
+		D3DXVECTOR2 subitembox_position = m_pSelectedItem->GetPosition();
 		subitembox_position.y += static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
 
-		m_pSubItemBox->SetPosition(subitembox_position);
+		m_pSelectedSubItemBox->SetPosition(subitembox_position);
+		m_pSelectedSubItemBox->UpdateControlState(MouseData);
+
+		if (m_pSelectedSubItemBox->GetSelectedItemIndex() != TIndex_NotSpecified)
+		{
+			// IF,
+			// an item is selected.
+
+			TIndex selected_subitem_index = m_pSelectedSubItemBox->GetSelectedItemIndex();
+			m_hSelectedSubItem = GetTHandleItemOfMenuBarItem(m_SelectedItemIndex) + selected_subitem_index + 1;
+
+			UnselectItem();
+		}
 	}
 
 }
@@ -243,9 +279,9 @@ void JWMenuBar::Draw()
 		}
 	}
 
-	if (m_pFocusedItem)
+	if (m_pSelectedItem)
 	{
-		m_pSubItemBox->Draw();
+		m_pSelectedSubItemBox->Draw();
 	}
 
 	JWControl::EndDrawing();
@@ -266,13 +302,48 @@ auto JWMenuBar::IsMouseOver(const SMouseData& MouseData)->bool
 		Result = true;
 	}
 
-	if (m_pFocusedItem)
+	if (m_pSelectedItem)
 	{
-		if (m_pSubItemBox->IsMouseOver(MouseData))
+		if (m_pSelectedSubItemBox->IsMouseOver(MouseData))
 		{
 			Result = true;
 		}
 	}
 
 	return Result;
+}
+
+auto JWMenuBar::OnSubItemClick() const->THandleItem
+{
+	return m_hSelectedSubItem;
+}
+
+PRIVATE void JWMenuBar::SelectItem(TIndex ItemIndex)
+{
+	if (m_pSelectedItem)
+	{
+		// IF,
+		// there is a previously selected item,
+		// unselect it.
+		m_pSelectedItem->SetState(EControlState::Normal);
+	}
+
+	m_pSelectedItem = m_pItems[ItemIndex];
+	m_pSelectedSubItemBox = m_pSubItemBoxes[ItemIndex];
+	m_SelectedItemIndex = ItemIndex;
+
+	m_pSelectedItem->SetState(EControlState::Pressed);
+}
+
+PRIVATE void JWMenuBar::UnselectItem()
+{
+	if (m_pSelectedItem)
+	{
+		m_pSelectedItem->SetState(EControlState::Normal);
+	}
+	m_pSelectedItem = nullptr;
+	m_pSelectedSubItemBox = nullptr;
+	m_SelectedItemIndex = TIndex_NotSpecified;
+
+	m_bMouseReleasedForTheFisrtTime = true;
 }

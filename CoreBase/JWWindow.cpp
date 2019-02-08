@@ -4,44 +4,15 @@ using namespace JWENGINE;
 
 // Static member variable
 int JWWindow::ms_ChildWindowCount = 0;
-TCHAR JWWindow::ms_IMEChar[MAX_FILE_LEN]{};
-bool JWWindow::ms_IMEWriting = false;
-bool JWWindow::ms_IMECompleted = false;
 
-// Base window procedure for Game/GUI window
+// Base window procedure for Game window
 LRESULT CALLBACK JWENGINE::BaseWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
-	HIMC hIMC = nullptr;
-
 	switch (Message)
 	{
 	case WM_SYSCOMMAND:
 		if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) // Disable Alt key
 			return 0;
-		break;
-	case WM_IME_COMPOSITION:
-		JWWindow::ms_IMEWriting = true;
-		JWWindow::ms_IMECompleted = false;
-		memset(JWWindow::ms_IMEChar, 0, MAX_FILE_LEN);
-		hIMC = ImmGetContext(hWnd);
-
-		if (lParam & GCS_COMPSTR)
-		{
-			ImmGetCompositionString(hIMC, GCS_COMPSTR, JWWindow::ms_IMEChar, MAX_FILE_LEN);
-			if (JWWindow::ms_IMEChar[0] == 0)
-			{
-				JWWindow::ms_IMEWriting = false;
-				JWWindow::ms_IMECompleted = true;
-			}
-		}
-		else if (lParam & GCS_RESULTSTR)
-		{
-			ImmGetCompositionString(hIMC, GCS_RESULTSTR, JWWindow::ms_IMEChar, MAX_FILE_LEN);
-			JWWindow::ms_IMEWriting = false;
-			JWWindow::ms_IMECompleted = true;
-		}
-
-		ImmReleaseContext(hWnd, hIMC);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -77,12 +48,12 @@ auto JWWindow::CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError
 	return EError::OK;
 }
 
-auto JWWindow::CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color)->EError
+auto JWWindow::CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError
 {
 	// Set DirectX clear color
 	m_BGColor = Color;
 
-	if (CreateWINAPIWindow(L"GUI", X, Y, Width, Height, EWindowStyle::OverlappedWindow, Color, BaseWindowProc)
+	if (CreateWINAPIWindow(L"GUI", X, Y, Width, Height, EWindowStyle::OverlappedWindow, Color, Proc)
 		== nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 
@@ -137,14 +108,14 @@ PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, CINT X, CINT Y, C
 	WNDCLASS r_WndClass;
 	r_WndClass.cbClsExtra = 0;
 	r_WndClass.cbWndExtra = 0;
-	r_WndClass.hbrBackground = CreateSolidBrush(RGB(GetColorR(BackColor), GetColorG(BackColor), GetColorB(BackColor)));
-	r_WndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	r_WndClass.hbrBackground = 0; //CreateSolidBrush(RGB(GetColorR(BackColor), GetColorG(BackColor), GetColorB(BackColor)));
+	r_WndClass.hCursor = LoadCursor(nullptr, IDC_ARROW); // could be nullptr
 	r_WndClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
 	r_WndClass.hInstance = m_hInstance;
 	r_WndClass.lpfnWndProc = Proc;
 	r_WndClass.lpszClassName = Name;
 	r_WndClass.lpszMenuName = MenuName;
-	r_WndClass.style = CS_HREDRAW | CS_VREDRAW;
+	r_WndClass.style = CS_HREDRAW | CS_VREDRAW; //CS_DBLCLKS
 	RegisterClass(&r_WndClass);
 
 	m_Rect = { X, Y, X + Width, Y + Height };
@@ -206,11 +177,14 @@ PRIVATE void JWWindow::SetDirect3DParameters()
 PRIVATE void JWWindow::UpdateRenderRect()
 {
 	m_RenderRect = { 0, 0, 0, 0 };
-	m_RenderRect.right = m_WindowData.WindowWidth;
+	//m_RenderRect.right = m_WindowData.WindowWidth;
+	m_RenderRect.right = m_WindowData.ScreenSize.x;
+
 	if (m_hVerticalScrollbar)
 		m_RenderRect.right -= VERTICAL_SCROLL_BAR_WIDTH;
 
-	m_RenderRect.bottom = m_WindowData.WindowHeight;
+	//m_RenderRect.bottom = m_WindowData.WindowHeight;
+	m_RenderRect.bottom = m_WindowData.ScreenSize.y;
 	if (m_hHorizontalScrollbar)
 		m_RenderRect.bottom -= HORIZONTAL_SCROLL_BAR_HEIGHT;
 }
@@ -347,7 +321,7 @@ void JWWindow::SetBackgroundColor(D3DCOLOR color)
 void JWWindow::Resize(RECT Rect)
 {
 	SetWindowData(Rect.right, Rect.bottom);
-	MoveWindow(m_hWnd, Rect.left, Rect.top, Rect.right, Rect.bottom, false);
+	//MoveWindow(m_hWnd, Rect.left, Rect.top, Rect.right - Rect.left, Rect.bottom - Rect.top, false);
 
 	UpdateRenderRect();
 }
@@ -358,10 +332,15 @@ void JWWindow::BeginRender() const
 	m_pDevice->BeginScene();
 }
 
-void JWWindow::EndRender() const
+void JWWindow::EndRender()
 {
 	m_pDevice->EndScene();
-	m_pDevice->Present(&m_RenderRect, &m_RenderRect, nullptr, nullptr);
+
+	if (FAILED(m_pDevice->Present(&m_RenderRect, &m_RenderRect, nullptr, nullptr)))
+	{
+		m_pDevice->Reset(&m_D3DPP);
+	}
+
 }
 
 auto JWWindow::GetDevice() const->const LPDIRECT3DDEVICE9
@@ -392,29 +371,6 @@ auto JWWindow::GetMouseData() const->const SMouseData*
 auto JWWindow::GetRenderRect() const->const RECT
 {
 	return m_RenderRect;
-}
-
-auto JWWindow::GetpIMEChar() const->const TCHAR*
-{
-	return ms_IMEChar;
-}
-
-auto JWWindow::IsIMEWriting() const->bool
-{
-	return ms_IMEWriting;
-}
-
-auto JWWindow::IsIMECompleted() const->bool
-{
-	if (ms_IMECompleted)
-	{
-		ms_IMECompleted = false;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
 }
 
 void JWWindow::UpdateInputState()

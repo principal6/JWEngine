@@ -30,7 +30,8 @@ namespace JWENGINE
 		JWGUI();
 		~JWGUI() {};
 
-		auto Create(JWWindow* pWindow)->EError;
+		auto Create(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color)->EError;
+		auto CreateOnWindow(JWWindow* pWindow)->EError;
 		void Destroy();
 
 		void Run();
@@ -45,10 +46,18 @@ namespace JWENGINE
 		auto CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* pTexture, D3DXIMAGE_INFO* pInfo)->EError;
 
 	private:
+		friend LRESULT CALLBACK GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
+
 		void MainLoop();
 		void HandleMessage();
 		
 	private:
+		static TCHAR ms_IMEWritingChar[MAX_FILE_LEN];
+		static TCHAR ms_IMECompletedChar[MAX_FILE_LEN];
+		static bool ms_bIMEWriting;
+		static bool ms_bIMECompleted;
+		static bool ms_bRunning;
+
 		SGUISharedData m_SharedData;
 
 		TDynamicArray<JWControl*> m_Controls;

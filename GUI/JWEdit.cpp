@@ -257,20 +257,24 @@ PRIVATE void JWEdit::UpdateCaretAndSelection()
 
 PRIVATE void JWEdit::UpdateCaretPosition()
 {
-	// Update caret's image position only when the caret has been moved
-	if (m_PreviousCaretSelPosition != *m_pCaretSelPosition)
+	if (!m_bIMEWriting)
 	{
-		// If caret position is updated, the caret must be seen.
-		// So, let's set tick count to 0
-		m_CaretTickCount = 0;
+		// Update caret's image position only when the caret has been moved
+		if (m_PreviousCaretSelPosition != *m_pCaretSelPosition)
+		{
+			// If caret position is updated, the caret must be seen.
+			// So, let's set tick count to 0
+			m_CaretTickCount = 0;
 
-		// Save the changed caret sel position for the next comparison
-		m_PreviousCaretSelPosition = *m_pCaretSelPosition;
+			// Save the changed caret sel position for the next comparison
+			m_PreviousCaretSelPosition = *m_pCaretSelPosition;
 
-		m_pFont->UpdateCaretPosition(*m_pCaretSelPosition, &m_CaretPosition);
+			m_pFont->UpdateCaretPosition(*m_pCaretSelPosition, &m_CaretPosition);
 
-		m_pCaret->SetLine(0, m_CaretPosition, m_CaretSize);
+			m_pCaret->SetLine(0, m_CaretPosition, m_CaretSize);
+		}
 	}
+	
 }
 
 PRIVATE void JWEdit::UpdateSelectionBox()
@@ -433,48 +437,37 @@ void JWEdit::SetUseMultiline(bool Value)
 }
 
 // TODO: IME INPUT ERRORS NEED TO BE FIXED!
-void JWEdit::CheckIMEInput()
+void JWEdit::CheckIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR)
 {
-	m_bIMECompleted = false;
+	m_bIMEWriting = Writing;
+	m_bIMECompleted = Completed;
 
-	if (ms_pSharedData->pWindow->IsIMECompleted())
+	if (Completed)
 	{
-		m_pIMECharacter = ms_pSharedData->pWindow->GetpIMEChar();
+		m_pIMECompletedCharacter = pCompletedTCHAR;
 
 		// For debugging
-		//std::cout << "[DEBUG] IsIMECompleted(): " << static_cast<size_t>(m_pIMECharacter[0]) << std::endl;
+		//std::cout << "[DEBUG] IsIMECompleted(): " << static_cast<size_t>(m_pIMECompletedCharacter[0]) << std::endl;
 
-		// If the character is '\0', it's deleted.
-		if (m_pIMECharacter[0])
-		{
-			m_bIMECompleted = true;
-			InsertChar(m_pIMECharacter[0]);
-		}
-		else
-		{
-			// For debugging
-			//std::cout << "[DEBUG] Zeroed.." << std::endl;
-			UpdateText();
-			UpdateCaretAndSelection();
-		}
+		InsertChar(m_pIMECompletedCharacter[0]);
 	}
 
-	if (ms_pSharedData->pWindow->IsIMEWriting())
+	if (Writing)
 	{
+		m_pIMEWritingCharacter = pWritingTCHAR;
+
 		if (IsTextSelected())
 		{
 			EraseSelectedText();
 		}
 
-		m_pIMECharacter = ms_pSharedData->pWindow->GetpIMEChar();
-
 		// For debugging
-		//std::cout << "[DEBUG] IsIMEWriting(): " << static_cast<size_t>(m_pIMECharacter[0]) << std::endl;
+		//std::cout << "[DEBUG] IsIMEWriting(): " << static_cast<size_t>(m_pIMEWritingCharacter[0]) << std::endl;
 
 		m_IMETempSel = m_SelStart;
 		m_IMETempText = m_Text;
 
-		InsertChar(m_pIMECharacter[0]);
+		InsertChar(m_pIMEWritingCharacter[0]);
 
 		m_Text = m_IMETempText;
 		m_SelStart = m_IMETempSel;
@@ -693,18 +686,18 @@ void JWEdit::OnCharKey(WPARAM Char)
 		// For debugging
 		//std::cout << "[DEBUG] OnCharKey: " << wchar << std::endl;
 
-		// To avoid duplicate input
-		if (!m_bIMECompleted)
+		if (m_pIMECompletedCharacter)
 		{
-			InsertChar(wchar);
-		}
-		else
-		{
-			if (m_pIMECharacter[0] != wchar)
+			if (wchar != m_pIMECompletedCharacter[0])
 			{
 				InsertChar(wchar);
 			}
 		}
+		else
+		{
+			InsertChar(wchar);
+		}
+
 	}
 }
 

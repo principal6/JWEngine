@@ -18,7 +18,9 @@ JWListBox::JWListBox()
 	// A listbox must have border.
 	m_bShouldDrawBorder = true;
 
-	m_bShouldHaveScrollBar = false;
+	m_bHasScrollBar = false;
+	m_bShouldUseAutomaticScrollBar = true;
+	m_bShouleUseToggleSelection = true;
 	m_bUseImageItems = false;
 
 	m_SelectedItemIndex = TIndex_NotSpecified;
@@ -107,31 +109,44 @@ void JWListBox::UseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo)
 
 void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 SizeInAtlas)
 {
+	// Insert space at the head of the text
+	// in order to enhance legibility.
 	Text = L" " + Text;
+
+	// Get this new item's index.
 	size_t item_index = m_pTextItems.size();
 	
+	// Calculate item's default position.
 	D3DXVECTOR2 item_position = D3DXVECTOR2(0, 0);
-	D3DXVECTOR2 item_size = D3DXVECTOR2(0, 0);
 	item_position = m_PositionClient;
 	item_position.x += DEFAULT_ITEM_PADDING_X;
 	item_position.y += DEFAULT_ITEM_PADDING_Y;
 	if (item_index)
 	{
+		// IF,
+		// this isn't the first item in the listbox,
+		// it needs offsetting.
 		item_position.y = m_ItemInfo[item_index - 1].ItemPosition.y + m_ItemInfo[item_index - 1].ItemSize.y;
 	}
+
+	// Calculate item's default size.
+	D3DXVECTOR2 item_size = D3DXVECTOR2(0, 0);
 	item_size.x = m_Size.x - DEFAULT_ITEM_PADDING_Y;
 	item_size.y = m_MinimumItemHeight;
 
-	// Add image item
+	/*
+	** Add image item, if needed.
+	*/
 	if (m_bUseImageItems)
 	{
 		JWImageBox* new_image_item = new JWImageBox;
 
+		// Calculate image item's size.
 		D3DXVECTOR2 image_item_size = item_size;
 		image_item_size.y = SizeInAtlas.y;
-
 		if (image_item_size.y > item_size.y)
 		{
+			// Adjust item's height when image item's height exceeds it.
 			item_size.y = image_item_size.y;
 		}
 
@@ -144,14 +159,38 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 		m_pImageItems.push_back(new_image_item);
 	}
 
-	// Add text item
+
+	/*
+	** Add item's background (always)
+	*/
+	JWImageBox* new_item_background = new JWImageBox;
+	new_item_background->Create(item_position, item_size);
+	new_item_background->ShouldUseViewport(false);
+	if (m_bShouleUseToggleSelection)
+	{
+		// IF,
+		// this ListBox uses toggle selection.
+		SetToggleSelectionColor(new_item_background);
+	}
+	else
+	{
+		// IF,
+		// this ListBox doesn't use toggle selection.
+		SetNonToggleSelectionColor(new_item_background);
+	}
+	m_pItemBackground.push_back(new_item_background);
+
+
+	/*
+	** Add text item (always).
+	*/
 	JWLabel* new_text_item = new JWLabel;
 
-	D3DXVECTOR2 text_item_position = item_position;
-	text_item_position.x += SizeInAtlas.x;
+	// Calculate text item's position.
+	D3DXVECTOR2 text_item_position = D3DXVECTOR2(item_position.x + SizeInAtlas.x, item_position.y);
 
-	D3DXVECTOR2 text_item_size = item_size;
-	text_item_size.x -= SizeInAtlas.x;
+	// Calculate text item's size.
+	D3DXVECTOR2 text_item_size = D3DXVECTOR2(item_size.x - SizeInAtlas.x, item_size.y);
 
 	new_text_item->Create(text_item_position, text_item_size);
 	new_text_item->SetText(Text);
@@ -162,18 +201,9 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 	m_pTextItems.push_back(new_text_item);
 
 
-	// Add item's background
-	JWImageBox* new_item_background = new JWImageBox;
-	new_item_background->Create(item_position, item_size);
-	new_item_background->ShouldUseViewport(false);
-	new_item_background->SetStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
-	new_item_background->SetStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_BLACK);
-	new_item_background->SetStateColor(EControlState::Pressed, DEFAULT_COLOR_LESS_BLACK);
-
-	m_pItemBackground.push_back(new_item_background);
-
-
-	// Add item info
+	/*
+	** Add item info (always).
+	*/
 	SListBoxItemInfo new_info;
 	new_info.ItemPosition = item_position;
 	new_info.ItemSize = item_size;
@@ -181,12 +211,18 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 
 	m_ItemInfo.push_back(new_info);
 
-	UpdateScrollBarData();
+
+	// If this listbox uses automatic scrollbar,
+	// update it.
+	if (m_bShouldUseAutomaticScrollBar)
+	{
+		UpdateAutomaticScrollBar();
+	}
 }
 
-void JWListBox::UpdateScrollBarData()
+PRIVATE void JWListBox::UpdateAutomaticScrollBar()
 {
-	m_bShouldHaveScrollBar = false;
+	m_bHasScrollBar = false;
 
 	float item_y_size_sum = 0;
 	size_t item_count_in_size = 0;
@@ -197,18 +233,18 @@ void JWListBox::UpdateScrollBarData()
 		{
 			item_y_size_sum += m_ItemInfo[iterator].ItemSize.y;
 
-			if (item_y_size_sum >= m_Size.y)
+			if (item_y_size_sum > m_Size.y)
 			{
-				if (!m_bShouldHaveScrollBar)
+				if (!m_bHasScrollBar)
 				{
-					m_bShouldHaveScrollBar = true;
+					m_bHasScrollBar = true;
 					item_count_in_size = iterator - 1;
 				}
 			}
 		}
 	}
 
-	if (m_bShouldHaveScrollBar)
+	if (m_bHasScrollBar)
 	{
 		size_t item_rest = m_ItemInfo.size() - item_count_in_size;
 		
@@ -231,12 +267,19 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 
 	m_pScrollBar->UpdateControlState(MouseData);
 
-	if (!m_bShouldHaveScrollBar)
+	if (!m_bHasScrollBar)
 	{
+		// IF,
+		// this ListBox doesn't have ScrollBar,
+		// (although technically it does, the ScrollBar's invisible now.)
+		// set the control state of the ScrollBar to Normal.
 		m_pScrollBar->SetState(EControlState::Normal);
 	}
 	else
 	{
+		// IF,
+		// this ListBox has ScrollBar,
+
 		if (IsMouseOver(MouseData))
 		{
 			// We use mouse wheel scroll only when the mouse is over the control.
@@ -265,7 +308,21 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 
 	if (m_pScrollBar->GetState() == EControlState::Normal)
 	{
-		// Update items' control state
+		// IF,
+		// ListBox is not being scrolled,
+		// update items' control state.
+
+		if (!m_bShouleUseToggleSelection)
+		{
+			// IF,
+			// ListBox uses toggle selection,
+			// selected item index doesn't change
+			// until another one is selected!
+			// but if it doesn't use toggle selction,
+			// we must initialize m_SelectedItemIndex every time.
+			m_SelectedItemIndex = TIndex_NotSpecified;
+		}
+
 		if (m_ItemInfo.size())
 		{
 			for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
@@ -274,6 +331,7 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 
 				if (m_pItemBackground[iterator]->GetState() == EControlState::Clicked)
 				{
+					// Save the selected item's index.
 					m_SelectedItemIndex = iterator;
 				}
 			}
@@ -281,7 +339,10 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 	}
 	else
 	{
-		// Scroll items
+		// IF,
+		// the ListBox is being scrolled,
+		// scroll items.
+
 		m_ItemOffsetY = m_PositionClient.y + DEFAULT_ITEM_PADDING_Y - m_ItemInfo[m_pScrollBar->GetScrollPosition()].ItemPosition.y;
 
 		D3DXVECTOR2 item_position = D3DXVECTOR2(0, 0);
@@ -303,18 +364,22 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 		}
 	}
 
-	// Set selected item's color
-	for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
+	if (m_bShouleUseToggleSelection)
 	{
-		if (iterator == m_SelectedItemIndex)
+		// If this ListBox uses toggle selection,
+		// change the selected and non-selected items' default color.
+		for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
 		{
-			m_pItemBackground[iterator]->SetStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_BLACK);
-			m_pItemBackground[iterator]->SetStateColor(EControlState::Hover, DEFAULT_COLOR_LESS_BLACK);
-		}
-		else
-		{
-			m_pItemBackground[iterator]->SetStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
-			m_pItemBackground[iterator]->SetStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_BLACK);
+			if (iterator == m_SelectedItemIndex)
+			{
+				m_pItemBackground[iterator]->SetStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_BLACK);
+				m_pItemBackground[iterator]->SetStateColor(EControlState::Hover, DEFAULT_COLOR_LESS_BLACK);
+			}
+			else
+			{
+				m_pItemBackground[iterator]->SetStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
+				m_pItemBackground[iterator]->SetStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_BLACK);
+			}
 		}
 	}
 }
@@ -352,7 +417,7 @@ void JWListBox::Draw()
 	}
 
 	// Draw ScrollBar
-	if (m_bShouldHaveScrollBar)
+	if (m_bHasScrollBar)
 	{
 		m_pScrollBar->Draw();
 	}
@@ -378,4 +443,85 @@ void JWListBox::SetSize(D3DXVECTOR2 Size)
 {
 	JWControl::SetSize(Size);
 	m_pBackground->SetSize(Size);
+}
+
+auto JWListBox::GetListBoxItemCount() const->const size_t
+{
+	return m_ItemInfo.size();
+}
+
+auto JWListBox::GetListBoxItemHeight() const->const float
+{
+	float item_y_size_sum = DEFAULT_ITEM_PADDING_Y;
+
+	if (m_ItemInfo.size())
+	{
+		for (size_t iterator = 0; iterator < m_ItemInfo.size(); iterator++)
+		{
+			item_y_size_sum += m_ItemInfo[iterator].ItemSize.y;
+		}
+	}
+
+	return item_y_size_sum;
+}
+
+auto JWListBox::GetSelectedItemIndex() const->const TIndex
+{
+	return m_SelectedItemIndex;
+}
+
+void JWListBox::ShouldUseAutomaticScrollBar(bool Value)
+{
+	m_bShouldUseAutomaticScrollBar = Value;
+}
+
+void JWListBox::ShouldUseToggleSelection(bool Value)
+{
+	m_bShouleUseToggleSelection = Value;
+
+	if (m_bShouleUseToggleSelection)
+	{
+		// IF,
+		// this ListBox uses toggle selection.
+		if (m_pItemBackground.size())
+		{
+			for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
+			{
+				SetToggleSelectionColor(m_pItemBackground[iterator]);
+			}
+		}
+	}
+	else
+	{
+		// IF,
+		// this ListBox doesn't use toggle selection.
+		if (m_pItemBackground.size())
+		{
+			for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
+			{
+				SetNonToggleSelectionColor(m_pItemBackground[iterator]);
+			}
+		}
+	}
+	
+}
+
+PRIVATE void JWListBox::SetToggleSelectionColor(JWImageBox* pItemBackground)
+{
+	// If this ListBox uses toggle selection,
+	// the items' background should not be changed when it's hovered.
+
+	pItemBackground->SetStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
+	pItemBackground->SetStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_BLACK); // See this.
+	pItemBackground->SetStateColor(EControlState::Pressed, DEFAULT_COLOR_LESS_BLACK);
+}
+
+PRIVATE void JWListBox::SetNonToggleSelectionColor(JWImageBox* pItemBackground)
+{
+	// If this ListBox doesn't use toggle selection,
+	// the default colors of the items' background should be changed when it's hovered.
+
+	pItemBackground->SetStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
+	pItemBackground->SetStateColor(EControlState::Hover, DEFAULT_COLOR_LESS_BLACK); // See this.
+	pItemBackground->SetStateColor(EControlState::Pressed, DEFAULT_COLOR_LESS_BLACK);
 }

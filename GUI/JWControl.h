@@ -93,7 +93,7 @@ namespace JWENGINE
 		virtual void OnMouseMove(LPARAM MousePosition);
 		virtual void OnMouseDown(LPARAM MousePosition);
 		virtual void OnMouseUp(LPARAM MousePosition);
-		virtual void CheckIMEInput() {};
+		virtual void CheckIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR) {};
 
 		// Update
 		virtual void UpdateControlState(const SMouseData& MouseData);
@@ -158,7 +158,14 @@ namespace JWENGINE
 		virtual void UseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo) {}; // ListBox
 		virtual void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0), D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0)) {}; // ListBox
 		virtual void SetMinimumItemHeight(float Value) {}; // ListBox
+		virtual auto GetListBoxItemCount() const->const size_t { return 0; }; // ListBox
+		virtual auto GetListBoxItemHeight() const->const float { return 0; }; // ListBox
+		virtual auto GetSelectedItemIndex() const->const TIndex { return TIndex_NotSpecified; }; // ListBox
+		virtual void ShouldUseAutomaticScrollBar(bool Value) {}; // ListBox
+		virtual void ShouldUseToggleSelection(bool Value) {}; // ListBox
+		virtual auto OnSubItemClick() const->THandleItem { return THandle_Null; }; // ListBox
 		virtual auto AddMenuBarItem(WSTRING Text)->THandleItem { return THandle_Null; }; // MenuBar
+		virtual auto AddMenuBarSubItem(THandleItem hItem, WSTRING Text)->THandleItem { return THandle_Null; }; // MenuBar
 
 	protected:
 		virtual void CalculateRECT();

@@ -34,16 +34,30 @@ namespace JWENGINE
 		void SetMinimumItemHeight(float Value) override;
 		void UseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo) override;
 
-		void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 SizeInAtlas) override;
+		void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0), D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0)) override;
 
 		void UpdateControlState(const SMouseData& MouseData) override;
-		void UpdateScrollBarData();
 
 		void Draw() override;
 
 		void SetBackgroundColor(DWORD Color) override;
 		void SetPosition(D3DXVECTOR2 Position) override;
 		void SetSize(D3DXVECTOR2 Size) override;
+
+		auto GetListBoxItemCount() const->const size_t override;
+
+		// Returns the sum of the height of all the items in the ListBox.
+		auto GetListBoxItemHeight() const->const float override;
+
+		auto GetSelectedItemIndex() const->const TIndex override;
+
+		void ShouldUseAutomaticScrollBar(bool Value) override;
+		void ShouldUseToggleSelection(bool Value) override;
+
+	private:
+		void UpdateAutomaticScrollBar();
+		void SetToggleSelectionColor(JWImageBox* pItemBackground);
+		void SetNonToggleSelectionColor(JWImageBox* pItemBackground);
 
 	private:
 		static const BYTE DEFUALT_ALPHA_BACKGROUND_LISTBOX = 255;
@@ -64,7 +78,10 @@ namespace JWENGINE
 		JWImage* m_pBackground;
 		JWScrollBar* m_pScrollBar;
 
-		bool m_bShouldHaveScrollBar;
+		// Property settings
+		bool m_bHasScrollBar;
+		bool m_bShouldUseAutomaticScrollBar;
+		bool m_bShouleUseToggleSelection;
 		bool m_bUseImageItems;
 
 		TIndex m_SelectedItemIndex;

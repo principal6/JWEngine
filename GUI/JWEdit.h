@@ -32,7 +32,7 @@ namespace JWENGINE
 		void OnCharKey(WPARAM Char) override;
 		void OnMouseDown(LPARAM MousePosition) override;
 		void OnMouseMove(LPARAM MousePosition) override;
-		void CheckIMEInput() override;
+		void CheckIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR) override;
 
 	private:
 		void SelectOrMoveCaretToLeft(size_t Stride = 1); // Select characters to the left or move the caret to the left
@@ -84,8 +84,10 @@ namespace JWENGINE
 
 		WSTRING m_IMETempText;
 		size_t m_IMETempSel;
-		const TCHAR* m_pIMECharacter;
+		const TCHAR* m_pIMEWritingCharacter;
+		const TCHAR* m_pIMECompletedCharacter;
 		bool m_bIMECompleted;
+		bool m_bIMEWriting;
 
 		ULONGLONG m_CaretTickCount;
 		WSTRING m_ClipText;

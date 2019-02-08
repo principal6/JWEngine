@@ -66,7 +66,7 @@ namespace JWENGINE
 		~JWWindow() {};
 
 		auto CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError;
-		auto CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color)->EError;
+		auto CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError;
 		auto CreateParentWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color,
 			WNDPROC Proc, LPCWSTR MenuName)->EError;
 		auto CreateChildWindow(HWND hWndParent, CINT X, CINT Y, CINT Width, CINT Height,
@@ -87,7 +87,7 @@ namespace JWENGINE
 
 		// Render
 		void BeginRender() const;
-		void EndRender() const;
+		void EndRender();
 
 		auto GetDevice() const->const LPDIRECT3DDEVICE9;
 		auto GethWnd() const->const HWND;
@@ -95,9 +95,6 @@ namespace JWENGINE
 		auto GetWindowData() const->const SWindowData*;
 		auto GetMouseData() const->const SMouseData*;
 		auto GetRenderRect() const->const RECT;
-		auto GetpIMEChar() const->const TCHAR*;
-		auto IsIMEWriting() const->bool;
-		auto IsIMECompleted() const->bool;
 
 		// Input
 		void UpdateInputState();
@@ -129,9 +126,6 @@ namespace JWENGINE
 		static const int VERTICAL_SCROLL_BAR_WIDTH = 20;
 		static const int HORIZONTAL_SCROLL_BAR_HEIGHT = 20;
 		static int ms_ChildWindowCount;
-		static TCHAR ms_IMEChar[MAX_FILE_LEN];
-		static bool ms_IMEWriting;
-		static bool ms_IMECompleted;
 		
 		HINSTANCE m_hInstance;
 		HWND m_hWnd;

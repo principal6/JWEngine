@@ -2,6 +2,58 @@
 
 using namespace JWENGINE;
 
+TCHAR JWGUI::ms_IMEWritingChar[MAX_FILE_LEN]{};
+TCHAR JWGUI::ms_IMECompletedChar[MAX_FILE_LEN]{};
+bool JWGUI::ms_bIMEWriting = false;
+bool JWGUI::ms_bIMECompleted = false;
+bool JWGUI::ms_bRunning = false;
+
+// Base window procedure for GUI window
+LRESULT CALLBACK JWENGINE::GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
+{
+	// Handle to the context for the Input Method Manager(IMM), which is needed for Input Method Editor(IME)
+	HIMC hIMC = nullptr;
+
+	switch (Message)
+	{
+	case WM_SYSCOMMAND:
+		if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) // Disable Alt key
+			return 0;
+		break;
+	case WM_IME_COMPOSITION:
+		hIMC = ImmGetContext(hWnd);
+
+		if (lParam & GCS_COMPSTR)
+		{
+			// For debugging
+			//std::cout << "COMPSTR: " << std::endl;
+
+			memset(JWGUI::ms_IMEWritingChar, 0, MAX_FILE_LEN);
+			ImmGetCompositionString(hIMC, GCS_COMPSTR, JWGUI::ms_IMEWritingChar, MAX_FILE_LEN);
+			JWGUI::ms_bIMEWriting = true;
+			JWGUI::ms_bIMECompleted = false;
+		}
+		else if (lParam & GCS_RESULTSTR)
+		{
+			// For debugging
+			//std::cout << "GCS_RESULTSTR: " << std::endl;
+
+			memset(JWGUI::ms_IMECompletedChar, 0, MAX_FILE_LEN);
+			ImmGetCompositionString(hIMC, GCS_RESULTSTR, JWGUI::ms_IMECompletedChar, MAX_FILE_LEN);
+			JWGUI::ms_bIMEWriting = false;
+			JWGUI::ms_bIMECompleted = true;
+		}
+
+		ImmReleaseContext(hWnd, hIMC);
+		break;
+	case WM_DESTROY:
+		JWGUI::ms_bRunning = false;
+		PostQuitMessage(0);
+		return 0;
+	}
+	return(DefWindowProc(hWnd, Message, wParam, lParam));
+}
+
 JWGUI::JWGUI()
 {
 	m_pControlWithFocus = nullptr;
@@ -12,7 +64,36 @@ JWGUI::JWGUI()
 	m_bHasMenuBar = false;
 }
 
-auto JWGUI::Create(JWWindow* pWindow)->EError
+auto JWGUI::Create(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color)->EError
+{
+	// Create win32 api window.
+	if (!m_SharedData.pWindow)
+	{
+		m_SharedData.pWindow = new JWWindow;
+		if (JW_FAILED(m_SharedData.pWindow->CreateGUIWindow(X, Y, Width, Height, Color, GUIWindowProc)))
+			return EError::WINAPIWINDOW_NOT_CREATED;
+	}
+
+	// Set base directory
+	wchar_t tempDir[MAX_FILE_LEN]{};
+	GetCurrentDirectoryW(MAX_FILE_LEN, tempDir);
+	m_SharedData.BaseDir = tempDir;
+	m_SharedData.BaseDir = m_SharedData.BaseDir.substr(0, m_SharedData.BaseDir.find(PROJECT_FOLDER));
+
+	// Output base directory in console window
+	std::wcout << m_SharedData.BaseDir.c_str() << std::endl;
+
+	// Create shared texture
+	if (JW_FAILED(CreateTexture(GUI_TEXTURE_FILENAME, &m_SharedData.Texture_GUI, &m_SharedData.Texture_GUI_Info)))
+		return EError::TEXTURE_NOT_CREATED;
+
+	JWControl temp_control_to_set_shared_data;
+	temp_control_to_set_shared_data.SetSharedData(&m_SharedData);
+
+	return EError::OK;
+}
+
+auto JWGUI::CreateOnWindow(JWWindow* pWindow)->EError
 {
 	if (nullptr == (m_SharedData.pWindow = pWindow))
 		return EError::NULLPTR_WINDOW;
@@ -47,23 +128,23 @@ void JWGUI::Destroy()
 
 void JWGUI::Run()
 {
-	while (m_MSG.message != WM_QUIT)
+	ms_bRunning = true;
+
+	while (ms_bRunning)
 	{
 		if (PeekMessage(&m_MSG, nullptr, 0U, 0U, PM_REMOVE))
 		{
 			TranslateMessage(&m_MSG);
 			DispatchMessage(&m_MSG);
 		}
-		else
-		{
-			HandleMessage();
 
-			MainLoop();
+		HandleMessage();
 
-			// @Warning:
-			// We must empty m_MSG to avoid duplicate messages!
-			memset(&m_MSG, 0, sizeof(m_MSG));
-		}
+		MainLoop();
+
+		// @Warning:
+		// We must empty m_MSG to avoid duplicate messages!
+		memset(&m_MSG, 0, sizeof(m_MSG));
 	}
 
 	Destroy();
@@ -296,7 +377,10 @@ PRIVATE void JWGUI::MainLoop()
 	// Call event handlers of the control with focus
 	if (m_pControlWithFocus)
 	{
-		m_pControlWithFocus->CheckIMEInput();
+		m_pControlWithFocus->CheckIMEInput(ms_bIMEWriting, ms_bIMECompleted, ms_IMEWritingChar, ms_IMECompletedChar);
+		ms_bIMEWriting = false;
+		ms_bIMECompleted = false;
+		//memset(ms_IMEChar, 0, sizeof(ms_IMEChar));
 
 		switch (m_MSG.message)
 		{
