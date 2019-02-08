@@ -116,19 +116,19 @@ auto JWControl::IsMousePressed(const SMouseData& MouseData)->bool
 	return Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect);
 }
 
-void JWControl::OnMouseMove(LPARAM MousePosition)
+void JWControl::WindowMouseMove(LPARAM MousePosition)
 {
 	m_MousePosition.x = GET_X_LPARAM(MousePosition);
 	m_MousePosition.y = GET_Y_LPARAM(MousePosition);
 }
 
-void JWControl::OnMouseDown(LPARAM MousePosition)
+void JWControl::WindowMouseDown(LPARAM MousePosition)
 {
 	m_MousePosition.x = GET_X_LPARAM(MousePosition);
 	m_MousePosition.y = GET_Y_LPARAM(MousePosition);
 }
 
-void JWControl::OnMouseUp(LPARAM MousePosition)
+void JWControl::WindowMouseUp(LPARAM MousePosition)
 {
 	m_MousePosition.x = GET_X_LPARAM(MousePosition);
 	m_MousePosition.y = GET_Y_LPARAM(MousePosition);

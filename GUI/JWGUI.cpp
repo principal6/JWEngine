@@ -377,7 +377,7 @@ PRIVATE void JWGUI::MainLoop()
 	// Call event handlers of the control with focus
 	if (m_pControlWithFocus)
 	{
-		m_pControlWithFocus->CheckIMEInput(ms_bIMEWriting, ms_bIMECompleted, ms_IMEWritingChar, ms_IMECompletedChar);
+		m_pControlWithFocus->WindowIMEInput(ms_bIMEWriting, ms_bIMECompleted, ms_IMEWritingChar, ms_IMECompletedChar);
 		ms_bIMEWriting = false;
 		ms_bIMECompleted = false;
 		//memset(ms_IMEChar, 0, sizeof(ms_IMEChar));
@@ -385,22 +385,22 @@ PRIVATE void JWGUI::MainLoop()
 		switch (m_MSG.message)
 		{
 		case WM_KEYDOWN:
-			m_pControlWithFocus->OnKeyDown(m_MSG.wParam);
+			m_pControlWithFocus->WindowKeyDown(m_MSG.wParam);
 			break;
 		case WM_CHAR:
-			m_pControlWithFocus->OnCharKey(m_MSG.wParam);
+			m_pControlWithFocus->WindowCharKey(m_MSG.wParam);
 			break;
 		case WM_KEYUP:
-			m_pControlWithFocus->OnKeyUp(m_MSG.wParam);
+			m_pControlWithFocus->WindowKeyUp(m_MSG.wParam);
 			break;
 		case WM_MOUSEMOVE:
-			m_pControlWithFocus->OnMouseMove(m_MSG.lParam);
+			m_pControlWithFocus->WindowMouseMove(m_MSG.lParam);
 			break;
 		case WM_LBUTTONDOWN:
-			m_pControlWithFocus->OnMouseDown(m_MSG.lParam);
+			m_pControlWithFocus->WindowMouseDown(m_MSG.lParam);
 			break;
 		case WM_LBUTTONUP:
-			m_pControlWithFocus->OnMouseUp(m_MSG.lParam);
+			m_pControlWithFocus->WindowMouseUp(m_MSG.lParam);
 			break;
 		}
 	}

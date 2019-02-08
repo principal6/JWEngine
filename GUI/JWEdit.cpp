@@ -437,7 +437,7 @@ void JWEdit::SetUseMultiline(bool Value)
 }
 
 // TODO: IME INPUT ERRORS NEED TO BE FIXED!
-void JWEdit::CheckIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR)
+void JWEdit::WindowIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR)
 {
 	m_bIMEWriting = Writing;
 	m_bIMECompleted = Completed;
@@ -464,18 +464,29 @@ void JWEdit::CheckIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, T
 		// For debugging
 		//std::cout << "[DEBUG] IsIMEWriting(): " << static_cast<size_t>(m_pIMEWritingCharacter[0]) << std::endl;
 
-		m_IMETempSel = m_SelStart;
-		m_IMETempText = m_Text;
+		if (m_pIMEWritingCharacter[0])
+		{
+			// Show the character in progress,
+			// in case it's not deleted ('\0')
 
-		InsertChar(m_pIMEWritingCharacter[0]);
+			m_IMETempSel = m_SelStart;
+			m_IMETempText = m_Text;
 
-		m_Text = m_IMETempText;
-		m_SelStart = m_IMETempSel;
-		m_SelEnd = m_IMETempSel;
+			InsertChar(m_pIMEWritingCharacter[0]);
+
+			m_Text = m_IMETempText;
+			m_SelStart = m_IMETempSel;
+			m_SelEnd = m_IMETempSel;
+		}
+		else
+		{
+			UpdateText();
+			UpdateCaretAndSelection();
+		}
 	}
 }
 
-void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
+void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 {
 	size_t selection_size = 0;
 
@@ -603,7 +614,7 @@ void JWEdit::OnKeyDown(WPARAM VirtualKeyCode)
 	UpdateCaretAndSelection();
 }
 
-void JWEdit::OnCharKey(WPARAM Char)
+void JWEdit::WindowCharKey(WPARAM Char)
 {
 	wchar_t wchar = static_cast<wchar_t>(Char);
 
@@ -920,9 +931,9 @@ PRIVATE void JWEdit::SelectAll()
 	UpdateCaretAndSelection();
 }
 
-void JWEdit::OnMouseDown(LPARAM MousePosition)
+void JWEdit::WindowMouseDown(LPARAM MousePosition)
 {
-	JWControl::OnMouseDown(MousePosition);
+	JWControl::WindowMouseDown(MousePosition);
 
 	if (ms_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 	{
@@ -945,9 +956,9 @@ void JWEdit::OnMouseDown(LPARAM MousePosition)
 	UpdateCaretAndSelection();
 }
 
-void JWEdit::OnMouseMove(LPARAM MousePosition)
+void JWEdit::WindowMouseMove(LPARAM MousePosition)
 {
-	JWControl::OnMouseMove(MousePosition);
+	JWControl::WindowMouseMove(MousePosition);
 
 	if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 	{

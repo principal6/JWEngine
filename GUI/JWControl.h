@@ -6,6 +6,7 @@ namespace JWENGINE
 {
 	// ***
 	// *** Forward declaration ***
+	class JWGUI;
 	class JWWindow;
 	class JWFont;
 	class JWLine;
@@ -66,6 +67,8 @@ namespace JWENGINE
 
 	class JWControl
 	{
+	friend class JWGUI;
+
 	public:
 		JWControl();
 		virtual ~JWControl() {};
@@ -87,14 +90,8 @@ namespace JWENGINE
 		virtual auto IsMouseOver(const SMouseData& MouseData)->bool;
 		virtual auto IsMousePressed(const SMouseData& MouseData)->bool;
 
-		// Event
-		virtual void OnKeyDown(WPARAM VirtualKeyCode) {};
-		virtual void OnCharKey(WPARAM Char) {};
-		virtual void OnKeyUp(WPARAM VirtualKeyCode) {};
-		virtual void OnMouseMove(LPARAM MousePosition);
-		virtual void OnMouseDown(LPARAM MousePosition);
-		virtual void OnMouseUp(LPARAM MousePosition);
-		virtual void CheckIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR) {};
+		// Recall event
+		virtual auto OnSubItemClick() const->THandleItem { return THandle_Null; }; // ListBox
 
 		// Update
 		virtual void UpdateControlState(const SMouseData& MouseData);
@@ -168,7 +165,6 @@ namespace JWENGINE
 		virtual auto GetSelectedItemIndex() const->const TIndex { return TIndex_NotSpecified; }; // ListBox
 		virtual void ShouldUseAutomaticScrollBar(bool Value) {}; // ListBox
 		virtual void ShouldUseToggleSelection(bool Value) {}; // ListBox
-		virtual auto OnSubItemClick() const->THandleItem { return THandle_Null; }; // ListBox
 		virtual auto AddMenuBarItem(WSTRING Text)->THandleItem { return THandle_Null; }; // MenuBar
 		virtual auto AddMenuBarSubItem(THandleItem hItem, WSTRING Text)->THandleItem { return THandle_Null; }; // MenuBar
 
@@ -178,6 +174,15 @@ namespace JWENGINE
 		virtual void UpdateBorderPositionAndSize();
 		virtual void UpdateText();
 		virtual void UpdateViewport();
+
+		// Events called in JWGUI (friend class).
+		virtual void WindowKeyDown(WPARAM VirtualKeyCode) {};
+		virtual void WindowCharKey(WPARAM Char) {};
+		virtual void WindowKeyUp(WPARAM VirtualKeyCode) {};
+		virtual void WindowMouseMove(LPARAM MousePosition);
+		virtual void WindowMouseDown(LPARAM MousePosition);
+		virtual void WindowMouseUp(LPARAM MousePosition);
+		virtual void WindowIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR) {};
 
 	protected:
 		static const SGUISharedData* ms_pSharedData;

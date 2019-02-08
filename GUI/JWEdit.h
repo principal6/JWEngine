@@ -28,11 +28,13 @@ namespace JWENGINE
 		void SetSize(D3DXVECTOR2 Size) override;
 		void SetUseMultiline(bool Value) override;
 
-		void OnKeyDown(WPARAM VirtualKeyCode) override;
-		void OnCharKey(WPARAM Char) override;
-		void OnMouseDown(LPARAM MousePosition) override;
-		void OnMouseMove(LPARAM MousePosition) override;
-		void CheckIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR) override;
+	protected:
+		// Events called in JWGUI (friend class).
+		void WindowMouseDown(LPARAM MousePosition) override;
+		void WindowMouseMove(LPARAM MousePosition) override;
+		void WindowKeyDown(WPARAM VirtualKeyCode) override;
+		void WindowCharKey(WPARAM Char) override;
+		void WindowIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR) override;
 
 	private:
 		void SelectOrMoveCaretToLeft(size_t Stride = 1); // Select characters to the left or move the caret to the left
