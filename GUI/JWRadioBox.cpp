@@ -36,7 +36,7 @@ auto JWRadioBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
-	m_Type = EControlType::RadioBox;
+	m_ControlType = EControlType::RadioBox;
 
 	// Set control's size and position.
 	// @ WARNING:

@@ -94,7 +94,7 @@ auto JWScrollBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
-	m_Type = EControlType::ScrollBar;
+	m_ControlType = EControlType::ScrollBar;
 
 	// Set control's position.
 	// SetSize() must be called in MakeScrollBar()

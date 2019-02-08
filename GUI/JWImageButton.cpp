@@ -60,7 +60,7 @@ auto JWImageButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
-	m_Type = EControlType::ImageButton;
+	m_ControlType = EControlType::ImageButton;
 
 	// Set control's size and position.
 	SetSize(Size);
@@ -132,10 +132,10 @@ void JWImageButton::UpdateControlState(const SMouseData& MouseData)
 	{
 		// Mouse pressed
 
-		if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect))
+		if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_ControlRect))
 		{
 			// Mouse down position is inside RECT
-			if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
+			if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
 			{
 				m_ControlState = EControlState::Pressed;
 			}
@@ -144,7 +144,7 @@ void JWImageButton::UpdateControlState(const SMouseData& MouseData)
 				m_ControlState = EControlState::Hover;
 			}
 		}
-		else if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
+		else if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
 		{
 			// Mouse position is inside RECT
 			m_ControlState = EControlState::Hover;
@@ -159,7 +159,7 @@ void JWImageButton::UpdateControlState(const SMouseData& MouseData)
 	{
 		// Mouse released
 
-		if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
+		if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
 		{
 			// Mouse position is inside RECT
 

@@ -36,7 +36,7 @@ auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		return EError::CONTROL_NOT_CREATED;
 
 	// Set control type
-	m_Type = EControlType::ListBox;
+	m_ControlType = EControlType::ListBox;
 
 	// Set default color
 	m_pFont->SetBoxColor(GetMixedColor(0, DEFAULT_COLOR_NORMAL));

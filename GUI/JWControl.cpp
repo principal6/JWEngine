@@ -22,9 +22,9 @@ JWControl::JWControl()
 
 	m_PositionClient = D3DXVECTOR2(0, 0);
 	m_Size = D3DXVECTOR2(0, 0);
-	m_Rect = { 0, 0, 0, 0 };
+	m_ControlRect = { 0, 0, 0, 0 };
 
-	m_Type = EControlType::NotDefined;
+	m_ControlType = EControlType::NotDefined;
 	m_ControlState = EControlState::Normal;
 
 	m_bShouldDrawBorder = false;
@@ -84,7 +84,7 @@ auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	UpdateBorderPositionAndSize();
 
 	// Set control rect.
-	CalculateRECT();
+	CalculateControlRect();
 
 	// Get the original viewport to reset it later
 	ms_pSharedData->pWindow->GetDevice()->GetViewport(&m_OriginalViewport);
@@ -92,12 +92,12 @@ auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	return EError::OK;
 }
 
-PROTECTED void JWControl::CalculateRECT()
+PROTECTED void JWControl::CalculateControlRect()
 {
-	m_Rect.left = static_cast<int>(m_PositionClient.x);
-	m_Rect.right = static_cast<int>(m_Rect.left + m_Size.x);
-	m_Rect.top = static_cast<int>(m_PositionClient.y);
-	m_Rect.bottom = static_cast<int>(m_Rect.top + m_Size.y);
+	m_ControlRect.left = static_cast<int>(m_PositionClient.x);
+	m_ControlRect.right = static_cast<int>(m_ControlRect.left + m_Size.x);
+	m_ControlRect.top = static_cast<int>(m_PositionClient.y);
+	m_ControlRect.bottom = static_cast<int>(m_ControlRect.top + m_Size.y);
 }
 
 void JWControl::Destroy()
@@ -108,12 +108,39 @@ void JWControl::Destroy()
 
 auto JWControl::IsMouseOver(const SMouseData& MouseData)->bool
 {
-	return Static_IsMouseInRECT(MouseData.MousePosition, m_Rect);
+	return Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect);
 }
 
 auto JWControl::IsMousePressed(const SMouseData& MouseData)->bool
 {
-	return Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect);
+	return Static_IsMouseInRECT(MouseData.MouseDownPosition, m_ControlRect);
+}
+
+auto JWControl::OnMouseHover() const->bool
+{
+	if (m_ControlState == EControlState::Hover)
+	{
+		return true;
+	}
+	return false;
+}
+
+auto JWControl::OnMousePressed() const->bool
+{
+	if (m_ControlState == EControlState::Pressed)
+	{
+		return true;
+	}
+	return false;
+}
+
+auto JWControl::OnMouseCliked() const->bool
+{
+	if (m_ControlState == EControlState::Clicked)
+	{
+		return true;
+	}
+	return false;
 }
 
 void JWControl::WindowMouseMove(LPARAM MousePosition)
@@ -138,12 +165,12 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 {
 	m_UpdatedMousedata = MouseData;
 
-	if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
+	if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
 	{
 		// Mouse position is inside control's RECT
 		if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 		{
-			if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect))
+			if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_ControlRect))
 			{
 				m_ControlState = EControlState::Pressed;
 			}
@@ -296,7 +323,7 @@ void JWControl::SetPosition(D3DXVECTOR2 Position)
 
 	UpdateBorderPositionAndSize();
 
-	CalculateRECT();
+	CalculateControlRect();
 
 	UpdateViewport();
 }
@@ -307,7 +334,7 @@ void JWControl::SetSize(D3DXVECTOR2 Size)
 
 	UpdateBorderPositionAndSize();
 
-	CalculateRECT();
+	CalculateControlRect();
 
 	UpdateViewport();
 }
@@ -390,7 +417,7 @@ auto JWControl::GetText()->WSTRING
 
 auto JWControl::GetControlType() const->EControlType
 {
-	return m_Type;
+	return m_ControlType;
 }
 
 auto JWControl::GetClientMouseDownPosition() const->POINT

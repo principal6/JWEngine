@@ -52,7 +52,7 @@ auto JWCheckBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
-	m_Type = EControlType::CheckBox;
+	m_ControlType = EControlType::CheckBox;
 
 	// Set control's size and position.
 	SetSize(Size);

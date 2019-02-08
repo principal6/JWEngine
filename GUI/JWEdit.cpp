@@ -96,7 +96,7 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	m_CaretSize = D3DXVECTOR2(0, m_pFont->GetLineHeight());
 
 	// Set control type
-	m_Type = EControlType::Edit;
+	m_ControlType = EControlType::Edit;
 
 	// Set control's size and position.
 	SetSize(Size);

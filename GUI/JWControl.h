@@ -92,6 +92,9 @@ namespace JWENGINE
 
 		// Recall event
 		virtual auto OnSubItemClick() const->THandleItem { return THandle_Null; }; // ListBox
+		virtual auto OnMouseHover() const->bool;
+		virtual auto OnMousePressed() const->bool;
+		virtual auto OnMouseCliked() const->bool;
 
 		// Update
 		virtual void UpdateControlState(const SMouseData& MouseData);
@@ -169,7 +172,7 @@ namespace JWENGINE
 		virtual auto AddMenuBarSubItem(THandleItem hItem, WSTRING Text)->THandleItem { return THandle_Null; }; // MenuBar
 
 	protected:
-		virtual void CalculateRECT();
+		virtual void CalculateControlRect();
 		
 		virtual void UpdateBorderPositionAndSize();
 		virtual void UpdateText();
@@ -200,9 +203,9 @@ namespace JWENGINE
 
 		D3DXVECTOR2 m_PositionClient;
 		D3DXVECTOR2 m_Size;
-		RECT m_Rect;
+		RECT m_ControlRect;
 
-		EControlType m_Type;
+		EControlType m_ControlType;
 		EControlState m_ControlState;
 		WSTRING m_Text;
 

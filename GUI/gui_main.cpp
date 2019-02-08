@@ -16,6 +16,8 @@ THandleItem mb_file_new = THandle_Null;
 THandleItem mb_file_open = THandle_Null;
 THandleItem mb_help_info = THandle_Null;
 
+THandle textbutton1 = THandle_Null;
+
 int main()
 {
 	myGUI.Create(100, 100, 800, 600, DEFAULT_COLOR_LESS_BLACK);
@@ -37,7 +39,7 @@ int main()
 	myGUI.GetControlPtr(scrollbar2)->SetScrollRange(10, 30);
 	myGUI.GetControlPtr(scrollbar2)->SetScrollPosition(0);
 
-	THandle textbutton1 = myGUI.AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
+	textbutton1 = myGUI.AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
 		
 	THandle imagebutton1 = myGUI.AddControl(EControlType::ImageButton, D3DXVECTOR2(120, 0), D3DXVECTOR2(100, 50));
 	myGUI.GetControlPtr(imagebutton1)->MakeSystemArrowButton(ESystemArrowDirection::Left);
@@ -58,8 +60,6 @@ int main()
 
 	THandle radio1 = myGUI.AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 0), D3DXVECTOR2(0, 0));
 	THandle radio2 = myGUI.AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 20), D3DXVECTOR2(0, 0));
-
-	
 
 	LPDIRECT3DTEXTURE9 test_texture;
 	D3DXIMAGE_INFO test_texture_info;
@@ -97,6 +97,11 @@ void MainLoop()
 		{
 			std::cout << "FILE - NEW" << std::endl;
 		}
+	}
+	
+	if (myGUI.GetControlPtr(textbutton1)->OnMouseCliked())
+	{
+		std::cout << "CLICK" << std::endl;
 	}
 
 	myGUI.DrawAllControls();
