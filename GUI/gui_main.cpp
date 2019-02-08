@@ -29,6 +29,7 @@ int main()
 	THandleItem mb_help = myGUI.GetControlPtr(menubar)->AddMenuBarItem(L"도움말");
 	mb_help_info = myGUI.GetControlPtr(menubar)->AddMenuBarSubItem(mb_help, L"정보");
 
+
 	THandle scrollbar1 = myGUI.AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 0), D3DXVECTOR2(160, 0));
 	myGUI.GetControlPtr(scrollbar1)->MakeScrollBar(EScrollBarDirection::Horizontal);
 	myGUI.GetControlPtr(scrollbar1)->SetScrollRange(2, 5);
@@ -46,11 +47,10 @@ int main()
 
 	THandle checkbox1 = myGUI.AddControl(EControlType::CheckBox, D3DXVECTOR2(250, 0), D3DXVECTOR2(50, 50));
 
-	THandle label1 = myGUI.AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 40), L"레이블입니다!\n두 줄!");
-	myGUI.GetControlPtr(label1)->SetUseMultiline(true);
+	THandle label1 = myGUI.AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 40), L"레이블입니다!");
 	myGUI.GetControlPtr(label1)->SetVerticalAlignment(EVerticalAlignment::Middle);
 	myGUI.GetControlPtr(label1)->AttachScrollBar(myGUI.GetControlPtr(scrollbar2));
-
+	
 	THandle edit1 = myGUI.AddControl(EControlType::Edit, D3DXVECTOR2(100, 140), D3DXVECTOR2(160, 0),
 		L"This is JWEdit control");
 

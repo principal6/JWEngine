@@ -37,7 +37,7 @@ auto JWImageButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	{
 		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
-		m_pBackground->SetXRGB(DEFAULT_COLOR_NORMAL);
+		m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
 		m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 	}
 	else
@@ -56,8 +56,8 @@ auto JWImageButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		return EError::IMAGE_NOT_CREATED;
 	}
 
-	// Set default font alignment
-	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+	// Set default alignment
+	SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_ControlType = EControlType::ImageButton;
@@ -193,15 +193,15 @@ void JWImageButton::Draw()
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
-		m_pBackground->SetXRGB(m_Color_Normal);
+		m_pBackground->SetColor(m_Color_Normal);
 		m_pButtonImage->SetAtlasUV(m_NormalOffset, m_ButtonSizeInTexture);
 		break;
 	case JWENGINE::Hover:
-		m_pBackground->SetXRGB(m_Color_Hover);
+		m_pBackground->SetColor(m_Color_Hover);
 		m_pButtonImage->SetAtlasUV(m_HoverOffset, m_ButtonSizeInTexture);
 		break;
 	case JWENGINE::Pressed:
-		m_pBackground->SetXRGB(m_Color_Pressed);
+		m_pBackground->SetColor(m_Color_Pressed);
 		m_pButtonImage->SetAtlasUV(m_PressedOffset, m_ButtonSizeInTexture);
 		break;
 	case JWENGINE::Clicked:
@@ -222,9 +222,6 @@ void JWImageButton::Draw()
 	m_pBackground->Draw();
 
 	m_pButtonImage->Draw();
-
-	// Draw text
-	m_pFont->Draw();
 
 	JWControl::EndDrawing();
 }

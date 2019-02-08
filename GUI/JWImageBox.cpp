@@ -44,8 +44,8 @@ auto JWImageBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		return EError::ALLOCATION_FAILURE;
 	}
 
-	// Set default font alignment
-	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+	// Set default alignment
+	SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_ControlType = EControlType::ImageBox;
@@ -71,13 +71,13 @@ void JWImageBox::Draw()
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
-		m_pBackground->SetXRGB(m_Color_Normal);
+		m_pBackground->SetColor(m_Color_Normal);
 		break;
 	case JWENGINE::Hover:
-		m_pBackground->SetXRGB(m_Color_Hover);
+		m_pBackground->SetColor(m_Color_Hover);
 		break;
 	case JWENGINE::Pressed:
-		m_pBackground->SetXRGB(m_Color_Pressed);
+		m_pBackground->SetColor(m_Color_Pressed);
 		break;
 	case JWENGINE::Clicked:
 		break;
@@ -90,9 +90,6 @@ void JWImageBox::Draw()
 
 	// Draw image
 	m_pImage->Draw();
-
-	// Draw text.
-	m_pFont->Draw();
 
 	JWControl::EndDrawing();
 }
@@ -127,6 +124,5 @@ void JWImageBox::SetBackgroundColor(DWORD Color)
 {
 	JWControl::SetBackgroundColor(Color);
 
-	m_pBackground->SetAlpha(GetColorAlpha(Color));
-	m_pBackground->SetXRGB(GetColorXRGB(Color));
+	m_pBackground->SetColor(Color);
 }

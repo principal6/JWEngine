@@ -41,6 +41,7 @@ namespace JWENGINE
 		virtual void SetPositionCentered(D3DXVECTOR2 Position);
 		virtual void SetTexture(WSTRING FileName);
 		virtual void SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo);
+		virtual auto SetColor(DWORD Color)->JWImage*;
 		virtual auto SetAlpha(BYTE Alpha)->JWImage*;
 		virtual auto SetXRGB(DWORD XRGB)->JWImage*;
 		virtual auto SetScale(D3DXVECTOR2 Scale)->JWImage*;

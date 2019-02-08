@@ -26,11 +26,11 @@ JWMenuBar::JWMenuBar()
 
 auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
-	// MenuBar's position is fixed!
+	// MenuBar's position must be fixed!
 	Position.x = 0;
 	Position.y = 0;
 
-	// MenuBar's size is fixed!
+	// MenuBar's size must be fixed!
 	Size.x = static_cast<float>(ms_pSharedData->pWindow->GetWindowData()->ScreenSize.x);
 	Size.y = static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
 
@@ -39,9 +39,6 @@ auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 
 	// Set control type
 	m_ControlType = EControlType::MenuBar;
-
-	// Set default color
-	m_pFont->SetBoxColor(GetMixedColor(0, DEFAULT_COLOR_NORMAL));
 
 	// Create image for background
 	if (m_pBackground = new JWImage)
@@ -95,7 +92,7 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 	}
 
 	D3DXVECTOR2 item_size = m_Size;
-	item_size.x = static_cast<float>(m_pFont->GetFontData()->Info.Size * (Text.length() + 2));
+	item_size.x = static_cast<float>(ms_pFont->GetFontData()->Info.Size * (Text.length() + 2));
 	
 	new_item->Create(item_position, item_size);
 	new_item->SetText(Text);
@@ -266,9 +263,6 @@ void JWMenuBar::Draw()
 
 	// Draw background
 	m_pBackground->Draw();
-
-	// Draw text
-	m_pFont->Draw();
 
 	// Draw items
 	if (m_pItems.size())

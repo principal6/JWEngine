@@ -8,10 +8,10 @@ using namespace JWENGINE;
 
 // Static member variable
 const SGUISharedData* JWControl::ms_pSharedData;
+JWFont* JWControl::ms_pFont = nullptr;
 
 JWControl::JWControl()
 {
-	m_pFont = nullptr;
 	m_pBorderLine = nullptr;
 	m_pAttachedScrollBar = nullptr;
 
@@ -41,21 +41,24 @@ void JWControl::SetSharedData(const SGUISharedData* SharedData)
 
 auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
-	// Craete font
-	if (m_pFont = new JWFont)
+	// Create static font, if it doens't exist.
+	if (ms_pFont == nullptr)
 	{
-		if (JW_SUCCEEDED(m_pFont->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+		if (ms_pFont = new JWFont)
 		{
-			m_pFont->MakeFont(DEFAULT_FONT);
+			if (JW_SUCCEEDED(ms_pFont->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+			{
+				ms_pFont->MakeFont(DEFAULT_FONT);
+			}
+			else
+			{
+				return EError::FONT_NOT_CREATED;
+			}
 		}
 		else
 		{
-			return EError::FONT_NOT_CREATED;
+			return EError::ALLOCATION_FAILURE;
 		}
-	}
-	else
-	{
-		return EError::FONT_NOT_CREATED;
 	}
 
 	// Craete line for border
@@ -68,17 +71,20 @@ auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		}
 		else
 		{
-			return EError::FONT_NOT_CREATED;
+			return EError::LINE_NOT_CREATED;
 		}
 	}
 	else
 	{
-		return EError::FONT_NOT_CREATED;
+		return EError::ALLOCATION_FAILURE;
 	}
 
 	// Set control position and size.
 	m_PositionClient = Position;
 	m_Size = Size;
+
+	// Set text's default position.
+	m_TextPosition = m_PositionClient;
 
 	// Update border position and size.
 	UpdateBorderPositionAndSize();
@@ -102,7 +108,7 @@ PROTECTED void JWControl::CalculateControlRect()
 
 void JWControl::Destroy()
 {
-	JW_DESTROY(m_pFont);
+	JW_DESTROY(ms_pFont);
 	JW_DESTROY(m_pBorderLine);
 }
 
@@ -260,6 +266,14 @@ void JWControl::EndDrawing()
 		m_pBorderLine->Draw();
 	}
 
+	if (m_Text.length())
+	{
+		if (m_ControlType != EControlType::Edit)
+		{
+			ms_pFont->DrawInstantText(m_Text, m_TextPosition, m_HorizontalAlignment);
+		}
+	}
+
 	if (m_bShouldUseViewport)
 	{
 		ms_pSharedData->pWindow->GetDevice()->SetViewport(&m_OriginalViewport);
@@ -275,12 +289,6 @@ PROTECTED void JWControl::UpdateBorderPositionAndSize()
 	border_size.y -= 1.0f;
 
 	m_pBorderLine->SetBox(border_position, border_size);
-}
-
-PROTECTED void JWControl::UpdateText()
-{
-	m_pFont->ClearText();
-	m_pFont->SetText(m_Text, m_PositionClient, m_Size);
 }
 
 PROTECTED void JWControl::UpdateViewport()
@@ -321,6 +329,11 @@ void JWControl::SetPosition(D3DXVECTOR2 Position)
 {
 	m_PositionClient = Position;
 
+	// Set text's default position.
+	m_TextPosition = m_PositionClient;
+
+	SetAlignment(m_HorizontalAlignment, m_VerticalAlignment);
+
 	UpdateBorderPositionAndSize();
 
 	CalculateControlRect();
@@ -331,6 +344,8 @@ void JWControl::SetPosition(D3DXVECTOR2 Position)
 void JWControl::SetSize(D3DXVECTOR2 Size)
 {
 	m_Size = Size;
+
+	SetAlignment(m_HorizontalAlignment, m_VerticalAlignment);
 
 	UpdateBorderPositionAndSize();
 
@@ -343,7 +358,7 @@ void JWControl::SetText(WSTRING Text)
 {
 	m_Text = Text;
 
-	UpdateText();
+	SetAlignment(m_HorizontalAlignment, m_VerticalAlignment);
 }
 
 void JWControl::SetBorderColor(DWORD Color)
@@ -375,22 +390,53 @@ void JWControl::KillFocus()
 
 void JWControl::SetAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment)
 {
-	m_pFont->SetAlignment(HorizontalAlignment, VerticalAlignment);
+	SetHorizontalAlignment(HorizontalAlignment);
+	SetVerticalAlignment(VerticalAlignment);
 }
 
 void JWControl::SetHorizontalAlignment(EHorizontalAlignment Alignment)
 {
-	m_pFont->SetHorizontalAlignment(Alignment);
+	m_HorizontalAlignment = Alignment;
+
+	switch (m_HorizontalAlignment)
+	{
+	case JWENGINE::EHorizontalAlignment::Left:
+		m_TextPosition.x = m_PositionClient.x;
+		break;
+	case JWENGINE::EHorizontalAlignment::Center:
+		m_TextPosition.x = m_PositionClient.x + m_Size.x / 2.0f;
+		break;
+	case JWENGINE::EHorizontalAlignment::Right:
+		m_TextPosition.x = m_PositionClient.x + m_Size.x;
+		break;
+	default:
+		break;
+	}
 }
 
 void JWControl::SetVerticalAlignment(EVerticalAlignment Alignment)
 {
-	m_pFont->SetVerticalAlignment(Alignment);
+	m_VerticalAlignment = Alignment;
+
+	switch (m_VerticalAlignment)
+	{
+	case JWENGINE::EVerticalAlignment::Top:
+		m_TextPosition.y = m_PositionClient.y;
+		break;
+	case JWENGINE::EVerticalAlignment::Middle:
+		m_TextPosition.y = m_PositionClient.y + ((m_Size.y - ms_pFont->GetLineHeight()) / 2.0f);
+		break;
+	case JWENGINE::EVerticalAlignment::Bottom:
+		m_TextPosition.y = m_PositionClient.y + m_Size.y - ms_pFont->GetLineHeight();
+		break;
+	default:
+		break;
+	}
 }
 
 void JWControl::SetFontColor(DWORD Color)
 {
-	m_pFont->SetFontColor(Color);
+	ms_pFont->SetFontColor(Color);
 }
 
 auto JWControl::GetState() const->EControlState

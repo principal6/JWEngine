@@ -38,6 +38,23 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
+
+	// Create font object for edit control.
+	if (m_pEditFont = new JWFont)
+	{
+		if (JW_SUCCEEDED(m_pEditFont->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+		{
+			m_pEditFont->MakeFont(DEFAULT_FONT);
+		}
+		else
+		{
+			return EError::FONT_NOT_CREATED;
+		}
+	}
+	else
+	{
+		return EError::ALLOCATION_FAILURE;
+	}
 	
 	// Create line for caret
 	if (m_pCaret = new JWLine)
@@ -56,7 +73,7 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	// Create rectangle for selection
 	if (m_pSelection = new JWRectangle)
 	{
-		if (JW_FAILED(m_pSelection->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir, m_pFont->GetMaximumLineCount())))
+		if (JW_FAILED(m_pSelection->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir, m_pEditFont->GetMaximumLineCount())))
 			return EError::RECTANGLE_NOT_CREATED;
 
 		m_pSelection->SetRectangleAlpha(100);
@@ -82,18 +99,18 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	}
 
 	// Set default color
-	m_pFont->SetFontColor(DEFAULT_COLOR_FONT_EDIT);
-	m_pFont->SetBoxColor(GetMixedColor(0, DEFAULT_COLOR_NORMAL));
+	m_pEditFont->SetFontColor(DEFAULT_COLOR_FONT_EDIT);
+	m_pEditFont->SetBoxColor(GetMixedColor(0, DEFAULT_COLOR_NORMAL));
 
 	// Set borderline color
 	m_pBorderLine->SetBoxColor(DEFAULT_COLOR_PRESSED, DEFAULT_COLOR_DARK_HIGHLIGHT);
 
 	// Set multiline and singleline y size
 	m_YSizeMultiline = Size.y;
-	m_YSizeSingleline = m_pFont->GetLineHeight() + EDIT_PADDING_Y * 2;
+	m_YSizeSingleline = m_pEditFont->GetLineHeight() + EDIT_PADDING_Y * 2;
 
 	// Set caret size
-	m_CaretSize = D3DXVECTOR2(0, m_pFont->GetLineHeight());
+	m_CaretSize = D3DXVECTOR2(0, m_pEditFont->GetLineHeight());
 
 	// Set control type
 	m_ControlType = EControlType::Edit;
@@ -120,7 +137,7 @@ void JWEdit::Draw()
 
 	m_pBackground->Draw();
 
-	m_pFont->Draw();
+	m_pEditFont->Draw();
 
 	if (m_bHasFocus)
 	{
@@ -246,7 +263,7 @@ PRIVATE void JWEdit::UpdateText()
 	text_size.x -= EDIT_PADDING_X * 2;
 	text_size.y -= EDIT_PADDING_Y * 2;
 
-	m_pFont->SetText(m_Text, text_position, text_size, true);
+	m_pEditFont->SetText(m_Text, text_position, text_size, true);
 }
 
 PRIVATE void JWEdit::UpdateCaretAndSelection()
@@ -269,7 +286,7 @@ PRIVATE void JWEdit::UpdateCaretPosition()
 			// Save the changed caret sel position for the next comparison
 			m_PreviousCaretSelPosition = *m_pCaretSelPosition;
 
-			m_pFont->UpdateCaretPosition(*m_pCaretSelPosition, &m_CaretPosition);
+			m_pEditFont->UpdateCaretPosition(*m_pCaretSelPosition, &m_CaretPosition);
 
 			m_pCaret->SetLine(0, m_CaretPosition, m_CaretSize);
 		}
@@ -299,26 +316,26 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 			D3DXVECTOR2 SelectionPosition = D3DXVECTOR2(0, 0);
 			D3DXVECTOR2 SelectionSize = D3DXVECTOR2(0, 0);
 
-			size_t sel_start_line_index = m_pFont->GetLineIndexByCharIndex(m_SelStart);
-			size_t sel_end_line_index = m_pFont->GetLineIndexByCharIndex(m_SelEnd);
-			float SelStartXPosition = m_pFont->GetCharXPosition(m_SelStart);
-			float SelEndXPosition = m_pFont->GetCharXPosition(m_SelEnd);
+			size_t sel_start_line_index = m_pEditFont->GetLineIndexByCharIndex(m_SelStart);
+			size_t sel_end_line_index = m_pEditFont->GetLineIndexByCharIndex(m_SelEnd);
+			float SelStartXPosition = m_pEditFont->GetCharXPosition(m_SelStart);
+			float SelEndXPosition = m_pEditFont->GetCharXPosition(m_SelEnd);
 
 			if (sel_start_line_index == sel_end_line_index)
 			{
 				if (!m_bUseMultiline)
 				{
 					// This is a single-line edit
-					SelStartXPosition = m_pFont->GetCharXPositionInBox(m_SelStart);
-					SelEndXPosition = m_pFont->GetCharXPositionInBox(m_SelEnd);
+					SelStartXPosition = m_pEditFont->GetCharXPositionInBox(m_SelStart);
+					SelEndXPosition = m_pEditFont->GetCharXPositionInBox(m_SelEnd);
 				}
 
 				// SelStart and SelEnd are in the same line (single-line selection)
 				SelectionPosition.x = SelStartXPosition;
-				SelectionPosition.y = m_pFont->GetLineYPositionByCharIndex(m_SelStart);
+				SelectionPosition.y = m_pEditFont->GetLineYPositionByCharIndex(m_SelStart);
 
 				SelectionSize.x = SelEndXPosition - SelStartXPosition;
-				SelectionSize.y = m_pFont->GetLineHeight();
+				SelectionSize.y = m_pEditFont->GetLineHeight();
 
 				m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
 			}
@@ -327,10 +344,10 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 				// SelStart and SelEnd are in different lines (multiple-line selection)
 				// Firstly, we must select the SelStart line
 				SelectionPosition.x = SelStartXPosition;
-				SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(sel_start_line_index) + EDIT_PADDING_Y;
+				SelectionPosition.y = m_PositionClient.y + m_pEditFont->GetLineYPosition(sel_start_line_index) + EDIT_PADDING_Y;
 
-				SelectionSize.x = m_pFont->GetLineWidthByCharIndex(m_SelStart) - SelStartXPosition + m_PositionClient.x + EDIT_PADDING_X;
-				SelectionSize.y = m_pFont->GetLineHeight();
+				SelectionSize.x = m_pEditFont->GetLineWidthByCharIndex(m_SelStart) - SelStartXPosition + m_PositionClient.x + EDIT_PADDING_X;
+				SelectionSize.y = m_pEditFont->GetLineHeight();
 
 				m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
 
@@ -342,10 +359,10 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 						// This is the last line
 						// so, select from the first letter to SelEnd
 						SelectionPosition.x = m_PositionClient.x;
-						SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(sel_end_line_index) + EDIT_PADDING_Y;
+						SelectionPosition.y = m_PositionClient.y + m_pEditFont->GetLineYPosition(sel_end_line_index) + EDIT_PADDING_Y;
 
 						SelectionSize.x = SelEndXPosition - m_PositionClient.x;
-						SelectionSize.y = m_pFont->GetLineHeight();
+						SelectionSize.y = m_pEditFont->GetLineHeight();
 
 						m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
 					}
@@ -354,10 +371,10 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 						// This isn't the last line
 						// so, we must select the whole line
 						SelectionPosition.x = m_PositionClient.x;
-						SelectionPosition.y = m_PositionClient.y + m_pFont->GetLineYPosition(iterator_line) + EDIT_PADDING_Y;
+						SelectionPosition.y = m_PositionClient.y + m_pEditFont->GetLineYPosition(iterator_line) + EDIT_PADDING_Y;
 
-						SelectionSize.x = m_pFont->GetLineWidth(iterator_line) + EDIT_PADDING_X;
-						SelectionSize.y = m_pFont->GetLineHeight();
+						SelectionSize.x = m_pEditFont->GetLineWidth(iterator_line) + EDIT_PADDING_X;
+						SelectionSize.y = m_pEditFont->GetLineHeight();
 
 						// Add selection box only when it's inside the Edit control's visible region.
 						if ((SelectionPosition.y >= m_PositionClient.y) && (SelectionPosition.y <= m_PositionClient.y + m_Size.y))
@@ -395,7 +412,7 @@ PRIVATE auto JWEdit::IsTextEmpty() const->bool
 
 PRIVATE auto JWEdit::GetTextLength() const->size_t
 {
-	return m_pFont->GetTextLength();
+	return m_pEditFont->GetTextLength();
 }
 
 void JWEdit::SetPosition(D3DXVECTOR2 Position)
@@ -428,11 +445,18 @@ void JWEdit::SetSize(D3DXVECTOR2 Size)
 
 void JWEdit::SetUseMultiline(bool Value)
 {
-	m_pFont->SetUseMultiline(Value);
+	m_pEditFont->SetUseMultiline(Value);
 	m_bUseMultiline = Value;
 
 	m_Size.y = m_YSizeMultiline;
 	SetSize(m_Size);
+	UpdateText();
+}
+
+void JWEdit::SetText(WSTRING Text)
+{
+	JWControl::SetText(Text);
+	
 	UpdateText();
 }
 
@@ -518,7 +542,7 @@ void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 			m_pCaretSelPosition = &m_SelStart;
 		}
 
-		SelectOrMoveCaretToLeft(m_pFont->GetLineSelPositionByCharIndex(*m_pCaretSelPosition));
+		SelectOrMoveCaretToLeft(m_pEditFont->GetLineSelPositionByCharIndex(*m_pCaretSelPosition));
 
 		break;
 	case VK_END:
@@ -530,8 +554,8 @@ void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 			m_pCaretSelPosition = &m_SelEnd;
 		}
 
-		SelectOrMoveCaretToRight(m_pFont->GetLineLengthByCharIndex(*m_pCaretSelPosition)
-			- m_pFont->GetLineSelPositionByCharIndex(*m_pCaretSelPosition) - 1);
+		SelectOrMoveCaretToRight(m_pEditFont->GetLineLengthByCharIndex(*m_pCaretSelPosition)
+			- m_pEditFont->GetLineSelPositionByCharIndex(*m_pCaretSelPosition) - 1);
 
 		break;
 	case VK_LEFT:
@@ -559,15 +583,15 @@ void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 
 		break;
 	case VK_DOWN:
-		current_line_index = m_pFont->GetLineIndexByCharIndex(*m_pCaretSelPosition);
+		current_line_index = m_pEditFont->GetLineIndexByCharIndex(*m_pCaretSelPosition);
 
 		compare_line_index = current_line_index + 1;
 
-		if (compare_line_index < m_pFont->GetLineCount())
+		if (compare_line_index < m_pEditFont->GetLineCount())
 		{
-			current_line_sel_position = m_pFont->GetLineSelPositionByCharIndex(*m_pCaretSelPosition);
-			current_line_length = m_pFont->GetLineLength(current_line_index);
-			compare_line_length = m_pFont->GetLineLength(compare_line_index);
+			current_line_sel_position = m_pEditFont->GetLineSelPositionByCharIndex(*m_pCaretSelPosition);
+			current_line_length = m_pEditFont->GetLineLength(current_line_index);
+			compare_line_length = m_pEditFont->GetLineLength(compare_line_index);
 
 			if (current_line_sel_position >= compare_line_length)
 			{
@@ -585,16 +609,16 @@ void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 		}
 		break;
 	case VK_UP:
-		current_line_index = m_pFont->GetLineIndexByCharIndex(*m_pCaretSelPosition);
+		current_line_index = m_pEditFont->GetLineIndexByCharIndex(*m_pCaretSelPosition);
 
 		if (current_line_index)
 		{
 			compare_line_index = current_line_index - 1;
 		}
 
-		current_line_sel_position = m_pFont->GetLineSelPositionByCharIndex(*m_pCaretSelPosition);
-		current_line_length = m_pFont->GetLineLength(current_line_index);
-		compare_line_length = m_pFont->GetLineLength(compare_line_index);
+		current_line_sel_position = m_pEditFont->GetLineSelPositionByCharIndex(*m_pCaretSelPosition);
+		current_line_length = m_pEditFont->GetLineLength(current_line_index);
+		compare_line_length = m_pEditFont->GetLineLength(compare_line_index);
 
 		if (current_line_sel_position >= compare_line_length)
 		{
@@ -765,8 +789,8 @@ PRIVATE void JWEdit::InsertChar(wchar_t Char)
 {
 	m_SelEnd = m_SelStart;
 
-	wchar_t current_sel_character = m_pFont->GetCharacter(m_SelStart);
-	size_t adjusted_sel_position = m_pFont->GetAdjustedSelPosition(m_SelStart);
+	wchar_t current_sel_character = m_pEditFont->GetCharacter(m_SelStart);
+	size_t adjusted_sel_position = m_pEditFont->GetAdjustedSelPosition(m_SelStart);
 
 	// If this is a multi-line edit,
 	// split line ends with '\0'
@@ -783,7 +807,7 @@ PRIVATE void JWEdit::InsertChar(wchar_t Char)
 
 	if (m_SelStart)
 	{
-		if (m_pFont->GetCharacter(m_SelStart) == 0)
+		if (m_pEditFont->GetCharacter(m_SelStart) == 0)
 		{
 			// Splitted line's end
 			MoveCaretToRight(2);
@@ -806,8 +830,8 @@ PRIVATE void JWEdit::InsertString(WSTRING String)
 {
 	m_SelEnd = m_SelStart;
 
-	wchar_t current_sel_character = m_pFont->GetCharacter(m_SelStart);
-	size_t adjusted_sel_position = m_pFont->GetAdjustedSelPosition(m_SelStart);
+	wchar_t current_sel_character = m_pEditFont->GetCharacter(m_SelStart);
+	size_t adjusted_sel_position = m_pEditFont->GetAdjustedSelPosition(m_SelStart);
 
 	// If this is a multi-line edit,
 	// split line ends with '\0'
@@ -846,7 +870,7 @@ PRIVATE void JWEdit::InsertString(WSTRING String)
 	{
 		if (m_SelStart)
 		{
-			if (m_pFont->GetCharacter(m_SelStart) == 0)
+			if (m_pEditFont->GetCharacter(m_SelStart) == 0)
 			{
 				// Splitted line's end
 				MoveCaretToRight(stride + 1);
@@ -872,7 +896,7 @@ PRIVATE void JWEdit::InsertString(WSTRING String)
 
 PRIVATE void JWEdit::InsertNewLine()
 {
-	if (m_pFont->GetUseMultiline())
+	if (m_pEditFont->GetUseMultiline())
 	{
 		InsertChar(L'\n');
 	}
@@ -880,9 +904,9 @@ PRIVATE void JWEdit::InsertNewLine()
 
 PRIVATE void JWEdit::EraseSelectedText(bool bEraseAfter)
 {
-	wchar_t current_character = m_pFont->GetCharacter(m_SelStart);
+	wchar_t current_character = m_pEditFont->GetCharacter(m_SelStart);
 	size_t erase_count = m_SelEnd - m_SelStart;
-	size_t adjusted_sel_position = m_pFont->GetAdjustedSelPosition(m_SelStart);
+	size_t adjusted_sel_position = m_pEditFont->GetAdjustedSelPosition(m_SelStart);
 	if ((current_character == 0) && (bEraseAfter))
 	{
 		adjusted_sel_position++;
@@ -937,7 +961,7 @@ void JWEdit::WindowMouseDown(LPARAM MousePosition)
 
 	if (ms_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 	{
-		*m_pCaretSelPosition = m_pFont->GetCharIndexByMousePosition(m_MousePosition);
+		*m_pCaretSelPosition = m_pEditFont->GetCharIndexByMousePosition(m_MousePosition);
 
 		if (m_SelEnd < m_SelStart)
 		{
@@ -947,7 +971,7 @@ void JWEdit::WindowMouseDown(LPARAM MousePosition)
 	}
 	else
 	{
-		m_SelStart = m_pFont->GetCharIndexByMousePosition(m_MousePosition);
+		m_SelStart = m_pEditFont->GetCharIndexByMousePosition(m_MousePosition);
 		m_SelEnd = m_SelStart;
 		m_pCapturedSelPosition = &m_SelStart;
 		m_pCaretSelPosition = &m_SelEnd;
@@ -962,7 +986,7 @@ void JWEdit::WindowMouseMove(LPARAM MousePosition)
 
 	if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 	{
-		*m_pCaretSelPosition = m_pFont->GetCharIndexByMousePosition(m_MousePosition);
+		*m_pCaretSelPosition = m_pEditFont->GetCharIndexByMousePosition(m_MousePosition);
 
 		if (m_SelEnd < m_SelStart)
 		{

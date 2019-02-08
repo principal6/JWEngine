@@ -27,7 +27,7 @@ auto JWCheckBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	{
 		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
-		m_pBackground->SetXRGB(DEFAULT_COLOR_ALMOST_WHITE);
+		m_pBackground->SetColor(DEFAULT_COLOR_ALMOST_WHITE);
 		m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 	}
 	else
@@ -48,8 +48,8 @@ auto JWCheckBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		return EError::IMAGE_NOT_CREATED;
 	}
 
-	// Set default font alignment
-	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+	// Set default alignment
+	SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_ControlType = EControlType::CheckBox;
@@ -96,9 +96,6 @@ void JWCheckBox::Draw()
 	{
 		m_pCheckImage->Draw();
 	}
-
-	// Draw text.
-	m_pFont->Draw();
 
 	JWControl::EndDrawing();
 }

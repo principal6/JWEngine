@@ -157,8 +157,8 @@ namespace JWENGINE
 		virtual auto GetScrollRange() const->size_t { return 0; } // ScrollBar
 		virtual auto GetScrollPosition() const->size_t { return 0; } // ScrollBar
 
-		// SetUseMultiline() is available only for JWEdit or JWLabel control
-		virtual void SetUseMultiline(bool Value) {}; // Edit, Label
+		// SetUseMultiline() is available only for JWEdit control
+		virtual void SetUseMultiline(bool Value) {}; // Edit
 
 		virtual void UseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo) {}; // ListBox
 		virtual void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0), D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0)) {}; // ListBox
@@ -175,7 +175,6 @@ namespace JWENGINE
 		virtual void CalculateControlRect();
 		
 		virtual void UpdateBorderPositionAndSize();
-		virtual void UpdateText();
 		virtual void UpdateViewport();
 
 		// Events called in JWGUI (friend class).
@@ -189,11 +188,11 @@ namespace JWENGINE
 
 	protected:
 		static const SGUISharedData* ms_pSharedData;
+		static JWFont* ms_pFont;
 
 		D3DVIEWPORT9 m_OriginalViewport;
 		D3DVIEWPORT9 m_ControlViewport;
 
-		JWFont* m_pFont;
 		JWLine* m_pBorderLine;
 		JWScrollBar* m_pAttachedScrollBar;
 
@@ -207,7 +206,11 @@ namespace JWENGINE
 
 		EControlType m_ControlType;
 		EControlState m_ControlState;
+
 		WSTRING m_Text;
+		EHorizontalAlignment m_HorizontalAlignment;
+		EVerticalAlignment m_VerticalAlignment;
+		D3DXVECTOR2 m_TextPosition;
 
 		bool m_bShouldDrawBorder;
 		bool m_bShouldUseViewport;

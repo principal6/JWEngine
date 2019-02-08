@@ -1,5 +1,6 @@
 #include "JWLabel.h"
 #include "../CoreBase/JWFont.h"
+#include "../CoreBase/JWImage.h"
 
 using namespace JWENGINE;
 
@@ -16,17 +17,35 @@ auto JWLabel::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	if (JW_FAILED(JWControl::Create(Position, Size)))
 		return EError::CONTROL_NOT_CREATED;
 
+	// Create image for background
+	if (m_pBackground = new JWImage)
+	{
+		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+			return EError::IMAGE_NOT_CREATED;
+
+		m_pBackground->SetPosition(Position);
+		m_pBackground->SetSize(Size);
+		m_pBackground->SetAlpha(DEFUALT_ALPHA_BACKGROUND_LABEL);
+		m_pBackground->SetXRGB(DEFAULT_COLOR_BACKGROUND_LABEL);
+	}
+	else
+	{
+		return EError::ALLOCATION_FAILURE;
+	}
+
 	// Set control type
 	m_ControlType = EControlType::Label;
-
-	// Set default background color
-	m_pFont->SetBoxColor(GetMixedColor(DEFUALT_ALPHA_BACKGROUND_LABEL, DEFAULT_COLOR_BACKGROUND_LABEL));
 
 	// Set control's size and position.
 	SetSize(Size);
 	SetPosition(Position);
 
 	return EError::OK;
+}
+
+void JWLabel::Destroy()
+{
+	JW_DESTROY(m_pBackground);
 }
 
 void JWLabel::Draw()
@@ -36,13 +55,13 @@ void JWLabel::Draw()
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
-		m_pFont->SetBoxColor(m_Color_Normal);
+		m_pBackground->SetColor(m_Color_Normal);
 		break;
 	case JWENGINE::Hover:
-		m_pFont->SetBoxColor(m_Color_Hover);
+		m_pBackground->SetColor(m_Color_Hover);
 		break;
 	case JWENGINE::Pressed:
-		m_pFont->SetBoxColor(m_Color_Pressed);
+		m_pBackground->SetColor(m_Color_Pressed);
 		break;
 	case JWENGINE::Clicked:
 		break;
@@ -50,8 +69,7 @@ void JWLabel::Draw()
 		break;
 	}
 
-	// Draw text
-	m_pFont->Draw();
+	m_pBackground->Draw();
 
 	JWControl::EndDrawing();
 }
@@ -59,19 +77,9 @@ void JWLabel::Draw()
 void JWLabel::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
-
-	m_pFont->SetText(m_Text, m_PositionClient, m_Size);
 }
 
 void JWLabel::SetSize(D3DXVECTOR2 Size)
 {
 	JWControl::SetSize(Size);
-
-	m_pFont->SetText(m_Text, m_PositionClient, m_Size);
-}
-
-void JWLabel::SetUseMultiline(bool Value)
-{
-	m_pFont->SetUseMultiline(Value);
-	UpdateText();
 }

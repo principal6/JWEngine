@@ -28,6 +28,9 @@ namespace JWENGINE
 		void SetSize(D3DXVECTOR2 Size) override;
 		void SetUseMultiline(bool Value) override;
 
+		// We must override SetText() in order to UpdateText().
+		void SetText(WSTRING Text) override;
+
 	protected:
 		// Events called in JWGUI (friend class).
 		void WindowMouseDown(LPARAM MousePosition) override;
@@ -72,6 +75,7 @@ namespace JWENGINE
 		static const float EDIT_PADDING_Y;
 
 		JWImage* m_pBackground;
+		JWFont* m_pEditFont;
 
 		JWLine* m_pCaret;
 		D3DXVECTOR2 m_CaretSize;

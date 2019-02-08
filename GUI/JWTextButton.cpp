@@ -32,8 +32,8 @@ auto JWTextButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 		return EError::IMAGE_NOT_CREATED;
 	}
 
-	// Set default font alignment
-	m_pFont->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+	// Set default alignment
+	SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_ControlType = EControlType::TextButton;
@@ -136,9 +136,6 @@ void JWTextButton::Draw()
 	}
 
 	m_pImage->Draw();
-
-	// Draw text
-	m_pFont->Draw();
 
 	JWControl::EndDrawing();
 }

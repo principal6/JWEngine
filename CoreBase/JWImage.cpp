@@ -227,6 +227,20 @@ void JWImage::SetPositionCentered(D3DXVECTOR2 Position)
 	UpdateVertexData();
 }
 
+auto JWImage::SetColor(DWORD Color)->JWImage*
+{
+	if (m_Vertices.size())
+	{
+		for (SVertexImage& iterator : m_Vertices)
+		{
+			iterator.color = Color;
+		}
+		UpdateVertexBuffer();
+	}
+
+	return this;
+}
+
 auto JWImage::SetAlpha(BYTE Alpha)->JWImage*
 {
 	if (m_Vertices.size())

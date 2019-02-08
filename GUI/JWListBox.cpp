@@ -38,9 +38,6 @@ auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	// Set control type
 	m_ControlType = EControlType::ListBox;
 
-	// Set default color
-	m_pFont->SetBoxColor(GetMixedColor(0, DEFAULT_COLOR_NORMAL));
-
 	// Create image for background
 	if (m_pBackground = new JWImage)
 	{
@@ -54,7 +51,7 @@ auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	}
 	else
 	{
-		return EError::NULLPTR_IMAGE;
+		return EError::ALLOCATION_FAILURE;
 	}
 
 	// Create ScrollBar
@@ -67,7 +64,7 @@ auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	}
 	else
 	{
-		return EError::NULLPTR_SCROLLBAR;
+		return EError::ALLOCATION_FAILURE;
 	}
 
 	// Set control's size and position.
@@ -390,9 +387,6 @@ void JWListBox::Draw()
 	// Draw background
 	m_pBackground->Draw();
 
-	// Draw text
-	m_pFont->Draw();
-
 	// Draw items
 	if (m_ItemInfo.size())
 	{
@@ -428,8 +422,7 @@ void JWListBox::SetBackgroundColor(DWORD Color)
 {
 	JWControl::SetBackgroundColor(Color);
 
-	m_pBackground->SetAlpha(GetColorAlpha(Color));
-	m_pBackground->SetXRGB(GetColorXRGB(Color));
+	m_pBackground->SetColor(Color);
 }
 
 void JWListBox::SetPosition(D3DXVECTOR2 Position)
