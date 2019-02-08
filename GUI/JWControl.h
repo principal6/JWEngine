@@ -9,6 +9,7 @@ namespace JWENGINE
 	class JWWindow;
 	class JWFont;
 	class JWLine;
+	class JWScrollBar;
 
 	enum class EHorizontalAlignment;
 	enum class EVerticalAlignment;
@@ -98,6 +99,10 @@ namespace JWENGINE
 		// Update
 		virtual void UpdateControlState(const SMouseData& MouseData);
 
+		// Attach ScrollBar
+		virtual void AttachScrollBar(JWControl* pScrollBar);
+		virtual void DetachScrollBar();
+
 		/** Draw functions
 		*/
 		// BeginDrawing() sets the viewport for the control.
@@ -182,6 +187,7 @@ namespace JWENGINE
 
 		JWFont* m_pFont;
 		JWLine* m_pBorderLine;
+		JWScrollBar* m_pAttachedScrollBar;
 
 		DWORD m_Color_Normal;
 		DWORD m_Color_Hover;

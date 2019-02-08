@@ -2,6 +2,7 @@
 #include "../CoreBase/JWWindow.h"
 #include "../CoreBase/JWFont.h"
 #include "../CoreBase/JWLine.h"
+#include "JWScrollBar.h"
 
 using namespace JWENGINE;
 
@@ -11,6 +12,8 @@ const SGUISharedData* JWControl::ms_pSharedData;
 JWControl::JWControl()
 {
 	m_pFont = nullptr;
+	m_pBorderLine = nullptr;
+	m_pAttachedScrollBar = nullptr;
 
 	// Set default color for each control state.
 	m_Color_Normal = DEFAULT_COLOR_NORMAL;
@@ -137,7 +140,7 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 
 	if (Static_IsMouseInRECT(MouseData.MousePosition, m_Rect))
 	{
-		// Mouse position is inside RECT
+		// Mouse position is inside control's RECT
 		if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 		{
 			if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_Rect))
@@ -162,12 +165,57 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 				m_ControlState = EControlState::Hover;
 			}
 		}
+
+		// Check mouse wheel
+		if (MouseData.MouseWheeled)
+		{
+			if (m_pAttachedScrollBar)
+			{
+				// IF,
+				// this control has an attached ScrollBar.
+
+				long long current_scroll_position = m_pAttachedScrollBar->GetScrollPosition();
+
+				if (MouseData.MouseWheeled > 0)
+				{
+					current_scroll_position--;
+					current_scroll_position = max(current_scroll_position, 0);
+
+					m_pAttachedScrollBar->SetScrollPosition(current_scroll_position);
+				}
+				else
+				{
+					current_scroll_position++;
+
+					m_pAttachedScrollBar->SetScrollPosition(current_scroll_position);
+				}
+
+				m_pAttachedScrollBar->SetState(EControlState::Hover);
+			}
+		}
+
 	}
 	else
 	{
-		// Mouse position is out of RECT
+		// Mouse position is out of control's RECT
 		m_ControlState = EControlState::Normal;
 	}
+}
+
+void JWControl::AttachScrollBar(JWControl* pScrollBar)
+{
+	if (this == pScrollBar)
+	{
+		// You can't attach yourself!
+		return;
+	}
+
+	m_pAttachedScrollBar = static_cast<JWScrollBar*>(pScrollBar);
+}
+
+void JWControl::DetachScrollBar()
+{
+	m_pAttachedScrollBar = nullptr;
 }
 
 void JWControl::BeginDrawing()
