@@ -33,7 +33,7 @@ auto JWRadioBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIShared
 	}
 
 	// Set default alignment
-	SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_ControlType = EControlType::RadioBox;
@@ -91,7 +91,7 @@ void JWRadioBox::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
 
-	m_pBackground->SetPosition(m_PositionClient);
+	m_pBackground->SetPosition(m_Position);
 }
 
 void JWRadioBox::SetCheckState(bool Value)

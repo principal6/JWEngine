@@ -32,7 +32,7 @@ namespace JWENGINE
 		void Destroy() override;
 
 		void SetMinimumItemHeight(float Value) override;
-		void UseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo) override;
+		void ShouldUseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo) override;
 
 		void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0), D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0)) override;
 

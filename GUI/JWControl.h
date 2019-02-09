@@ -73,51 +73,74 @@ namespace JWENGINE
 		JWControl();
 		virtual ~JWControl() {};
 
-		// Create, destroy
+		// Create JWControl.
 		virtual auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError;
+
+		// Destroy JWControl.
 		virtual void Destroy();
 
-		// Sub-class maker
+		/*
+		** Maker functions for sub-classes
+		*/
+		// [JWImageButton] Make a normal JWImageButton.
 		virtual void MakeImageButton(WSTRING TextureAtlasFileName, D3DXVECTOR2 ButtonSizeInTexture, D3DXVECTOR2 NormalOffset,
-			D3DXVECTOR2 HoverOffset, D3DXVECTOR2 PressedOffset) {}; // ImageButton
-		virtual void MakeSystemArrowButton(ESystemArrowDirection Direction) {}; // ImageButton
-		virtual void MakeScrollBar(EScrollBarDirection Direction) {}; // ScrollBar
+			D3DXVECTOR2 HoverOffset, D3DXVECTOR2 PressedOffset) {};
 
-		// Mouse
+		// [JWImageButton] Make a system arrow JWImageButton.
+		virtual void MakeSystemArrowButton(ESystemArrowDirection Direction) {};
+
+		// [JWScrollBar] Decide the direction (horizontal/vertical) of the JWScrollBar.
+		virtual void MakeScrollBar(EScrollBarDirection Direction) {};
+
+		// Check if the mouse cursor is on this control.
 		virtual auto IsMouseOver(const SMouseData& MouseData)->bool;
-		virtual auto IsMousePressed(const SMouseData& MouseData)->bool;
 
-		// Recall event
-		virtual auto OnSubItemClick() const->THandleItem { return THandle_Null; }; // ListBox
+		/*
+		** Recall event
+		*/
+		// [JWListBox] Return THandleItem value of the selected sub-item in the JWListBox.
+		virtual auto OnSubItemClick() const->THandleItem { return THandle_Null; };
+
+		// Return true if JWControl's state is Hover.
 		virtual auto OnMouseHover() const->bool;
+
+		// Return true if JWControl's state is Pressed.
 		virtual auto OnMousePressed() const->bool;
+
+		// Return true if JWControl's state is Clicked.
 		virtual auto OnMouseCliked() const->bool;
 
-		// Update
+		// Update control's state.
 		virtual void UpdateControlState(const SMouseData& MouseData);
 
-		// Attach ScrollBar
+		// Attach JWScrollBar to this control.
 		virtual void AttachScrollBar(JWControl* pScrollBar);
+
+		// Detach the formerly attached JWScrollBar.
 		virtual void DetachScrollBar();
 
-		/** Draw functions
+		/*
+		** Draw functions
 		*/
-		// BeginDrawing() sets the viewport for the control.
+		// Set the viewport for this control.
 		virtual void BeginDrawing();
 
-		// Draw() is defined in sub-classes.
+		// @warning: This function is defined in sub-classes.
 		virtual void Draw() {};
 
-		// EndDrawing() draws control's borderline if m_bShouldDrawBorder is set true.
-		// and it resets the original viewport.
+		// Draw control's borderline if 'ShouldDrawBorder' property is set true.
+		// and also reset the original viewport.
 		virtual void EndDrawing();
 
 
-		/** Font-related functions
+		/*
+		** Text(font)-related functions
 		*/
-		virtual void SetAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment);
-		virtual void SetHorizontalAlignment(EHorizontalAlignment Alignment);
-		virtual void SetVerticalAlignment(EVerticalAlignment Alignment);
+		virtual void SetText(WSTRING Text);
+		virtual void GetText(WSTRING* OutPtrText);
+		virtual void SetTextAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment);
+		virtual void SetTextHorizontalAlignment(EHorizontalAlignment Alignment);
+		virtual void SetTextVerticalAlignment(EVerticalAlignment Alignment);
 		virtual void SetFontColor(DWORD Color);
 
 		// Focus
@@ -129,7 +152,6 @@ namespace JWENGINE
 		virtual void SetStateColor(EControlState State, DWORD Color);
 		virtual void SetPosition(D3DXVECTOR2 Position);
 		virtual void SetSize(D3DXVECTOR2 Size);
-		virtual void SetText(WSTRING Text);
 		virtual void SetBorderColor(DWORD Color);
 		virtual void SetBorderColor(DWORD ColorA, DWORD ColorB);
 		virtual void SetBackgroundColor(DWORD Color);
@@ -138,35 +160,75 @@ namespace JWENGINE
 		virtual auto GetState() const->EControlState;
 		virtual auto GetPosition()->D3DXVECTOR2;
 		virtual auto GetSize()->D3DXVECTOR2;
-		virtual auto GetText()->WSTRING;
 		virtual auto GetControlType() const->EControlType;
-		virtual auto GetClientMouseDownPosition() const->POINT;
 
-		// Property setter/getter
-		virtual void SetTextureAtlas(LPDIRECT3DTEXTURE9 pTextureAtlas, D3DXIMAGE_INFO* pTextureAtlasInfo) {}; // ImageBox
-		virtual void SetAtlasUV(D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 Size) {}; // ImageBox
-		virtual void ShouldDrawBorder(bool Value);
-		virtual void ShouldUseViewport(bool Value);
-		virtual void SetCheckState(bool Value) {}; // CheckBox / RadioBox
-		virtual auto GetCheckState() const->bool { return true; }; // CheckBox / RadioBox
-		virtual void SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount) {}; // ScrollBar
-		virtual void SetScrollPosition(size_t Position) {}; // ScrollBar
-		virtual auto GetScrollRange() const->size_t { return 0; } // ScrollBar
-		virtual auto GetScrollPosition() const->size_t { return 0; } // ScrollBar
+		/*
+		** Property setter/getter
+		** Property setter functions return 'this' pointer.
+		*/
+		virtual auto ShouldDrawBorder(bool Value)->JWControl*;
+		virtual auto ShouldUseViewport(bool Value)->JWControl*;
 
-		// SetUseMultiline() is available only for JWEdit control
-		virtual void SetUseMultiline(bool Value) {}; // Edit
+		// [JWImageBox]
+		virtual auto SetTextureAtlas(LPDIRECT3DTEXTURE9 pTextureAtlas, D3DXIMAGE_INFO* pTextureAtlasInfo)->JWControl* { return this; };
 
-		virtual void UseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo) {}; // ListBox
-		virtual void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0), D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0)) {}; // ListBox
-		virtual void SetMinimumItemHeight(float Value) {}; // ListBox
-		virtual auto GetListBoxItemCount() const->const size_t { return 0; }; // ListBox
-		virtual auto GetListBoxItemHeight() const->const float { return 0; }; // ListBox
-		virtual auto GetSelectedItemIndex() const->const TIndex { return TIndex_NotSpecified; }; // ListBox
-		virtual void ShouldUseAutomaticScrollBar(bool Value) {}; // ListBox
-		virtual void ShouldUseToggleSelection(bool Value) {}; // ListBox
-		virtual auto AddMenuBarItem(WSTRING Text)->THandleItem { return THandle_Null; }; // MenuBar
-		virtual auto AddMenuBarSubItem(THandleItem hItem, WSTRING Text)->THandleItem { return THandle_Null; }; // MenuBar
+		// [JWImageBox]
+		virtual auto SetAtlasUV(D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 Size)->JWControl* { return this; };
+
+		// [JWCheckBox] | [JWRadioBox]
+		virtual void SetCheckState(bool Value) {};
+
+		// [JWCheckBox] | [JWRadioBox]
+		virtual auto GetCheckState() const->bool { return true; };
+		
+		// [JWScrollBar]
+		virtual void SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount) {};
+
+		// [JWScrollBar]
+		virtual void SetScrollPosition(size_t Position) {};
+
+		// [JWScrollBar]
+		virtual auto GetScrollRange() const->size_t { return 0; };
+
+		// [JWScrollBar]
+		virtual auto GetScrollPosition() const->size_t { return 0; };
+
+		// [JWEdit]
+		virtual void SetUseMultiline(bool Value) {};
+
+		// [JWListBox]
+		virtual void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0), D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0)) {};
+		
+		// [JWListBox]
+		virtual void SetMinimumItemHeight(float Value) {};
+
+		// [JWListBox]
+		virtual auto GetListBoxItemCount() const->const size_t { return 0; };
+
+		// [JWListBox]
+		virtual auto GetListBoxItemHeight() const->const float { return 0; };
+
+		// [JWListBox]
+		virtual auto GetSelectedItemIndex() const->const TIndex { return TIndex_NotSpecified; };
+
+		// [JWListBox]
+		virtual void ShouldUseAutomaticScrollBar(bool Value) {}; 
+
+		// [JWListBox]
+		virtual void ShouldUseToggleSelection(bool Value) {};
+
+		// [JWListBox]
+		virtual void ShouldUseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo) {};
+
+		// [JWMenuBar]
+		// @warning: this functions doesn't return 'this' pointer,
+		// but the handle(THandleItem) of the added item.
+		virtual auto AddMenuBarItem(WSTRING Text)->THandleItem { return THandle_Null; };
+
+		// [JWMenuBar]
+		// @warning: this functons doesn't return 'this' pointer,
+		// but the handle(THandleItem) of the added subitem.
+		virtual auto AddMenuBarSubItem(THandleItem hItem, WSTRING Text)->THandleItem { return THandle_Null; };
 
 	protected:
 		virtual void CalculateControlRect();
@@ -174,13 +236,10 @@ namespace JWENGINE
 		virtual void UpdateBorderPositionAndSize();
 		virtual void UpdateViewport();
 
-		// Events called in JWGUI (friend class).
+		// Event functions called in JWGUI (friend class).
 		virtual void WindowKeyDown(WPARAM VirtualKeyCode) {};
 		virtual void WindowCharKey(WPARAM Char) {};
 		virtual void WindowKeyUp(WPARAM VirtualKeyCode) {};
-		virtual void WindowMouseMove(LPARAM MousePosition);
-		virtual void WindowMouseDown(LPARAM MousePosition);
-		virtual void WindowMouseUp(LPARAM MousePosition);
 		virtual void WindowIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR) {};
 
 	protected:
@@ -196,24 +255,23 @@ namespace JWENGINE
 		DWORD m_Color_Hover;
 		DWORD m_Color_Pressed;
 
-		D3DXVECTOR2 m_PositionClient;
-		D3DXVECTOR2 m_Size;
-		RECT m_ControlRect;
-
 		EControlType m_ControlType;
 		EControlState m_ControlState;
+		RECT m_ControlRect;
+		D3DXVECTOR2 m_Position;
+		D3DXVECTOR2 m_Size;
 
 		WSTRING m_Text;
 		EHorizontalAlignment m_HorizontalAlignment;
 		EVerticalAlignment m_VerticalAlignment;
-		D3DXVECTOR2 m_TextPosition;
+		D3DXVECTOR2 m_CalculatedTextPosition;
 
 		bool m_bShouldDrawBorder;
 		bool m_bShouldUseViewport;
 		bool m_bHasFocus;
 
-		// Mouse
-		POINT m_MousePosition;
+		// Structure that holds mouse data.
+		// This is updated in UpdateControlState().
 		SMouseData m_UpdatedMousedata;
 	};
 };

@@ -45,7 +45,7 @@ auto JWImageBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIShared
 	}
 
 	// Set default alignment
-	SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_ControlType = EControlType::ImageBox;
@@ -98,8 +98,8 @@ void JWImageBox::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
 
-	m_pBackground->SetPosition(m_PositionClient);
-	m_pImage->SetPosition(m_PositionClient);
+	m_pBackground->SetPosition(m_Position);
+	m_pImage->SetPosition(m_Position);
 }
 
 void JWImageBox::SetSize(D3DXVECTOR2 Size)
@@ -107,17 +107,23 @@ void JWImageBox::SetSize(D3DXVECTOR2 Size)
 	JWControl::SetSize(Size);
 
 	m_pBackground->SetSize(m_Size);
+
+	//TODO: size decision ways need to be added (Straight / Stretched / Ratio-width / Ratio-height)
 	//m_pImage->SetSize(m_Size);
 }
 
-void JWImageBox::SetTextureAtlas(LPDIRECT3DTEXTURE9 pTextureAtlas, D3DXIMAGE_INFO* pTextureAtlasInfo)
+auto JWImageBox::SetTextureAtlas(LPDIRECT3DTEXTURE9 pTextureAtlas, D3DXIMAGE_INFO* pTextureAtlasInfo)->JWControl*
 {
 	m_pImage->SetTexture(pTextureAtlas, pTextureAtlasInfo);
+
+	return this;
 }
 
-void JWImageBox::SetAtlasUV(D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 Size)
+auto JWImageBox::SetAtlasUV(D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 Size)->JWControl*
 {
 	m_pImage->SetAtlasUV(OffsetInAtlas, Size);
+
+	return this;
 }
 
 void JWImageBox::SetBackgroundColor(DWORD Color)

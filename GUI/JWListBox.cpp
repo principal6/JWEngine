@@ -96,7 +96,7 @@ void JWListBox::SetMinimumItemHeight(float Value)
 	m_MinimumItemHeight = max(m_MinimumItemHeight, MINIMUM_ITEM_HEIGHT);
 }
 
-void JWListBox::UseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo)
+void JWListBox::ShouldUseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo)
 {
 	m_bUseImageItems = true;
 
@@ -115,7 +115,7 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 	
 	// Calculate item's default position.
 	D3DXVECTOR2 item_position = D3DXVECTOR2(0, 0);
-	item_position = m_PositionClient;
+	item_position = m_Position;
 	item_position.x += DEFAULT_ITEM_PADDING_X;
 	item_position.y += DEFAULT_ITEM_PADDING_Y;
 	if (item_index)
@@ -191,7 +191,7 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 
 	new_text_item->Create(text_item_position, text_item_size, m_pSharedData);
 	new_text_item->SetText(Text);
-	new_text_item->SetVerticalAlignment(EVerticalAlignment::Middle);
+	new_text_item->SetTextVerticalAlignment(EVerticalAlignment::Middle);
 	new_text_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));
 	new_text_item->ShouldUseViewport(false);
 
@@ -250,7 +250,7 @@ PRIVATE void JWListBox::UpdateAutomaticScrollBar()
 		D3DXVECTOR2 scrollbar_size = D3DXVECTOR2(0, m_Size.y);
 		m_pScrollBar->SetSize(scrollbar_size);
 
-		D3DXVECTOR2 scrollbar_position = m_PositionClient;
+		D3DXVECTOR2 scrollbar_position = m_Position;
 		scrollbar_position.x += m_Size.x;
 		scrollbar_position.x -= m_pScrollBar->GetSize().x;
 		m_pScrollBar->SetPosition(scrollbar_position);
@@ -339,7 +339,7 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 		// the ListBox is being scrolled,
 		// scroll items.
 
-		m_ItemOffsetY = m_PositionClient.y + DEFAULT_ITEM_PADDING_Y - m_ItemInfo[m_pScrollBar->GetScrollPosition()].ItemPosition.y;
+		m_ItemOffsetY = m_Position.y + DEFAULT_ITEM_PADDING_Y - m_ItemInfo[m_pScrollBar->GetScrollPosition()].ItemPosition.y;
 
 		D3DXVECTOR2 item_position = D3DXVECTOR2(0, 0);
 		for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)

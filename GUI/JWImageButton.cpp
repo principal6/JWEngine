@@ -57,7 +57,7 @@ auto JWImageButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISha
 	}
 
 	// Set default alignment
-	SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_ControlType = EControlType::ImageButton;
@@ -232,12 +232,12 @@ void JWImageButton::SetPosition(D3DXVECTOR2 Position)
 
 	if (m_pBackground)
 	{
-		m_pBackground->SetPosition(m_PositionClient);
+		m_pBackground->SetPosition(m_Position);
 	}
 	
 	if (m_pButtonImage)
 	{
-		m_pButtonImage->SetPosition(m_PositionClient + m_ButtonImagePositionOffset);
+		m_pButtonImage->SetPosition(m_Position + m_ButtonImagePositionOffset);
 	}
 }
 
@@ -261,6 +261,6 @@ void JWImageButton::SetSize(D3DXVECTOR2 Size)
 
 	if (m_pButtonImage)
 	{
-		m_pButtonImage->SetPosition(m_PositionClient + m_ButtonImagePositionOffset);
+		m_pButtonImage->SetPosition(m_Position + m_ButtonImagePositionOffset);
 	}
 }

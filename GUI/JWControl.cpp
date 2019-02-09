@@ -16,18 +16,19 @@ JWControl::JWControl()
 	m_Color_Hover = DEFAULT_COLOR_HOVER;
 	m_Color_Pressed = DEFAULT_COLOR_PRESSED;
 
-	m_PositionClient = D3DXVECTOR2(0, 0);
+	m_Position = D3DXVECTOR2(0, 0);
 	m_Size = D3DXVECTOR2(0, 0);
 	m_ControlRect = { 0, 0, 0, 0 };
-
+	
+	// Control type is decided when sub-class calls Create().
 	m_ControlType = EControlType::NotDefined;
+
+	// Default control state is Normal.
 	m_ControlState = EControlState::Normal;
 
 	m_bShouldDrawBorder = false;
 	m_bShouldUseViewport = true;
 	m_bHasFocus = false;
-
-	m_MousePosition = { 0, 0 };
 }
 
 auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
@@ -54,11 +55,11 @@ auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedD
 	}
 
 	// Set control position and size.
-	m_PositionClient = Position;
+	m_Position = Position;
 	m_Size = Size;
 
 	// Set text's default position.
-	m_TextPosition = m_PositionClient;
+	m_CalculatedTextPosition = m_Position;
 
 	// Update border position and size.
 	UpdateBorderPositionAndSize();
@@ -74,9 +75,9 @@ auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedD
 
 PROTECTED void JWControl::CalculateControlRect()
 {
-	m_ControlRect.left = static_cast<int>(m_PositionClient.x);
+	m_ControlRect.left = static_cast<int>(m_Position.x);
 	m_ControlRect.right = static_cast<int>(m_ControlRect.left + m_Size.x);
-	m_ControlRect.top = static_cast<int>(m_PositionClient.y);
+	m_ControlRect.top = static_cast<int>(m_Position.y);
 	m_ControlRect.bottom = static_cast<int>(m_ControlRect.top + m_Size.y);
 }
 
@@ -88,11 +89,6 @@ void JWControl::Destroy()
 auto JWControl::IsMouseOver(const SMouseData& MouseData)->bool
 {
 	return Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect);
-}
-
-auto JWControl::IsMousePressed(const SMouseData& MouseData)->bool
-{
-	return Static_IsMouseInRECT(MouseData.MouseDownPosition, m_ControlRect);
 }
 
 auto JWControl::OnMouseHover() const->bool
@@ -120,24 +116,6 @@ auto JWControl::OnMouseCliked() const->bool
 		return true;
 	}
 	return false;
-}
-
-void JWControl::WindowMouseMove(LPARAM MousePosition)
-{
-	m_MousePosition.x = GET_X_LPARAM(MousePosition);
-	m_MousePosition.y = GET_Y_LPARAM(MousePosition);
-}
-
-void JWControl::WindowMouseDown(LPARAM MousePosition)
-{
-	m_MousePosition.x = GET_X_LPARAM(MousePosition);
-	m_MousePosition.y = GET_Y_LPARAM(MousePosition);
-}
-
-void JWControl::WindowMouseUp(LPARAM MousePosition)
-{
-	m_MousePosition.x = GET_X_LPARAM(MousePosition);
-	m_MousePosition.y = GET_Y_LPARAM(MousePosition);
 }
 
 void JWControl::UpdateControlState(const SMouseData& MouseData)
@@ -243,7 +221,7 @@ void JWControl::EndDrawing()
 	{
 		if (m_ControlType != EControlType::Edit)
 		{
-			m_pSharedData->pFont->DrawInstantText(m_Text, m_TextPosition, m_HorizontalAlignment);
+			m_pSharedData->pFont->DrawInstantText(m_Text, m_CalculatedTextPosition, m_HorizontalAlignment);
 		}
 	}
 
@@ -255,7 +233,7 @@ void JWControl::EndDrawing()
 
 PROTECTED void JWControl::UpdateBorderPositionAndSize()
 {
-	D3DXVECTOR2 border_position = m_PositionClient;
+	D3DXVECTOR2 border_position = m_Position;
 
 	D3DXVECTOR2 border_size = m_Size;
 	border_size.x -= 1.0f;
@@ -267,8 +245,8 @@ PROTECTED void JWControl::UpdateBorderPositionAndSize()
 PROTECTED void JWControl::UpdateViewport()
 {
 	m_ControlViewport = m_OriginalViewport;
-	m_ControlViewport.X = static_cast<DWORD>(m_PositionClient.x);
-	m_ControlViewport.Y = static_cast<DWORD>(m_PositionClient.y);
+	m_ControlViewport.X = static_cast<DWORD>(m_Position.x);
+	m_ControlViewport.Y = static_cast<DWORD>(m_Position.y);
 	m_ControlViewport.Width = static_cast<DWORD>(m_Size.x);
 	m_ControlViewport.Height = static_cast<DWORD>(m_Size.y);
 }
@@ -300,12 +278,12 @@ void JWControl::SetStateColor(EControlState State, DWORD Color)
 
 void JWControl::SetPosition(D3DXVECTOR2 Position)
 {
-	m_PositionClient = Position;
+	m_Position = Position;
 
 	// Set text's default position.
-	m_TextPosition = m_PositionClient;
+	m_CalculatedTextPosition = m_Position;
 
-	SetAlignment(m_HorizontalAlignment, m_VerticalAlignment);
+	SetTextAlignment(m_HorizontalAlignment, m_VerticalAlignment);
 
 	UpdateBorderPositionAndSize();
 
@@ -318,7 +296,7 @@ void JWControl::SetSize(D3DXVECTOR2 Size)
 {
 	m_Size = Size;
 
-	SetAlignment(m_HorizontalAlignment, m_VerticalAlignment);
+	SetTextAlignment(m_HorizontalAlignment, m_VerticalAlignment);
 
 	UpdateBorderPositionAndSize();
 
@@ -331,7 +309,7 @@ void JWControl::SetText(WSTRING Text)
 {
 	m_Text = Text;
 
-	SetAlignment(m_HorizontalAlignment, m_VerticalAlignment);
+	SetTextAlignment(m_HorizontalAlignment, m_VerticalAlignment);
 }
 
 void JWControl::SetBorderColor(DWORD Color)
@@ -361,46 +339,46 @@ void JWControl::KillFocus()
 	m_bHasFocus = false;
 }
 
-void JWControl::SetAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment)
+void JWControl::SetTextAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment)
 {
-	SetHorizontalAlignment(HorizontalAlignment);
-	SetVerticalAlignment(VerticalAlignment);
+	SetTextHorizontalAlignment(HorizontalAlignment);
+	SetTextVerticalAlignment(VerticalAlignment);
 }
 
-void JWControl::SetHorizontalAlignment(EHorizontalAlignment Alignment)
+void JWControl::SetTextHorizontalAlignment(EHorizontalAlignment Alignment)
 {
 	m_HorizontalAlignment = Alignment;
 
 	switch (m_HorizontalAlignment)
 	{
 	case JWENGINE::EHorizontalAlignment::Left:
-		m_TextPosition.x = m_PositionClient.x;
+		m_CalculatedTextPosition.x = m_Position.x;
 		break;
 	case JWENGINE::EHorizontalAlignment::Center:
-		m_TextPosition.x = m_PositionClient.x + m_Size.x / 2.0f;
+		m_CalculatedTextPosition.x = m_Position.x + m_Size.x / 2.0f;
 		break;
 	case JWENGINE::EHorizontalAlignment::Right:
-		m_TextPosition.x = m_PositionClient.x + m_Size.x;
+		m_CalculatedTextPosition.x = m_Position.x + m_Size.x;
 		break;
 	default:
 		break;
 	}
 }
 
-void JWControl::SetVerticalAlignment(EVerticalAlignment Alignment)
+void JWControl::SetTextVerticalAlignment(EVerticalAlignment Alignment)
 {
 	m_VerticalAlignment = Alignment;
 
 	switch (m_VerticalAlignment)
 	{
 	case JWENGINE::EVerticalAlignment::Top:
-		m_TextPosition.y = m_PositionClient.y;
+		m_CalculatedTextPosition.y = m_Position.y;
 		break;
 	case JWENGINE::EVerticalAlignment::Middle:
-		m_TextPosition.y = m_PositionClient.y + ((m_Size.y - m_pSharedData->pFont->GetLineHeight()) / 2.0f);
+		m_CalculatedTextPosition.y = m_Position.y + ((m_Size.y - m_pSharedData->pFont->GetLineHeight()) / 2.0f);
 		break;
 	case JWENGINE::EVerticalAlignment::Bottom:
-		m_TextPosition.y = m_PositionClient.y + m_Size.y - m_pSharedData->pFont->GetLineHeight();
+		m_CalculatedTextPosition.y = m_Position.y + m_Size.y - m_pSharedData->pFont->GetLineHeight();
 		break;
 	default:
 		break;
@@ -419,7 +397,7 @@ auto JWControl::GetState() const->EControlState
 
 auto JWControl::GetPosition()->D3DXVECTOR2
 {
-	D3DXVECTOR2 Result = m_PositionClient;
+	D3DXVECTOR2 Result = m_Position;
 
 	return Result;
 }
@@ -429,9 +407,9 @@ auto JWControl::GetSize()->D3DXVECTOR2
 	return m_Size;
 }
 
-auto JWControl::GetText()->WSTRING
+void JWControl::GetText(WSTRING* OutPtrText)
 {
-	return m_Text;
+	OutPtrText = &m_Text;
 }
 
 auto JWControl::GetControlType() const->EControlType
@@ -439,20 +417,16 @@ auto JWControl::GetControlType() const->EControlType
 	return m_ControlType;
 }
 
-auto JWControl::GetClientMouseDownPosition() const->POINT
-{
-	POINT Result{ 0, 0 };
-	Result.x = m_UpdatedMousedata.MouseDownPosition.x - static_cast<LONG>(m_PositionClient.x);
-	Result.y = m_UpdatedMousedata.MouseDownPosition.y - static_cast<LONG>(m_PositionClient.y);
-	return Result;
-}
-
-void JWControl::ShouldDrawBorder(bool Value)
+auto JWControl::ShouldDrawBorder(bool Value)->JWControl*
 {
 	m_bShouldDrawBorder = Value;
+
+	return this;
 }
 
-void JWControl::ShouldUseViewport(bool Value)
+auto JWControl::ShouldUseViewport(bool Value)->JWControl*
 {
 	m_bShouldUseViewport = Value;
+
+	return this;
 }

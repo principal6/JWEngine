@@ -49,7 +49,7 @@ auto JWCheckBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIShared
 	}
 
 	// Set default alignment
-	SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_ControlType = EControlType::CheckBox;
@@ -104,8 +104,8 @@ void JWCheckBox::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
 
-	m_pBackground->SetPosition(m_PositionClient);
-	m_pCheckImage->SetPosition(m_PositionClient + m_ButtonImageOffset);
+	m_pBackground->SetPosition(m_Position);
+	m_pCheckImage->SetPosition(m_Position + m_ButtonImageOffset);
 }
 
 void JWCheckBox::SetSize(D3DXVECTOR2 Size)
@@ -122,7 +122,7 @@ void JWCheckBox::SetSize(D3DXVECTOR2 Size)
 	JWControl::SetSize(Size);
 
 	m_pBackground->SetSize(m_Size);
-	m_pCheckImage->SetPosition(m_PositionClient + m_ButtonImageOffset);
+	m_pCheckImage->SetPosition(m_Position + m_ButtonImageOffset);
 }
 
 void JWCheckBox::SetCheckState(bool Value)

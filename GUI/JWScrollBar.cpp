@@ -91,7 +91,7 @@ auto JWScrollBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIShare
 	}
 
 	// Set default alignment
-	SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_ControlType = EControlType::ScrollBar;
@@ -133,7 +133,7 @@ void JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)
 	}
 
 	SetSize(m_Size);
-	SetPosition(m_PositionClient);
+	SetPosition(m_Position);
 
 	UpdateButtonSize();
 	UpdateButtonPosition();
@@ -329,7 +329,7 @@ void JWScrollBar::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
 
-	m_pBackground->SetPosition(m_PositionClient);
+	m_pBackground->SetPosition(m_Position);
 
 	UpdateButtonPosition();
 }
@@ -474,12 +474,12 @@ PRIVATE void JWScrollBar::UpdateButtonPosition()
 	switch (m_ScrollBarDirection)
 	{
 	case JWENGINE::EScrollBarDirection::Horizontal:
-		BPosition = m_PositionClient;
+		BPosition = m_Position;
 		BPosition.x += m_Size.x - GUI_BUTTON_SIZE.x;
 		m_ScrollerPosition.y = static_cast<float>(DEFAULT_SCROLLER_PADDING);
 		break;
 	case JWENGINE::EScrollBarDirection::Vertical:
-		BPosition = m_PositionClient;
+		BPosition = m_Position;
 		BPosition.y += m_Size.y - GUI_BUTTON_SIZE.y;
 		m_ScrollerPosition.x = static_cast<float>(DEFAULT_SCROLLER_PADDING);
 		break;
@@ -487,9 +487,9 @@ PRIVATE void JWScrollBar::UpdateButtonPosition()
 		break;
 	}
 
-	m_pButtonA->SetPosition(m_PositionClient);
+	m_pButtonA->SetPosition(m_Position);
 	m_pButtonB->SetPosition(BPosition);
-	m_pScroller->SetPosition(m_PositionClient + m_ScrollerPosition);
+	m_pScroller->SetPosition(m_Position + m_ScrollerPosition);
 }
 
 PRIVATE void JWScrollBar::MoveScrollerTo(D3DXVECTOR2 Position)
@@ -512,7 +512,7 @@ PRIVATE void JWScrollBar::MoveScrollerTo(D3DXVECTOR2 Position)
 		break;
 	}
 
-	m_pScroller->SetPosition(m_PositionClient + m_ScrollerPosition);
+	m_pScroller->SetPosition(m_Position + m_ScrollerPosition);
 }
 
 PRIVATE auto JWScrollBar::CalculateScrollerDigitalPosition(POINT MousesPosition) const->size_t
@@ -523,10 +523,10 @@ PRIVATE auto JWScrollBar::CalculateScrollerDigitalPosition(POINT MousesPosition)
 	switch (m_ScrollBarDirection)
 	{
 	case JWENGINE::EScrollBarDirection::Horizontal:
-		ratio = static_cast<float>(MousesPosition.x - m_PositionClient.x - GUI_BUTTON_SIZE.x) / m_ScrollableSize;
+		ratio = static_cast<float>(MousesPosition.x - m_Position.x - GUI_BUTTON_SIZE.x) / m_ScrollableSize;
 		break;
 	case JWENGINE::EScrollBarDirection::Vertical:
-		ratio = static_cast<float>(MousesPosition.y - m_PositionClient.y - GUI_BUTTON_SIZE.y) / m_ScrollableSize;
+		ratio = static_cast<float>(MousesPosition.y - m_Position.y - GUI_BUTTON_SIZE.y) / m_ScrollableSize;
 		break;
 	default:
 		break;

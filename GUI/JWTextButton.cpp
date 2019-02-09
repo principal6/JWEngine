@@ -23,7 +23,7 @@ auto JWTextButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIShar
 		if (JW_FAILED(m_pImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		m_pImage->SetSize(m_Size);
-		m_pImage->SetPosition(m_PositionClient);
+		m_pImage->SetPosition(m_Position);
 		m_pImage->SetXRGB(m_Color_Normal);
 		m_pImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 	}
@@ -33,7 +33,7 @@ auto JWTextButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIShar
 	}
 
 	// Set default alignment
-	SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_ControlType = EControlType::TextButton;
@@ -146,7 +146,7 @@ void JWTextButton::SetPosition(D3DXVECTOR2 Position)
 
 	if (m_pImage)
 	{
-		m_pImage->SetPosition(m_PositionClient);
+		m_pImage->SetPosition(m_Position);
 	}
 }
 

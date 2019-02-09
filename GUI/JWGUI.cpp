@@ -435,8 +435,8 @@ PRIVATE void JWGUI::MainLoop()
 		m_pControlWithFocus->WindowIMEInput(ms_bIMEWriting, ms_bIMECompleted, ms_IMEWritingChar, ms_IMECompletedChar);
 		ms_bIMEWriting = false;
 		ms_bIMECompleted = false;
-		//memset(ms_IMEChar, 0, sizeof(ms_IMEChar));
 
+		// Mouse data is updated through UpdateControlState() method.
 		switch (m_MSG.message)
 		{
 		case WM_KEYDOWN:
@@ -447,15 +447,6 @@ PRIVATE void JWGUI::MainLoop()
 			break;
 		case WM_KEYUP:
 			m_pControlWithFocus->WindowKeyUp(m_MSG.wParam);
-			break;
-		case WM_MOUSEMOVE:
-			m_pControlWithFocus->WindowMouseMove(m_MSG.lParam);
-			break;
-		case WM_LBUTTONDOWN:
-			m_pControlWithFocus->WindowMouseDown(m_MSG.lParam);
-			break;
-		case WM_LBUTTONUP:
-			m_pControlWithFocus->WindowMouseUp(m_MSG.lParam);
 			break;
 		}
 	}

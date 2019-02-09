@@ -256,7 +256,7 @@ PRIVATE void JWEdit::MoveCaretToRight(size_t Stride)
 
 PRIVATE void JWEdit::UpdateText()
 {
-	D3DXVECTOR2 text_position = m_PositionClient;
+	D3DXVECTOR2 text_position = m_Position;
 	text_position.x += EDIT_PADDING_X;
 	text_position.y += EDIT_PADDING_Y;
 
@@ -345,9 +345,9 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 				// SelStart and SelEnd are in different lines (multiple-line selection)
 				// Firstly, we must select the SelStart line
 				SelectionPosition.x = SelStartXPosition;
-				SelectionPosition.y = m_PositionClient.y + m_pEditFont->GetLineYPosition(sel_start_line_index) + EDIT_PADDING_Y;
+				SelectionPosition.y = m_Position.y + m_pEditFont->GetLineYPosition(sel_start_line_index) + EDIT_PADDING_Y;
 
-				SelectionSize.x = m_pEditFont->GetLineWidthByCharIndex(m_SelStart) - SelStartXPosition + m_PositionClient.x + EDIT_PADDING_X;
+				SelectionSize.x = m_pEditFont->GetLineWidthByCharIndex(m_SelStart) - SelStartXPosition + m_Position.x + EDIT_PADDING_X;
 				SelectionSize.y = m_pEditFont->GetLineHeight();
 
 				m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
@@ -359,10 +359,10 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 					{
 						// This is the last line
 						// so, select from the first letter to SelEnd
-						SelectionPosition.x = m_PositionClient.x;
-						SelectionPosition.y = m_PositionClient.y + m_pEditFont->GetLineYPosition(sel_end_line_index) + EDIT_PADDING_Y;
+						SelectionPosition.x = m_Position.x;
+						SelectionPosition.y = m_Position.y + m_pEditFont->GetLineYPosition(sel_end_line_index) + EDIT_PADDING_Y;
 
-						SelectionSize.x = SelEndXPosition - m_PositionClient.x;
+						SelectionSize.x = SelEndXPosition - m_Position.x;
 						SelectionSize.y = m_pEditFont->GetLineHeight();
 
 						m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
@@ -371,14 +371,14 @@ PRIVATE void JWEdit::UpdateSelectionBox()
 					{
 						// This isn't the last line
 						// so, we must select the whole line
-						SelectionPosition.x = m_PositionClient.x;
-						SelectionPosition.y = m_PositionClient.y + m_pEditFont->GetLineYPosition(iterator_line) + EDIT_PADDING_Y;
+						SelectionPosition.x = m_Position.x;
+						SelectionPosition.y = m_Position.y + m_pEditFont->GetLineYPosition(iterator_line) + EDIT_PADDING_Y;
 
 						SelectionSize.x = m_pEditFont->GetLineWidth(iterator_line) + EDIT_PADDING_X;
 						SelectionSize.y = m_pEditFont->GetLineHeight();
 
 						// Add selection box only when it's inside the Edit control's visible region.
-						if ((SelectionPosition.y >= m_PositionClient.y) && (SelectionPosition.y <= m_PositionClient.y + m_Size.y))
+						if ((SelectionPosition.y >= m_Position.y) && (SelectionPosition.y <= m_Position.y + m_Size.y))
 						{
 							m_pSelection->AddRectangle(SelectionSize, SelectionPosition);
 						}
@@ -420,7 +420,7 @@ void JWEdit::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
 
-	m_pBackground->SetPosition(m_PositionClient);
+	m_pBackground->SetPosition(m_Position);
 
 	UpdateViewport();
 }
@@ -962,7 +962,7 @@ void JWEdit::WindowMouseDown(LPARAM MousePosition)
 
 	if (m_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 	{
-		*m_pCaretSelPosition = m_pEditFont->GetCharIndexByMousePosition(m_MousePosition);
+		*m_pCaretSelPosition = m_pEditFont->GetCharIndexByMousePosition(m_UpdatedMousedata.MousePosition);
 
 		if (m_SelEnd < m_SelStart)
 		{
@@ -972,7 +972,7 @@ void JWEdit::WindowMouseDown(LPARAM MousePosition)
 	}
 	else
 	{
-		m_SelStart = m_pEditFont->GetCharIndexByMousePosition(m_MousePosition);
+		m_SelStart = m_pEditFont->GetCharIndexByMousePosition(m_UpdatedMousedata.MousePosition);
 		m_SelEnd = m_SelStart;
 		m_pCapturedSelPosition = &m_SelStart;
 		m_pCaretSelPosition = &m_SelEnd;
@@ -987,7 +987,7 @@ void JWEdit::WindowMouseMove(LPARAM MousePosition)
 
 	if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 	{
-		*m_pCaretSelPosition = m_pEditFont->GetCharIndexByMousePosition(m_MousePosition);
+		*m_pCaretSelPosition = m_pEditFont->GetCharIndexByMousePosition(m_UpdatedMousedata.MousePosition);
 
 		if (m_SelEnd < m_SelStart)
 		{

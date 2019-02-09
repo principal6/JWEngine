@@ -30,8 +30,8 @@ auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedD
 		return EError::CONTROL_NOT_CREATED;
 
 	// MenuBar's position must be fixed!
-	m_PositionClient.x = 0;
-	m_PositionClient.y = 0;
+	m_Position.x = 0;
+	m_Position.y = 0;
 
 	// MenuBar's size must be fixed!
 	m_Size.x = static_cast<float>(m_pSharedData->pWindow->GetWindowData()->ScreenSize.x);
@@ -57,7 +57,7 @@ auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedD
 	}
 
 	// Set control's size and position.
-	SetPosition(m_PositionClient);
+	SetPosition(m_Position);
 	SetSize(m_Size);
 
 	return EError::OK;
@@ -84,7 +84,7 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 
 	MenuItem* new_item = new MenuItem;
 
-	D3DXVECTOR2 item_position = m_PositionClient;
+	D3DXVECTOR2 item_position = m_Position;
 	if (m_pItems.size())
 	{
 		item_position.x = m_pItems[m_pItems.size() - 1]->GetPosition().x;
@@ -96,7 +96,7 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 	
 	new_item->Create(item_position, item_size, m_pSharedData);
 	new_item->SetText(Text);
-	new_item->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+	new_item->SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 	new_item->ShouldDrawBorder(false);
 	new_item->SetStateColor(EControlState::Normal, DEFAULT_COLOR_BACKGROUND_MENUBAR);
 	new_item->SetStateColor(EControlState::Hover, DEFAULT_COLOR_HOVER);
