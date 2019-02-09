@@ -4,8 +4,7 @@
 
 using namespace JWENGINE;
 
-// Static member variable
-LPDIRECT3DTEXTURE9 JWFont::ms_pFontTexture = nullptr;
+// Static const
 const float JWFont::DEFAULT_BOUNDARY_STRIDE = 50.0f;
 
 JWFont::JWFont()
@@ -97,7 +96,7 @@ void JWFont::Destroy()
 
 	JW_DESTROY(m_pBackgroundBox);
 
-	JW_RELEASE(ms_pFontTexture);
+	JW_RELEASE(m_pFontTexture);
 	JW_RELEASE(m_pIndexBuffer);
 	JW_RELEASE(m_pVertexBuffer);
 }
@@ -121,6 +120,12 @@ auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
 			if (JW_FAILED(CreateTexture(ms_FontData.Pages[0].File)))
 				return EError::TEXTURE_NOT_CREATED;
 		}
+	}
+	else
+	{
+		// JWFont will always use only one page in the BMFont, whose ID is '0'
+		if (JW_FAILED(CreateTexture(ms_FontData.Pages[0].File)))
+			return EError::TEXTURE_NOT_CREATED;
 	}
 
 	// Create vertex and index buffer
@@ -248,10 +253,10 @@ PRIVATE auto JWFont::UpdateIndexBuffer()->EError
 
 PRIVATE auto JWFont::CreateTexture(WSTRING FileName)->EError
 {
-	if (ms_pFontTexture)
+	if (m_pFontTexture)
 	{
-		ms_pFontTexture->Release();
-		ms_pFontTexture = nullptr;
+		m_pFontTexture->Release();
+		m_pFontTexture = nullptr;
 	}
 
 	WSTRING NewFileName;
@@ -261,7 +266,7 @@ PRIVATE auto JWFont::CreateTexture(WSTRING FileName)->EError
 
 	// Craete texture without color key
 	if (FAILED(D3DXCreateTextureFromFileExW(m_pDevice, NewFileName.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &ms_pFontTexture)))
+		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &m_pFontTexture)))
 		return EError::TEXTURE_NOT_CREATED;
 	
 	return EError::OK;
@@ -1137,10 +1142,10 @@ void JWFont::Draw() const
 		m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 		m_pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
-		if (ms_pFontTexture)
+		if (m_pFontTexture)
 		{
 			// Texture exists
-			m_pDevice->SetTexture(0, ms_pFontTexture);
+			m_pDevice->SetTexture(0, m_pFontTexture);
 
 			// Texture alpha * Diffuse alpha
 			m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
@@ -1230,10 +1235,10 @@ void JWFont::DrawInstantText(WSTRING SingleLineText, D3DXVECTOR2 Position, EHori
 	m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	m_pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
-	if (ms_pFontTexture)
+	if (m_pFontTexture)
 	{
 		// Texture exists
-		m_pDevice->SetTexture(0, ms_pFontTexture);
+		m_pDevice->SetTexture(0, m_pFontTexture);
 
 		// Texture alpha * Diffuse alpha
 		m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);

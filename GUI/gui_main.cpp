@@ -10,6 +10,7 @@ using namespace JWENGINE;
 void MainLoop();
 
 static JWGUI myGUI;
+static JWGUI dialogueGUI;
 
 THandle menubar = THandle_Null;
 THandleItem mb_file_new = THandle_Null;
@@ -96,6 +97,9 @@ void MainLoop()
 		if (clicked_subitem == mb_file_new)
 		{
 			std::cout << "FILE - NEW" << std::endl;
+
+			dialogueGUI.Create(100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK);
+			//dialogueGUI.ShowDialogue();
 		}
 	}
 	

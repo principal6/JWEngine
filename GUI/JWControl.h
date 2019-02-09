@@ -73,11 +73,8 @@ namespace JWENGINE
 		JWControl();
 		virtual ~JWControl() {};
 
-		// Static
-		virtual void SetSharedData(const SGUISharedData* SharedData);
-
 		// Create, destroy
-		virtual auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError;
+		virtual auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError;
 		virtual void Destroy();
 
 		// Sub-class maker
@@ -187,8 +184,7 @@ namespace JWENGINE
 		virtual void WindowIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR) {};
 
 	protected:
-		static const SGUISharedData* ms_pSharedData;
-		static JWFont* ms_pFont;
+		const SGUISharedData* m_pSharedData;
 
 		D3DVIEWPORT9 m_OriginalViewport;
 		D3DVIEWPORT9 m_ControlViewport;

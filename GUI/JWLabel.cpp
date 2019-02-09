@@ -12,15 +12,15 @@ JWLabel::JWLabel()
 	m_Color_Pressed = DEFAULT_COLOR_BACKGROUND_LABEL;
 }
 
-auto JWLabel::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWLabel::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
 {
-	if (JW_FAILED(JWControl::Create(Position, Size)))
+	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
 
 	// Create image for background
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 
 		m_pBackground->SetPosition(Position);

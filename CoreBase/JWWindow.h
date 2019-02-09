@@ -30,6 +30,9 @@ namespace JWENGINE
 		PopupWindow = WS_POPUPWINDOW, // = WS_POPUP | WS_BORDER | WS_SYSMENU
 		ChildWindow = WS_CHILDWINDOW, // = WS_CHILD
 		ChildWindow2 = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN,
+		ThickPopup = WS_POPUP | WS_THICKFRAME,
+		BorderPopup = WS_POPUP | WS_BORDER,
+		Dialogue = WS_DLGFRAME | WS_SYSMENU,
 	};
 
 	struct SWindowData
@@ -67,6 +70,7 @@ namespace JWENGINE
 
 		auto CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError;
 		auto CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError;
+		auto CreateGUIDialogue(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError;
 		auto CreateParentWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color,
 			WNDPROC Proc, LPCWSTR MenuName)->EError;
 		auto CreateChildWindow(HWND hWndParent, CINT X, CINT Y, CINT Width, CINT Height,

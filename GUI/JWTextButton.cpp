@@ -13,14 +13,14 @@ JWTextButton::JWTextButton()
 	m_pImage = nullptr;
 }
 
-auto JWTextButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWTextButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
 {
-	if (JW_FAILED(JWControl::Create(Position, Size)))
+	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
 	
 	if (m_pImage = new JWImage)
 	{
-		if (JW_FAILED(m_pImage->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+		if (JW_FAILED(m_pImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		m_pImage->SetSize(m_Size);
 		m_pImage->SetPosition(m_PositionClient);
@@ -56,7 +56,7 @@ void JWTextButton::UpdateControlState(const SMouseData& MouseData)
 {
 	m_UpdatedMousedata = MouseData;
 
-	if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
+	if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 	{
 		// Mouse pressed
 

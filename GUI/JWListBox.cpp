@@ -30,9 +30,9 @@ JWListBox::JWListBox()
 	m_MinimumItemHeight = DEFAULT_ITEM_HEIGHT;
 }
 
-auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
 {
-	if (JW_FAILED(JWControl::Create(Position, Size)))
+	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
 
 	// Set control type
@@ -41,7 +41,7 @@ auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	// Create image for background
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 
 		m_pBackground->SetPosition(Position);
@@ -57,7 +57,7 @@ auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	// Create ScrollBar
 	if (m_pScrollBar = new JWScrollBar)
 	{
-		if (JW_FAILED(m_pScrollBar->Create(Position, Size)))
+		if (JW_FAILED(m_pScrollBar->Create(Position, Size, m_pSharedData)))
 			return EError::SCROLLBAR_NOT_CREATED;
 
 		m_pScrollBar->MakeScrollBar(EScrollBarDirection::Vertical);
@@ -147,7 +147,7 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 			item_size.y = image_item_size.y;
 		}
 
-		new_image_item->Create(item_position, image_item_size);
+		new_image_item->Create(item_position, image_item_size, m_pSharedData);
 		new_image_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));
 		new_image_item->SetTextureAtlas(m_pTextureForImageItem, m_pTextureForImageItemInfo);
 		new_image_item->SetAtlasUV(OffsetInAtlas, SizeInAtlas);
@@ -161,7 +161,7 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 	** Add item's background (always)
 	*/
 	JWImageBox* new_item_background = new JWImageBox;
-	new_item_background->Create(item_position, item_size);
+	new_item_background->Create(item_position, item_size, m_pSharedData);
 	new_item_background->ShouldUseViewport(false);
 	if (m_bShouleUseToggleSelection)
 	{
@@ -189,7 +189,7 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 	// Calculate text item's size.
 	D3DXVECTOR2 text_item_size = D3DXVECTOR2(item_size.x - SizeInAtlas.x, item_size.y);
 
-	new_text_item->Create(text_item_position, text_item_size);
+	new_text_item->Create(text_item_position, text_item_size, m_pSharedData);
 	new_text_item->SetText(Text);
 	new_text_item->SetVerticalAlignment(EVerticalAlignment::Middle);
 	new_text_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));

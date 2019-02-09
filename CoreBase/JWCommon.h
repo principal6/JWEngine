@@ -47,6 +47,7 @@ namespace JWENGINE
 	// ***
 	// *** Forward declaration ***
 	class JWWindow;
+	class JWFont;
 	// ***
 
 	#define JW_SUCCEEDED(func) (func == EError::OK)
@@ -262,8 +263,9 @@ namespace JWENGINE
 		WSTRING BaseDir;
 		LPDIRECT3DTEXTURE9 Texture_GUI;
 		D3DXIMAGE_INFO Texture_GUI_Info;
+		JWFont* pFont;
 
-		SGUISharedData() : pWindow(nullptr), Texture_GUI(nullptr) {};
+		SGUISharedData() : pWindow(nullptr), Texture_GUI(nullptr), pFont(nullptr) {};
 	};
 
 	inline static void ConvertFrameIDIntoUV(__int32 FrameID, POINT SpriteSize, POINT SheetSize, __int32 NumCols, __int32 NumRows, STextureUV* UV)

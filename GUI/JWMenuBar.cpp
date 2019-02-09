@@ -24,18 +24,18 @@ JWMenuBar::JWMenuBar()
 	m_bMouseReleasedForTheFisrtTime = true;
 }
 
-auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
 {
+	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
+		return EError::CONTROL_NOT_CREATED;
+
 	// MenuBar's position must be fixed!
-	Position.x = 0;
-	Position.y = 0;
+	m_PositionClient.x = 0;
+	m_PositionClient.y = 0;
 
 	// MenuBar's size must be fixed!
-	Size.x = static_cast<float>(ms_pSharedData->pWindow->GetWindowData()->ScreenSize.x);
-	Size.y = static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
-
-	if (JW_FAILED(JWControl::Create(Position, Size)))
-		return EError::CONTROL_NOT_CREATED;
+	m_Size.x = static_cast<float>(m_pSharedData->pWindow->GetWindowData()->ScreenSize.x);
+	m_Size.y = static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
 
 	// Set control type
 	m_ControlType = EControlType::MenuBar;
@@ -43,7 +43,7 @@ auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	// Create image for background
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 
 		m_pBackground->SetPosition(Position);
@@ -57,8 +57,8 @@ auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	}
 
 	// Set control's size and position.
-	SetSize(Size);
-	SetPosition(Position);
+	SetPosition(m_PositionClient);
+	SetSize(m_Size);
 
 	return EError::OK;
 }
@@ -92,9 +92,9 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 	}
 
 	D3DXVECTOR2 item_size = m_Size;
-	item_size.x = static_cast<float>(ms_pFont->GetFontData()->Info.Size * (Text.length() + 2));
+	item_size.x = static_cast<float>(m_pSharedData->pFont->GetFontData()->Info.Size * (Text.length() + 2));
 	
-	new_item->Create(item_position, item_size);
+	new_item->Create(item_position, item_size, m_pSharedData);
 	new_item->SetText(Text);
 	new_item->SetAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 	new_item->ShouldDrawBorder(false);
@@ -110,7 +110,7 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 	MenuSubItemBox* new_subitem_box = new MenuSubItemBox;
 	D3DXVECTOR2 subitembox_position = item_position;
 	subitembox_position.y += static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
-	new_subitem_box->Create(subitembox_position, BLANK_SUBITEMBOX_SIZE);
+	new_subitem_box->Create(subitembox_position, BLANK_SUBITEMBOX_SIZE, m_pSharedData);
 	new_subitem_box->SetBackgroundColor(DEFAULT_COLOR_LESS_BLACK);
 	new_subitem_box->ShouldUseAutomaticScrollBar(false);
 	new_subitem_box->ShouldUseToggleSelection(false);
@@ -154,7 +154,7 @@ void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
 	JWControl::UpdateControlState(MouseData);
 
 	// Kill focus on menu item when mouse is pressed out of region.
-	if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
+	if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 	{
 		bool FocusCheck = false;
 
@@ -198,7 +198,7 @@ void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
 				}
 				else
 				{
-					if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftReleased)
+					if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftReleased)
 					{
 						if (m_bMouseReleasedForTheFisrtTime)
 						{
@@ -214,7 +214,7 @@ void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
 			}
 			else
 			{
-				if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
+				if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 				{
 					SelectItem(iterator);
 				}

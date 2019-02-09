@@ -6,10 +6,6 @@
 
 using namespace JWENGINE;
 
-// Static member variable
-const SGUISharedData* JWControl::ms_pSharedData;
-JWFont* JWControl::ms_pFont = nullptr;
-
 JWControl::JWControl()
 {
 	m_pBorderLine = nullptr;
@@ -34,37 +30,15 @@ JWControl::JWControl()
 	m_MousePosition = { 0, 0 };
 }
 
-void JWControl::SetSharedData(const SGUISharedData* SharedData)
+auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
 {
-	ms_pSharedData = SharedData;
-}
-
-auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
-{
-	// Create static font, if it doens't exist.
-	if (ms_pFont == nullptr)
-	{
-		if (ms_pFont = new JWFont)
-		{
-			if (JW_SUCCEEDED(ms_pFont->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
-			{
-				ms_pFont->MakeFont(DEFAULT_FONT);
-			}
-			else
-			{
-				return EError::FONT_NOT_CREATED;
-			}
-		}
-		else
-		{
-			return EError::ALLOCATION_FAILURE;
-		}
-	}
+	// Set shared data pointer.
+	m_pSharedData = pSharedData;
 
 	// Craete line for border
 	if (m_pBorderLine = new JWLine)
 	{
-		if (JW_SUCCEEDED(m_pBorderLine->Create(ms_pSharedData->pWindow->GetDevice())))
+		if (JW_SUCCEEDED(m_pBorderLine->Create(m_pSharedData->pWindow->GetDevice())))
 		{
 			m_pBorderLine->AddBox(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), DEFAULT_COLOR_BORDER);
 			m_pBorderLine->AddEnd();
@@ -93,7 +67,7 @@ auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	CalculateControlRect();
 
 	// Get the original viewport to reset it later
-	ms_pSharedData->pWindow->GetDevice()->GetViewport(&m_OriginalViewport);
+	m_pSharedData->pWindow->GetDevice()->GetViewport(&m_OriginalViewport);
 
 	return EError::OK;
 }
@@ -108,7 +82,6 @@ PROTECTED void JWControl::CalculateControlRect()
 
 void JWControl::Destroy()
 {
-	JW_DESTROY(ms_pFont);
 	JW_DESTROY(m_pBorderLine);
 }
 
@@ -174,7 +147,7 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 	if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
 	{
 		// Mouse position is inside control's RECT
-		if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
+		if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 		{
 			if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_ControlRect))
 			{
@@ -255,7 +228,7 @@ void JWControl::BeginDrawing()
 {
 	if (m_bShouldUseViewport)
 	{
-		ms_pSharedData->pWindow->GetDevice()->SetViewport(&m_ControlViewport);
+		m_pSharedData->pWindow->GetDevice()->SetViewport(&m_ControlViewport);
 	}
 }
 
@@ -270,13 +243,13 @@ void JWControl::EndDrawing()
 	{
 		if (m_ControlType != EControlType::Edit)
 		{
-			ms_pFont->DrawInstantText(m_Text, m_TextPosition, m_HorizontalAlignment);
+			m_pSharedData->pFont->DrawInstantText(m_Text, m_TextPosition, m_HorizontalAlignment);
 		}
 	}
 
 	if (m_bShouldUseViewport)
 	{
-		ms_pSharedData->pWindow->GetDevice()->SetViewport(&m_OriginalViewport);
+		m_pSharedData->pWindow->GetDevice()->SetViewport(&m_OriginalViewport);
 	}
 }
 
@@ -424,10 +397,10 @@ void JWControl::SetVerticalAlignment(EVerticalAlignment Alignment)
 		m_TextPosition.y = m_PositionClient.y;
 		break;
 	case JWENGINE::EVerticalAlignment::Middle:
-		m_TextPosition.y = m_PositionClient.y + ((m_Size.y - ms_pFont->GetLineHeight()) / 2.0f);
+		m_TextPosition.y = m_PositionClient.y + ((m_Size.y - m_pSharedData->pFont->GetLineHeight()) / 2.0f);
 		break;
 	case JWENGINE::EVerticalAlignment::Bottom:
-		m_TextPosition.y = m_PositionClient.y + m_Size.y - ms_pFont->GetLineHeight();
+		m_TextPosition.y = m_PositionClient.y + m_Size.y - m_pSharedData->pFont->GetLineHeight();
 		break;
 	default:
 		break;
@@ -436,7 +409,7 @@ void JWControl::SetVerticalAlignment(EVerticalAlignment Alignment)
 
 void JWControl::SetFontColor(DWORD Color)
 {
-	ms_pFont->SetFontColor(Color);
+	m_pSharedData->pFont->SetFontColor(Color);
 }
 
 auto JWControl::GetState() const->EControlState

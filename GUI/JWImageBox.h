@@ -15,7 +15,7 @@ namespace JWENGINE
 		JWImageBox();
 		~JWImageBox() {};
 
-		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError override;
+		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError override;
 		void Destroy() override;
 
 		void Draw() override;

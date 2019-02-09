@@ -134,7 +134,7 @@ namespace JWENGINE
 		static const DWORD DEFAULT_COLOR_BOX = D3DCOLOR_ARGB(0, 180, 180, 180);
 		static const float DEFAULT_BOUNDARY_STRIDE;
 
-		static LPDIRECT3DTEXTURE9 ms_pFontTexture;
+		LPDIRECT3DTEXTURE9 m_pFontTexture;
 
 		const JWWindow* m_pJWWindow;
 		const WSTRING* m_pBaseDir;

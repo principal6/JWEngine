@@ -2,12 +2,9 @@
 
 using namespace JWENGINE;
 
-// Static member variable declaration
-LPDIRECT3DDEVICE9 JWLine::ms_pDevice;
-
 auto JWLine::Create(LPDIRECT3DDEVICE9 pDevice)->EError
 {
-	if (nullptr == (ms_pDevice = pDevice))
+	if (nullptr == (m_pDevice = pDevice))
 		return EError::NULLPTR_DEVICE;
 
 	m_pVB = nullptr;
@@ -34,7 +31,7 @@ void JWLine::CreateMax(LPDIRECT3DDEVICE9 pDevice)
 
 void JWLine::Destroy()
 {
-	ms_pDevice = nullptr; // Just set to nullptr, becuase it's newed in <JWWindow> class
+	m_pDevice = nullptr; // Just set to nullptr, becuase it's newed in <JWWindow> class
 
 	m_Vertices.clear();
 	m_Indices.clear();
@@ -166,7 +163,7 @@ void JWLine::CreateVertexBuffer()
 	}
 
 	int rVertSize = sizeof(SVertexLine) * static_cast<int>(m_Vertices.size());
-	if (FAILED(ms_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
+	if (FAILED(m_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
 		return;
 }
 
@@ -179,7 +176,7 @@ void JWLine::CreateIndexBuffer()
 	}
 
 	int rIndSize = sizeof(SIndex2) * static_cast<int>(m_Indices.size());
-	if (FAILED(ms_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
+	if (FAILED(m_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
 		return;
 }
 
@@ -192,7 +189,7 @@ void JWLine::CreateVertexBufferMax()
 	}
 
 	int rVertSize = sizeof(SVertexLine) * MAX_UNIT_COUNT * 8;
-	if (FAILED(ms_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
+	if (FAILED(m_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
 		return;
 }
 
@@ -205,7 +202,7 @@ void JWLine::CreateIndexBufferMax()
 	}
 
 	int rIndSize = sizeof(SIndex2) * MAX_UNIT_COUNT * 4;
-	if (FAILED(ms_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
+	if (FAILED(m_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
 		return;
 }
 
@@ -237,11 +234,11 @@ void JWLine::UpdateIndexBuffer()
 
 void JWLine::Draw() const
 {
-	ms_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
-	ms_pDevice->SetTexture(0, nullptr);
+	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
+	m_pDevice->SetTexture(0, nullptr);
 
-	ms_pDevice->SetStreamSource(0, m_pVB, 0, sizeof(SVertexLine));
-	ms_pDevice->SetFVF(D3DFVF_LINE);
-	ms_pDevice->SetIndices(m_pIB);
-	ms_pDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 0, 0, static_cast<int>(m_Vertices.size()), 0, static_cast<int>(m_Indices.size()));
+	m_pDevice->SetStreamSource(0, m_pVB, 0, sizeof(SVertexLine));
+	m_pDevice->SetFVF(D3DFVF_LINE);
+	m_pDevice->SetIndices(m_pIB);
+	m_pDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 0, 0, static_cast<int>(m_Vertices.size()), 0, static_cast<int>(m_Indices.size()));
 }

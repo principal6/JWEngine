@@ -38,8 +38,7 @@ JWWindow::JWWindow()
 
 auto JWWindow::CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError
 {
-	if (CreateWINAPIWindow(L"Game", X, Y, Width, Height, EWindowStyle::OverlappedWindow, m_BGColor, BaseWindowProc)
-		== nullptr)
+	if (CreateWINAPIWindow(L"Game", X, Y, Width, Height, EWindowStyle::OverlappedWindow, m_BGColor, BaseWindowProc) == nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 
 	if (InitializeDirectX() == -1)
@@ -53,8 +52,21 @@ auto JWWindow::CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Co
 	// Set DirectX clear color
 	m_BGColor = Color;
 
-	if (CreateWINAPIWindow(L"GUI", X, Y, Width, Height, EWindowStyle::OverlappedWindow, Color, Proc)
-		== nullptr)
+	if (CreateWINAPIWindow(L"GUI", X, Y, Width, Height, EWindowStyle::OverlappedWindow, Color, Proc) == nullptr)
+		return EError::WINAPIWINDOW_NOT_CREATED;
+
+	if (InitializeDirectX() == -1)
+		return EError::DIRECTX_NOT_CREATED;
+
+	return EError::OK;
+}
+
+auto JWWindow::CreateGUIDialogue(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError
+{
+	// Set DirectX clear color
+	m_BGColor = Color;
+
+	if (CreateWINAPIWindow(L"GUIDialogue", X, Y, Width, Height, EWindowStyle::Dialogue, Color, Proc) == nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 
 	if (InitializeDirectX() == -1)
@@ -66,8 +78,7 @@ auto JWWindow::CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Co
 auto JWWindow::CreateParentWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color,
 	WNDPROC Proc, LPCWSTR MenuName)->EError
 {
-	if (CreateWINAPIWindow(L"Editor", X, Y, Width, Height, EWindowStyle::OverlappedWindow, Color, Proc, MenuName)
-		== nullptr)
+	if (CreateWINAPIWindow(L"Editor", X, Y, Width, Height, EWindowStyle::OverlappedWindow, Color, Proc, MenuName) == nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 
 	return EError::OK;
@@ -87,8 +98,7 @@ auto JWWindow::CreateChildWindow(HWND hWndParent, CINT X, CINT Y, CINT Width, CI
 
 	ms_ChildWindowCount++;
 
-	if (CreateWINAPIWindow(Name.c_str(), X, Y, Width, Height, EWindowStyle::ChildWindow2, Color, Proc, nullptr, hWndParent)
-		== nullptr)
+	if (CreateWINAPIWindow(Name.c_str(), X, Y, Width, Height, EWindowStyle::ChildWindow2, Color, Proc, nullptr, hWndParent) == nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 
 	if (InitializeDirectX() == -1)

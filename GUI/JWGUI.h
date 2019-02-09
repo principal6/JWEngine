@@ -4,6 +4,7 @@
 #include "../CoreBase/JWImage.h"
 #include "../CoreBase/JWLine.h"
 #include "../CoreBase/JWWindow.h"
+#include "../CoreBase/JWFont.h"
 #include "JWControl.h"
 #include "JWTextButton.h"
 #include "JWImageButton.h"
@@ -31,10 +32,13 @@ namespace JWENGINE
 		~JWGUI() {};
 
 		auto Create(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color)->EError;
+
 		auto CreateOnWindow(JWWindow* pWindow)->EError;
 		void Destroy();
 
 		void Run();
+
+		void ShowDialogue();
 
 		auto AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text = L"")->const THandle;
 		auto GetControlPtr(const THandle ControlHandle)->JWControl*;
@@ -56,7 +60,7 @@ namespace JWENGINE
 		static TCHAR ms_IMECompletedChar[MAX_FILE_LEN];
 		static bool ms_bIMEWriting;
 		static bool ms_bIMECompleted;
-		static bool ms_bRunning;
+		bool m_bRunning;
 
 		SGUISharedData m_SharedData;
 

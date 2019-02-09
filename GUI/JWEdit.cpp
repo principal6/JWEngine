@@ -34,15 +34,15 @@ JWEdit::JWEdit()
 	m_YSizeSingleline = 0;
 }
 
-auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
 {
-	if (JW_FAILED(JWControl::Create(Position, Size)))
+	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
 
 	// Create font object for edit control.
 	if (m_pEditFont = new JWFont)
 	{
-		if (JW_SUCCEEDED(m_pEditFont->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+		if (JW_SUCCEEDED(m_pEditFont->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
 		{
 			m_pEditFont->MakeFont(DEFAULT_FONT);
 		}
@@ -59,7 +59,7 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	// Create line for caret
 	if (m_pCaret = new JWLine)
 	{
-		if (JW_FAILED(m_pCaret->Create(ms_pSharedData->pWindow->GetDevice())))
+		if (JW_FAILED(m_pCaret->Create(m_pSharedData->pWindow->GetDevice())))
 			return EError::LINE_NOT_CREATED;
 
 		m_pCaret->AddLine(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 10), DEFAULT_COLOR_CARET);
@@ -73,7 +73,7 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	// Create rectangle for selection
 	if (m_pSelection = new JWRectangle)
 	{
-		if (JW_FAILED(m_pSelection->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir, m_pEditFont->GetMaximumLineCount())))
+		if (JW_FAILED(m_pSelection->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir, m_pEditFont->GetMaximumLineCount())))
 			return EError::RECTANGLE_NOT_CREATED;
 
 		m_pSelection->SetRectangleAlpha(100);
@@ -87,7 +87,7 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 	// Create image for background
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
 			return EError::RECTANGLE_NOT_CREATED;
 
 		m_pBackground->SetAlpha(DEFAULT_ALPHA_BACKGROUND_EDIT);
@@ -129,6 +129,7 @@ void JWEdit::Destroy()
 	JW_DESTROY(m_pBackground);
 	JW_DESTROY(m_pCaret);
 	JW_DESTROY(m_pSelection);
+	JW_DESTROY(m_pEditFont);
 }
 
 void JWEdit::Draw()
@@ -169,7 +170,7 @@ void JWEdit::Focus()
 
 PRIVATE void JWEdit::SelectOrMoveCaretToLeft(size_t Stride)
 {
-	if (ms_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
+	if (m_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 	{
 		// Select
 		if (m_pCapturedSelPosition == &m_SelStart)
@@ -198,7 +199,7 @@ PRIVATE void JWEdit::SelectOrMoveCaretToLeft(size_t Stride)
 
 PRIVATE void JWEdit::SelectOrMoveCaretToRight(size_t Stride)
 {
-	if (ms_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
+	if (m_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 	{
 		// Select
 		if (m_pCapturedSelPosition == &m_SelStart)
@@ -602,7 +603,7 @@ void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 				SelectOrMoveCaretToRight(current_line_length);
 			}
 
-			if (!ms_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
+			if (!m_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 			{
 				m_SelStart = m_SelEnd;
 			}
@@ -629,7 +630,7 @@ void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 			SelectOrMoveCaretToLeft(compare_line_length);
 		}
 
-		if (!ms_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
+		if (!m_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 		{
 			m_SelEnd = m_SelStart;
 		}
@@ -660,7 +661,7 @@ void JWEdit::WindowCharKey(WPARAM Char)
 	else if (wchar == 8) // Ctrl + h || Backspace
 	{
 		// Let's ignore <Ctrl + h>
-		if (!ms_pSharedData->pWindow->GetWindowInputState()->ControlPressed)
+		if (!m_pSharedData->pWindow->GetWindowInputState()->ControlPressed)
 		{
 			if (IsTextSelected())
 			{
@@ -675,7 +676,7 @@ void JWEdit::WindowCharKey(WPARAM Char)
 	else if (wchar == 13) // Ctrl + m || Enter
 	{
 		// Let's ignore <Ctrl + m>
-		if (!ms_pSharedData->pWindow->GetWindowInputState()->ControlPressed)
+		if (!m_pSharedData->pWindow->GetWindowInputState()->ControlPressed)
 		{
 			if (IsTextSelected())
 			{
@@ -705,7 +706,7 @@ void JWEdit::WindowCharKey(WPARAM Char)
 	else if (wchar == 27) // Ctrl + [ || Escape
 	{
 		// Let's ignore <Ctrl + [>
-		if (!ms_pSharedData->pWindow->GetWindowInputState()->ControlPressed)
+		if (!m_pSharedData->pWindow->GetWindowInputState()->ControlPressed)
 		{
 			m_SelStart = *m_pCaretSelPosition;
 			m_SelEnd = *m_pCaretSelPosition;
@@ -959,7 +960,7 @@ void JWEdit::WindowMouseDown(LPARAM MousePosition)
 {
 	JWControl::WindowMouseDown(MousePosition);
 
-	if (ms_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
+	if (m_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 	{
 		*m_pCaretSelPosition = m_pEditFont->GetCharIndexByMousePosition(m_MousePosition);
 
@@ -984,7 +985,7 @@ void JWEdit::WindowMouseMove(LPARAM MousePosition)
 {
 	JWControl::WindowMouseMove(MousePosition);
 
-	if (ms_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
+	if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 	{
 		*m_pCaretSelPosition = m_pEditFont->GetCharIndexByMousePosition(m_MousePosition);
 

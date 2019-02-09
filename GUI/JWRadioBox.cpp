@@ -14,18 +14,18 @@ JWRadioBox::JWRadioBox()
 	m_bChecked = false;
 }
 
-auto JWRadioBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWRadioBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
 {
-	if (JW_FAILED(JWControl::Create(Position, Size)))
+	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
 
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		
 		//m_pBackground->SetColor(D3DCOLOR_XRGB(255, 255, 255));
-		m_pBackground->SetTexture(ms_pSharedData->Texture_GUI, &ms_pSharedData->Texture_GUI_Info);
+		m_pBackground->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
 	}
 	else
 	{

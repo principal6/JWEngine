@@ -6,19 +6,20 @@ TCHAR JWGUI::ms_IMEWritingChar[MAX_FILE_LEN]{};
 TCHAR JWGUI::ms_IMECompletedChar[MAX_FILE_LEN]{};
 bool JWGUI::ms_bIMEWriting = false;
 bool JWGUI::ms_bIMECompleted = false;
-bool JWGUI::ms_bRunning = false;
 
 // Base window procedure for GUI window
 LRESULT CALLBACK JWENGINE::GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
 	// Handle to the context for the Input Method Manager(IMM), which is needed for Input Method Editor(IME)
 	HIMC hIMC = nullptr;
-
+	
 	switch (Message)
 	{
 	case WM_SYSCOMMAND:
 		if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) // Disable Alt key
+		{
 			return 0;
+		}
 		break;
 	case WM_IME_COMPOSITION:
 		hIMC = ImmGetContext(hWnd);
@@ -47,7 +48,6 @@ LRESULT CALLBACK JWENGINE::GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam,
 		ImmReleaseContext(hWnd, hIMC);
 		break;
 	case WM_DESTROY:
-		JWGUI::ms_bRunning = false;
 		PostQuitMessage(0);
 		return 0;
 	}
@@ -70,6 +70,7 @@ auto JWGUI::Create(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color)->EError
 	if (!m_SharedData.pWindow)
 	{
 		m_SharedData.pWindow = new JWWindow;
+
 		if (JW_FAILED(m_SharedData.pWindow->CreateGUIWindow(X, Y, Width, Height, Color, GUIWindowProc)))
 			return EError::WINAPIWINDOW_NOT_CREATED;
 	}
@@ -87,8 +88,22 @@ auto JWGUI::Create(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color)->EError
 	if (JW_FAILED(CreateTexture(GUI_TEXTURE_FILENAME, &m_SharedData.Texture_GUI, &m_SharedData.Texture_GUI_Info)))
 		return EError::TEXTURE_NOT_CREATED;
 
-	JWControl temp_control_to_set_shared_data;
-	temp_control_to_set_shared_data.SetSharedData(&m_SharedData);
+	// Create shared JWFont
+	if (m_SharedData.pFont = new JWFont)
+	{
+		if (JW_SUCCEEDED(m_SharedData.pFont->Create(m_SharedData.pWindow, &m_SharedData.BaseDir)))
+		{
+			m_SharedData.pFont->MakeFont(DEFAULT_FONT);
+		}
+		else
+		{
+			return EError::FONT_NOT_CREATED;
+		}
+	}
+	else
+	{
+		return EError::ALLOCATION_FAILURE;
+	}
 
 	return EError::OK;
 }
@@ -111,9 +126,6 @@ auto JWGUI::CreateOnWindow(JWWindow* pWindow)->EError
 	if (JW_FAILED(CreateTexture(GUI_TEXTURE_FILENAME, &m_SharedData.Texture_GUI, &m_SharedData.Texture_GUI_Info)))
 		return EError::TEXTURE_NOT_CREATED;
 
-	JWControl temp_control_to_set_shared_data;
-	temp_control_to_set_shared_data.SetSharedData(&m_SharedData);
-
 	return EError::OK;
 }
 
@@ -124,18 +136,28 @@ void JWGUI::Destroy()
 		JW_DESTROY(iterator);
 	}
 	m_Controls.clear();
+
+	JW_DESTROY(m_SharedData.pWindow);
+	JW_DESTROY(m_SharedData.pFont);
 }
 
 void JWGUI::Run()
 {
-	ms_bRunning = true;
+	m_bRunning = true;
 
-	while (ms_bRunning)
+	while (m_bRunning)
 	{
 		if (PeekMessage(&m_MSG, nullptr, 0U, 0U, PM_REMOVE))
 		{
+			std::cout << "RUN() " << m_MSG.hwnd << std::endl;
+
 			TranslateMessage(&m_MSG);
 			DispatchMessage(&m_MSG);
+		}
+
+		if (m_MSG.message == WM_QUIT)
+		{
+			m_bRunning = false;
 		}
 
 		HandleMessage();
@@ -145,6 +167,39 @@ void JWGUI::Run()
 		// @Warning:
 		// We must empty m_MSG to avoid duplicate messages!
 		memset(&m_MSG, 0, sizeof(m_MSG));
+	}
+
+	Destroy();
+}
+
+void JWGUI::ShowDialogue()
+{
+	m_bRunning = true;
+
+	while (m_bRunning)
+	{
+		if (PeekMessage(&m_MSG, nullptr, 0U, 0U, PM_REMOVE))
+		{
+			std::cout << "ShowDialogue() " << m_MSG.hwnd << std::endl;
+
+			TranslateMessage(&m_MSG);
+			DispatchMessage(&m_MSG);
+		}
+		else
+		{
+			HandleMessage();
+
+			MainLoop();
+
+			// @Warning:
+			// We must empty m_MSG to avoid duplicate messages!
+			memset(&m_MSG, 0, sizeof(m_MSG));
+		}
+
+		if (m_MSG.message == WM_QUIT)
+		{
+			m_bRunning = false;
+		}
 	}
 
 	Destroy();
@@ -206,8 +261,8 @@ auto JWGUI::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size
 		return THandle_Null;
 		break;
 	}
-	
-	if (JW_FAILED(m_Controls[m_Controls.size() - 1]->Create(Position, Size)))
+
+	if (JW_FAILED(m_Controls[m_Controls.size() - 1]->Create(Position, Size, &m_SharedData)))
 		return THandle_Null;
 
 	if (Text.length())

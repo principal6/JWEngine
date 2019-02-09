@@ -18,14 +18,14 @@ JWCheckBox::JWCheckBox()
 	m_bChecked = false;
 }
 
-auto JWCheckBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
+auto JWCheckBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
 {
-	if (JW_FAILED(JWControl::Create(Position, Size)))
+	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
 
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		m_pBackground->SetColor(DEFAULT_COLOR_ALMOST_WHITE);
 		m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
@@ -37,10 +37,10 @@ auto JWCheckBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size)->EError
 
 	if (m_pCheckImage = new JWImage)
 	{
-		if (JW_FAILED(m_pCheckImage->Create(ms_pSharedData->pWindow, &ms_pSharedData->BaseDir)))
+		if (JW_FAILED(m_pCheckImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
 		m_pCheckImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
-		m_pCheckImage->SetTexture(ms_pSharedData->Texture_GUI, &ms_pSharedData->Texture_GUI_Info);
+		m_pCheckImage->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
 		m_pCheckImage->SetAtlasUV(D3DXVECTOR2(0, GUI_BUTTON_SIZE.y * 2), GUI_BUTTON_SIZE);
 	}
 	else

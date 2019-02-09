@@ -58,7 +58,7 @@ namespace JWENGINE
 		void CreateIndexBufferMax();
 
 	private:
-		static LPDIRECT3DDEVICE9 ms_pDevice;
+		LPDIRECT3DDEVICE9 m_pDevice;
 
 		LPDIRECT3DVERTEXBUFFER9 m_pVB;
 		LPDIRECT3DINDEXBUFFER9 m_pIB;
