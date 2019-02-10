@@ -34,7 +34,7 @@ JWScrollBar::JWScrollBar()
 	m_ScrollableSize = 0;
 }
 
-auto JWScrollBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
+auto JWScrollBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -110,6 +110,9 @@ void JWScrollBar::Destroy()
 	JWControl::Destroy();
 
 	JW_DESTROY(m_pBackground);
+	JW_DESTROY(m_pButtonA);
+	JW_DESTROY(m_pButtonB);
+	JW_DESTROY(m_pScroller);
 }
 
 void JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)

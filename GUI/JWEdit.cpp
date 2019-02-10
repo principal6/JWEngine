@@ -34,7 +34,7 @@ JWEdit::JWEdit()
 	m_YSizeSingleline = 0;
 }
 
-auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
+auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -275,7 +275,7 @@ PRIVATE void JWEdit::UpdateCaretAndSelection()
 
 PRIVATE void JWEdit::UpdateCaretPosition()
 {
-	if (!m_bIMEWriting)
+	if (!m_IMEInfo.bIMEWriting)
 	{
 		// Update caret's image position only when the caret has been moved
 		if (m_PreviousCaretSelPosition != *m_pCaretSelPosition)
@@ -462,25 +462,20 @@ void JWEdit::SetText(WSTRING Text)
 }
 
 // TODO: IME INPUT ERRORS NEED TO BE FIXED!
-void JWEdit::WindowIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR)
+void JWEdit::WindowIMEInput(SGUIIMEInputInfo& IMEInfo)
 {
-	m_bIMEWriting = Writing;
-	m_bIMECompleted = Completed;
+	m_IMEInfo = IMEInfo;
 
-	if (Completed)
+	if (m_IMEInfo.bIMECompleted)
 	{
-		m_pIMECompletedCharacter = pCompletedTCHAR;
-
 		// For debugging
 		//std::cout << "[DEBUG] IsIMECompleted(): " << static_cast<size_t>(m_pIMECompletedCharacter[0]) << std::endl;
 
-		InsertChar(m_pIMECompletedCharacter[0]);
+		InsertChar(m_IMEInfo.IMECompletedChar[0]);
 	}
 
-	if (Writing)
+	if (m_IMEInfo.bIMEWriting)
 	{
-		m_pIMEWritingCharacter = pWritingTCHAR;
-
 		if (IsTextSelected())
 		{
 			EraseSelectedText();
@@ -489,7 +484,7 @@ void JWEdit::WindowIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, 
 		// For debugging
 		//std::cout << "[DEBUG] IsIMEWriting(): " << static_cast<size_t>(m_pIMEWritingCharacter[0]) << std::endl;
 
-		if (m_pIMEWritingCharacter[0])
+		if (m_IMEInfo.IMEWritingChar[0])
 		{
 			// Show the character in progress,
 			// in case it's not deleted ('\0')
@@ -497,7 +492,7 @@ void JWEdit::WindowIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, 
 			m_IMETempSel = m_SelStart;
 			m_IMETempText = m_Text;
 
-			InsertChar(m_pIMEWritingCharacter[0]);
+			InsertChar(m_IMEInfo.IMEWritingChar[0]);
 
 			m_Text = m_IMETempText;
 			m_SelStart = m_IMETempSel;
@@ -722,9 +717,9 @@ void JWEdit::WindowCharKey(WPARAM Char)
 		// For debugging
 		//std::cout << "[DEBUG] OnCharKey: " << wchar << std::endl;
 
-		if (m_pIMECompletedCharacter)
+		if (m_IMEInfo.IMECompletedChar)
 		{
-			if (wchar != m_pIMECompletedCharacter[0])
+			if (wchar != m_IMEInfo.IMECompletedChar[0])
 			{
 				InsertChar(wchar);
 			}
@@ -956,10 +951,8 @@ PRIVATE void JWEdit::SelectAll()
 	UpdateCaretAndSelection();
 }
 
-void JWEdit::WindowMouseDown(LPARAM MousePosition)
+void JWEdit::WindowMouseDown()
 {
-	JWControl::WindowMouseDown(MousePosition);
-
 	if (m_pSharedData->pWindow->GetWindowInputState()->ShiftPressed)
 	{
 		*m_pCaretSelPosition = m_pEditFont->GetCharIndexByMousePosition(m_UpdatedMousedata.MousePosition);
@@ -981,10 +974,8 @@ void JWEdit::WindowMouseDown(LPARAM MousePosition)
 	UpdateCaretAndSelection();
 }
 
-void JWEdit::WindowMouseMove(LPARAM MousePosition)
+void JWEdit::WindowMouseMove()
 {
-	JWControl::WindowMouseMove(MousePosition);
-
 	if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 	{
 		*m_pCaretSelPosition = m_pEditFont->GetCharIndexByMousePosition(m_UpdatedMousedata.MousePosition);

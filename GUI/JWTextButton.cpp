@@ -10,22 +10,22 @@ JWTextButton::JWTextButton()
 	// A text button would normally have its border.
 	m_bShouldDrawBorder = true;
 
-	m_pImage = nullptr;
+	m_pBackground = nullptr;
 }
 
-auto JWTextButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
+auto JWTextButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
 	
-	if (m_pImage = new JWImage)
+	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
+		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
 			return EError::IMAGE_NOT_CREATED;
-		m_pImage->SetSize(m_Size);
-		m_pImage->SetPosition(m_Position);
-		m_pImage->SetXRGB(m_Color_Normal);
-		m_pImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
+		m_pBackground->SetSize(m_Size);
+		m_pBackground->SetPosition(m_Position);
+		m_pBackground->SetXRGB(m_Color_Normal);
+		m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 	}
 	else
 	{
@@ -49,7 +49,7 @@ void JWTextButton::Destroy()
 {
 	JWControl::Destroy();
 
-	JW_DESTROY_SMART(m_pImage);
+	JW_DESTROY(m_pBackground);
 }
 
 void JWTextButton::UpdateControlState(const SMouseData& MouseData)
@@ -121,13 +121,13 @@ void JWTextButton::Draw()
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
-		m_pImage->SetXRGB(m_Color_Normal);
+		m_pBackground->SetXRGB(m_Color_Normal);
 		break;
 	case JWENGINE::Hover:
-		m_pImage->SetXRGB(m_Color_Hover);
+		m_pBackground->SetXRGB(m_Color_Hover);
 		break;
 	case JWENGINE::Pressed:
-		m_pImage->SetXRGB(m_Color_Pressed);
+		m_pBackground->SetXRGB(m_Color_Pressed);
 		break;
 	case JWENGINE::Clicked:
 		break;
@@ -135,7 +135,7 @@ void JWTextButton::Draw()
 		break;
 	}
 
-	m_pImage->Draw();
+	m_pBackground->Draw();
 
 	JWControl::EndDrawing();
 }
@@ -144,9 +144,9 @@ void JWTextButton::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
 
-	if (m_pImage)
+	if (m_pBackground)
 	{
-		m_pImage->SetPosition(m_Position);
+		m_pBackground->SetPosition(m_Position);
 	}
 }
 
@@ -154,8 +154,8 @@ void JWTextButton::SetSize(D3DXVECTOR2 Size)
 {
 	JWControl::SetSize(Size);
 
-	if (m_pImage)
+	if (m_pBackground)
 	{
-		m_pImage->SetSize(m_Size);
+		m_pBackground->SetSize(m_Size);
 	}
 }

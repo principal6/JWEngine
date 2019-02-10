@@ -9,8 +9,11 @@ const float JWFont::DEFAULT_BOUNDARY_STRIDE = 50.0f;
 
 JWFont::JWFont()
 {
+	m_pFontTexture = nullptr;
+	
 	m_pJWWindow = nullptr;
 	m_pBackgroundBox = nullptr;
+	m_pWindowData = nullptr;
 
 	m_pDevice = nullptr;
 	m_pVertexBuffer = nullptr;

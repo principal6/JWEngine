@@ -24,7 +24,7 @@ JWMenuBar::JWMenuBar()
 	m_bMouseReleasedForTheFisrtTime = true;
 }
 
-auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
+auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -65,17 +65,21 @@ auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedD
 
 void JWMenuBar::Destroy()
 {
+	JWControl::Destroy();
+
 	if (m_pItems.size())
 	{
 		for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
 		{
 			JW_DESTROY(m_pItems[iterator]);
+			JW_DESTROY(m_pSubItemBoxes[iterator]);
 		}
+
+		m_pItems.clear();
+		m_pSubItemBoxes.clear();
 	}
 
 	JW_DESTROY(m_pBackground);
-
-	JWControl::Destroy();
 }
 
 auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
@@ -116,7 +120,7 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 	new_subitem_box->ShouldUseToggleSelection(false);
 
 	m_pSubItemBoxes.push_back(new_subitem_box);
-
+	
 	return GetTHandleItemOfMenuBarItem(m_pItems.size() - 1);
 	//return Result;
 }

@@ -6,7 +6,7 @@ namespace JWENGINE
 {
 	// ***
 	// *** Forward declaration ***
-	class JWGUI;
+	class JWGUIWindow;
 	class JWWindow;
 	class JWFont;
 	class JWLine;
@@ -67,14 +67,14 @@ namespace JWENGINE
 
 	class JWControl
 	{
-	friend class JWGUI;
+	friend class JWGUIWindow;
 
 	public:
 		JWControl();
 		virtual ~JWControl() {};
 
 		// Create JWControl.
-		virtual auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError;
+		virtual auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError;
 
 		// Destroy JWControl.
 		virtual void Destroy();
@@ -236,14 +236,16 @@ namespace JWENGINE
 		virtual void UpdateBorderPositionAndSize();
 		virtual void UpdateViewport();
 
-		// Event functions called in JWGUI (friend class).
+		// Event functions called in JWGUIWindow (friend class).
+		virtual void WindowMouseDown() {};
+		virtual void WindowMouseMove() {};
 		virtual void WindowKeyDown(WPARAM VirtualKeyCode) {};
 		virtual void WindowCharKey(WPARAM Char) {};
 		virtual void WindowKeyUp(WPARAM VirtualKeyCode) {};
-		virtual void WindowIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR) {};
+		virtual void WindowIMEInput(SGUIIMEInputInfo& IMEInfo) {};
 
 	protected:
-		const SGUISharedData* m_pSharedData;
+		const SGUIWindowSharedData* m_pSharedData;
 
 		D3DVIEWPORT9 m_OriginalViewport;
 		D3DVIEWPORT9 m_ControlViewport;

@@ -15,7 +15,7 @@ namespace JWENGINE
 		JWTextButton();
 		~JWTextButton() {};
 
-		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError override;
+		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
 		// A button must override this method.
@@ -29,6 +29,6 @@ namespace JWENGINE
 		void SetSize(D3DXVECTOR2 Size) override;
 
 	private:
-		JWImage* m_pImage;
+		JWImage* m_pBackground;
 	};
 };

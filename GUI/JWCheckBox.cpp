@@ -18,7 +18,7 @@ JWCheckBox::JWCheckBox()
 	m_bChecked = false;
 }
 
-auto JWCheckBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
+auto JWCheckBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;

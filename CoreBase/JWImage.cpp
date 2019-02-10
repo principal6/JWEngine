@@ -305,7 +305,10 @@ void JWImage::SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO
 
 	if (m_pTexture)
 	{
-		m_pTexture->Release();
+		if (!m_bUseStaticTexture)
+		{
+			m_pTexture->Release();
+		}
 		m_pTexture = nullptr;
 	}
 

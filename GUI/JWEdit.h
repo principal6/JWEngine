@@ -17,7 +17,7 @@ namespace JWENGINE
 		JWEdit();
 		~JWEdit() {};
 
-		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError override;
+		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
 		void Draw() override;
@@ -32,12 +32,12 @@ namespace JWENGINE
 		void SetText(WSTRING Text) override;
 
 	protected:
-		// Events called in JWGUI (friend class).
-		void WindowMouseDown(LPARAM MousePosition) override;
-		void WindowMouseMove(LPARAM MousePosition) override;
+		// Events called in JWGUIWindow (friend class).
+		void WindowMouseDown() override;
+		void WindowMouseMove() override;
 		void WindowKeyDown(WPARAM VirtualKeyCode) override;
 		void WindowCharKey(WPARAM Char) override;
-		void WindowIMEInput(bool Writing, bool Completed, TCHAR* pWritingTCHAR, TCHAR* pCompletedTCHAR) override;
+		void WindowIMEInput(SGUIIMEInputInfo& IMEInfo) override;
 
 	private:
 		void SelectOrMoveCaretToLeft(size_t Stride = 1); // Select characters to the left or move the caret to the left
@@ -90,10 +90,7 @@ namespace JWENGINE
 
 		WSTRING m_IMETempText;
 		size_t m_IMETempSel;
-		const TCHAR* m_pIMEWritingCharacter;
-		const TCHAR* m_pIMECompletedCharacter;
-		bool m_bIMECompleted;
-		bool m_bIMEWriting;
+		SGUIIMEInputInfo m_IMEInfo;
 
 		ULONGLONG m_CaretTickCount;
 		WSTRING m_ClipText;

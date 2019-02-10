@@ -69,7 +69,7 @@ namespace JWENGINE
 		~JWWindow() {};
 
 		auto CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError;
-		auto CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError;
+		auto CreateGUIWindow(const SWindowCreationData& WindowCreationData)->EError;
 		auto CreateGUIDialogue(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError;
 		auto CreateParentWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color,
 			WNDPROC Proc, LPCWSTR MenuName)->EError;

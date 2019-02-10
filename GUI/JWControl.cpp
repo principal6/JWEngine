@@ -31,7 +31,7 @@ JWControl::JWControl()
 	m_bHasFocus = false;
 }
 
-auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
+auto JWControl::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	// Set shared data pointer.
 	m_pSharedData = pSharedData;

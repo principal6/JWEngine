@@ -86,6 +86,9 @@
     <ClInclude Include="JWImageBox.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="JWGUIWindow.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWImage.cpp">
@@ -145,6 +148,9 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="JWImageBox.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="JWGUIWindow.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>

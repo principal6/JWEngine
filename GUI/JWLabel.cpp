@@ -12,7 +12,7 @@ JWLabel::JWLabel()
 	m_Color_Pressed = DEFAULT_COLOR_BACKGROUND_LABEL;
 }
 
-auto JWLabel::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
+auto JWLabel::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -45,6 +45,8 @@ auto JWLabel::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedDat
 
 void JWLabel::Destroy()
 {
+	JWControl::Destroy();
+
 	JW_DESTROY(m_pBackground);
 }
 

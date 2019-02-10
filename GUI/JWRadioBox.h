@@ -15,7 +15,7 @@ namespace JWENGINE
 		JWRadioBox();
 		~JWRadioBox() {};
 
-		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError override;
+		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
 		void Draw() override;

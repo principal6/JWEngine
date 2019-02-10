@@ -257,7 +257,21 @@ namespace JWENGINE
 		STextureUV(float U1, float U2, float V1, float V2) : u1(U1), u2(U2), v1(V1), v2(V2) {};
 	};
 
-	struct SGUISharedData
+	struct SWindowCreationData
+	{
+		__int32 x;
+		__int32 y;
+		unsigned __int32 width;
+		unsigned __int32 height;
+		DWORD color_background;
+		WNDPROC proc;
+
+		SWindowCreationData() : x(0), y(0), width(300), height(200), color_background(0), proc(nullptr) {};
+		SWindowCreationData(__int32 _x, __int32 _y, unsigned __int32 _width, unsigned __int32 _height, DWORD _color_background) :
+			x(_x), y(_y), width(_width), height(_height), color_background(_color_background), proc(nullptr) {};
+	};
+
+	struct SGUIWindowSharedData
 	{
 		JWWindow* pWindow;
 		WSTRING BaseDir;
@@ -265,7 +279,23 @@ namespace JWENGINE
 		D3DXIMAGE_INFO Texture_GUI_Info;
 		JWFont* pFont;
 
-		SGUISharedData() : pWindow(nullptr), Texture_GUI(nullptr), pFont(nullptr) {};
+		SGUIWindowSharedData() : pWindow(nullptr), Texture_GUI(nullptr), pFont(nullptr) {};
+	};
+
+	struct SGUIIMEInputInfo
+	{
+		TCHAR IMEWritingChar[MAX_FILE_LEN];
+		TCHAR IMECompletedChar[MAX_FILE_LEN];
+		bool bIMEWriting;
+		bool bIMECompleted;
+
+		SGUIIMEInputInfo()
+		{
+			memset(IMEWritingChar, 0, sizeof(TCHAR) * MAX_FILE_LEN);
+			memset(IMECompletedChar, 0, sizeof(TCHAR) * MAX_FILE_LEN);
+			bIMEWriting = false;
+			bIMECompleted = false;
+		};
 	};
 
 	inline static void ConvertFrameIDIntoUV(__int32 FrameID, POINT SpriteSize, POINT SheetSize, __int32 NumCols, __int32 NumRows, STextureUV* UV)

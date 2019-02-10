@@ -136,6 +136,7 @@
     <ClInclude Include="..\CoreType\TLinkedList.h" />
     <ClInclude Include="..\Dependency\tinyxml2.h" />
     <ClInclude Include="JWCheckBox.h" />
+    <ClInclude Include="JWGUIWindow.h" />
     <ClInclude Include="JWImageBox.h" />
     <ClInclude Include="JWImageButton.h" />
     <ClInclude Include="JWListBox.h" />
@@ -159,6 +160,7 @@
     <ClCompile Include="..\Dependency\tinyxml2.cpp" />
     <ClCompile Include="gui_main.cpp" />
     <ClCompile Include="JWCheckBox.cpp" />
+    <ClCompile Include="JWGUIWindow.cpp" />
     <ClCompile Include="JWImageBox.cpp" />
     <ClCompile Include="JWImageButton.cpp" />
     <ClCompile Include="JWListBox.cpp" />

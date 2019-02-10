@@ -47,12 +47,13 @@ auto JWWindow::CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError
 	return EError::OK;
 }
 
-auto JWWindow::CreateGUIWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError
+auto JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)->EError
 {
 	// Set DirectX clear color
-	m_BGColor = Color;
+	m_BGColor = WindowCreationData.color_background;
 
-	if (CreateWINAPIWindow(L"GUI", X, Y, Width, Height, EWindowStyle::OverlappedWindow, Color, Proc) == nullptr)
+	if (CreateWINAPIWindow(L"GUI", WindowCreationData.x, WindowCreationData.y, WindowCreationData.width, WindowCreationData.height,
+		EWindowStyle::OverlappedWindow, WindowCreationData.color_background, WindowCreationData.proc) == nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 
 	if (InitializeDirectX() == -1)

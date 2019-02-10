@@ -15,7 +15,7 @@ namespace JWENGINE
 	{
 		// Pointer to the previous node.
 		SLinkedListNode<T>* ptr_prev;
-		
+
 		// Pointer to the next node.
 		SLinkedListNode<T>* ptr_next;
 
@@ -31,11 +31,64 @@ namespace JWENGINE
 		SLinkedListNode(T* _pPrev, T* _pNext) : ptr_prev(_pPrev), ptr_next(_pNext) {};
 	};
 
+	// Iterator class for TLinkedList.
+	template <typename T>
+	class TLinkedListIterator
+	{
+	public:
+		TLinkedListIterator() : m_pCurrent(nullptr) {};
+		TLinkedListIterator(SLinkedListNode<T>* Value) : m_pCurrent(Value) {};
+		~TLinkedListIterator() {};
+
+		T& operator *()
+		{
+			return m_pCurrent->data;
+		}
+
+		TLinkedListIterator& operator ++()
+		{
+			m_pCurrent = m_pCurrent->ptr_next;
+
+			return *this;
+		}
+
+		TLinkedListIterator operator ++(int)
+		{
+			TLinkedListIterator temp = *this;
+			++*this;
+
+			return temp;
+		}
+
+		SLinkedListNode<T>& operator =(SLinkedListNode<T>* Value)
+		{
+			m_pCurrent = Value;
+
+			return *this;
+		}
+
+		bool operator !=(TLinkedListIterator iter)
+		{
+			if (m_pCurrent != iter.m_pCurrent)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+	private:
+		SLinkedListNode<T>* m_pCurrent;
+	};
+
 	// Our (double) linked list class using template.
 	// 'T' for 'type' (or it could also be interpreted as 'template').
 	template <typename T>
 	class TLinkedList
 	{
+	public:
+		using iterator = TLinkedListIterator<T>;
+
 	public:
 		// ctor()
 		// We must initialize here our member variables.
@@ -265,6 +318,16 @@ namespace JWENGINE
 		void pop_back()
 		{
 			erase();
+		}
+
+		auto begin()->iterator
+		{
+			return iterator(get_node_ptr(0));
+		}
+
+		auto end()->iterator
+		{
+			return iterator();
 		}
 
 	private:

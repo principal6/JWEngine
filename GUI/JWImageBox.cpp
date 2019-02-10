@@ -19,7 +19,7 @@ JWImageBox::JWImageBox()
 	m_Color_Pressed = DEFAULT_COLOR_NORMAL;
 }
 
-auto JWImageBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
+auto JWImageBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -61,6 +61,7 @@ void JWImageBox::Destroy()
 {
 	JWControl::Destroy();
 
+	JW_DESTROY(m_pBackground);
 	JW_DESTROY(m_pImage);
 }
 

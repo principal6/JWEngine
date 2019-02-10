@@ -30,7 +30,7 @@ JWListBox::JWListBox()
 	m_MinimumItemHeight = DEFAULT_ITEM_HEIGHT;
 }
 
-auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedData* pSharedData)->EError
+auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -76,18 +76,27 @@ auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUISharedD
 
 void JWListBox::Destroy()
 {
-	if (m_pTextItems.size())
+	JWControl::Destroy();
+
+	if (m_pImageItems.size())
 	{
-		for (size_t iterator = 0; iterator < m_pTextItems.size(); iterator++)
+		for (size_t iterator = 0; iterator < m_pImageItems.size(); iterator++)
 		{
+			JW_DESTROY(m_pImageItems[iterator]);
+		}
+	}
+
+	if (m_ItemInfo.size())
+	{
+		for (size_t iterator = 0; iterator < m_ItemInfo.size(); iterator++)
+		{
+			JW_DESTROY(m_pItemBackground[iterator]);
 			JW_DESTROY(m_pTextItems[iterator]);
 		}
 	}
 
 	JW_DESTROY(m_pBackground);
 	JW_DESTROY(m_pScrollBar);
-
-	JWControl::Destroy();
 }
 
 void JWListBox::SetMinimumItemHeight(float Value)
