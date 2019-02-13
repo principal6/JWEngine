@@ -1,5 +1,4 @@
 #include "JWLabel.h"
-#include "../CoreBase/JWFont.h"
 #include "../CoreBase/JWImage.h"
 
 using namespace JWENGINE;

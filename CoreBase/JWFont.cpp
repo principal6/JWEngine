@@ -7,10 +7,11 @@ using namespace JWENGINE;
 // Static const
 const float JWFont::DEFAULT_BOUNDARY_STRIDE = 50.0f;
 
+// Static member variable
+LPDIRECT3DTEXTURE9 JWFont::ms_pFontTexture = nullptr;
+
 JWFont::JWFont()
 {
-	m_pFontTexture = nullptr;
-	
 	m_pJWWindow = nullptr;
 	m_pBackgroundBox = nullptr;
 	m_pWindowData = nullptr;
@@ -40,6 +41,7 @@ JWFont::JWFont()
 	m_BoxSize = D3DXVECTOR2(0, 0);
 
 	m_bUseMultiline = false;
+	m_bIsGUIFont = false;
 
 	m_CaretPosition = D3DXVECTOR2(0, 0);
 	m_SinglelineXOffset = 0;
@@ -72,7 +74,7 @@ void JWFont::ClearText()
 	m_UsedLetterBoxCount = 0;
 }
 
-auto JWFont::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError
+auto JWFont::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const WSTRING FileName_FNT)->EError
 {
 	if (pJWWindow == nullptr)
 		return EError::NULLPTR_WINDOW;
@@ -84,6 +86,32 @@ auto JWFont::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError
 	// Create background box
 	m_pBackgroundBox = new JWImage;
 	m_pBackgroundBox->Create(m_pJWWindow, m_pBaseDir);
+
+	// Parse fnt file's data.
+	ParseFontData(FileName_FNT);
+
+	return EError::OK;
+}
+
+auto JWFont::CreateGUIFont(const SGUIWindowSharedData* pSharedData)->EError
+{
+	if (pSharedData->pWindow == nullptr)
+		return EError::NULLPTR_WINDOW;
+
+	m_pSharedData = pSharedData;
+
+	m_pJWWindow = pSharedData->pWindow;
+	m_pDevice = m_pJWWindow->GetDevice();
+	m_pBaseDir = &pSharedData->BaseDir;
+
+	// Create background box
+	m_pBackgroundBox = new JWImage;
+	m_pBackgroundBox->Create(m_pJWWindow, m_pBaseDir);
+
+	// Parse fnt file's data (with DEFAULT_FONT).
+	ParseFontData(DEFAULT_FONT);
+
+	m_bIsGUIFont = true;
 
 	return EError::OK;
 }
@@ -99,36 +127,48 @@ void JWFont::Destroy()
 
 	JW_DESTROY(m_pBackgroundBox);
 
-	JW_RELEASE(m_pFontTexture);
+	if (!m_bIsGUIFont)
+	{
+		JW_RELEASE(ms_pFontTexture);
+	}
+	else
+	{
+		ms_pFontTexture = nullptr;
+	}
+	
 	JW_RELEASE(m_pIndexBuffer);
 	JW_RELEASE(m_pVertexBuffer);
 }
 
-auto JWFont::MakeFont(WSTRING FileName_FNT)->EError
+PRIVATE void JWFont::ParseFontData(WSTRING FileName_FNT)
 {
-	WSTRING NewFileName;
-	NewFileName = *m_pBaseDir;
-	NewFileName += ASSET_DIR;
-	NewFileName += FileName_FNT;
-
 	if (!ms_FontData.bFontDataParsed)
 	{
+		WSTRING NewFileName;
+		NewFileName = *m_pBaseDir;
+		NewFileName += ASSET_DIR;
+		NewFileName += FileName_FNT;
+
 		// Font not yet parsed, then parse it
 		// FontData is static, so we'll run this code only once per process
 		if (Parse(NewFileName))
 		{
 			ms_FontData.bFontDataParsed = true;
-
-			// JWFont will always use only one page in the BMFont, whose ID is '0'
-			if (JW_FAILED(CreateTexture(ms_FontData.Pages[0].File)))
-				return EError::TEXTURE_NOT_CREATED;
 		}
+	}
+}
+
+auto JWFont::CreateFontBuffers()->EError
+{
+	if (!m_bIsGUIFont)
+	{
+		// We use only one page (Pages[0]) for our JWFont.
+		if (JW_FAILED(CreateTexture(ms_FontData.Pages[0].File)))
+			return EError::TEXTURE_NOT_CREATED;
 	}
 	else
 	{
-		// JWFont will always use only one page in the BMFont, whose ID is '0'
-		if (JW_FAILED(CreateTexture(ms_FontData.Pages[0].File)))
-			return EError::TEXTURE_NOT_CREATED;
+		ms_pFontTexture = m_pSharedData->Texture_Font;
 	}
 
 	// Create vertex and index buffer
@@ -256,10 +296,10 @@ PRIVATE auto JWFont::UpdateIndexBuffer()->EError
 
 PRIVATE auto JWFont::CreateTexture(WSTRING FileName)->EError
 {
-	if (m_pFontTexture)
+	if (ms_pFontTexture)
 	{
-		m_pFontTexture->Release();
-		m_pFontTexture = nullptr;
+		ms_pFontTexture->Release();
+		ms_pFontTexture = nullptr;
 	}
 
 	WSTRING NewFileName;
@@ -269,7 +309,7 @@ PRIVATE auto JWFont::CreateTexture(WSTRING FileName)->EError
 
 	// Craete texture without color key
 	if (FAILED(D3DXCreateTextureFromFileExW(m_pDevice, NewFileName.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &m_pFontTexture)))
+		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &ms_pFontTexture)))
 		return EError::TEXTURE_NOT_CREATED;
 	
 	return EError::OK;
@@ -1128,6 +1168,12 @@ PRIVATE void JWFont::UpdateLetterBoxes()
 	UpdateVertexBuffer();
 }
 
+auto JWFont::GetFontTextureFileName()->const WSTRING
+{
+	// We use only one page (Pages[0]) for our JWFont.
+	return ms_FontData.Pages[0].File;
+}
+
 void JWFont::Draw() const
 {
 	// Draw background box
@@ -1145,10 +1191,10 @@ void JWFont::Draw() const
 		m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 		m_pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
-		if (m_pFontTexture)
+		if (ms_pFontTexture)
 		{
 			// Texture exists
-			m_pDevice->SetTexture(0, m_pFontTexture);
+			m_pDevice->SetTexture(0, ms_pFontTexture);
 
 			// Texture alpha * Diffuse alpha
 			m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
@@ -1238,10 +1284,10 @@ void JWFont::DrawInstantText(WSTRING SingleLineText, D3DXVECTOR2 Position, EHori
 	m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	m_pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
-	if (m_pFontTexture)
+	if (ms_pFontTexture)
 	{
 		// Texture exists
-		m_pDevice->SetTexture(0, m_pFontTexture);
+		m_pDevice->SetTexture(0, ms_pFontTexture);
 
 		// Texture alpha * Diffuse alpha
 		m_pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);

@@ -1,5 +1,4 @@
 #include "JWImageButton.h"
-#include "../CoreBase/JWFont.h"
 #include "../CoreBase/JWImage.h"
 #include "../CoreBase/JWWindow.h"
 

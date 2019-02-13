@@ -266,3 +266,9 @@ auto JWBMFontParser::GetFontData()->const BMFont* const
 {
 	return &ms_FontData;
 }
+
+auto JWBMFontParser::GetCharsIDFromCharacter(const wchar_t Character) const->const size_t
+{
+	wchar_t limited_character = static_cast<wchar_t>(min(Character, MAX_WCHAR_INDEX));
+	return ms_FontData.MappedCharacters[limited_character];
+}

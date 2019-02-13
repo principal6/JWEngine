@@ -18,8 +18,6 @@ int main()
 	if (JW_FAILED(g_MyGame.Create(800, 600)))
 		return -1;
 
-	g_MyGame.GetFontObject()->MakeFont(DEFAULT_FONT);
-
 	g_MyGame.SetBackground(L"colored_talltrees.png");
 
 	g_MyGame.LoadMap(L"map01.jwm");
@@ -58,13 +56,10 @@ int main()
 
 void Render()
 {
-	g_MyGame.GetFontObject()->ClearText();
-
-	g_MyGame.GetFontObject()->SetFontColor(D3DCOLOR_XRGB(0, 0, 0));
-	g_MyGame.GetFontObject()->DrawInstantText(L"화살표 키: 이동, 점프", D3DXVECTOR2(0, 0));
-	g_MyGame.GetFontObject()->DrawInstantText(L"Ctrl: 물리 공격", D3DXVECTOR2(0, 12.0f));
-	g_MyGame.GetFontObject()->DrawInstantText(L"Alt: 마법 공격", D3DXVECTOR2(0, 24.0f));
-	g_MyGame.GetFontObject()->DrawInstantText(L"B: 바운딩 박스 토글", D3DXVECTOR2(0, 36.0f));
+	g_MyGame.GetTextObject()->DrawInstantText(L"화살표 키: 이동, 점프", D3DXVECTOR2(0, 0));
+	g_MyGame.GetTextObject()->DrawInstantText(L"Ctrl: 물리 공격", D3DXVECTOR2(0, 12.0f));
+	g_MyGame.GetTextObject()->DrawInstantText(L"Alt: 마법 공격", D3DXVECTOR2(0, 24.0f));
+	g_MyGame.GetTextObject()->DrawInstantText(L"B: 바운딩 박스 토글", D3DXVECTOR2(0, 36.0f));
 }
 
 void Keyboard(DWORD Key)

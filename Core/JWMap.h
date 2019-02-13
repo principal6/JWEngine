@@ -8,7 +8,6 @@ namespace JWENGINE
 	// ***
 	// *** Forward declaration ***
 	class JWWindow;
-	class JWTileMapSelector;
 	// ***
 
 	enum class EMapMode
@@ -64,7 +63,7 @@ namespace JWENGINE
 		void JWMap::CreateMap(SMapInfo* InPtr_Info);
 		void JWMap::LoadMap(WSTRING FileName);
 		void JWMap::SaveMap(WSTRING FileName);
-		void JWMap::EditMap(const JWTileMapSelector* InPtr_Selector, bool bErase = false);
+		//void JWMap::EditMap(const JWTileMapSelector* InPtr_Selector, bool bErase = false);
 
 		void JWMap::Draw() override;
 

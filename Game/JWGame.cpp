@@ -42,10 +42,10 @@ auto JWGame::Create(int Width, int Height)->EError
 	}
 
 	// Create font object
-	if (m_Font = MAKE_UNIQUE(JWFont)())
+	if (m_Text = MAKE_UNIQUE(JWText)())
 	{
-		if (JW_FAILED(m_Font->Create(m_Window.get(), &m_BaseDir)))
-			return EError::FONT_NOT_CREATED;
+		if (JW_FAILED(m_Text->CreateInstantText(m_Window.get(), &m_BaseDir)))
+			return EError::TEXT_NOT_CREATED;
 	}
 
 	// Create image object
@@ -218,7 +218,8 @@ PRIVATE void JWGame::DetectInput()
 
 void JWGame::Destroy()
 {
-	JW_DESTROY_SMART(m_Font);
+	JW_DESTROY_SMART(m_Text);
+
 	JW_DESTROY_SMART(m_EffectManager);
 	JW_DESTROY_SMART(m_MonsterManager);
 	JW_DESTROY_SMART(m_Sprite);
@@ -270,10 +271,10 @@ auto JWGame::SpawnMonster(WSTRING MonsterName, D3DXVECTOR2 GlobalPosition)->JWMo
 	return m_MonsterManager->Spawn(MonsterName, GlobalPosition);
 }
 
-auto JWGame::GetFontObject()->JWFont*
+auto JWGame::GetTextObject()->JWText*
 {
-	assert(m_Font);
-	return m_Font.get();
+	assert(m_Text);
+	return m_Text.get();
 }
 
 auto JWGame::GetSpriteObject()->JWLife*
@@ -330,12 +331,6 @@ void JWGame::DrawEffects()
 		m_EffectManager->DrawBoundingBox();
 }
 
-void JWGame::DrawFont()
-{
-	assert(m_Font);
-	m_Font->Draw();
-}
-
 void JWGame::DrawAllBase()
 {
 	DrawBackground();
@@ -343,5 +338,4 @@ void JWGame::DrawAllBase()
 	DrawMonsters();
 	DrawSprite();
 	DrawEffects();
-	DrawFont();
 }

@@ -1,5 +1,4 @@
 #include "../CoreBase/JWWindow.h"
-#include "../MapEditor/JWTileMapSelector.h"
 #include "JWMap.h"
 
 using namespace JWENGINE;
@@ -355,6 +354,7 @@ PRIVATE void JWMap::GetMapDataPartForSave(int DataID, wchar_t* OutPtr_wchar, int
 	wcscpy_s(OutPtr_wchar, size, tempStr.c_str());
 }
 
+/*
 void JWMap::EditMap(const JWTileMapSelector* InPtr_Selector, bool bErase)
 {
 	POINT TilePos = InPtr_Selector->GetTileSelectorPositionInCells();
@@ -396,10 +396,8 @@ void JWMap::EditMap(const JWTileMapSelector* InPtr_Selector, bool bErase)
 			}
 		}
 	}
-
-	
-	
 }
+*/
 
 PRIVATE void JWMap::SetTileTexture(WSTRING FileName)
 {

@@ -1,5 +1,4 @@
 #include "JWGUI.h"
-#include <crtdbg.h>
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__)
@@ -18,6 +17,9 @@ THandleItem mb_file_open = THandle_Null;
 THandleItem mb_help_info = THandle_Null;
 
 THandle textbutton1 = THandle_Null;
+
+// TODO: THandle, THandleItem to structure?? (To safely handle these)
+// TODO: Get rid of all regional variables in main loop!!! -> static! (for the memory performance)
 
 int main()
 {
@@ -61,13 +63,6 @@ int main()
 	pMainGUIWindow->GetControlPtr(label1)->SetTextVerticalAlignment(EVerticalAlignment::Middle);
 	pMainGUIWindow->GetControlPtr(label1)->AttachScrollBar(pMainGUIWindow->GetControlPtr(scrollbar2));
 	
-	THandle edit1 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(100, 140), D3DXVECTOR2(160, 0),
-		L"This is JWEdit control");
-	
-	THandle edit2 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(100, 200), D3DXVECTOR2(160, 100),
-		L"This is JWEdit control\nMulti-line edit");
-	pMainGUIWindow->GetControlPtr(edit2)->SetUseMultiline(true);
-
 	THandle radio1 = pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 0), D3DXVECTOR2(0, 0));
 	THandle radio2 = pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 20), D3DXVECTOR2(0, 0));
 
@@ -92,6 +87,14 @@ int main()
 		->SetAtlasUV(D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32));
 	pMainGUIWindow->GetControlPtr(image1)->SetSize(D3DXVECTOR2(100, 20));
 
+	/*
+	THandle edit1 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(100, 140), D3DXVECTOR2(160, 0),
+		L"This is JWEdit control");
+	
+	THandle edit2 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(100, 200), D3DXVECTOR2(160, 100),
+		L"This is JWEdit control\nMulti-line edit");
+	pMainGUIWindow->GetControlPtr(edit2)->SetUseMultiline(true);
+	*/
 
 	myGUI.SetMainLoopFunction(MainLoop);
 
@@ -102,7 +105,8 @@ int main()
 
 void MainLoop()
 {
-	THandleItem clicked_subitem = THandle_Null;
+	static THandleItem clicked_subitem = THandle_Null;
+
 	if ((clicked_subitem = pMainGUIWindow->GetControlPtr(menubar)->OnSubItemClick()) != THandle_Null)
 	{
 		if (clicked_subitem == mb_file_new)

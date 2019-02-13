@@ -1,9 +1,4 @@
 #include "JWGUIWindow.h"
-#include <crtdbg.h>
-
-#ifdef _DEBUG
-#define new new( _CLIENT_BLOCK, __FILE__, __LINE__)
-#endif
 
 using namespace JWENGINE;
 
@@ -22,10 +17,17 @@ auto JWGUIWindow::Create(const SWindowCreationData& WindowCreationData)->EError
 	// Create JWWindow(win32 api window).
 	if (!m_SharedData.pWindow)
 	{
-		m_SharedData.pWindow = new JWWindow;
-
-		if (JW_FAILED(m_SharedData.pWindow->CreateGUIWindow(WindowCreationData)))
-			return EError::WINAPIWINDOW_NOT_CREATED;
+		if (m_SharedData.pWindow = new JWWindow)
+		{
+			if (JW_FAILED(m_SharedData.pWindow->CreateGUIWindow(WindowCreationData)))
+			{
+				return EError::WINAPIWINDOW_NOT_CREATED;
+			}
+		}
+		else
+		{
+			return EError::ALLOCATION_FAILURE;
+		}
 	}
 
 	// Set base directory
@@ -40,18 +42,16 @@ auto JWGUIWindow::Create(const SWindowCreationData& WindowCreationData)->EError
 
 	// Create GUI texture that will be shared in every control.
 	if (JW_FAILED(CreateTexture(GUI_TEXTURE_FILENAME, &m_SharedData.Texture_GUI, &m_SharedData.Texture_GUI_Info)))
+	{
 		return EError::TEXTURE_NOT_CREATED;
+	}
 
 	// Create JWFont object that will be shared in every control.
-	if (m_SharedData.pFont = new JWFont)
+	if (m_SharedData.pText = new JWText)
 	{
-		if (JW_SUCCEEDED(m_SharedData.pFont->Create(m_SharedData.pWindow, &m_SharedData.BaseDir)))
+		if (JW_FAILED(m_SharedData.pText->CreateInstantText(m_SharedData.pWindow, &m_SharedData.BaseDir)))
 		{
-			m_SharedData.pFont->MakeFont(DEFAULT_FONT);
-		}
-		else
-		{
-			return EError::FONT_NOT_CREATED;
+			return EError::TEXT_NOT_CREATED;
 		}
 	}
 	else
@@ -84,9 +84,9 @@ void JWGUIWindow::Destroy()
 	}
 	m_Controls.clear();
 
+	JW_DESTROY(m_SharedData.pText);
 	JW_RELEASE(m_SharedData.Texture_GUI);
 	JW_DESTROY(m_SharedData.pWindow);
-	JW_DESTROY(m_SharedData.pFont);
 }
 
 auto JWGUIWindow::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text)->const THandle
@@ -147,7 +147,9 @@ auto JWGUIWindow::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR
 	}
 
 	if (JW_FAILED(m_Controls[m_Controls.size() - 1]->Create(Position, Size, &m_SharedData)))
+	{
 		return THandle_Null;
+	}
 
 	if (Text.length())
 	{
@@ -172,6 +174,11 @@ auto JWGUIWindow::GetControlPtr(const THandle ControlHandle)->JWControl*
 
 void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindowHWND)
 {
+	static JWControl* pControlWithMouse = nullptr;
+	static JWControl* pControlWithNewFocus = nullptr;
+
+	m_MouseData.MouseWheeled = 0;
+
 	// Update only when HWND of the message matches this window's HWND.
 	if (Message.hwnd == m_SharedData.pWindow->GethWnd())
 	{
@@ -181,8 +188,6 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 			m_bDestroyed = true;
 			return;
 		}
-
-		m_MouseData.MouseWheeled = 0;
 
 		switch (Message.message)
 		{
@@ -206,8 +211,8 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 
 	m_SharedData.pWindow->UpdateInputState();
 
-	JWControl* pControlWithMouse = nullptr;
-	JWControl* pControlWithNewFocus = nullptr;
+	pControlWithMouse = nullptr;
+	pControlWithNewFocus = nullptr;
 
 	if (m_pMenuBar)
 	{

@@ -40,10 +40,16 @@ namespace JWENGINE
 		JWFont();
 		~JWFont() {};
 
-		auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError;
+		// Non-JWGUI-font creation function.
+		auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const WSTRING FileName_FNT)->EError;
+		
+		// JWGUI-font creation funcion.
+		// In JWGUI, each JWGUIWindow can have multiple JWFonts,
+		// which will share only one FontTexture.
+		auto CreateGUIFont(const SGUIWindowSharedData* pSharedData)->EError;
 		void Destroy();
 
-		auto MakeFont(WSTRING FileName_FNT)->EError;
+		auto CreateFontBuffers()->EError;
 
 		// Alignment
 		void SetAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment);
@@ -98,6 +104,9 @@ namespace JWENGINE
 		// This function converts sel position in plain text to sel position in splitted text (with '\0' line end)
 		// which is needed because the line splitted text has different length than the original one!
 		auto GetAdjustedSelPosition(size_t SelPosition) const->size_t;
+
+		// This is needed to Release() the static font texture when it is no longer used.
+		auto GetFontTextureFileName()->const WSTRING;
 		
 		// Draw
 		void Draw() const;
@@ -112,6 +121,8 @@ namespace JWENGINE
 		auto CreateIndexBuffer()->EError;
 		auto UpdateVertexBuffer()->EError;
 		auto UpdateIndexBuffer()->EError;
+
+		void ParseFontData(WSTRING FileName_FNT);
 
 		auto CreateTexture(WSTRING FileName)->EError;
 
@@ -133,9 +144,9 @@ namespace JWENGINE
 		static const DWORD DEFAULT_COLOR_FONT = D3DCOLOR_XRGB(255, 255, 255);
 		static const DWORD DEFAULT_COLOR_BOX = D3DCOLOR_ARGB(0, 180, 180, 180);
 		static const float DEFAULT_BOUNDARY_STRIDE;
+		static LPDIRECT3DTEXTURE9 ms_pFontTexture;
 
-		LPDIRECT3DTEXTURE9 m_pFontTexture;
-
+		const SGUIWindowSharedData* m_pSharedData;
 		const JWWindow* m_pJWWindow;
 		const WSTRING* m_pBaseDir;
 		const SWindowData* m_pWindowData;
@@ -163,6 +174,7 @@ namespace JWENGINE
 		D3DXVECTOR2 m_BoxSize;
 
 		bool m_bUseMultiline;
+		bool m_bIsGUIFont;
 
 		WSTRING m_ImageStringOriginalText;
 		size_t m_ImageStringLength;

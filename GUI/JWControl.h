@@ -8,7 +8,6 @@ namespace JWENGINE
 	// *** Forward declaration ***
 	class JWGUIWindow;
 	class JWWindow;
-	class JWFont;
 	class JWLine;
 	class JWScrollBar;
 

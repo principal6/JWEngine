@@ -1,9 +1,4 @@
 #include "JWGUI.h"
-#include <crtdbg.h>
-
-#ifdef _DEBUG
-#define new new( _CLIENT_BLOCK, __FILE__, __LINE__)
-#endif
 
 using namespace JWENGINE;
 
@@ -120,6 +115,7 @@ void JWGUI::Run()
 {
 	bool b_gui_window_destroyed = false;
 	size_t destroyed_gui_window_index = 0;
+	size_t iterator_index = 0;
 
 	m_bIsGUIRunning = true;
 
@@ -148,18 +144,18 @@ void JWGUI::Run()
 		// and if not, BeginRender().
 		if (m_pGUIWindows.size())
 		{
-			size_t index = 0;
-			for (TLinkedList<JWGUIWindow*>::iterator iterator = m_pGUIWindows.begin(); iterator != m_pGUIWindows.end(); iterator++)
+			iterator_index = 0;
+			for (JWGUIWindow* iterator : m_pGUIWindows)
 			{
-				if ((*iterator)->IsDestroyed())
+				if (iterator->IsDestroyed())
 				{
 					b_gui_window_destroyed = true;
-					destroyed_gui_window_index = index;
+					destroyed_gui_window_index = iterator_index;
 				}
 					
-				(*iterator)->BeginRender();
+				iterator->BeginRender();
 
-				index++;
+				iterator_index++;
 			}
 		}
 
@@ -194,7 +190,7 @@ void JWGUI::Run()
 		// We must empty m_MSG to avoid duplicate messages!
 		memset(&m_MSG, 0, sizeof(m_MSG));
 
-		ms_IMEInfo = SGUIIMEInputInfo();
+		ms_IMEInfo.clear();
 
 		// Check window destruction.
 		if (b_gui_window_destroyed)
@@ -206,11 +202,11 @@ void JWGUI::Run()
 				// all JWGUIWindows must be destroyed,
 				// and the program must exit.
 
-				size_t index = 0;
-				for (TLinkedList<JWGUIWindow*>::iterator iterator = m_pGUIWindows.begin(); iterator != m_pGUIWindows.end(); iterator++)
+				iterator_index = 0;
+				for (JWGUIWindow* iterator : m_pGUIWindows)
 				{
-					JW_DESTROY(m_pGUIWindows[index]);
-					index++;
+					JW_DESTROY(m_pGUIWindows[iterator_index]);
+					iterator_index++;
 				}
 
 				m_pGUIWindows.clear();

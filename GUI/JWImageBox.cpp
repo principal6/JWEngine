@@ -1,5 +1,4 @@
 #include "JWImageBox.h"
-#include "../CoreBase/JWFont.h"
 #include "../CoreBase/JWImage.h"
 
 using namespace JWENGINE;
@@ -22,12 +21,16 @@ JWImageBox::JWImageBox()
 auto JWImageBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
+	{
 		return EError::CONTROL_NOT_CREATED;
+	}
 	
 	if (m_pBackground = new JWImage)
 	{
 		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
+		{
 			return EError::IMAGE_NOT_CREATED;
+		}
 	}
 	else
 	{
@@ -37,7 +40,9 @@ auto JWImageBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindow
 	if (m_pImage = new JWImage)
 	{
 		if (JW_FAILED(m_pImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
+		{
 			return EError::IMAGE_NOT_CREATED;
+		}
 	}
 	else
 	{

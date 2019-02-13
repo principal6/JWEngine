@@ -38,9 +38,6 @@
     <ClInclude Include="..\CoreBase\JWBMFontParser.h">
       <Filter>CoreBase</Filter>
     </ClInclude>
-    <ClInclude Include="..\CoreBase\JWFont.h">
-      <Filter>CoreBase</Filter>
-    </ClInclude>
     <ClInclude Include="..\Dependency\tinyxml2.h">
       <Filter>Dependency</Filter>
     </ClInclude>
@@ -89,6 +86,9 @@
     <ClInclude Include="JWGUIWindow.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\CoreBase\JWText.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWImage.cpp">
@@ -106,9 +106,6 @@
     <ClCompile Include="gui_main.cpp" />
     <ClCompile Include="JWGUI.cpp" />
     <ClCompile Include="..\CoreBase\JWBMFontParser.cpp">
-      <Filter>CoreBase</Filter>
-    </ClCompile>
-    <ClCompile Include="..\CoreBase\JWFont.cpp">
       <Filter>CoreBase</Filter>
     </ClCompile>
     <ClCompile Include="..\Dependency\tinyxml2.cpp">
@@ -152,6 +149,9 @@
     </ClCompile>
     <ClCompile Include="JWGUIWindow.cpp">
       <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWText.cpp">
+      <Filter>CoreBase</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

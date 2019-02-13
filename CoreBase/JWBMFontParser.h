@@ -131,6 +131,7 @@ namespace JWENGINE
 
 		virtual auto Parse(WSTRING FileName)->bool;
 		virtual auto GetFontData()->const BMFont* const;
+		virtual auto GetCharsIDFromCharacter(const wchar_t Character) const->const size_t;
 
 	protected:
 		virtual auto ParseComma(STRING Data, UINT ID)->UINT const;

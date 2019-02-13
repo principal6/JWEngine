@@ -4,7 +4,7 @@
 #include "../CoreBase/JWImage.h"
 #include "../CoreBase/JWLine.h"
 #include "../CoreBase/JWWindow.h"
-#include "../CoreBase/JWFont.h"
+#include "../CoreBase/JWText.h"
 #include "JWControl.h"
 #include "JWTextButton.h"
 #include "JWImageButton.h"
@@ -34,7 +34,10 @@ namespace JWENGINE
 		// Create a texture that will be used in this particular JWGUIWindow.
 		auto CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* pTexture, D3DXIMAGE_INFO* pInfo)->EError;
 
+		// Add a control instance to this JWGUIWindow.
 		auto AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text = L"")->const THandle;
+
+		// Get the pointer of the control instance that this JWGUIWindow has.
 		auto GetControlPtr(const THandle ControlHandle)->JWControl*;
 
 		void Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindowHWND);

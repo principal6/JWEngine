@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <crtdbg.h>
 //#include <string>
 
 #pragma comment (lib, "d3dx9.lib")
@@ -47,7 +48,7 @@ namespace JWENGINE
 	// ***
 	// *** Forward declaration ***
 	class JWWindow;
-	class JWFont;
+	class JWText;
 	// ***
 
 	#define JW_SUCCEEDED(func) (func == EError::OK)
@@ -73,6 +74,7 @@ namespace JWENGINE
 	static constexpr __int32 NUM_KEYS = 256;
 
 	static constexpr __int32 MAX_UNIT_COUNT = 100;
+	static const __int32 DEFAULT_MOUSE_WHEEL_STRIDE = 120;
 
 	static const wchar_t GUI_TEXTURE_FILENAME[] = L"jwgui_button.png";
 	static const D3DXVECTOR2 GUI_BUTTON_SIZE = D3DXVECTOR2(15.0f, 15.0f);
@@ -114,7 +116,7 @@ namespace JWENGINE
 		IMAGE_NOT_CREATED,
 		INPUT_NOT_CREATED,
 		LINE_NOT_CREATED,
-		FONT_NOT_CREATED,
+		TEXT_NOT_CREATED,
 		RECTANGLE_NOT_CREATED,
 
 		/** Game creation */
@@ -142,17 +144,17 @@ namespace JWENGINE
 		NULLPTR_IMAGE,
 		NULLPTR_FONT,
 		NULLPTR_SCROLLBAR,
-
-		/** Null (no data) */
-		NULL_VERTEX,
-		NULL_INDEX,
-		NULL_STRING,
+		NULLPTR_VERTEX,
+		NULLPTR_INDEX,
 
 		/** Not enough buffer */
 		BUFFER_NOT_ENOUGH,
 
 		/** Invalid type */
 		INVALID_CONTROL_TYPE,
+
+		/** Duplicate creation */
+		DUPLICATE_CREATION,
 
 		/** Memory allocation failure */
 		ALLOCATION_FAILURE,
@@ -271,15 +273,16 @@ namespace JWENGINE
 			x(_x), y(_y), width(_width), height(_height), color_background(_color_background), proc(nullptr) {};
 	};
 
+	// This structure contains data that will be shared in a JWGUIWindow.
 	struct SGUIWindowSharedData
 	{
 		JWWindow* pWindow;
 		WSTRING BaseDir;
 		LPDIRECT3DTEXTURE9 Texture_GUI;
 		D3DXIMAGE_INFO Texture_GUI_Info;
-		JWFont* pFont;
+		JWText* pText;
 
-		SGUIWindowSharedData() : pWindow(nullptr), Texture_GUI(nullptr), pFont(nullptr) {};
+		SGUIWindowSharedData() : pWindow(nullptr), Texture_GUI(nullptr), pText(nullptr) {};
 	};
 
 	struct SGUIIMEInputInfo
@@ -291,11 +294,16 @@ namespace JWENGINE
 
 		SGUIIMEInputInfo()
 		{
+			clear();
+		};
+
+		void clear()
+		{
 			memset(IMEWritingChar, 0, sizeof(TCHAR) * MAX_FILE_LEN);
 			memset(IMECompletedChar, 0, sizeof(TCHAR) * MAX_FILE_LEN);
 			bIMEWriting = false;
 			bIMECompleted = false;
-		};
+		}
 	};
 
 	inline static void ConvertFrameIDIntoUV(__int32 FrameID, POINT SpriteSize, POINT SheetSize, __int32 NumCols, __int32 NumRows, STextureUV* UV)

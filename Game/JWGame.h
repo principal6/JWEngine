@@ -2,7 +2,7 @@
 
 #include "../CoreBase/JWWindow.h"
 #include "../CoreBase/JWInput.h"
-#include "../CoreBase/JWFont.h"
+#include "../CoreBase/JWText.h"
 #include "../Core/JWBackground.h"
 #include "../Core/JWLife.h"
 #include "../Core/JWMonsters.h"
@@ -41,7 +41,7 @@ namespace JWENGINE
 		auto JWGame::SpawnMonster(WSTRING MonsterName, D3DXVECTOR2 GlobalPosition)->JWMonster*;
 		auto JWGame::SpawnEffect(int EffectID, int Damage)->JWEffect*;
 
-		auto JWGame::GetFontObject()->JWFont*;
+		auto JWGame::GetTextObject()->JWText*;
 		auto JWGame::GetSpriteObject()->JWLife*;
 		auto JWGame::GetMonsterManagerObject()->JWMonsterManager*;
 		auto JWGame::GetEffectManagerObject()->JWEffect*;
@@ -87,7 +87,7 @@ namespace JWENGINE
 		UNIQUE_PTR<JWLife> m_Sprite;
 		UNIQUE_PTR<JWMonsterManager> m_MonsterManager;
 		UNIQUE_PTR<JWEffect> m_EffectManager;
-		UNIQUE_PTR<JWFont> m_Font;
+		UNIQUE_PTR<JWText> m_Text;
 
 		WSTRING m_BaseDir;
 		HWND m_hMainWnd;

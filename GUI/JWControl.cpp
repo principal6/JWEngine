@@ -1,6 +1,6 @@
 #include "JWControl.h"
 #include "../CoreBase/JWWindow.h"
-#include "../CoreBase/JWFont.h"
+#include "../CoreBase/JWText.h"
 #include "../CoreBase/JWLine.h"
 #include "JWScrollBar.h"
 
@@ -120,6 +120,9 @@ auto JWControl::OnMouseCliked() const->bool
 
 void JWControl::UpdateControlState(const SMouseData& MouseData)
 {
+	// Static in-function variables
+	static long long current_scroll_position = 0;
+
 	m_UpdatedMousedata = MouseData;
 
 	if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
@@ -158,18 +161,18 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 				// IF,
 				// this control has an attached ScrollBar.
 
-				long long current_scroll_position = m_pAttachedScrollBar->GetScrollPosition();
+				current_scroll_position = m_pAttachedScrollBar->GetScrollPosition();
 
 				if (MouseData.MouseWheeled > 0)
 				{
-					current_scroll_position--;
+					current_scroll_position -= (MouseData.MouseWheeled / DEFAULT_MOUSE_WHEEL_STRIDE);
 					current_scroll_position = max(current_scroll_position, 0);
 
 					m_pAttachedScrollBar->SetScrollPosition(current_scroll_position);
 				}
 				else
 				{
-					current_scroll_position++;
+					current_scroll_position -= (MouseData.MouseWheeled / DEFAULT_MOUSE_WHEEL_STRIDE);
 
 					m_pAttachedScrollBar->SetScrollPosition(current_scroll_position);
 				}
@@ -221,7 +224,7 @@ void JWControl::EndDrawing()
 	{
 		if (m_ControlType != EControlType::Edit)
 		{
-			m_pSharedData->pFont->DrawInstantText(m_Text, m_CalculatedTextPosition, m_HorizontalAlignment);
+			m_pSharedData->pText->DrawInstantText(m_Text, m_CalculatedTextPosition, m_HorizontalAlignment);
 		}
 	}
 
@@ -375,10 +378,10 @@ void JWControl::SetTextVerticalAlignment(EVerticalAlignment Alignment)
 		m_CalculatedTextPosition.y = m_Position.y;
 		break;
 	case JWENGINE::EVerticalAlignment::Middle:
-		m_CalculatedTextPosition.y = m_Position.y + ((m_Size.y - m_pSharedData->pFont->GetLineHeight()) / 2.0f);
+		m_CalculatedTextPosition.y = m_Position.y + ((m_Size.y - m_pSharedData->pText->GetLineHeight()) / 2.0f);
 		break;
 	case JWENGINE::EVerticalAlignment::Bottom:
-		m_CalculatedTextPosition.y = m_Position.y + m_Size.y - m_pSharedData->pFont->GetLineHeight();
+		m_CalculatedTextPosition.y = m_Position.y + m_Size.y - m_pSharedData->pText->GetLineHeight();
 		break;
 	default:
 		break;
@@ -387,7 +390,7 @@ void JWControl::SetTextVerticalAlignment(EVerticalAlignment Alignment)
 
 void JWControl::SetFontColor(DWORD Color)
 {
-	m_pSharedData->pFont->SetFontColor(Color);
+	//m_pSharedData->pText->SetFontColor(Color);
 }
 
 auto JWControl::GetState() const->EControlState
