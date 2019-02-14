@@ -55,6 +55,10 @@ namespace JWENGINE
 		// @warning: when this function returns true, you must call Destroy() method from the outside.
 		auto IsDestroyed()->bool;
 
+		// Return true if this JWGUIWindow has focus,
+		// this is required in order to set focus only one JWGUIWindow at once.
+		auto HasFocus()->bool;
+
 	private:
 		SGUIWindowSharedData m_SharedData;
 		SMouseData m_MouseData;
@@ -67,5 +71,6 @@ namespace JWENGINE
 		JWControl* m_pControlWithFocus;
 
 		bool m_bDestroyed;
+		bool m_bHasFocus;
 	};
 };

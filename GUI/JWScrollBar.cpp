@@ -143,16 +143,6 @@ void JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)
 
 void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 {
-	// Static in-fucntion variables
-	static EControlState s_button_a_state = EControlState::Normal;
-	static EControlState s_button_b_state = EControlState::Normal;
-	static long long s_scroller_stride_x = 0;
-	static long long s_scroller_stride_y = 0;
-	static long long s_stride_unit = 0;
-	static long long s_new_scroll_position = 0;
-	static long long s_digital_position = 0;
-	static long long s_scroll_stride = 0;
-
 	if (m_ButtonABPressInterval < BUTTON_INTERVAL_UPPER_LIMIT)
 	{
 		m_ButtonABPressInterval++;
@@ -163,10 +153,10 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 	m_pButtonA->UpdateControlState(MouseData);
 	m_pButtonB->UpdateControlState(MouseData);
 	
-	s_button_a_state = m_pButtonA->GetState();
-	s_button_b_state = m_pButtonB->GetState();
+	EControlState button_a_state = m_pButtonA->GetState();
+	EControlState button_b_state = m_pButtonB->GetState();
 
-	if ((s_button_a_state == EControlState::Clicked) || (s_button_a_state == EControlState::Pressed))
+	if ((button_a_state == EControlState::Clicked) || (button_a_state == EControlState::Pressed))
 	{
 		if (m_ButtonABPressInterval == BUTTON_INTERVAL_UPPER_LIMIT)
 		{
@@ -189,7 +179,7 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 			m_ButtonABPressIntervalTick = 4;
 		}
 	}
-	else if ((s_button_b_state == EControlState::Clicked) || (s_button_b_state == EControlState::Pressed))
+	else if ((button_b_state == EControlState::Clicked) || (button_b_state == EControlState::Pressed))
 	{
 		if (m_ButtonABPressInterval == BUTTON_INTERVAL_UPPER_LIMIT)
 		{
@@ -222,39 +212,39 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 			if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 			{
 				// When the scroller is being dragged.
-				s_scroller_stride_x = static_cast<long long>(MouseData.MousePosition.x - MouseData.MouseDownPosition.x);
-				s_scroller_stride_y = static_cast<long long>(MouseData.MousePosition.y - MouseData.MouseDownPosition.y);
-				s_stride_unit = static_cast<long long>(m_ScrollableRest / static_cast<float>(m_ScrollMax));
-				s_new_scroll_position = m_CapturedScrollPosition;
+				long long scroller_stride_x = static_cast<long long>(MouseData.MousePosition.x - MouseData.MouseDownPosition.x);
+				long long scroller_stride_y = static_cast<long long>(MouseData.MousePosition.y - MouseData.MouseDownPosition.y);
+				long long stride_unit = static_cast<long long>(m_ScrollableRest / static_cast<float>(m_ScrollMax));
+				long long new_scroll_position = m_CapturedScrollPosition;
 
 				switch (m_ScrollBarDirection)
 				{
 				case JWENGINE::EScrollBarDirection::Horizontal:
-					if (s_stride_unit)
+					if (stride_unit)
 					{
 						// To avoid division by 0.
-						s_scroller_stride_x = s_scroller_stride_x / s_stride_unit;
+						scroller_stride_x = scroller_stride_x / stride_unit;
 					}
 					
-					s_new_scroll_position += s_scroller_stride_x;
+					new_scroll_position += scroller_stride_x;
 					break;
 				case JWENGINE::EScrollBarDirection::Vertical:
-					if (s_stride_unit)
+					if (stride_unit)
 					{
 						// To avoid division by 0.
-						s_scroller_stride_y = s_scroller_stride_y / s_stride_unit;
+						scroller_stride_y = scroller_stride_y / stride_unit;
 					}
 
-					s_new_scroll_position += s_scroller_stride_y;
+					new_scroll_position += scroller_stride_y;
 					break;
 				default:
 					break;
 				}
 
-				s_new_scroll_position = max(s_new_scroll_position, 0);
-				s_new_scroll_position = min(s_new_scroll_position, static_cast<long long>(m_ScrollMax));
+				new_scroll_position = max(new_scroll_position, 0);
+				new_scroll_position = min(new_scroll_position, static_cast<long long>(m_ScrollMax));
 
-				SetScrollPosition(s_new_scroll_position);
+				SetScrollPosition(new_scroll_position);
 			}
 			else
 			{
@@ -266,34 +256,34 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 		}
 	}
 	else if ((m_ControlState == EControlState::Pressed) && (m_pScroller->GetState() == EControlState::Normal)
-		&& (s_button_a_state == EControlState::Normal) && (s_button_b_state == EControlState::Normal))
+		&& (button_a_state == EControlState::Normal) && (button_b_state == EControlState::Normal))
 	{
 		// Press on the body of the scrollbar => Page scroll
 
 		// Calculate digital position
-		s_digital_position = CalculateScrollerDigitalPosition(MouseData.MouseDownPosition);
+		size_t digital_position = CalculateScrollerDigitalPosition(MouseData.MouseDownPosition);
 
-		s_scroll_stride = s_digital_position - m_ScrollPosition;
+		long long scroll_stride = digital_position - m_ScrollPosition;
 
-		if (s_scroll_stride > 0)
+		if (scroll_stride > 0)
 		{
-			if (s_scroll_stride > DEFAULT_PAGE_STRIDE)
+			if (scroll_stride > DEFAULT_PAGE_STRIDE)
 			{
-				s_scroll_stride = DEFAULT_PAGE_STRIDE;
+				scroll_stride = DEFAULT_PAGE_STRIDE;
 			}
 		}
-		else if (s_scroll_stride < 0)
+		else if (scroll_stride < 0)
 		{
-			if (s_scroll_stride < -DEFAULT_PAGE_STRIDE)
+			if (scroll_stride < -DEFAULT_PAGE_STRIDE)
 			{
-				s_scroll_stride = -DEFAULT_PAGE_STRIDE;
+				scroll_stride = -DEFAULT_PAGE_STRIDE;
 			}
 		}
 
-		s_new_scroll_position = m_ScrollPosition + s_scroll_stride;
-		s_new_scroll_position = max(s_new_scroll_position, 0);
+		long long new_scroll_position = m_ScrollPosition + scroll_stride;
+		new_scroll_position = max(new_scroll_position, 0);
 
-		SetScrollPosition(s_new_scroll_position);
+		SetScrollPosition(new_scroll_position);
 
 		return;
 	}

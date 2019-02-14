@@ -120,9 +120,6 @@ auto JWControl::OnMouseCliked() const->bool
 
 void JWControl::UpdateControlState(const SMouseData& MouseData)
 {
-	// Static in-function variables
-	static long long current_scroll_position = 0;
-
 	m_UpdatedMousedata = MouseData;
 
 	if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
@@ -161,21 +158,14 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 				// IF,
 				// this control has an attached ScrollBar.
 
-				current_scroll_position = m_pAttachedScrollBar->GetScrollPosition();
+				size_t current_scroll_position = m_pAttachedScrollBar->GetScrollPosition();
 
-				if (MouseData.MouseWheeled > 0)
+				if (current_scroll_position > (MouseData.MouseWheeled / DEFAULT_MOUSE_WHEEL_STRIDE))
 				{
 					current_scroll_position -= (MouseData.MouseWheeled / DEFAULT_MOUSE_WHEEL_STRIDE);
-					current_scroll_position = max(current_scroll_position, 0);
-
-					m_pAttachedScrollBar->SetScrollPosition(current_scroll_position);
 				}
-				else
-				{
-					current_scroll_position -= (MouseData.MouseWheeled / DEFAULT_MOUSE_WHEEL_STRIDE);
 
-					m_pAttachedScrollBar->SetScrollPosition(current_scroll_position);
-				}
+				m_pAttachedScrollBar->SetScrollPosition(current_scroll_position);
 
 				m_pAttachedScrollBar->SetState(EControlState::Hover);
 			}

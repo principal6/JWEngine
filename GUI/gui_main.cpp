@@ -19,7 +19,7 @@ THandleItem mb_help_info = THandle_Null;
 THandle textbutton1 = THandle_Null;
 
 // TODO: THandle, THandleItem to structure?? (To safely handle these)
-// TODO: Get rid of all regional variables in main loop!!! -> static! (for the memory performance)
+// TODO: static local variables to local variables again, please... (cuz it's slower!!!)
 
 int main()
 {
@@ -105,7 +105,7 @@ int main()
 
 void MainLoop()
 {
-	static THandleItem clicked_subitem = THandle_Null;
+	THandleItem clicked_subitem = THandle_Null;
 
 	if ((clicked_subitem = pMainGUIWindow->GetControlPtr(menubar)->OnSubItemClick()) != THandle_Null)
 	{

@@ -268,9 +268,6 @@ PRIVATE void JWListBox::UpdateAutomaticScrollBar()
 void JWListBox::UpdateControlState(const SMouseData& MouseData)
 {
 	// Static in-function variables
-	static long long current_scroll_position = 0;
-	static D3DXVECTOR2 item_position = D3DXVECTOR2(0, 0);
-
 	JWControl::UpdateControlState(MouseData);
 
 	m_pScrollBar->UpdateControlState(MouseData);
@@ -293,13 +290,15 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 			// We use mouse wheel scroll only when the mouse is over the control.
 			if (MouseData.MouseWheeled)
 			{
-				current_scroll_position = m_pScrollBar->GetScrollPosition();
+				size_t current_scroll_position = m_pScrollBar->GetScrollPosition();
 
 				if (MouseData.MouseWheeled > 0)
 				{
-					current_scroll_position--;
-					current_scroll_position = max(current_scroll_position, 0);
-
+					if (current_scroll_position)
+					{
+						current_scroll_position--;
+					}
+					
 					m_pScrollBar->SetScrollPosition(current_scroll_position);
 				}
 				else
@@ -352,6 +351,8 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 		// scroll items.
 
 		m_ItemOffsetY = m_Position.y + DEFAULT_ITEM_PADDING_Y - m_ItemInfo[m_pScrollBar->GetScrollPosition()].ItemPosition.y;
+
+		D3DXVECTOR2 item_position = D3DXVECTOR2(0, 0);
 
 		for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
 		{

@@ -157,17 +157,12 @@ PRIVATE auto JWMenuBar::GetTIndexOfMenuBarItem(THandleItem hItem)->TIndex
 
 void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
 {
-	// Static in-function variables
-	static bool FocusCheck = false;
-	static D3DXVECTOR2 subitembox_position = D3DXVECTOR2(0, 0);
-	static TIndex selected_subitem_index = TIndex_NotSpecified;
-
 	JWControl::UpdateControlState(MouseData);
 
 	// Kill focus on menu item when mouse is pressed out of region.
 	if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
 	{
-		FocusCheck = false;
+		bool FocusCheck = false;
 
 		for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
 		{
@@ -248,7 +243,7 @@ void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
 	m_hSelectedSubItem = THandle_Null;
 	if (m_pSelectedItem)
 	{
-		subitembox_position = m_pSelectedItem->GetPosition();
+		D3DXVECTOR2 subitembox_position = m_pSelectedItem->GetPosition();
 		subitembox_position.y += static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
 
 		m_pSelectedSubItemBox->SetPosition(subitembox_position);
@@ -259,7 +254,7 @@ void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
 			// IF,
 			// an item is selected.
 
-			selected_subitem_index = m_pSelectedSubItemBox->GetSelectedItemIndex();
+			TIndex selected_subitem_index = m_pSelectedSubItemBox->GetSelectedItemIndex();
 			m_hSelectedSubItem = GetTHandleItemOfMenuBarItem(m_SelectedItemIndex) + selected_subitem_index + 1;
 
 			UnselectItem();
@@ -300,10 +295,7 @@ void JWMenuBar::SetSize(D3DXVECTOR2 Size)
 
 auto JWMenuBar::IsMouseOver(const SMouseData& MouseData)->bool
 {
-	// Static in-function variables
-	static bool Result = false;
-
-	Result = false;
+	bool Result = false;
 
 	if (JWControl::IsMouseOver(MouseData))
 	{

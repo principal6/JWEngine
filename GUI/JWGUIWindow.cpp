@@ -10,6 +10,7 @@ JWGUIWindow::JWGUIWindow()
 	m_pControlWithFocus = nullptr;
 
 	m_bDestroyed = false;
+	m_bHasFocus = false;
 }
 
 auto JWGUIWindow::Create(const SWindowCreationData& WindowCreationData)->EError
@@ -174,9 +175,7 @@ auto JWGUIWindow::GetControlPtr(const THandle ControlHandle)->JWControl*
 
 void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindowHWND)
 {
-	static JWControl* pControlWithMouse = nullptr;
-	static JWControl* pControlWithNewFocus = nullptr;
-
+	// Initialize mouse wheel variable.
 	m_MouseData.MouseWheeled = 0;
 
 	// Update only when HWND of the message matches this window's HWND.
@@ -188,6 +187,11 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 			m_bDestroyed = true;
 			return;
 		}
+
+		// IF,
+		// win32api window is still alive...
+
+		m_bHasFocus = false;
 
 		switch (Message.message)
 		{
@@ -211,8 +215,8 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 
 	m_SharedData.pWindow->UpdateInputState();
 
-	pControlWithMouse = nullptr;
-	pControlWithNewFocus = nullptr;
+	JWControl* pControlWithMouse = nullptr;
+	JWControl* pControlWithNewFocus = nullptr;
 
 	if (m_pMenuBar)
 	{
@@ -351,6 +355,13 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 			}
 		}
 	}
+
+	if (pControlWithNewFocus)
+	{
+		// If, a control newly got the focus,
+		// kill all the focus of all the other controls, including other windows...
+		m_bHasFocus = true;
+	}
 }
 
 void JWGUIWindow::BeginRender()
@@ -383,4 +394,9 @@ void JWGUIWindow::EndRender()
 auto JWGUIWindow::IsDestroyed()->bool
 {
 	return m_bDestroyed;
+}
+
+auto JWGUIWindow::HasFocus()->bool
+{
+	return m_bHasFocus;
 }
