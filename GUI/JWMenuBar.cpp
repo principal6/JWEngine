@@ -2,7 +2,7 @@
 #include "../CoreBase/JWText.h"
 #include "../CoreBase/JWImage.h"
 #include "../CoreBase/JWWindow.h"
-#include "JWLabel.h"
+#include "JWTextButton.h"
 #include "JWListBox.h"
 
 using namespace JWENGINE;
@@ -104,6 +104,7 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 	new_item->SetText(Text);
 	new_item->SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 	new_item->ShouldDrawBorder(false);
+	new_item->ShouldUseToggleSelection(true);
 	new_item->SetStateColor(EControlState::Normal, DEFAULT_COLOR_BACKGROUND_MENUBAR);
 	new_item->SetStateColor(EControlState::Hover, DEFAULT_COLOR_HOVER);
 	new_item->SetStateColor(EControlState::Pressed, DEFAULT_COLOR_ALMOST_BLACK);
@@ -155,112 +156,31 @@ PRIVATE auto JWMenuBar::GetTIndexOfMenuBarItem(THandleItem hItem)->TIndex
 	return Result;
 }
 
-void JWMenuBar::UpdateControlState(const SMouseData& MouseData)
+void JWMenuBar::UpdateControlState(JWControl** ppControlWithFocus)
 {
-	JWControl::UpdateControlState(MouseData);
+	JWControl::UpdateControlState(ppControlWithFocus);
 
-	// Kill focus on menu item when mouse is pressed out of region.
-	if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
-	{
-		bool FocusCheck = false;
-
-		for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
-		{
-			if (m_pItems[iterator]->IsMouseOver(MouseData))
-			{
-				FocusCheck = true;
-			}
-		}
-
-		if (m_pSelectedItem)
-		{
-			if (m_pSelectedSubItemBox->IsMouseOver(MouseData))
-			{
-				FocusCheck = true;
-			}
-		}
-
-		if (!FocusCheck)
-		{
-			if (m_pSelectedItem)
-			{
-				UnselectItem();
-
-				SetState(EControlState::Normal);
-			}
-		}
-	}
-
-	// Set or kill focus on menu item when mouse is pressed on menu items.
 	for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
 	{
-		if (m_pItems[iterator]->IsMouseOver(MouseData))
-		{
-			if (m_pSelectedItem)
-			{
-				if (m_pSelectedItem != m_pItems[iterator])
-				{
-					SelectItem(iterator);
-				}
-				else
-				{
-					if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftReleased)
-					{
-						if (m_bMouseReleasedForTheFisrtTime)
-						{
-							m_bMouseReleasedForTheFisrtTime = false;
+		m_pItems[iterator]->UpdateControlState(nullptr);
 
-						}
-						else
-						{
-							UnselectItem();
-						}
-					}
-				}
-			}
-			else
-			{
-				if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
-				{
-					SelectItem(iterator);
-				}
-				else
-				{
-					m_pItems[iterator]->SetState(EControlState::Hover);
-				}
-			}
+		if ((m_pItems[iterator]->GetState() == EControlState::Pressed) || (m_pItems[iterator]->GetState() == EControlState::Clicked))
+		{
+			m_pSelectedItem = m_pItems[iterator];
+			m_pSelectedSubItemBox = m_pSubItemBoxes[iterator];
+			m_pSelectedSubItemBox->UpdateControlState(nullptr);
+
+			//SelectItem(iterator);
 		}
 		else
 		{
-			if (m_pSelectedItem != m_pItems[iterator])
+			if (m_pItems[iterator] == m_pSelectedItem)
 			{
-				// Set not-selected items' control state to Normal.
-				m_pItems[iterator]->SetState(EControlState::Normal);
+				m_pSelectedItem = nullptr;
+				m_pSelectedSubItemBox = nullptr;
 			}
 		}
 	}
-
-	m_hSelectedSubItem = THandle_Null;
-	if (m_pSelectedItem)
-	{
-		D3DXVECTOR2 subitembox_position = m_pSelectedItem->GetPosition();
-		subitembox_position.y += static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
-
-		m_pSelectedSubItemBox->SetPosition(subitembox_position);
-		m_pSelectedSubItemBox->UpdateControlState(MouseData);
-
-		if (m_pSelectedSubItemBox->GetSelectedItemIndex() != TIndex_NotSpecified)
-		{
-			// IF,
-			// an item is selected.
-
-			TIndex selected_subitem_index = m_pSelectedSubItemBox->GetSelectedItemIndex();
-			m_hSelectedSubItem = GetTHandleItemOfMenuBarItem(m_SelectedItemIndex) + selected_subitem_index + 1;
-
-			UnselectItem();
-		}
-	}
-
 }
 
 void JWMenuBar::Draw()
@@ -291,26 +211,6 @@ void JWMenuBar::SetSize(D3DXVECTOR2 Size)
 {
 	JWControl::SetSize(Size);
 	m_pBackground->SetSize(Size);
-}
-
-auto JWMenuBar::IsMouseOver(const SMouseData& MouseData)->bool
-{
-	bool Result = false;
-
-	if (JWControl::IsMouseOver(MouseData))
-	{
-		Result = true;
-	}
-
-	if (m_pSelectedItem)
-	{
-		if (m_pSelectedSubItemBox->IsMouseOver(MouseData))
-		{
-			Result = true;
-		}
-	}
-
-	return Result;
 }
 
 auto JWMenuBar::OnSubItemClick() const->THandleItem

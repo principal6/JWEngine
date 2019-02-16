@@ -46,22 +46,6 @@ namespace JWENGINE
 		SWindowData() : WindowWidth(0), WindowHeight(0), WindowHalfWidth(0), WindowHalfHeight(0), ScreenSize{0, 0} {};
 	};
 
-	struct SWindowInputState
-	{
-		bool MouseLeftPressed;
-		bool MouseLeftReleased;
-		bool MouseRightPressed;
-		bool ControlPressed;
-		bool AltPressed;
-		bool ShiftPressed;
-		POINT MousePosition;
-		POINT MouseDownPosition;
-
-		SWindowInputState() : MouseLeftPressed(false), MouseLeftReleased(false), MouseRightPressed(false),
-			ControlPressed(false), AltPressed(false), ShiftPressed(false),
-			MousePosition({ 0, 0 }), MouseDownPosition({ 0, 0 }) {};
-	};
-
 	class JWWindow final
 	{
 	public:
@@ -97,12 +81,11 @@ namespace JWENGINE
 		auto GethWnd() const->const HWND;
 		auto GethInstance() const->const HINSTANCE;
 		auto GetWindowData() const->const SWindowData*;
-		auto GetMouseData() const->const SMouseData*;
 		auto GetRenderRect() const->const RECT;
 
 		// Input
-		void UpdateInputState();
-		auto GetWindowInputState() const->const SWindowInputState*;
+		void UpdateInputState(MSG& Message);
+		auto GetWindowInputStatePtr()->SWindowInputState*;
 
 		// Dialog
 		void SetDlgBase();
@@ -136,7 +119,6 @@ namespace JWENGINE
 		RECT m_Rect;
 		mutable RECT m_RenderRect;
 		SWindowData m_WindowData;
-		SMouseData m_MouseData;
 		SWindowInputState m_InputState;
 
 		HWND m_hVerticalScrollbar;

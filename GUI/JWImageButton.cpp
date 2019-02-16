@@ -123,68 +123,6 @@ void JWImageButton::MakeSystemArrowButton(ESystemArrowDirection Direction)
 	SetSize(m_Size);
 }
 
-void JWImageButton::UpdateControlState(const SMouseData& MouseData)
-{
-	m_UpdatedMousedata = MouseData;
-
-	if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
-	{
-		// Mouse pressed
-
-		if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_ControlRect))
-		{
-			// Mouse down position is inside RECT
-			if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
-			{
-				m_ControlState = EControlState::Pressed;
-			}
-			else
-			{
-				m_ControlState = EControlState::Hover;
-			}
-		}
-		else if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
-		{
-			// Mouse position is inside RECT
-			m_ControlState = EControlState::Hover;
-		}
-		else
-		{
-			// Mouse position is out of RECT
-			m_ControlState = EControlState::Normal;
-		}
-	}
-	else
-	{
-		// Mouse released
-
-		if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
-		{
-			// Mouse position is inside RECT
-
-			if (m_ControlState == EControlState::Pressed)
-			{
-				// IF:
-				// the button was pressed before,
-				// it is now clicked.
-				m_ControlState = EControlState::Clicked;
-			}
-			else
-			{
-				// IF:
-				// the button wasn't pressed before,
-				// it's just hovered.
-				m_ControlState = EControlState::Hover;
-			}
-		}
-		else
-		{
-			// Mouse position is out of RECT
-			m_ControlState = EControlState::Normal;
-		}
-	}
-}
-
 void JWImageButton::Draw()
 {
 	JWControl::BeginDrawing();

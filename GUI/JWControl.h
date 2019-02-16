@@ -91,9 +91,6 @@ namespace JWENGINE
 		// [JWScrollBar] Decide the direction (horizontal/vertical) of the JWScrollBar.
 		virtual void MakeScrollBar(EScrollBarDirection Direction) {};
 
-		// Check if the mouse cursor is on this control.
-		virtual auto IsMouseOver(const SMouseData& MouseData)->bool;
-
 		/*
 		** Recall event
 		*/
@@ -110,7 +107,7 @@ namespace JWENGINE
 		virtual auto OnMouseCliked() const->bool;
 
 		// Update control's state.
-		virtual void UpdateControlState(const SMouseData& MouseData);
+		virtual void UpdateControlState(JWControl** ppControlWithFocus);
 
 		// Attach JWScrollBar to this control.
 		virtual void AttachScrollBar(JWControl* pScrollBar);
@@ -213,7 +210,7 @@ namespace JWENGINE
 		// [JWListBox]
 		virtual void ShouldUseAutomaticScrollBar(bool Value) {}; 
 
-		// [JWListBox]
+		// [JWListBox] / [JWTextButton]
 		virtual void ShouldUseToggleSelection(bool Value) {};
 
 		// [JWListBox]
@@ -270,9 +267,5 @@ namespace JWENGINE
 		bool m_bShouldDrawBorder;
 		bool m_bShouldUseViewport;
 		bool m_bHasFocus;
-
-		// Structure that holds mouse data.
-		// This is updated in UpdateControlState().
-		SMouseData m_UpdatedMousedata;
 	};
 };

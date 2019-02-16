@@ -348,6 +348,19 @@ void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position,
 		break;
 	}
 
+	// Clear the vertex buffer's uv data.
+	for (size_t iterator = 0; iterator < MAX_INSTANT_TEXT_LENGTH; iterator++)
+	{
+		m_InstantVertexData.Vertices[iterator * 4].u = 0;
+		m_InstantVertexData.Vertices[iterator * 4].v = 0;
+		m_InstantVertexData.Vertices[iterator * 4 + 1].u = 0;
+		m_InstantVertexData.Vertices[iterator * 4 + 1].v = 0;
+		m_InstantVertexData.Vertices[iterator * 4 + 2].u = 0;
+		m_InstantVertexData.Vertices[iterator * 4 + 2].v = 0;
+		m_InstantVertexData.Vertices[iterator * 4 + 3].u = 0;
+		m_InstantVertexData.Vertices[iterator * 4 + 3].v = 0;
+	}
+
 	// Convert each character of the text to Chars_ID in ms_FontData
 	// in order to position them.
 	iterator_character = 0;

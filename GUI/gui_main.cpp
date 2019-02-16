@@ -41,6 +41,10 @@ int main()
 		mb_file_open = pMainGUIWindow->GetControlPtr(menubar)->AddMenuBarSubItem(mb_file, L"열기");
 	THandleItem mb_help = pMainGUIWindow->GetControlPtr(menubar)->AddMenuBarItem(L"도움말");
 		mb_help_info = pMainGUIWindow->GetControlPtr(menubar)->AddMenuBarSubItem(mb_help, L"정보");
+	
+	/*
+	textbutton1 = pMainGUIWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
+		pMainGUIWindow->GetControlPtr(textbutton1)->ShouldUseToggleSelection(true);
 
 	THandle scrollbar1 = pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 0), D3DXVECTOR2(160, 0));
 	pMainGUIWindow->GetControlPtr(scrollbar1)->MakeScrollBar(EScrollBarDirection::Horizontal);
@@ -52,19 +56,17 @@ int main()
 	pMainGUIWindow->GetControlPtr(scrollbar2)->SetScrollRange(10, 30);
 	pMainGUIWindow->GetControlPtr(scrollbar2)->SetScrollPosition(0);
 
-	textbutton1 = pMainGUIWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
-	
+	THandle label1 = pMainGUIWindow->AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 40), L"레이블입니다!");
+	pMainGUIWindow->GetControlPtr(label1)->SetTextVerticalAlignment(EVerticalAlignment::Middle);
+	pMainGUIWindow->GetControlPtr(label1)->AttachScrollBar(pMainGUIWindow->GetControlPtr(scrollbar2));
+
 	THandle imagebutton1 = pMainGUIWindow->AddControl(EControlType::ImageButton, D3DXVECTOR2(120, 0), D3DXVECTOR2(100, 50));
 	pMainGUIWindow->GetControlPtr(imagebutton1)->MakeSystemArrowButton(ESystemArrowDirection::Left);
 
 	THandle checkbox1 = pMainGUIWindow->AddControl(EControlType::CheckBox, D3DXVECTOR2(250, 0), D3DXVECTOR2(50, 50));
 
-	THandle label1 = pMainGUIWindow->AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 40), L"레이블입니다!");
-	pMainGUIWindow->GetControlPtr(label1)->SetTextVerticalAlignment(EVerticalAlignment::Middle);
-	pMainGUIWindow->GetControlPtr(label1)->AttachScrollBar(pMainGUIWindow->GetControlPtr(scrollbar2));
-	
-	THandle radio1 = pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 0), D3DXVECTOR2(0, 0));
-	THandle radio2 = pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 20), D3DXVECTOR2(0, 0));
+	THandle radiobox1 = pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 0), D3DXVECTOR2(0, 0));
+	THandle radiobox2 = pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 20), D3DXVECTOR2(0, 0));
 
 	LPDIRECT3DTEXTURE9 test_texture;
 	D3DXIMAGE_INFO test_texture_info;
@@ -107,6 +109,7 @@ void MainLoop()
 {
 	THandleItem clicked_subitem = THandle_Null;
 
+	/*
 	if ((clicked_subitem = pMainGUIWindow->GetControlPtr(menubar)->OnSubItemClick()) != THandle_Null)
 	{
 		if (clicked_subitem == mb_file_new)
@@ -123,6 +126,7 @@ void MainLoop()
 	{
 		std::cout << "CLICK" << std::endl;
 	}
+	*/
 
 	pMainGUIWindow->DrawAllControls();
 }

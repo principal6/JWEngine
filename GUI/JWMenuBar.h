@@ -7,12 +7,12 @@ namespace JWENGINE
 {
 	// ***
 	// *** Forward declaration ***
-	class JWLabel;
+	class JWTextButton;
 	class JWImage;
 	class JWListBox;
 	// ***
 
-	using MenuItem = JWLabel;
+	using MenuItem = JWTextButton;
 	using MenuSubItemBox = JWListBox;
 
 	class JWMenuBar final : public JWControl
@@ -27,13 +27,12 @@ namespace JWENGINE
 		auto AddMenuBarItem(WSTRING Text)->THandleItem override;
 		auto AddMenuBarSubItem(THandleItem hItem, WSTRING Text)->THandleItem override;
 
-		void UpdateControlState(const SMouseData& MouseData) override;
+		void UpdateControlState(JWControl** ppControlWithFocus) override;
 
 		void Draw() override;
 
 		void SetSize(D3DXVECTOR2 Size) override;
 
-		auto IsMouseOver(const SMouseData& MouseData)->bool override;
 		auto OnSubItemClick() const->THandleItem override;
 
 	private:

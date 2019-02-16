@@ -74,7 +74,6 @@ namespace JWENGINE
 	static constexpr __int32 NUM_KEYS = 256;
 
 	static constexpr __int32 MAX_UNIT_COUNT = 100;
-	static const __int32 DEFAULT_MOUSE_WHEEL_STRIDE = 120;
 
 	static const wchar_t GUI_TEXTURE_FILENAME[] = L"jwgui_button.png";
 	static const D3DXVECTOR2 GUI_BUTTON_SIZE = D3DXVECTOR2(15.0f, 15.0f);
@@ -194,13 +193,29 @@ namespace JWENGINE
 		Effect,
 	};
 
-	struct SMouseData
+	struct SWindowInputState
 	{
+		// True while the left button is pressed.
+		bool MouseLeftPressed;
+
+		// True only when the left button is pressed for the first time.
+		bool MouseLeftFirstPressed;
+
+		bool MouseLeftReleased;
+		bool MouseRightPressed;
+		bool MouseRightReleased;
+		bool ControlPressed;
+		bool AltPressed;
+		bool ShiftPressed;
 		POINT MousePosition;
 		POINT MouseDownPosition;
+		POINT MouseMovedPosition;
 		int MouseWheeled;
 
-		SMouseData() : MousePosition({ 0, 0 }), MouseDownPosition({ 0, 0 }), MouseWheeled(0) {};
+		SWindowInputState() : MouseLeftPressed(false), MouseLeftFirstPressed(false), MouseLeftReleased(false),
+			MouseRightPressed(false), MouseRightReleased(false),
+			ControlPressed(false), AltPressed(false), ShiftPressed(false),
+			MousePosition({ 0, 0 }), MouseDownPosition({ 0, 0 }), MouseMovedPosition({ 0, 0 }), MouseWheeled(0) {};
 	};
 
 	struct SAnimationData

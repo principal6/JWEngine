@@ -22,7 +22,7 @@ namespace JWENGINE
 
 		void MakeScrollBar(EScrollBarDirection Direction) override;
 
-		void UpdateControlState(const SMouseData& MouseData) override; // Must override
+		void UpdateControlState(JWControl** ppControlWithFocus) override; // Must override
 
 		void Draw() override;
 

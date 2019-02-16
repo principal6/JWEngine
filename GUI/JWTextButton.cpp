@@ -10,6 +10,8 @@ JWTextButton::JWTextButton()
 	m_bShouldDrawBorder = true;
 
 	m_pBackground = nullptr;
+
+	m_bShouleUseToggleSelection = false;
 }
 
 auto JWTextButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
@@ -51,65 +53,61 @@ void JWTextButton::Destroy()
 	JW_DESTROY(m_pBackground);
 }
 
-void JWTextButton::UpdateControlState(const SMouseData& MouseData)
+void JWTextButton::UpdateControlState(JWControl** ppControlWithFocus)
 {
-	m_UpdatedMousedata = MouseData;
-
-	if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
+	if (m_bShouleUseToggleSelection)
 	{
-		// Mouse pressed
+		const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 
-		if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_ControlRect))
+		if (p_input_state->MouseLeftFirstPressed)
 		{
-			// Mouse down position is inside RECT
-			if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
+			if (Static_IsMouseInRECT(p_input_state->MouseDownPosition, m_ControlRect))
 			{
-				m_ControlState = EControlState::Pressed;
+				if (ppControlWithFocus)
+				{
+					if (*ppControlWithFocus)
+					{
+						if ((*ppControlWithFocus) != this)
+						{
+							(*ppControlWithFocus)->KillFocus();
+						}
+					}
+
+					*ppControlWithFocus = this;
+					(*ppControlWithFocus)->Focus();
+				}
+
+				if (m_ControlState != EControlState::Pressed)
+				{
+					m_ControlState = EControlState::Pressed;
+				}
+				else
+				{
+					m_ControlState = EControlState::Normal;
+				}
 			}
-			else
-			{
-				m_ControlState = EControlState::Hover;
-			}
-		}
-		else if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
-		{
-			// Mouse position is inside RECT
-			m_ControlState = EControlState::Hover;
 		}
 		else
 		{
-			// Mouse position is out of RECT
-			m_ControlState = EControlState::Normal;
+			if (Static_IsMouseInRECT(p_input_state->MousePosition, m_ControlRect))
+			{
+				if (m_ControlState != EControlState::Pressed)
+				{
+					m_ControlState = EControlState::Hover;
+				}
+			}
+			else
+			{
+				if (m_ControlState != EControlState::Pressed)
+				{
+					m_ControlState = EControlState::Normal;
+				}
+			}
 		}
 	}
 	else
 	{
-		// Mouse released
-
-		if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
-		{
-			// Mouse position is inside RECT
-
-			if (m_ControlState == EControlState::Pressed)
-			{
-				// IF:
-				// the button was pressed before,
-				// it is now clicked.
-				m_ControlState = EControlState::Clicked;
-			}
-			else
-			{
-				// IF:
-				// the button wasn't pressed before,
-				// it's just hovered.
-				m_ControlState = EControlState::Hover;
-			}
-		}
-		else
-		{
-			// Mouse position is out of RECT
-			m_ControlState = EControlState::Normal;
-		}
+		JWControl::UpdateControlState(ppControlWithFocus);
 	}
 }
 
@@ -157,4 +155,9 @@ void JWTextButton::SetSize(D3DXVECTOR2 Size)
 	{
 		m_pBackground->SetSize(m_Size);
 	}
+}
+
+void JWTextButton::ShouldUseToggleSelection(bool Value)
+{
+	m_bShouleUseToggleSelection = Value;
 }

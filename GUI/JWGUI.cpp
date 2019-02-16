@@ -130,12 +130,16 @@ void JWGUI::Run()
 			DispatchMessage(&m_MSG);
 		}
 
+		HWND hActiveWindow = GetActiveWindow();
+
+		//std::cout << "[DEBUG] ACTIVE WINDOW HWND: " << hActiveWindow << std::endl;
+
 		// Update all JWGUIWindows.
 		if (m_pGUIWindows.size())
 		{
 			for (JWGUIWindow* iterator : m_pGUIWindows)
 			{
-				iterator->Update(m_MSG, ms_IMEInfo, ms_QuitWindowHWND);
+				iterator->Update(m_MSG, ms_IMEInfo, ms_QuitWindowHWND, hActiveWindow);
 			}
 		}
 

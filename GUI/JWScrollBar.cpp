@@ -141,17 +141,19 @@ void JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)
 	UpdateButtonPosition();
 }
 
-void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
+void JWScrollBar::UpdateControlState(JWControl** ppControlWithFocus)
 {
+	JWControl::UpdateControlState(ppControlWithFocus);
+
+	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
+
 	if (m_ButtonABPressInterval < BUTTON_INTERVAL_UPPER_LIMIT)
 	{
 		m_ButtonABPressInterval++;
 	}
 
-	JWControl::UpdateControlState(MouseData);
-
-	m_pButtonA->UpdateControlState(MouseData);
-	m_pButtonB->UpdateControlState(MouseData);
+	m_pButtonA->UpdateControlState(nullptr);
+	m_pButtonB->UpdateControlState(nullptr);
 	
 	EControlState button_a_state = m_pButtonA->GetState();
 	EControlState button_b_state = m_pButtonB->GetState();
@@ -209,11 +211,11 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 
 		if (m_bScrollerCaptured)
 		{
-			if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
+			if (m_pSharedData->pWindow->GetWindowInputStatePtr()->MouseLeftPressed)
 			{
 				// When the scroller is being dragged.
-				long long scroller_stride_x = static_cast<long long>(MouseData.MousePosition.x - MouseData.MouseDownPosition.x);
-				long long scroller_stride_y = static_cast<long long>(MouseData.MousePosition.y - MouseData.MouseDownPosition.y);
+				long long scroller_stride_x = static_cast<long long>(p_input_state->MouseMovedPosition.x);
+				long long scroller_stride_y = static_cast<long long>(p_input_state->MouseMovedPosition.y);
 				long long stride_unit = static_cast<long long>(m_ScrollableRest / static_cast<float>(m_ScrollMax));
 				long long new_scroll_position = m_CapturedScrollPosition;
 
@@ -249,7 +251,7 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 			else
 			{
 				// When the scroller is released.
-				m_pScroller->UpdateControlState(MouseData);
+				m_pScroller->UpdateControlState(nullptr);
 
 				m_CapturedScrollPosition = 0;
 			}
@@ -261,7 +263,7 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 		// Press on the body of the scrollbar => Page scroll
 
 		// Calculate digital position
-		size_t digital_position = CalculateScrollerDigitalPosition(MouseData.MouseDownPosition);
+		size_t digital_position = CalculateScrollerDigitalPosition(p_input_state->MouseDownPosition);
 
 		long long scroll_stride = digital_position - m_ScrollPosition;
 
@@ -292,7 +294,7 @@ void JWScrollBar::UpdateControlState(const SMouseData& MouseData)
 		// When no button is pressed,
 		// release the scroller
 		m_bScrollerCaptured = false;
-		m_pScroller->UpdateControlState(MouseData);
+		m_pScroller->UpdateControlState(nullptr);
 
 		m_ButtonABPressInterval = BUTTON_INTERVAL_UPPER_LIMIT;
 	}
@@ -369,7 +371,7 @@ void JWScrollBar::SetState(EControlState State)
 		m_pButtonA->SetState(State);
 		m_pButtonB->SetState(State);
 
-		if (!m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
+		if (!m_pSharedData->pWindow->GetWindowInputStatePtr()->MouseLeftPressed)
 		{
 			m_pScroller->SetState(State);
 		}

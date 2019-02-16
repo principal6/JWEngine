@@ -86,11 +86,6 @@ void JWControl::Destroy()
 	JW_DESTROY(m_pBorderLine);
 }
 
-auto JWControl::IsMouseOver(const SMouseData& MouseData)->bool
-{
-	return Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect);
-}
-
 auto JWControl::OnMouseHover() const->bool
 {
 	if (m_ControlState == EControlState::Hover)
@@ -118,18 +113,37 @@ auto JWControl::OnMouseCliked() const->bool
 	return false;
 }
 
-void JWControl::UpdateControlState(const SMouseData& MouseData)
+void JWControl::UpdateControlState(JWControl** ppControlWithFocus)
 {
-	m_UpdatedMousedata = MouseData;
+	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 
-	if (Static_IsMouseInRECT(MouseData.MousePosition, m_ControlRect))
+	if (Static_IsMouseInRECT(p_input_state->MousePosition, m_ControlRect))
 	{
-		// Mouse position is inside control's RECT
-		if (m_pSharedData->pWindow->GetWindowInputState()->MouseLeftPressed)
+		// IF,
+		// mouse cursor is inside the control's rect.
+
+		if (p_input_state->MouseLeftPressed)
 		{
-			if (Static_IsMouseInRECT(MouseData.MouseDownPosition, m_ControlRect))
+			// IF,
+			// mouse left button is pressed.
+
+			if (Static_IsMouseInRECT(p_input_state->MouseDownPosition, m_ControlRect))
 			{
 				m_ControlState = EControlState::Pressed;
+
+				if (ppControlWithFocus)
+				{
+					if (*ppControlWithFocus)
+					{
+						if ((*ppControlWithFocus) != this)
+						{
+							(*ppControlWithFocus)->KillFocus();
+						}
+					}
+
+					*ppControlWithFocus = this;
+					(*ppControlWithFocus)->Focus();
+				}
 			}
 			else
 			{
@@ -138,10 +152,27 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 		}
 		else
 		{
+			// IF,
+			// mouse left button is NOT pressed.
+
 			if (m_ControlState == EControlState::Pressed)
 			{
 				// If it was pressed before, it is now clicked
 				m_ControlState = EControlState::Clicked;
+
+				if (ppControlWithFocus)
+				{
+					if (*ppControlWithFocus)
+					{
+						if ((*ppControlWithFocus) != this)
+						{
+							(*ppControlWithFocus)->KillFocus();
+						}
+					}
+
+					*ppControlWithFocus = this;
+					(*ppControlWithFocus)->Focus();
+				}
 			}
 			else
 			{
@@ -151,19 +182,17 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 		}
 
 		// Check mouse wheel
-		if (MouseData.MouseWheeled)
+		if (p_input_state->MouseWheeled)
 		{
 			if (m_pAttachedScrollBar)
 			{
 				// IF,
 				// this control has an attached ScrollBar.
 
-				size_t current_scroll_position = m_pAttachedScrollBar->GetScrollPosition();
+				long long current_scroll_position = m_pAttachedScrollBar->GetScrollPosition();
 
-				if (current_scroll_position > (MouseData.MouseWheeled / DEFAULT_MOUSE_WHEEL_STRIDE))
-				{
-					current_scroll_position -= (MouseData.MouseWheeled / DEFAULT_MOUSE_WHEEL_STRIDE);
-				}
+				current_scroll_position -= (p_input_state->MouseWheeled / WHEEL_DELTA);
+				current_scroll_position = max(current_scroll_position, 0);
 
 				m_pAttachedScrollBar->SetScrollPosition(current_scroll_position);
 
@@ -174,8 +203,21 @@ void JWControl::UpdateControlState(const SMouseData& MouseData)
 	}
 	else
 	{
-		// Mouse position is out of control's RECT
+		// IF,
+		// mouse cursor is out of the control's rect.
+
 		m_ControlState = EControlState::Normal;
+
+		if ((m_ControlType == EControlType::ImageButton) || (m_ControlType == EControlType::TextButton))
+		{
+			if (p_input_state->MouseLeftPressed)
+			{
+				if (Static_IsMouseInRECT(p_input_state->MouseDownPosition, m_ControlRect))
+				{
+					m_ControlState = EControlState::Hover;
+				}
+			}
+		}
 	}
 }
 
@@ -330,6 +372,7 @@ void JWControl::Focus()
 void JWControl::KillFocus()
 {
 	m_bHasFocus = false;
+	m_ControlState = EControlState::Normal;
 }
 
 void JWControl::SetTextAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment)

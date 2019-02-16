@@ -40,14 +40,14 @@ namespace JWENGINE
 		// Get the pointer of the control instance that this JWGUIWindow has.
 		auto GetControlPtr(const THandle ControlHandle)->JWControl*;
 
-		void Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindowHWND);
+		void Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindowHWND, HWND ActiveWindowHWND);
 
 		// Must call this function before any draw functions.
 		void BeginRender();
 
 		// Draw all the controls that this JWGUIWindow has.
 		void DrawAllControls();
-		
+
 		// Must call this function after all the draw functions.
 		void EndRender();
 
@@ -55,13 +55,14 @@ namespace JWENGINE
 		// @warning: when this function returns true, you must call Destroy() method from the outside.
 		auto IsDestroyed()->bool;
 
-		// Return true if this JWGUIWindow has focus,
-		// this is required in order to set focus only one JWGUIWindow at once.
-		auto HasFocus()->bool;
+		// Kill focus.
+		void KillFocus();
+
+	private:
+		void SetFocusOnControl(JWControl* pFocusedControl);
 
 	private:
 		SGUIWindowSharedData m_SharedData;
-		SMouseData m_MouseData;
 		MSG m_MSG;
 
 		JWControl* m_pMenuBar;
@@ -71,6 +72,5 @@ namespace JWENGINE
 		JWControl* m_pControlWithFocus;
 
 		bool m_bDestroyed;
-		bool m_bHasFocus;
 	};
 };

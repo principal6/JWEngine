@@ -374,44 +374,61 @@ auto JWWindow::GetWindowData() const->const SWindowData*
 	return &m_WindowData;
 }
 
-auto JWWindow::GetMouseData() const->const SMouseData*
-{
-	return &m_MouseData;
-}
-
 auto JWWindow::GetRenderRect() const->const RECT
 {
 	return m_RenderRect;
 }
 
-void JWWindow::UpdateInputState()
+void JWWindow::UpdateInputState(MSG& Message)
 {
-	// Mouse
-	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
-	{
-		m_InputState.MouseLeftPressed = true;
-		m_InputState.MouseLeftReleased = false;
-	}
-	else
-	{
-		if (m_InputState.MouseLeftPressed)
-		{
-			m_InputState.MouseLeftReleased = true;
-		}
-		else
-		{
-			m_InputState.MouseLeftReleased = false;
-		}
-		m_InputState.MouseLeftPressed = false;
-	}
+	// Window message input
+	// Initialize mouse wheel stride.
+	m_InputState.MouseWheeled = 0;
 
-	if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+	m_InputState.MouseLeftFirstPressed = false;
+
+	if (Message.hwnd == m_hWnd)
 	{
-		m_InputState.MouseRightPressed = true;
-	}
-	else
-	{
-		m_InputState.MouseRightPressed = false;
+		m_InputState.MouseLeftReleased = false;
+		m_InputState.MouseRightReleased = false;
+
+		switch (Message.message)
+		{
+		case WM_MOUSEMOVE:
+			m_InputState.MousePosition.x = GET_X_LPARAM(Message.lParam);
+			m_InputState.MousePosition.y = GET_Y_LPARAM(Message.lParam);
+			break;
+		case WM_LBUTTONDOWN:
+			if (!m_InputState.MouseLeftPressed)
+			{
+				m_InputState.MouseLeftFirstPressed = true;
+			}
+
+			m_InputState.MouseLeftPressed = true;
+			
+			m_InputState.MouseDownPosition.x = GET_X_LPARAM(Message.lParam);
+			m_InputState.MouseDownPosition.y = GET_Y_LPARAM(Message.lParam);
+			break;
+		case WM_LBUTTONUP:
+			m_InputState.MouseLeftPressed = false;
+			m_InputState.MouseLeftReleased = true;
+			break;
+		case WM_RBUTTONDOWN:
+			m_InputState.MouseRightPressed = true;
+			break;
+		case WM_RBUTTONUP:
+			m_InputState.MouseRightPressed = false;
+			m_InputState.MouseRightReleased = true;
+			break;
+		case WM_MOUSEWHEEL:
+			m_InputState.MouseWheeled = static_cast<__int16>(HIWORD(Message.wParam));
+			break;
+		default:
+			break;
+		}
+
+		m_InputState.MouseMovedPosition.x = m_InputState.MousePosition.x - m_InputState.MouseDownPosition.x;
+		m_InputState.MouseMovedPosition.y = m_InputState.MousePosition.y - m_InputState.MouseDownPosition.y;
 	}
 
 	// Keyboard
@@ -443,7 +460,7 @@ void JWWindow::UpdateInputState()
 	}
 }
 
-auto JWWindow::GetWindowInputState() const->const SWindowInputState*
+auto JWWindow::GetWindowInputStatePtr()->SWindowInputState*
 {
 	return &m_InputState;
 }
@@ -509,13 +526,12 @@ void JWWindow::EditorChildWindowMessageHandler(UINT Message, WPARAM wParam, LPAR
 	switch (Message)
 	{
 	case WM_MOUSEMOVE:
-		m_MouseData.MousePosition.x = GET_X_LPARAM(lParam);
-		m_MouseData.MousePosition.y = GET_Y_LPARAM(lParam);
+		m_InputState.MousePosition.x = GET_X_LPARAM(lParam);
+		m_InputState.MousePosition.y = GET_Y_LPARAM(lParam);
 		break;
-
 	case WM_LBUTTONDOWN:
-		m_MouseData.MouseDownPosition.x = GET_X_LPARAM(lParam);
-		m_MouseData.MouseDownPosition.y = GET_Y_LPARAM(lParam);
+		m_InputState.MouseDownPosition.x = GET_X_LPARAM(lParam);
+		m_InputState.MouseDownPosition.y = GET_Y_LPARAM(lParam);
 		break;
 	case WM_VSCROLL:
 		GetScrollRange((HWND)lParam, SB_CTL, &tempScrMin, &tempScrMax);

@@ -10,7 +10,6 @@ JWGUIWindow::JWGUIWindow()
 	m_pControlWithFocus = nullptr;
 
 	m_bDestroyed = false;
-	m_bHasFocus = false;
 }
 
 auto JWGUIWindow::Create(const SWindowCreationData& WindowCreationData)->EError
@@ -173,163 +172,76 @@ auto JWGUIWindow::GetControlPtr(const THandle ControlHandle)->JWControl*
 	}
 }
 
-void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindowHWND)
+void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindowHWND, HWND ActiveWindowHWND)
 {
-	// Initialize mouse wheel variable.
-	m_MouseData.MouseWheeled = 0;
+	// Update JWWindow's input state.
+	m_SharedData.pWindow->UpdateInputState(Message);
 
-	// Update only when HWND of the message matches this window's HWND.
-	if (Message.hwnd == m_SharedData.pWindow->GethWnd())
+	if (QuitWindowHWND == m_SharedData.pWindow->GethWnd())
 	{
-		if (QuitWindowHWND == m_SharedData.pWindow->GethWnd())
-		{
-			// Win32api window is destroyed, so JWGUIWindow must do!
-			m_bDestroyed = true;
-			return;
-		}
-
 		// IF,
-		// win32api window is still alive...
+		// win32-api-window is destroyed,
+		// so JWGUIWindow must do!
 
-		m_bHasFocus = false;
+		m_bDestroyed = true;
 
-		switch (Message.message)
-		{
-		case WM_MOUSEMOVE:
-			m_MouseData.MousePosition.x = GET_X_LPARAM(Message.lParam);
-			m_MouseData.MousePosition.y = GET_Y_LPARAM(Message.lParam);
-			break;
-		case WM_LBUTTONDOWN:
-			m_MouseData.MouseDownPosition.x = GET_X_LPARAM(Message.lParam);
-			m_MouseData.MouseDownPosition.y = GET_Y_LPARAM(Message.lParam);
-			break;
-		case WM_LBUTTONUP:
-			break;
-		case WM_MOUSEWHEEL:
-			m_MouseData.MouseWheeled = static_cast<__int16>(HIWORD(Message.wParam));
-			break;
-		default:
-			break;
-		}
+		return;
 	}
 
-	m_SharedData.pWindow->UpdateInputState();
+	if (ActiveWindowHWND != m_SharedData.pWindow->GethWnd())
+	{
+		// IF,
+		// this JWGUIWindow is not an active window,
+		// kill the focus of controls.
 
-	JWControl* pControlWithMouse = nullptr;
-	JWControl* pControlWithNewFocus = nullptr;
+		KillFocus();
 
+		return;
+	}
+
+	JWControl* p_control_with_mouse = nullptr;
+
+	// This is needed, becuase the menu-bar is on top of all the other controls.
 	if (m_pMenuBar)
 	{
-		if (m_pMenuBar->IsMouseOver(m_MouseData))
+		for (JWControl* iterator : m_Controls)
 		{
-			pControlWithMouse = m_pMenuBar;
-
-			for (JWControl* iterator : m_Controls)
+			if (iterator != m_pMenuBar)
 			{
-				if (iterator != m_pMenuBar)
-				{
-					iterator->SetState(EControlState::Normal);
-				}
+				iterator->UpdateControlState(&m_pControlWithFocus);
 			}
 		}
-		else
-		{
-			m_pMenuBar->UpdateControlState(m_MouseData);
 
-			for (JWControl* iterator : m_Controls)
-			{
-				if (iterator != m_pMenuBar)
-				{
-					// A control that has mouse pointer on must be only one
-					if (iterator->IsMouseOver(m_MouseData))
-					{
-						if (pControlWithMouse)
-						{
-							pControlWithMouse->SetState(EControlState::Normal);
-						}
-						pControlWithMouse = iterator;
-					}
-					else
-					{
-						iterator->UpdateControlState(m_MouseData); // To give mouse data to the controls
-					}
-				}
-			}
-		}
+		m_pMenuBar->UpdateControlState(&m_pControlWithFocus);
 	}
 	else
 	{
 		for (JWControl* iterator : m_Controls)
 		{
-			// A control that has mouse pointer on must be only one
-			if (iterator->IsMouseOver(m_MouseData))
-			{
-				if (pControlWithMouse)
-				{
-					pControlWithMouse->SetState(EControlState::Normal);
-				}
-				pControlWithMouse = iterator;
-			}
-			else
-			{
-				iterator->UpdateControlState(m_MouseData); // To give mouse data to the controls
-			}
+			iterator->UpdateControlState(&m_pControlWithFocus);
 		}
 	}
-
-	// Mouse cursor is on a control
-	if (pControlWithMouse)
-	{
-		pControlWithMouse->UpdateControlState(m_MouseData);
-
-		if ((pControlWithMouse->GetState() == EControlState::Clicked) || (pControlWithMouse->GetState() == EControlState::Pressed))
-		{
-			pControlWithNewFocus = pControlWithMouse;
-
-			if (pControlWithMouse->GetState() == EControlState::Clicked)
-			{
-				// RadioBox Check!
-				if (pControlWithMouse->GetControlType() == EControlType::RadioBox)
-				{
-					for (JWControl* iterator : m_Controls)
-					{
-						if (iterator->GetControlType() == EControlType::RadioBox)
-						{
-							iterator->SetCheckState(false);
-						}
-					}
-
-					pControlWithMouse->SetCheckState(true);
-				}
-			}
-		}
-	}
-
 
 	// TODO: Tab stop needed! (keyboard Tab key)
 
-
-	// Set focus on pControlWithFocus (because the focus is changed)
-	// and kill focus of all the other controls
-	if (pControlWithNewFocus)
-	{
-		// New focus event
-		if (m_pControlWithFocus != pControlWithNewFocus)
-		{
-			// Focus has been moved to another control
-			m_pControlWithFocus = pControlWithNewFocus;
-			m_pControlWithFocus->Focus();
-			for (JWControl* iterator : m_Controls)
-			{
-				if (iterator != m_pControlWithFocus)
-					iterator->KillFocus();
-			}
-		}
-	}
-
-	// Call event handlers of the control with focus
 	if (m_pControlWithFocus)
 	{
+		std::cout << "[DEBUG] Control with focus: " << m_pControlWithFocus->GetControlType() << std::endl;
+
+		if (m_pControlWithFocus->GetControlType() == EControlType::RadioBox)
+		{
+			for (JWControl* iterator : m_Controls)
+			{
+				if (iterator->GetControlType() == EControlType::RadioBox)
+				{
+					iterator->SetCheckState(false);
+				}
+			}
+
+			m_pControlWithFocus->SetCheckState(true);
+		}
+
+		// Call event handlers of the control with focus
 		m_pControlWithFocus->WindowIMEInput(IMEInfo);
 
 		// Update only when HWND of the message matches this window's HWND.
@@ -355,12 +267,26 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 			}
 		}
 	}
+}
 
-	if (pControlWithNewFocus)
+PRIVATE void JWGUIWindow::SetFocusOnControl(JWControl* pFocusedControl)
+{
+	if (!pFocusedControl)
 	{
-		// If, a control newly got the focus,
-		// kill all the focus of all the other controls, including other windows...
-		m_bHasFocus = true;
+		return;
+	}
+
+	if (m_Controls.size())
+	{
+		pFocusedControl->Focus();
+
+		for (JWControl* iterator : m_Controls)
+		{
+			if (iterator != pFocusedControl)
+			{
+				iterator->KillFocus();
+			}
+		}
 	}
 }
 
@@ -396,7 +322,13 @@ auto JWGUIWindow::IsDestroyed()->bool
 	return m_bDestroyed;
 }
 
-auto JWGUIWindow::HasFocus()->bool
+void JWGUIWindow::KillFocus()
 {
-	return m_bHasFocus;
+	m_pControlWithFocus = nullptr;
+
+	for (JWControl* iterator : m_Controls)
+	{
+		iterator->KillFocus();
+		iterator->SetState(EControlState::Normal);
+	}
 }

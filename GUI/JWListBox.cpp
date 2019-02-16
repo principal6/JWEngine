@@ -1,5 +1,6 @@
 #include "JWListBox.h"
 #include "../CoreBase/JWImage.h"
+#include "../CoreBase/JWWindow.h"
 #include "JWLabel.h"
 #include "JWScrollBar.h"
 #include "JWImageBox.h"
@@ -265,12 +266,13 @@ PRIVATE void JWListBox::UpdateAutomaticScrollBar()
 	}
 }
 
-void JWListBox::UpdateControlState(const SMouseData& MouseData)
+void JWListBox::UpdateControlState(JWControl** ppControlWithFocus)
 {
-	// Static in-function variables
-	JWControl::UpdateControlState(MouseData);
+	JWControl::UpdateControlState(ppControlWithFocus);
 
-	m_pScrollBar->UpdateControlState(MouseData);
+	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
+
+	m_pScrollBar->UpdateControlState(ppControlWithFocus);
 
 	if (!m_bHasScrollBar)
 	{
@@ -278,6 +280,7 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 		// this ListBox doesn't have ScrollBar,
 		// (although technically it does, the ScrollBar's invisible now.)
 		// set the control state of the ScrollBar to Normal.
+
 		m_pScrollBar->SetState(EControlState::Normal);
 	}
 	else
@@ -285,28 +288,19 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 		// IF,
 		// this ListBox has ScrollBar,
 
-		if (IsMouseOver(MouseData))
+		if (Static_IsMouseInRECT(p_input_state->MousePosition, m_ControlRect))
 		{
-			// We use mouse wheel scroll only when the mouse is over the control.
-			if (MouseData.MouseWheeled)
+			// We must use mouse wheel scroll,
+			// only when the mouse is over the control.
+
+			if (p_input_state->MouseWheeled)
 			{
-				size_t current_scroll_position = m_pScrollBar->GetScrollPosition();
+				long long current_scroll_position = m_pScrollBar->GetScrollPosition();
 
-				if (MouseData.MouseWheeled > 0)
-				{
-					if (current_scroll_position)
-					{
-						current_scroll_position--;
-					}
-					
-					m_pScrollBar->SetScrollPosition(current_scroll_position);
-				}
-				else
-				{
-					current_scroll_position++;
+				current_scroll_position -= (p_input_state->MouseWheeled / WHEEL_DELTA);
+				current_scroll_position = max(current_scroll_position, 0);
 
-					m_pScrollBar->SetScrollPosition(current_scroll_position);
-				}
+				m_pScrollBar->SetScrollPosition(current_scroll_position);
 
 				m_pScrollBar->SetState(EControlState::Hover);
 			}
@@ -327,6 +321,7 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 			// until another one is selected!
 			// but if it doesn't use toggle selction,
 			// we must initialize m_SelectedItemIndex every time.
+
 			m_SelectedItemIndex = TIndex_NotSpecified;
 		}
 
@@ -334,7 +329,7 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 		{
 			for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
 			{
-				m_pItemBackground[iterator]->UpdateControlState(MouseData);
+				m_pItemBackground[iterator]->UpdateControlState(nullptr);
 
 				if (m_pItemBackground[iterator]->GetState() == EControlState::Clicked)
 				{
@@ -374,8 +369,10 @@ void JWListBox::UpdateControlState(const SMouseData& MouseData)
 
 	if (m_bShouleUseToggleSelection)
 	{
-		// If this ListBox uses toggle selection,
+		// IF,
+		// this ListBox uses toggle selection,
 		// change the selected and non-selected items' default color.
+
 		for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
 		{
 			if (iterator == m_SelectedItemIndex)
