@@ -113,21 +113,40 @@ auto JWControl::OnMouseCliked() const->bool
 	return false;
 }
 
-void JWControl::UpdateControlState(JWControl** ppControlWithFocus)
+void JWControl::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
 {
 	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 
-	if (Static_IsMouseInRECT(p_input_state->MousePosition, m_ControlRect))
+	bool b_mouse_in_rect = Static_IsMouseInRECT(p_input_state->MousePosition, m_ControlRect);
+	bool b_mouse_down_in_rect = Static_IsMouseInRECT(p_input_state->MouseDownPosition, m_ControlRect);
+
+	if (ppControlWithMouse)
+	{
+		// If a control already has mouse cursor on it,
+		// no other controls can have it.
+		if (*ppControlWithMouse)
+		{
+			b_mouse_in_rect = false;
+			b_mouse_down_in_rect = false;
+		}
+	}
+
+	if (b_mouse_in_rect)
 	{
 		// IF,
 		// mouse cursor is inside the control's rect.
+
+		if (ppControlWithMouse)
+		{
+			*ppControlWithMouse = this;
+		}
 
 		if (p_input_state->MouseLeftPressed)
 		{
 			// IF,
 			// mouse left button is pressed.
 
-			if (Static_IsMouseInRECT(p_input_state->MouseDownPosition, m_ControlRect))
+			if (b_mouse_down_in_rect)
 			{
 				m_ControlState = EControlState::Pressed;
 
@@ -372,7 +391,8 @@ void JWControl::Focus()
 void JWControl::KillFocus()
 {
 	m_bHasFocus = false;
-	m_ControlState = EControlState::Normal;
+	
+	//m_ControlState = EControlState::Normal;
 }
 
 void JWControl::SetTextAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment)

@@ -1,7 +1,7 @@
 #include "JWMenuBar.h"
 #include "../CoreBase/JWText.h"
-#include "../CoreBase/JWImage.h"
 #include "../CoreBase/JWWindow.h"
+#include "JWImageBox.h"
 #include "JWTextButton.h"
 #include "JWListBox.h"
 
@@ -15,13 +15,11 @@ JWMenuBar::JWMenuBar()
 	// A menubar must not have border.
 	m_bShouldDrawBorder = false;
 
-	m_pBackground = nullptr;
+	m_pNonButtonRegion = nullptr;
 
 	m_pSelectedItem = nullptr;
 	m_SelectedItemIndex = TIndex_NotSpecified;
 	m_pSelectedSubItemBox = nullptr;
-
-	m_bMouseReleasedForTheFisrtTime = true;
 }
 
 auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
@@ -40,16 +38,13 @@ auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowS
 	// Set control type
 	m_ControlType = EControlType::MenuBar;
 
-	// Create image for background
-	if (m_pBackground = new JWImage)
+	// Create ImageBox for the non-button region.
+	if (m_pNonButtonRegion = new JWImageBox)
 	{
-		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
-			return EError::IMAGE_NOT_CREATED;
+		if (JW_FAILED(m_pNonButtonRegion->Create(Position, Size, pSharedData)))
+			return EError::IMAGE_BOX_NOT_CREATED;
 
-		m_pBackground->SetPosition(Position);
-		m_pBackground->SetSize(Size);
-		m_pBackground->SetAlpha(DEFUALT_ALPHA_BACKGROUND_MENUBAR);
-		m_pBackground->SetXRGB(DEFAULT_COLOR_BACKGROUND_MENUBAR);
+		m_pNonButtonRegion->SetBackgroundColor(DEFAULT_COLOR_BACKGROUND_MENUBAR);
 	}
 	else
 	{
@@ -79,12 +74,12 @@ void JWMenuBar::Destroy()
 		m_pSubItemBoxes.clear();
 	}
 
-	JW_DESTROY(m_pBackground);
+	JW_DESTROY(m_pNonButtonRegion);
 }
 
 auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 {
-	THandleItem Result = MENU_ITEM_THANDLE_BASE;
+	//THandleItem Result = MENU_ITEM_THANDLE_BASE;
 
 	MenuItem* new_item = new MenuItem;
 
@@ -95,7 +90,6 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 		item_position.x += m_pItems[m_pItems.size() - 1]->GetSize().x;
 	}
 
-	// TODO:
 	D3DXVECTOR2 item_size = m_Size;
 	item_size.x = static_cast<float>(m_pSharedData->pText->GetFontData()->Info.Size * Text.length())
 		+ static_cast<float>(DEFAULT_MENUBAR_ITEM_PADDING * 2);
@@ -111,7 +105,7 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 
 	m_pItems.push_back(new_item);
 
-	Result += (static_cast<THandle>(m_pItems.size()) - 1) * MENU_ITEM_THANDLE_STRIDE;
+	//Result += (static_cast<THandle>(m_pItems.size()) - 1) * MENU_ITEM_THANDLE_STRIDE;
 
 	// Create sub-item box
 	MenuSubItemBox* new_subitem_box = new MenuSubItemBox;
@@ -123,7 +117,12 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 	new_subitem_box->ShouldUseToggleSelection(false);
 
 	m_pSubItemBoxes.push_back(new_subitem_box);
-	
+
+	D3DXVECTOR2 background_position = item_position + item_size;
+	background_position.y = 0;
+
+	m_pNonButtonRegion->SetPosition(background_position);
+
 	return GetTHandleItemOfMenuBarItem(m_pItems.size() - 1);
 	//return Result;
 }
@@ -156,29 +155,51 @@ PRIVATE auto JWMenuBar::GetTIndexOfMenuBarItem(THandleItem hItem)->TIndex
 	return Result;
 }
 
-void JWMenuBar::UpdateControlState(JWControl** ppControlWithFocus)
+void JWMenuBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
 {
-	JWControl::UpdateControlState(ppControlWithFocus);
+	JWControl::UpdateControlState(ppControlWithMouse, ppControlWithFocus);
+
+	m_pNonButtonRegion->UpdateControlState(nullptr, nullptr);
+
+	if ((m_pNonButtonRegion->GetState() == EControlState::Pressed) || (m_pNonButtonRegion->GetState() == EControlState::Clicked))
+	{
+		UnselectItem();
+	}
 
 	for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
 	{
-		m_pItems[iterator]->UpdateControlState(nullptr);
+		m_pItems[iterator]->UpdateControlState(nullptr, nullptr);
 
-		if ((m_pItems[iterator]->GetState() == EControlState::Pressed) || (m_pItems[iterator]->GetState() == EControlState::Clicked))
+		// Toggle-able JWTextButton doesn't have Clicked state, so we need to check only the Pressed state.
+		if ((m_pItems[iterator]->GetState() == EControlState::Pressed))
 		{
-			m_pSelectedItem = m_pItems[iterator];
-			m_pSelectedSubItemBox = m_pSubItemBoxes[iterator];
-			m_pSelectedSubItemBox->UpdateControlState(nullptr);
-
-			//SelectItem(iterator);
+			SelectItem(iterator);
+		}
+		else if ((m_pItems[iterator]->GetState() == EControlState::Hover))
+		{
+			if (m_pSelectedItem)
+			{
+				SelectItem(iterator);
+			}
 		}
 		else
 		{
 			if (m_pItems[iterator] == m_pSelectedItem)
 			{
-				m_pSelectedItem = nullptr;
-				m_pSelectedSubItemBox = nullptr;
+				UnselectItem();
 			}
+		}
+	}
+
+	if (m_pSelectedItem)
+	{
+		m_pSelectedSubItemBox->UpdateControlState(nullptr, nullptr);
+
+		if (m_pSelectedSubItemBox->GetState() == EControlState::Clicked)
+		{
+			m_hSelectedSubItem = GetTHandleItemOfMenuBarItem(m_SelectedItemIndex) + m_pSelectedSubItemBox->GetSelectedItemIndex() + 1;
+
+			UnselectItem();
 		}
 	}
 }
@@ -187,10 +208,10 @@ void JWMenuBar::Draw()
 {
 	JWControl::BeginDrawing();
 
-	// Draw background
-	m_pBackground->Draw();
+	// Draw non-button region.
+	m_pNonButtonRegion->Draw();
 
-	// Draw items
+	// Draw items.
 	if (m_pItems.size())
 	{
 		for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
@@ -199,6 +220,7 @@ void JWMenuBar::Draw()
 		}
 	}
 
+	// Draw the subitem box, if necessary.
 	if (m_pSelectedItem)
 	{
 		m_pSelectedSubItemBox->Draw();
@@ -210,12 +232,16 @@ void JWMenuBar::Draw()
 void JWMenuBar::SetSize(D3DXVECTOR2 Size)
 {
 	JWControl::SetSize(Size);
-	m_pBackground->SetSize(Size);
+	m_pNonButtonRegion->SetSize(Size);
 }
 
-auto JWMenuBar::OnSubItemClick() const->THandleItem
+auto JWMenuBar::OnSubItemClick()->THandleItem
 {
-	return m_hSelectedSubItem;
+	THandleItem Result = m_hSelectedSubItem;
+
+	m_hSelectedSubItem = THandle_Null;
+
+	return Result;
 }
 
 PRIVATE void JWMenuBar::SelectItem(TIndex ItemIndex)
@@ -225,14 +251,21 @@ PRIVATE void JWMenuBar::SelectItem(TIndex ItemIndex)
 		// IF,
 		// there is a previously selected item,
 		// unselect it.
-		m_pSelectedItem->SetState(EControlState::Normal);
+
+		if (m_pSelectedItem != m_pItems[ItemIndex])
+		{
+			m_pSelectedItem->SetState(EControlState::Normal);
+		}
 	}
 
 	m_pSelectedItem = m_pItems[ItemIndex];
 	m_pSelectedSubItemBox = m_pSubItemBoxes[ItemIndex];
+
 	m_SelectedItemIndex = ItemIndex;
 
 	m_pSelectedItem->SetState(EControlState::Pressed);
+
+	SetState(EControlState::Pressed);
 }
 
 PRIVATE void JWMenuBar::UnselectItem()
@@ -241,9 +274,9 @@ PRIVATE void JWMenuBar::UnselectItem()
 	{
 		m_pSelectedItem->SetState(EControlState::Normal);
 	}
+
 	m_pSelectedItem = nullptr;
 	m_pSelectedSubItemBox = nullptr;
-	m_SelectedItemIndex = TIndex_NotSpecified;
 
-	m_bMouseReleasedForTheFisrtTime = true;
+	m_SelectedItemIndex = TIndex_NotSpecified;
 }

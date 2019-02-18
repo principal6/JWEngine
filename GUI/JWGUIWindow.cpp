@@ -201,32 +201,18 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 
 	JWControl* p_control_with_mouse = nullptr;
 
-	// This is needed, becuase the menu-bar is on top of all the other controls.
-	if (m_pMenuBar)
+	// We must update control's state in the opposite order
+	// because lastly added control's position is above formerly added controls.
+	for (size_t iterator_index = m_Controls.size() - 1; iterator_index > 0; iterator_index--)
 	{
-		for (JWControl* iterator : m_Controls)
-		{
-			if (iterator != m_pMenuBar)
-			{
-				iterator->UpdateControlState(&m_pControlWithFocus);
-			}
-		}
-
-		m_pMenuBar->UpdateControlState(&m_pControlWithFocus);
-	}
-	else
-	{
-		for (JWControl* iterator : m_Controls)
-		{
-			iterator->UpdateControlState(&m_pControlWithFocus);
-		}
+		m_Controls[iterator_index]->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
 	}
 
 	// TODO: Tab stop needed! (keyboard Tab key)
 
 	if (m_pControlWithFocus)
 	{
-		std::cout << "[DEBUG] Control with focus: " << m_pControlWithFocus->GetControlType() << std::endl;
+		std::cout << "[DEBUG] Control with focus: " << m_pControlWithFocus->GetControlType() << " / " << m_pControlWithFocus << std::endl;
 
 		if (m_pControlWithFocus->GetControlType() == EControlType::RadioBox)
 		{

@@ -42,9 +42,10 @@ int main()
 	THandleItem mb_help = pMainGUIWindow->GetControlPtr(menubar)->AddMenuBarItem(L"도움말");
 		mb_help_info = pMainGUIWindow->GetControlPtr(menubar)->AddMenuBarSubItem(mb_help, L"정보");
 	
-	/*
 	textbutton1 = pMainGUIWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
-		pMainGUIWindow->GetControlPtr(textbutton1)->ShouldUseToggleSelection(true);
+
+	THandle textbutton2 = pMainGUIWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(25, 25), D3DXVECTOR2(100, 50), L"FGHIJ");
+	pMainGUIWindow->GetControlPtr(textbutton2)->ShouldUseToggleSelection(true);
 
 	THandle scrollbar1 = pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 0), D3DXVECTOR2(160, 0));
 	pMainGUIWindow->GetControlPtr(scrollbar1)->MakeScrollBar(EScrollBarDirection::Horizontal);
@@ -109,16 +110,15 @@ void MainLoop()
 {
 	THandleItem clicked_subitem = THandle_Null;
 
-	/*
 	if ((clicked_subitem = pMainGUIWindow->GetControlPtr(menubar)->OnSubItemClick()) != THandle_Null)
 	{
 		if (clicked_subitem == mb_file_new)
 		{
 			std::cout << "FILE - NEW" << std::endl;
 
-			SWindowCreationData myWindowData = SWindowCreationData(100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK);
+			//SWindowCreationData myWindowData = SWindowCreationData(100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK);
 			
-			myGUI.AddGUIWindow(myWindowData);
+			//myGUI.AddGUIWindow(myWindowData);
 		}
 	}
 	
@@ -126,7 +126,6 @@ void MainLoop()
 	{
 		std::cout << "CLICK" << std::endl;
 	}
-	*/
 
 	pMainGUIWindow->DrawAllControls();
 }

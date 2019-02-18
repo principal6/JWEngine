@@ -8,7 +8,7 @@ namespace JWENGINE
 	// ***
 	// *** Forward declaration ***
 	class JWTextButton;
-	class JWImage;
+	class JWImageBox;
 	class JWListBox;
 	// ***
 
@@ -27,13 +27,13 @@ namespace JWENGINE
 		auto AddMenuBarItem(WSTRING Text)->THandleItem override;
 		auto AddMenuBarSubItem(THandleItem hItem, WSTRING Text)->THandleItem override;
 
-		void UpdateControlState(JWControl** ppControlWithFocus) override;
+		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
 
 		void Draw() override;
 
 		void SetSize(D3DXVECTOR2 Size) override;
 
-		auto OnSubItemClick() const->THandleItem override;
+		auto OnSubItemClick()->THandleItem override;
 
 	private:
 		auto GetTHandleItemOfMenuBarItem(TIndex ItemIndex)->THandleItem;
@@ -53,8 +53,8 @@ namespace JWENGINE
 		// This means that the total count of sub items of each item should be less than 100.
 		static const THandle MENU_ITEM_THANDLE_STRIDE = 100;
 
-		// MenuBar's background.
-		JWImage* m_pBackground;
+		// MenuBar's non-button region.
+		JWImageBox* m_pNonButtonRegion;
 
 		TLinkedList<MenuItem*> m_pItems;
 		TLinkedList<MenuSubItemBox*> m_pSubItemBoxes;
@@ -62,9 +62,6 @@ namespace JWENGINE
 		MenuItem* m_pSelectedItem;
 		MenuSubItemBox* m_pSelectedSubItemBox;
 		TIndex m_SelectedItemIndex;
-		THandleItem m_hSelectedSubItem;
-
-		bool m_bMouseReleasedForTheFisrtTime;
-		
+		THandleItem m_hSelectedSubItem;		
 	};
 };

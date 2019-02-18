@@ -36,7 +36,7 @@ namespace JWENGINE
 
 		void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0), D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0)) override;
 
-		void UpdateControlState(JWControl** ppControlWithFocus) override;
+		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
 
 		void Draw() override;
 

@@ -266,13 +266,13 @@ PRIVATE void JWListBox::UpdateAutomaticScrollBar()
 	}
 }
 
-void JWListBox::UpdateControlState(JWControl** ppControlWithFocus)
+void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
 {
-	JWControl::UpdateControlState(ppControlWithFocus);
+	JWControl::UpdateControlState(ppControlWithMouse, ppControlWithFocus);
 
 	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 
-	m_pScrollBar->UpdateControlState(ppControlWithFocus);
+	m_pScrollBar->UpdateControlState(nullptr, nullptr);
 
 	if (!m_bHasScrollBar)
 	{
@@ -329,7 +329,7 @@ void JWListBox::UpdateControlState(JWControl** ppControlWithFocus)
 		{
 			for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
 			{
-				m_pItemBackground[iterator]->UpdateControlState(nullptr);
+				m_pItemBackground[iterator]->UpdateControlState(nullptr, nullptr);
 
 				if (m_pItemBackground[iterator]->GetState() == EControlState::Clicked)
 				{

@@ -53,16 +53,35 @@ void JWTextButton::Destroy()
 	JW_DESTROY(m_pBackground);
 }
 
-void JWTextButton::UpdateControlState(JWControl** ppControlWithFocus)
+void JWTextButton::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
 {
 	if (m_bShouleUseToggleSelection)
 	{
 		const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 
+		bool b_mouse_in_rect = Static_IsMouseInRECT(p_input_state->MousePosition, m_ControlRect);
+		bool b_mouse_down_in_rect = Static_IsMouseInRECT(p_input_state->MouseDownPosition, m_ControlRect);
+
+		if (ppControlWithMouse)
+		{
+			// If a control already has mouse cursor on it,
+			// no other controls can have it.
+			if (*ppControlWithMouse)
+			{
+				b_mouse_in_rect = false;
+				b_mouse_down_in_rect = false;
+			}
+		}
+
 		if (p_input_state->MouseLeftFirstPressed)
 		{
-			if (Static_IsMouseInRECT(p_input_state->MouseDownPosition, m_ControlRect))
+			if (b_mouse_down_in_rect)
 			{
+				if (ppControlWithMouse)
+				{
+					*ppControlWithMouse = this;
+				}
+
 				if (ppControlWithFocus)
 				{
 					if (*ppControlWithFocus)
@@ -89,8 +108,13 @@ void JWTextButton::UpdateControlState(JWControl** ppControlWithFocus)
 		}
 		else
 		{
-			if (Static_IsMouseInRECT(p_input_state->MousePosition, m_ControlRect))
+			if (b_mouse_in_rect)
 			{
+				if (ppControlWithMouse)
+				{
+					*ppControlWithMouse = this;
+				}
+
 				if (m_ControlState != EControlState::Pressed)
 				{
 					m_ControlState = EControlState::Hover;
@@ -107,7 +131,7 @@ void JWTextButton::UpdateControlState(JWControl** ppControlWithFocus)
 	}
 	else
 	{
-		JWControl::UpdateControlState(ppControlWithFocus);
+		JWControl::UpdateControlState(ppControlWithMouse, ppControlWithFocus);
 	}
 }
 

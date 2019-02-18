@@ -53,31 +53,31 @@ auto JWScrollBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindo
 	if (m_pButtonA = new JWImageButton)
 	{
 		if (JW_FAILED(m_pButtonA->Create(Position, GUI_BUTTON_SIZE, m_pSharedData)))
-			return EError::IMAGEBUTTON_NOT_CREATED;
+			return EError::IMAGE_BUTTON_NOT_CREATED;
 
 		m_pButtonA->ShouldDrawBorder(false);
 	}
 	else
 	{
-		return EError::IMAGEBUTTON_NOT_CREATED;
+		return EError::IMAGE_BUTTON_NOT_CREATED;
 	}
 
 	if (m_pButtonB = new JWImageButton)
 	{
 		if (JW_FAILED(m_pButtonB->Create(Position, GUI_BUTTON_SIZE, m_pSharedData)))
-			return EError::IMAGEBUTTON_NOT_CREATED;
+			return EError::IMAGE_BUTTON_NOT_CREATED;
 
 		m_pButtonB->ShouldDrawBorder(false);
 	}
 	else
 	{
-		return EError::IMAGEBUTTON_NOT_CREATED;
+		return EError::IMAGE_BUTTON_NOT_CREATED;
 	}
 
 	if (m_pScroller = new JWTextButton)
 	{
 		if (JW_FAILED(m_pScroller->Create(Position, GUI_BUTTON_SIZE, m_pSharedData)))
-			return EError::IMAGEBUTTON_NOT_CREATED;
+			return EError::IMAGE_BUTTON_NOT_CREATED;
 
 		m_pScroller->ShouldDrawBorder(false);
 		m_pScroller->SetStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_WHITE);
@@ -86,7 +86,7 @@ auto JWScrollBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindo
 	}
 	else
 	{
-		return EError::IMAGEBUTTON_NOT_CREATED;
+		return EError::IMAGE_BUTTON_NOT_CREATED;
 	}
 
 	// Set default alignment
@@ -141,9 +141,9 @@ void JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)
 	UpdateButtonPosition();
 }
 
-void JWScrollBar::UpdateControlState(JWControl** ppControlWithFocus)
+void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
 {
-	JWControl::UpdateControlState(ppControlWithFocus);
+	JWControl::UpdateControlState(ppControlWithMouse, ppControlWithFocus);
 
 	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 
@@ -152,8 +152,8 @@ void JWScrollBar::UpdateControlState(JWControl** ppControlWithFocus)
 		m_ButtonABPressInterval++;
 	}
 
-	m_pButtonA->UpdateControlState(nullptr);
-	m_pButtonB->UpdateControlState(nullptr);
+	m_pButtonA->UpdateControlState(nullptr, nullptr);
+	m_pButtonB->UpdateControlState(nullptr, nullptr);
 	
 	EControlState button_a_state = m_pButtonA->GetState();
 	EControlState button_b_state = m_pButtonB->GetState();
@@ -251,7 +251,7 @@ void JWScrollBar::UpdateControlState(JWControl** ppControlWithFocus)
 			else
 			{
 				// When the scroller is released.
-				m_pScroller->UpdateControlState(nullptr);
+				m_pScroller->UpdateControlState(nullptr, nullptr);
 
 				m_CapturedScrollPosition = 0;
 			}
@@ -294,7 +294,7 @@ void JWScrollBar::UpdateControlState(JWControl** ppControlWithFocus)
 		// When no button is pressed,
 		// release the scroller
 		m_bScrollerCaptured = false;
-		m_pScroller->UpdateControlState(nullptr);
+		m_pScroller->UpdateControlState(nullptr, nullptr);
 
 		m_ButtonABPressInterval = BUTTON_INTERVAL_UPPER_LIMIT;
 	}

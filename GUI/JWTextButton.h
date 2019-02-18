@@ -18,7 +18,7 @@ namespace JWENGINE
 		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
-		void UpdateControlState(JWControl** ppControlWithFocus) override;
+		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
 
 		void Draw() override;
 

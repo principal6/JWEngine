@@ -95,7 +95,8 @@ namespace JWENGINE
 		** Recall event
 		*/
 		// [JWListBox] Return THandleItem value of the selected sub-item in the JWListBox.
-		virtual auto OnSubItemClick() const->THandleItem { return THandle_Null; };
+		// @warning: calling this function initilaizes the clicked subitem index.
+		virtual auto OnSubItemClick()->THandleItem { return THandle_Null; };
 
 		// Return true if JWControl's state is Hover.
 		virtual auto OnMouseHover() const->bool;
@@ -107,7 +108,7 @@ namespace JWENGINE
 		virtual auto OnMouseCliked() const->bool;
 
 		// Update control's state.
-		virtual void UpdateControlState(JWControl** ppControlWithFocus);
+		virtual void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus);
 
 		// Attach JWScrollBar to this control.
 		virtual void AttachScrollBar(JWControl* pScrollBar);
