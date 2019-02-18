@@ -35,12 +35,14 @@ namespace JWENGINE
 
 		auto OnSubItemClick()->THandleItem override;
 
+		void KillFocus() override;
+
 	private:
 		auto GetTHandleItemOfMenuBarItem(TIndex ItemIndex)->THandleItem;
 		auto GetTIndexOfMenuBarItem(THandleItem hItem)->TIndex;
 
-		void SelectItem(TIndex ItemIndex);
-		void UnselectItem();
+		void SelectMenuBarItem(TIndex ItemIndex);
+		void UnselectMenuBarItem();
 
 	private:
 		static const BYTE DEFUALT_ALPHA_BACKGROUND_MENUBAR = 255;

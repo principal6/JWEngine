@@ -125,8 +125,8 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 	// Calculate item's default position.
 	D3DXVECTOR2 item_position = D3DXVECTOR2(0, 0);
 	item_position = m_Position;
-	item_position.x += DEFAULT_ITEM_PADDING_X;
-	item_position.y += DEFAULT_ITEM_PADDING_Y;
+	//item_position.x += DEFAULT_ITEM_PADDING_X;
+	//item_position.y += DEFAULT_ITEM_PADDING_Y;
 	if (item_index)
 	{
 		// IF,
@@ -137,7 +137,8 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 
 	// Calculate item's default size.
 	D3DXVECTOR2 item_size = D3DXVECTOR2(0, 0);
-	item_size.x = m_Size.x - DEFAULT_ITEM_PADDING_Y;
+	item_size.x = m_Size.x;
+	//item_size.x = m_Size.x - DEFAULT_ITEM_PADDING_X * 2;
 	item_size.y = m_MinimumItemHeight;
 
 	/*
@@ -345,8 +346,9 @@ void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWControl** p
 		// the ListBox is being scrolled,
 		// scroll items.
 
-		m_ItemOffsetY = m_Position.y + DEFAULT_ITEM_PADDING_Y - m_ItemInfo[m_pScrollBar->GetScrollPosition()].ItemPosition.y;
-
+		//m_ItemOffsetY = m_Position.y + DEFAULT_ITEM_PADDING_Y - m_ItemInfo[m_pScrollBar->GetScrollPosition()].ItemPosition.y;
+		m_ItemOffsetY = m_Position.y - m_ItemInfo[m_pScrollBar->GetScrollPosition()].ItemPosition.y;
+		
 		D3DXVECTOR2 item_position = D3DXVECTOR2(0, 0);
 
 		for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
@@ -453,7 +455,8 @@ auto JWListBox::GetListBoxItemCount() const->const size_t
 
 auto JWListBox::GetListBoxItemHeight() const->const float
 {
-	float item_y_size_sum = DEFAULT_ITEM_PADDING_Y;
+	//float item_y_size_sum = DEFAULT_ITEM_PADDING_Y;
+	float item_y_size_sum = 0;
 
 	if (m_ItemInfo.size())
 	{

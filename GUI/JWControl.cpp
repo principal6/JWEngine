@@ -231,7 +231,7 @@ void JWControl::UpdateControlState(JWControl** ppControlWithMouse, JWControl** p
 		{
 			if (p_input_state->MouseLeftPressed)
 			{
-				if (Static_IsMouseInRECT(p_input_state->MouseDownPosition, m_ControlRect))
+				if (b_mouse_down_in_rect)
 				{
 					m_ControlState = EControlState::Hover;
 				}
@@ -391,8 +391,8 @@ void JWControl::Focus()
 void JWControl::KillFocus()
 {
 	m_bHasFocus = false;
-	
-	//m_ControlState = EControlState::Normal;
+
+	m_ControlState = EControlState::Normal;
 }
 
 void JWControl::SetTextAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment)

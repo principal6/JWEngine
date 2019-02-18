@@ -27,9 +27,12 @@ namespace JWENGINE
 
 		void ShouldUseToggleSelection(bool Value) override;
 
+		void KillFocus() override;
+
 	private:
 		JWImage* m_pBackground;
 
 		bool m_bShouleUseToggleSelection;
+		bool m_bToggleState;
 	};
 };

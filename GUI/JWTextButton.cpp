@@ -185,3 +185,22 @@ void JWTextButton::ShouldUseToggleSelection(bool Value)
 {
 	m_bShouleUseToggleSelection = Value;
 }
+
+void JWTextButton::KillFocus()
+{
+	EControlState temp_current_state = m_ControlState;
+
+	JWControl::KillFocus();
+
+	if (m_bShouleUseToggleSelection)
+	{
+		// IF,
+		// this is a toggle-able JWTextButton, and it is pressed,
+		// it must keep pressed even when the focus is lost.
+
+		if (temp_current_state == EControlState::Pressed)
+		{
+			m_ControlState = EControlState::Pressed;
+		}
+	}
+}

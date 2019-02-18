@@ -78,12 +78,16 @@ PRIVATE auto JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTU
 
 void JWGUIWindow::Destroy()
 {
-	for (JWControl* iterator : m_Controls)
+	if (m_Controls.size())
 	{
-		JW_DESTROY(iterator);
-	}
-	m_Controls.clear();
+		for (JWControl* iterator : m_Controls)
+		{
+			JW_DESTROY(iterator);
+		}
 
+		m_Controls.clear();
+	}
+	
 	JW_DESTROY(m_SharedData.pText);
 	JW_RELEASE(m_SharedData.Texture_GUI);
 	JW_DESTROY(m_SharedData.pWindow);
@@ -203,16 +207,26 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 
 	// We must update control's state in the opposite order
 	// because lastly added control's position is above formerly added controls.
-	for (size_t iterator_index = m_Controls.size() - 1; iterator_index > 0; iterator_index--)
+	// and MenuBar must be the first one to be updated, if exists,
+	// becuase it's on top of any other controls.
+	if (m_pMenuBar)
 	{
-		m_Controls[iterator_index]->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
+		m_pMenuBar->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
+	}
+
+	if (m_Controls.size())
+	{
+		for (size_t iterator_index = m_Controls.size() - 1; iterator_index > 0; iterator_index--)
+		{
+			m_Controls[iterator_index]->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
+		}
 	}
 
 	// TODO: Tab stop needed! (keyboard Tab key)
 
 	if (m_pControlWithFocus)
-	{
-		std::cout << "[DEBUG] Control with focus: " << m_pControlWithFocus->GetControlType() << " / " << m_pControlWithFocus << std::endl;
+	{		
+		//std::cout << "[DEBUG] Control with focus: " << m_pControlWithFocus->GetControlType() << " / " << m_pControlWithFocus << std::endl;
 
 		if (m_pControlWithFocus->GetControlType() == EControlType::RadioBox)
 		{
@@ -283,11 +297,14 @@ void JWGUIWindow::BeginRender()
 
 void JWGUIWindow::DrawAllControls()
 {
-	for (JWControl* iterator : m_Controls)
+	if (m_Controls.size())
 	{
-		if (iterator != m_pMenuBar)
+		for (JWControl* iterator : m_Controls)
 		{
-			iterator->Draw();
+			if (iterator != m_pMenuBar)
+			{
+				iterator->Draw();
+			}
 		}
 	}
 
@@ -312,9 +329,11 @@ void JWGUIWindow::KillFocus()
 {
 	m_pControlWithFocus = nullptr;
 
-	for (JWControl* iterator : m_Controls)
+	if (m_Controls.size())
 	{
-		iterator->KillFocus();
-		iterator->SetState(EControlState::Normal);
+		for (JWControl* iterator : m_Controls)
+		{
+			iterator->KillFocus();
+		}
 	}
 }

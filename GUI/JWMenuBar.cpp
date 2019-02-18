@@ -115,6 +115,7 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 	new_subitem_box->SetBackgroundColor(DEFAULT_COLOR_LESS_BLACK);
 	new_subitem_box->ShouldUseAutomaticScrollBar(false);
 	new_subitem_box->ShouldUseToggleSelection(false);
+	new_subitem_box->ShouldDrawBorder(false);
 
 	m_pSubItemBoxes.push_back(new_subitem_box);
 
@@ -155,15 +156,23 @@ PRIVATE auto JWMenuBar::GetTIndexOfMenuBarItem(THandleItem hItem)->TIndex
 	return Result;
 }
 
+void JWMenuBar::KillFocus()
+{
+	JWControl::KillFocus();
+
+	// When menu-bar lose focus, we must unselect the selected item.
+	UnselectMenuBarItem();
+}
+
 void JWMenuBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
 {
-	JWControl::UpdateControlState(ppControlWithMouse, ppControlWithFocus);
+	JWControl::UpdateControlState(nullptr, ppControlWithFocus);
 
 	m_pNonButtonRegion->UpdateControlState(nullptr, nullptr);
 
 	if ((m_pNonButtonRegion->GetState() == EControlState::Pressed) || (m_pNonButtonRegion->GetState() == EControlState::Clicked))
 	{
-		UnselectItem();
+		UnselectMenuBarItem();
 	}
 
 	for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
@@ -173,33 +182,34 @@ void JWMenuBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** p
 		// Toggle-able JWTextButton doesn't have Clicked state, so we need to check only the Pressed state.
 		if ((m_pItems[iterator]->GetState() == EControlState::Pressed))
 		{
-			SelectItem(iterator);
+			SelectMenuBarItem(iterator);
 		}
 		else if ((m_pItems[iterator]->GetState() == EControlState::Hover))
 		{
 			if (m_pSelectedItem)
 			{
-				SelectItem(iterator);
+				SelectMenuBarItem(iterator);
 			}
 		}
 		else
 		{
 			if (m_pItems[iterator] == m_pSelectedItem)
 			{
-				UnselectItem();
+				UnselectMenuBarItem();
 			}
 		}
 	}
 
 	if (m_pSelectedItem)
 	{
-		m_pSelectedSubItemBox->UpdateControlState(nullptr, nullptr);
+		// Sub-item box must have the mouse cursor, when it appears.
+		m_pSelectedSubItemBox->UpdateControlState(ppControlWithMouse, nullptr);
 
 		if (m_pSelectedSubItemBox->GetState() == EControlState::Clicked)
 		{
 			m_hSelectedSubItem = GetTHandleItemOfMenuBarItem(m_SelectedItemIndex) + m_pSelectedSubItemBox->GetSelectedItemIndex() + 1;
 
-			UnselectItem();
+			UnselectMenuBarItem();
 		}
 	}
 }
@@ -244,7 +254,7 @@ auto JWMenuBar::OnSubItemClick()->THandleItem
 	return Result;
 }
 
-PRIVATE void JWMenuBar::SelectItem(TIndex ItemIndex)
+PRIVATE void JWMenuBar::SelectMenuBarItem(TIndex ItemIndex)
 {
 	if (m_pSelectedItem)
 	{
@@ -268,7 +278,7 @@ PRIVATE void JWMenuBar::SelectItem(TIndex ItemIndex)
 	SetState(EControlState::Pressed);
 }
 
-PRIVATE void JWMenuBar::UnselectItem()
+PRIVATE void JWMenuBar::UnselectMenuBarItem()
 {
 	if (m_pSelectedItem)
 	{

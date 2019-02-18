@@ -116,9 +116,9 @@ void MainLoop()
 		{
 			std::cout << "FILE - NEW" << std::endl;
 
-			//SWindowCreationData myWindowData = SWindowCreationData(100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK);
+			SWindowCreationData myWindowData = SWindowCreationData(100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK);
 			
-			//myGUI.AddGUIWindow(myWindowData);
+			myGUI.AddGUIWindow(myWindowData);
 		}
 	}
 	
