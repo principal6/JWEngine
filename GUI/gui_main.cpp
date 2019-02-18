@@ -19,7 +19,6 @@ THandleItem mb_help_info = THandle_Null;
 THandle textbutton1 = THandle_Null;
 
 // TODO: THandle, THandleItem to structure?? (To safely handle these)
-// TODO: static local variables to local variables again, please... (cuz it's slower!!!)
 
 int main()
 {
