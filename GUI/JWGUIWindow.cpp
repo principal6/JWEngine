@@ -205,17 +205,17 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 
 	JWControl* p_control_with_mouse = nullptr;
 
-	// We must update control's state in the opposite order
-	// because lastly added control's position is above formerly added controls.
-	// and MenuBar must be the first one to be updated, if exists,
+	// We must update control's state in the opposite order from the creation order,
+	// because lately added controls' position is on top of formerly added controls.
+	// @warning: MenuBar must be the first one to be updated, if it exists,
 	// becuase it's on top of any other controls.
-	if (m_pMenuBar)
-	{
-		m_pMenuBar->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
-	}
-
 	if (m_Controls.size())
 	{
+		if (m_pMenuBar)
+		{
+			m_pMenuBar->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
+		}
+
 		for (size_t iterator_index = m_Controls.size() - 1; iterator_index > 0; iterator_index--)
 		{
 			m_Controls[iterator_index]->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
