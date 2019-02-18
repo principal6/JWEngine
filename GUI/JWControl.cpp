@@ -242,9 +242,21 @@ void JWControl::UpdateControlState(JWControl** ppControlWithMouse, JWControl** p
 
 void JWControl::AttachScrollBar(JWControl* pScrollBar)
 {
+	if (pScrollBar == nullptr)
+	{
+		// There must be scroll-bar to attach.
+		return;
+	}
+
 	if (this == pScrollBar)
 	{
 		// You can't attach yourself!
+		return;
+	}
+
+	if (pScrollBar->GetControlType() != EControlType::ScrollBar)
+	{
+		// Only scroll-bars can be attached.
 		return;
 	}
 

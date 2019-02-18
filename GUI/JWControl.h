@@ -107,10 +107,13 @@ namespace JWENGINE
 		// Return true if JWControl's state is Clicked.
 		virtual auto OnMouseCliked() const->bool;
 
+
 		// Update control's state.
 		virtual void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus);
 
+
 		// Attach JWScrollBar to this control.
+		// @warning: if pScrollBar is not a pointer to a JWScrollBar, this function won't work.
 		virtual void AttachScrollBar(JWControl* pScrollBar);
 
 		// Detach the formerly attached JWScrollBar.

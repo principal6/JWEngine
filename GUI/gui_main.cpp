@@ -10,6 +10,7 @@ void MainLoop();
 
 static JWGUI myGUI;
 JWGUIWindow* pMainGUIWindow;
+JWGUIWindow* pNewWindow;
 
 THandle menubar = THandle_Null;
 THandleItem mb_file_new = THandle_Null;
@@ -117,7 +118,10 @@ void MainLoop()
 
 			SWindowCreationData myWindowData = SWindowCreationData(100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK);
 			
-			myGUI.AddGUIWindow(myWindowData);
+			pNewWindow = myGUI.AddGUIWindow(myWindowData);
+
+			THandle textbutton = pNewWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"KLMNO");
+			pNewWindow->GetControlPtr(textbutton)->ShouldUseToggleSelection(true);
 		}
 	}
 	
@@ -125,6 +129,4 @@ void MainLoop()
 	{
 		std::cout << "CLICK" << std::endl;
 	}
-
-	pMainGUIWindow->DrawAllControls();
 }

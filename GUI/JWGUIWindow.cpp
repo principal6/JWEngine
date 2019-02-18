@@ -216,9 +216,13 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 			m_pMenuBar->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
 		}
 
-		for (size_t iterator_index = m_Controls.size() - 1; iterator_index > 0; iterator_index--)
+		for (size_t iterator_index = m_Controls.size(); iterator_index > 0; iterator_index--)
 		{
-			m_Controls[iterator_index]->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
+			// In order not to do duplicate update.
+			if (m_Controls[iterator_index - 1] != m_pMenuBar)
+			{
+				m_Controls[iterator_index - 1]->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
+			}
 		}
 	}
 

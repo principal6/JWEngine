@@ -163,23 +163,19 @@ void JWGUI::Run()
 			}
 		}
 
+		// Draw all the controls in the JWGUIWindow.
+		if (m_pGUIWindows.size())
+		{
+			for (JWGUIWindow* iterator : m_pGUIWindows)
+			{
+				iterator->DrawAllControls();
+			}
+		}
+
 		if (m_pfMainLoop)
 		{
 			// Call the outter main loop.
 			m_pfMainLoop();
-		}
-		else
-		{
-			// If the main loop function is not asigned,
-			// just draw all the controls.
-
-			if (m_pGUIWindows.size())
-			{
-				for (JWGUIWindow* iterator : m_pGUIWindows)
-				{
-					iterator->DrawAllControls();
-				}
-			}
 		}
 
 		if (m_pGUIWindows.size())
