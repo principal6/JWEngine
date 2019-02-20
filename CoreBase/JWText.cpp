@@ -9,6 +9,8 @@ const float JWText::DEFAULT_SINGLE_LINE_STRIDE = 50.0f;
 JWText::JWText()
 {
 	m_bIsInstantText = true;
+	m_bUseMultiline = false;
+	m_bUseAutomaticLineBreak = false;
 
 	m_pJWWindow = nullptr;
 	m_pBaseDir = nullptr;
@@ -17,15 +19,11 @@ JWText::JWText()
 
 	m_pFontTexture = nullptr;
 
-	m_bIsInstantText = false;
-
 	m_bShowCaret = false;
 	m_CaretSelPosition = 0;
 	m_CaretPosition = D3DXVECTOR2(0, 0);
 
-	m_bUseMultiline = false;
-	m_SinglelineXOffset = 0;
-	m_MultilineYOffset = 0;
+	m_NonInstantTextOffset = D3DXVECTOR2(0, 0);
 }
 
 auto JWText::CreateInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError
@@ -48,12 +46,13 @@ auto JWText::CreateInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDi
 
 	CreateInstantTextBuffers();
 
+	// This is an instant-text JWText.
 	m_bIsInstantText = true;
 
 	return EError::OK;
 }
 
-auto JWText::CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir, LPDIRECT3DTEXTURE9 pFontTexture)->EError
+auto JWText::CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const LPDIRECT3DTEXTURE9 pFontTexture)->EError
 {
 	if (m_pFontTexture)
 	{
@@ -73,6 +72,7 @@ auto JWText::CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBas
 
 	CreateNonInstantTextBuffers();
 
+	// This is a non-instant-text JWText.
 	m_bIsInstantText = false;
 
 	return EError::OK;
@@ -296,6 +296,11 @@ PRIVATE auto JWText::UpdateIndexBuffer(SIndexData* pIndexData)->EError
 	return EError::NULLPTR_INDEX;
 }
 
+void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize)
+{
+
+}
+
 void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position, const EHorizontalAlignment HorizontalAlignment)
 {
 	// If SingleLineText is null, we don't need to draw it.
@@ -306,21 +311,14 @@ void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position,
 
 	// Check if the text length exceeds the maximum length (MAX_INSTANT_TEXT_LENGTH)
 	// and if it does, clip the text.
-	size_t iterator_character = 0;
-	for (const wchar_t& Char : SingleLineText)
+	if (SingleLineText.length() > MAX_INSTANT_TEXT_LENGTH)
 	{
-		if (iterator_character == MAX_INSTANT_TEXT_LENGTH - 1)
-		{
-			SingleLineText = SingleLineText.substr(0, iterator_character);
-			break;
-		}
-
-		iterator_character++;
+		SingleLineText = SingleLineText.substr(0, MAX_INSTANT_TEXT_LENGTH);
 	}
 
 	// Check if the text contains '\n',
 	// and if it does, clip the text.
-	iterator_character = 0;
+	size_t iterator_character = 0;
 	for (const wchar_t& Char : SingleLineText)
 	{
 		if (Char == L'\n')
@@ -364,16 +362,16 @@ void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position,
 	// Convert each character of the text to Chars_ID in ms_FontData
 	// in order to position them.
 	iterator_character = 0;
-	STextCharacterInfo curr_char_info;
-	STextCharacterInfo prev_char_info;
+	SGlyphInfo curr_char_info;
+	SGlyphInfo prev_char_info;
 	prev_char_info.x = offset_position.x;
 	for (const wchar_t& Char : SingleLineText)
 	{
 		curr_char_info.chars_id = GetCharsIDFromCharacter(Char);
-		curr_char_info.line_top_y = offset_position.y;
+		curr_char_info.y = offset_position.y;
 		curr_char_info.line_index = 0;
 
-		SetInstantCharacter(iterator_character, &curr_char_info, &prev_char_info);
+		SetInstantTextGlyph(iterator_character, &curr_char_info, &prev_char_info);
 		
 		prev_char_info = curr_char_info;
 		iterator_character++;
@@ -423,7 +421,7 @@ void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position,
 	m_pDevice->SetTexture(0, nullptr);
 }
 
-PRIVATE void JWText::SetInstantCharacter(size_t Character_index, STextCharacterInfo* pCurrInfo, const STextCharacterInfo* pPrevInfo)
+PRIVATE void JWText::SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo)
 {
 	if (Character_index)
 	{
@@ -435,7 +433,7 @@ PRIVATE void JWText::SetInstantCharacter(size_t Character_index, STextCharacterI
 		// This is the first character of the text.
 		pCurrInfo->x = pPrevInfo->x;
 	}
-	pCurrInfo->y = pCurrInfo->line_top_y + ms_FontData.Chars[pCurrInfo->chars_id].YOffset;
+	pCurrInfo->y_for_texture = pCurrInfo->y + ms_FontData.Chars[pCurrInfo->chars_id].YOffset;
 	pCurrInfo->width = static_cast<float>(ms_FontData.Chars[pCurrInfo->chars_id].Width);
 	pCurrInfo->height = static_cast<float>(ms_FontData.Chars[pCurrInfo->chars_id].Height);
 
@@ -447,21 +445,26 @@ PRIVATE void JWText::SetInstantCharacter(size_t Character_index, STextCharacterI
 	float v2 = v1 + static_cast<float>(ms_FontData.Chars[pCurrInfo->chars_id].Height) / static_cast<float>(ms_FontData.Common.ScaleH);
 
 	m_InstantVertexData.Vertices[Character_index * 4].x = pCurrInfo->x;
-	m_InstantVertexData.Vertices[Character_index * 4].y = pCurrInfo->y;
+	m_InstantVertexData.Vertices[Character_index * 4].y = pCurrInfo->y_for_texture;
 	m_InstantVertexData.Vertices[Character_index * 4].u = u1;
 	m_InstantVertexData.Vertices[Character_index * 4].v = v1;
 	m_InstantVertexData.Vertices[Character_index * 4 + 1].x = pCurrInfo->x + pCurrInfo->width;
-	m_InstantVertexData.Vertices[Character_index * 4 + 1].y = pCurrInfo->y;
+	m_InstantVertexData.Vertices[Character_index * 4 + 1].y = pCurrInfo->y_for_texture;
 	m_InstantVertexData.Vertices[Character_index * 4 + 1].u = u2;
 	m_InstantVertexData.Vertices[Character_index * 4 + 1].v = v1;
 	m_InstantVertexData.Vertices[Character_index * 4 + 2].x = pCurrInfo->x;
-	m_InstantVertexData.Vertices[Character_index * 4 + 2].y = pCurrInfo->y + pCurrInfo->height;
+	m_InstantVertexData.Vertices[Character_index * 4 + 2].y = pCurrInfo->y_for_texture + pCurrInfo->height;
 	m_InstantVertexData.Vertices[Character_index * 4 + 2].u = u1;
 	m_InstantVertexData.Vertices[Character_index * 4 + 2].v = v2;
 	m_InstantVertexData.Vertices[Character_index * 4 + 3].x = pCurrInfo->x + pCurrInfo->width;
-	m_InstantVertexData.Vertices[Character_index * 4 + 3].y = pCurrInfo->y + pCurrInfo->height;
+	m_InstantVertexData.Vertices[Character_index * 4 + 3].y = pCurrInfo->y_for_texture + pCurrInfo->height;
 	m_InstantVertexData.Vertices[Character_index * 4 + 3].u = u2;
 	m_InstantVertexData.Vertices[Character_index * 4 + 3].v = v2;
+}
+
+auto JWText::GetFontTexturePtr() const-> const LPDIRECT3DTEXTURE9
+{
+	return m_pFontTexture;
 }
 
 auto JWText::GetLineHeight() const->float

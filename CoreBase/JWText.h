@@ -30,17 +30,17 @@ namespace JWENGINE
 		SIndexData() : pBuffer(nullptr), Indices(nullptr), IndexSize(0) {};
 	};
 
-	struct STextCharacterInfo
+	struct SGlyphInfo
 	{
 		size_t chars_id;
 		float x;
 		float y;
+		float y_for_texture;
 		float width;
 		float height;
-		float line_top_y;
 		size_t line_index;
 
-		STextCharacterInfo() : chars_id(0), x(0), y(0), width(0), height(0), line_top_y(0), line_index(0) {};
+		SGlyphInfo() : chars_id(0), x(0), y(0), y_for_texture(0), width(0), height(0), line_index(0) {};
 	};
 
 	class JWText final : public JWBMFontParser
@@ -49,22 +49,39 @@ namespace JWENGINE
 		JWText();
 		~JWText() {};
 
+		// Create instant-text JWText.
+		// A 'JWGUIWindow' must have one instant-text JWText for its controls.
 		auto CreateInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError;
-		auto CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir, LPDIRECT3DTEXTURE9 pFontTexture)->EError;
 
+		// Create non-instant-text JWText.
+		// A 'JWEdit' control must call this function when it's being created.
+		// To fill in the third paramater(pFontTexture), call GetFontTexturePtr() of the JWGUIWindow-shared JWText object.
+		auto CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const LPDIRECT3DTEXTURE9 pFontTexture)->EError;
+
+		// Destroy JWText object, no matter it's instant or non-instant.
 		void Destroy();
 
+		void UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize);
+
+		// TODO: SetWatermark(), SetWatermarkColor()
+		void DrawNonInstantText();
+
 		// Draw insant text to the window.
-		// @warning: instant text must be a single-line text,
-		// if it's multi-line, it will be clipped.
+		// Since it's instant text, there's no update function.
+		// @warning: instant text must be a single-line text.
+		// If the text is multi-line, it will be clipped.
 		void DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position,
 			const EHorizontalAlignment HorizontalAlignment = EHorizontalAlignment::Left);
+
+		// Get pointer to the font texture.
+		// This function needs to be used when you call CreateNonInstantText().
+		auto GetFontTexturePtr() const-> const LPDIRECT3DTEXTURE9;
 
 		// Every line's height is equal to the font's size (ms_FontData.Info.Size).
 		auto GetLineHeight() const->float;
 
 	private:
-		// @warning: the font texture must be created only once per JWGUIWindow.
+		// @warning: the font texture must be created only once per JWGUIWindow (i.e. per D3D device).
 		auto CreateFontTexture(const WSTRING FileName_FNT)->EError;
 
 		// Create vertex and index buffers for instant text with limited length (MAX_INSTANT_TEXT_LENGTH).
@@ -72,7 +89,7 @@ namespace JWENGINE
 		auto CreateInstantTextBuffers()->EError;
 
 		// Create vertex and index buffers for non-instant text with limited length
-		// (the length is computed to be the maximum according to the screen and font's size.)
+		// (the length is computed to be the maximum, in accordance with screen's size and font's size.)
 		auto CreateNonInstantTextBuffers()->EError;
 
 		auto CreateVertexBuffer(SVertexData* pVertexData)->EError;
@@ -80,7 +97,8 @@ namespace JWENGINE
 		auto UpdateVertexBuffer(SVertexData* pVertexData)->EError;
 		auto UpdateIndexBuffer(SIndexData* pIndexData)->EError;
 
-		void SetInstantCharacter(size_t Character_index, STextCharacterInfo* pCurrInfo, const STextCharacterInfo* pPrevInfo);
+		void SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
+
 		auto GetLineWidth(const WSTRING* pLineText) const->float;
 
 	private:
@@ -92,6 +110,8 @@ namespace JWENGINE
 		static constexpr unsigned __int32 MAX_INSTANT_TEXT_INDEX_SIZE = MAX_INSTANT_TEXT_LENGTH * 2;
 
 		bool m_bIsInstantText;
+		bool m_bUseMultiline;
+		bool m_bUseAutomaticLineBreak;
 
 		const JWWindow* m_pJWWindow;
 		const WSTRING* m_pBaseDir;
@@ -114,14 +134,12 @@ namespace JWENGINE
 		SVertexData m_NonInstantVertexData;
 		SIndexData m_NonInstantIndexData;
 		
-		VECTOR<STextCharacterInfo> m_NonInstantTextInfo;
+		VECTOR<SGlyphInfo> m_NonInstantTextInfo;
 
 		bool m_bShowCaret;
 		size_t m_CaretSelPosition;
 		D3DXVECTOR2 m_CaretPosition;
 
-		bool m_bUseMultiline;
-		float m_SinglelineXOffset;
-		float m_MultilineYOffset;
+		D3DXVECTOR2 m_NonInstantTextOffset;
 	};
 };
