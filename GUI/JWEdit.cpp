@@ -1,7 +1,6 @@
 #include "JWEdit.h"
 #include "../CoreBase/JWWindow.h"
 #include "../CoreBase/JWText.h"
-#include "../CoreBase/JWRectangle.h"
 #include "JWImageBox.h"
 
 using namespace JWENGINE;
@@ -10,6 +9,9 @@ using namespace JWENGINE;
 JWEdit::JWEdit()
 {
 	m_bShouldDrawBorder = true;
+
+	m_pBackground = nullptr;
+	m_pEditText = nullptr;
 
 	// FOR DEBUGGING!!!
 	m_bShouldUseViewport = false;
@@ -75,6 +77,7 @@ void JWEdit::Destroy()
 	JWControl::Destroy();
 
 	JW_DESTROY(m_pEditText);
+	
 	JW_DESTROY(m_pBackground);
 }
 
@@ -103,7 +106,7 @@ void JWEdit::Draw()
 
 	m_pEditText->DrawNonInstantText();
 
-	
+	m_pEditText->DrawSelectionBox();
 
 	// Caret blinks.
 	if (m_bHasFocus)
@@ -192,22 +195,60 @@ PROTECTED void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 {
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
 
+	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
+
 	switch (VirtualKeyCode)
 	{
 	case VK_LEFT:
-		m_pEditText->MoveCaretToLeft();
+		if (p_input_state->ShiftPressed)
+		{
+			m_pEditText->SelectToLeft();
+		}
+		else
+		{
+			m_pEditText->MoveCaretToLeft();
+			m_pEditText->ReleaseSelection();
+		}
+		
 		m_CaretShowInterval = 0;
 		break;
 	case VK_RIGHT:
-		m_pEditText->MoveCaretToRight();
+		if (p_input_state->ShiftPressed)
+		{
+			m_pEditText->SelectToRight();
+		}
+		else
+		{
+			m_pEditText->MoveCaretToRight();
+			m_pEditText->ReleaseSelection();
+		}
+
 		m_CaretShowInterval = 0;
 		break;
 	case VK_UP:
-		m_pEditText->MoveCaretUp();
+		if (p_input_state->ShiftPressed)
+		{
+			m_pEditText->SelectUp();
+		}
+		else
+		{
+			m_pEditText->MoveCaretUp();
+			m_pEditText->ReleaseSelection();
+		}
+
 		m_CaretShowInterval = 0;
 		break;
 	case VK_DOWN:
-		m_pEditText->MoveCaretDown();
+		if (p_input_state->ShiftPressed)
+		{
+			m_pEditText->SelectDown();
+		}
+		else
+		{
+			m_pEditText->MoveCaretDown();
+			m_pEditText->ReleaseSelection();
+		}
+
 		m_CaretShowInterval = 0;
 		break;
 	case VK_DELETE:

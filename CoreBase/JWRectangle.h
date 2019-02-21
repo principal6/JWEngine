@@ -23,8 +23,7 @@ namespace JWENGINE
 
 		virtual void Draw();
 
-		virtual void SetRectangleAlpha(BYTE Alpha);
-		virtual void SetRectangleXRGB(DWORD Color);
+		virtual void SetRectangleColor(DWORD Color);
 		
 	protected:
 		virtual void ClearVertexAndIndexData();

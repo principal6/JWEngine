@@ -8,6 +8,7 @@ namespace JWENGINE
 	// *** Forward declaration ***
 	class JWWindow;
 	class JWLine;
+	class JWRectangle;
 
 	struct SVertexImage;
 	struct SIndex3;
@@ -77,6 +78,8 @@ namespace JWENGINE
 
 		void DrawCaret();
 
+		void DrawSelectionBox();
+
 		// Get pointer to the font texture.
 		// This function needs to be used when you call CreateNonInstantText().
 		auto GetFontTexturePtr() const-> const LPDIRECT3DTEXTURE9;
@@ -89,6 +92,12 @@ namespace JWENGINE
 		void MoveCaretUp();
 		void MoveCaretDown();
 		void MoveCaretTo(size_t SelPosition);
+
+		void ReleaseSelection();
+		void SelectToLeft();
+		void SelectToRight();
+		void SelectUp();
+		void SelectDown();
 
 		auto GetCaretSelPosition() const->const size_t;
 
@@ -113,6 +122,7 @@ namespace JWENGINE
 
 		void UpdateNonInstantTextVertices();
 		void UpdateCaret();
+		void UpdateSelectionBox();
 
 		void SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
 		void SetNonInstantTextGlyph(bool bIsLineFirstGlyph, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
@@ -125,6 +135,7 @@ namespace JWENGINE
 		static const DWORD DEFAULT_COLOR_FONT = D3DCOLOR_XRGB(255, 255, 255);
 		static const DWORD DEFAULT_COLOR_CARET = DEFAULT_COLOR_FONT;
 		static const DWORD DEFAULT_COLOR_BOX = D3DCOLOR_ARGB(0, 180, 180, 180);
+		static const DWORD DEFAULT_COLOR_SELECTION = D3DCOLOR_ARGB(100, 255, 0, 255);
 		static const float DEFAULT_SIDE_CONSTRAINT_STRIDE;
 		static constexpr unsigned __int32 MAX_INSTANT_TEXT_LENGTH = 256;
 		static constexpr unsigned __int32 MAX_INSTANT_TEXT_VERTEX_SIZE = MAX_INSTANT_TEXT_LENGTH * 4;
@@ -159,10 +170,13 @@ namespace JWENGINE
 		D3DXVECTOR2 m_ConstraintPosition;
 		D3DXVECTOR2 m_ConstraintSize;
 
+		JWLine* m_pCaretLine;
 		D3DXVECTOR2 m_CaretPosition;
 		D3DXVECTOR2 m_CaretSize;
-		JWLine* m_pCaretLine;
 		size_t m_CaretSelPosition;
+
+		JWRectangle* m_pSelectionBox;
+		size_t m_CapturedSelPosition;
 
 		D3DXVECTOR2 m_NonInstantTextOffset;
 	};

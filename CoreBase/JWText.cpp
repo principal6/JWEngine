@@ -1,6 +1,7 @@
 #include "JWText.h"
 #include "JWWindow.h"
 #include "JWLine.h"
+#include "JWRectangle.h"
 
 using namespace JWENGINE;
 
@@ -20,9 +21,13 @@ JWText::JWText()
 	m_ConstraintPosition = D3DXVECTOR2(0, 0);
 	m_ConstraintSize = D3DXVECTOR2(0, 0);
 
-	m_CaretSelPosition = 0;
+	m_pCaretLine = nullptr;
 	m_CaretPosition = D3DXVECTOR2(0, 0);
 	m_CaretSize = D3DXVECTOR2(0, 0);
+	m_CaretSelPosition = 0;
+
+	m_pSelectionBox = nullptr;
+	m_CapturedSelPosition = SIZE_T_INVALID;
 
 	m_NonInstantTextOffset = D3DXVECTOR2(0, 0);
 }
@@ -86,6 +91,21 @@ auto JWText::CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBas
 		return EError::ALLOCATION_FAILURE;
 	}
 
+	// Create a JWRectangle for selection box.
+	if (m_pSelectionBox = new JWRectangle)
+	{
+		UINT max_box_num = static_cast<UINT>((m_pJWWindow->GetWindowData()->ScreenSize.y / GetLineHeight()) + 1);
+
+		if (JW_FAILED(m_pSelectionBox->Create(m_pJWWindow, m_pBaseDir, max_box_num)))
+			return EError::RECTANGLE_NOT_CREATED;
+
+		m_pSelectionBox->SetRectangleColor(DEFAULT_COLOR_SELECTION);
+	}
+	else
+	{
+		return EError::ALLOCATION_FAILURE;
+	}
+
 	// This is a non-instant-text JWText.
 	m_bIsInstantText = false;
 
@@ -105,6 +125,7 @@ void JWText::Destroy()
 		m_pFontTexture = nullptr;
 
 		JW_DESTROY(m_pCaretLine);
+		JW_DESTROY(m_pSelectionBox);
 	}
 
 	JW_RELEASE(m_InstantVertexData.pBuffer);
@@ -692,6 +713,14 @@ void JWText::DrawCaret()
 	}
 }
 
+void JWText::DrawSelectionBox()
+{
+	if (m_pSelectionBox)
+	{
+		m_pSelectionBox->Draw();
+	}
+}
+
 PRIVATE void JWText::SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo)
 {
 	if (Character_index)
@@ -841,16 +870,16 @@ void JWText::MoveCaretUp()
 {
 	size_t curr_index_in_line = m_NonInstantTextInfo[m_CaretSelPosition].glyph_index_in_line;
 	size_t curr_line_index = m_NonInstantTextInfo[m_CaretSelPosition].line_index;
-		if (!curr_line_index)
-		{
-			return;
-		}
+	if (!curr_line_index)
+	{
+		return;
+	}
 	size_t goal_line_index = curr_line_index - 1;
 
 	size_t line_start = GetLineStartGlyphIndex(goal_line_index);
 	size_t line_end = GetLineEndGlyphIndex(goal_line_index);
 	size_t line_length = line_end - line_start;
-	
+
 	curr_index_in_line = min(curr_index_in_line, line_length);
 
 	m_CaretSelPosition = line_start + curr_index_in_line;
@@ -865,18 +894,164 @@ void JWText::MoveCaretDown()
 	size_t goal_line_index = curr_line_index + 1;
 
 	size_t line_start = GetLineStartGlyphIndex(goal_line_index);
-		if (line_start == SIZE_T_INVALID)
-		{
-			return;
-		}
+	if (line_start == SIZE_T_INVALID)
+	{
+		return;
+	}
 	size_t line_end = GetLineEndGlyphIndex(goal_line_index);
 	size_t line_length = line_end - line_start;
-	
+
 	curr_index_in_line = min(curr_index_in_line, line_length);
-	
+
 	m_CaretSelPosition = line_start + curr_index_in_line;
 
 	UpdateCaret();
+}
+
+void JWText::ReleaseSelection()
+{
+	m_CapturedSelPosition = SIZE_T_INVALID;
+
+	m_pSelectionBox->ClearAllRectangles();
+}
+
+void JWText::SelectToLeft()
+{
+	if (m_CapturedSelPosition == SIZE_T_INVALID)
+	{
+		m_CapturedSelPosition = m_CaretSelPosition;
+
+		MoveCaretToLeft();
+
+		UpdateSelectionBox();
+	}
+	else
+	{
+		MoveCaretToLeft();
+
+		UpdateSelectionBox();
+	}
+}
+
+void JWText::SelectToRight()
+{
+	if (m_CapturedSelPosition == SIZE_T_INVALID)
+	{
+		m_CapturedSelPosition = m_CaretSelPosition;
+
+		MoveCaretToRight();
+
+		UpdateSelectionBox();
+	}
+	else
+	{
+		MoveCaretToRight();
+
+		UpdateSelectionBox();
+	}
+}
+
+void JWText::SelectUp()
+{
+	if (m_CapturedSelPosition == SIZE_T_INVALID)
+	{
+		m_CapturedSelPosition = m_CaretSelPosition;
+
+		MoveCaretUp();
+
+		UpdateSelectionBox();
+	}
+	else
+	{
+		MoveCaretUp();
+
+		UpdateSelectionBox();
+	}
+}
+
+void JWText::SelectDown()
+{
+	if (m_CapturedSelPosition == SIZE_T_INVALID)
+	{
+		m_CapturedSelPosition = m_CaretSelPosition;
+
+		MoveCaretDown();
+
+		UpdateSelectionBox();
+	}
+	else
+	{
+		MoveCaretDown();
+
+		UpdateSelectionBox();
+	}
+}
+
+PRIVATE void JWText::UpdateSelectionBox()
+{
+	if (m_CapturedSelPosition != SIZE_T_INVALID)
+	{
+		size_t sel_start = min(m_CapturedSelPosition, m_CaretSelPosition);
+		size_t sel_end = max(m_CapturedSelPosition, m_CaretSelPosition);
+
+		size_t line_start = m_NonInstantTextInfo[sel_start].line_index;
+		size_t line_end = m_NonInstantTextInfo[sel_end].line_index;
+
+		D3DXVECTOR2 selection_position = D3DXVECTOR2(0, 0);
+		D3DXVECTOR2 selection_size = D3DXVECTOR2(0, 0);
+		selection_size.y = GetLineHeight();
+
+		m_pSelectionBox->ClearAllRectangles();
+
+		if (line_start == line_end)
+		{
+			selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[sel_start].left;
+			selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[sel_start].top;
+
+			selection_size.x = m_NonInstantTextInfo[sel_end].left - m_NonInstantTextInfo[sel_start].left;
+
+			m_pSelectionBox->AddRectangle(selection_size, selection_position);
+		}
+		else
+		{
+			for (size_t iterator_line = line_start; iterator_line <= line_end; iterator_line++)
+			{
+				size_t line_start_glyph = GetLineStartGlyphIndex(iterator_line);
+				size_t line_end_glyph = GetLineEndGlyphIndex(iterator_line);
+
+				if (iterator_line == line_start)
+				{
+					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[sel_start].left;
+					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[sel_start].top;
+
+					selection_size.x = m_NonInstantTextInfo[line_end_glyph].left - m_NonInstantTextInfo[sel_start].left;
+				}
+				else if (iterator_line == line_end)
+				{
+					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[line_start_glyph].left;
+					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[line_start_glyph].top;
+
+					selection_size.x = m_NonInstantTextInfo[sel_end].left - m_NonInstantTextInfo[line_start_glyph].left;
+				}
+				else
+				{
+					// Select the whole line.
+					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[line_start_glyph].left;
+					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[line_start_glyph].top;
+
+					selection_size.x = m_NonInstantTextInfo[line_end_glyph].left - m_NonInstantTextInfo[line_start_glyph].left;
+				}
+
+				// Top & bottom constraint
+				if ((selection_position.y + selection_size.y >= m_ConstraintPosition.y)
+					&& (selection_position.y <= m_ConstraintPosition.y + m_ConstraintSize.y))
+				{
+					m_pSelectionBox->AddRectangle(selection_size, selection_position);
+				}
+
+			}
+		}
+	}
 }
 
 auto JWText::GetCaretSelPosition() const->const size_t

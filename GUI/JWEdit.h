@@ -9,7 +9,6 @@ namespace JWENGINE
 	class JWWindow;
 	class JWText;
 	class JWImageBox;
-	class JWRectangle;
 	// ***
 
 	class JWEdit final : public JWControl
@@ -48,7 +47,6 @@ namespace JWENGINE
 		static const size_t DEFAULT_CARET_INTERVAL = 30;
 
 		JWImageBox* m_pBackground;
-
 		JWText* m_pEditText;
 
 		D3DXVECTOR2 m_PaddedPosition;

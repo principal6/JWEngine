@@ -181,12 +181,7 @@ void JWRectangle::Draw()
 	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_MaxNumBox * 4, 0, m_MaxNumBox * 2);
 }
 
-void JWRectangle::SetRectangleAlpha(BYTE Alpha)
+void JWRectangle::SetRectangleColor(DWORD Color)
 {
-	SetColorAlpha(&m_RectangleColor, Alpha);
-}
-
-void JWRectangle::SetRectangleXRGB(DWORD Color)
-{
-	SetColorXRGB(&m_RectangleColor, Color);
+	m_RectangleColor = Color;
 }
