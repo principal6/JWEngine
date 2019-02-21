@@ -194,7 +194,7 @@ namespace JWENGINE
 		virtual auto GetScrollPosition() const->size_t { return 0; };
 
 		// [JWEdit]
-		virtual void SetUseMultiline(bool Value) {};
+		virtual void ShouldUseMultiline(bool Value) {};
 
 		// [JWListBox]
 		virtual void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0), D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0)) {};

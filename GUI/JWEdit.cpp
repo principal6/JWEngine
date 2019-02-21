@@ -26,6 +26,8 @@ JWEdit::JWEdit()
 
 	m_bIMEInput = false;
 	m_bIMECaretCaptured = false;
+
+	m_bUseMultiline = false;
 }
 
 auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
@@ -125,6 +127,22 @@ void JWEdit::Draw()
 
 void JWEdit::SetText(WSTRING Text)
 {
+	if (!m_bUseMultiline)
+	{
+		// IF,
+		// the text must be single-line,
+		// clip the text when the iterator first meets '\n' in the text.
+
+		for (size_t iterator_char = 0; iterator_char < Text.length(); iterator_char++)
+		{
+			if (Text[iterator_char] == '\n')
+			{
+				Text = Text.substr(0, iterator_char);
+				break;
+			}
+		}
+	}
+
 	JWControl::SetText(Text);
 
 	m_pEditText->UpdateNonInstantText(Text, m_PaddedPosition, m_PaddedSize);
@@ -151,6 +169,11 @@ void JWEdit::Focus()
 	JWControl::Focus();
 
 	m_CaretShowInterval = 0;
+}
+
+void JWEdit::ShouldUseMultiline(bool Value)
+{
+	m_bUseMultiline = Value;
 }
 
 PROTECTED void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
@@ -201,7 +224,10 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 		}
 		break;
 	case 13: // Enter
-		InsertCharacter(L'\n');
+		if (m_bUseMultiline)
+		{
+			InsertCharacter(L'\n');
+		}
 		break;
 	default:
 		break;

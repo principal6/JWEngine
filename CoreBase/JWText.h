@@ -116,18 +116,19 @@ namespace JWENGINE
 		void SetNonInstantTextGlyph(bool bIsLineFirstGlyph, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
 
 		auto GetLineWidth(const WSTRING* pLineText) const->float;
+		auto GetLineStartGlyphIndex(const size_t LineIndex)->size_t;
+		auto GetLineEndGlyphIndex(const size_t LineIndex)->size_t;
 
 	private:
 		static const DWORD DEFAULT_COLOR_FONT = D3DCOLOR_XRGB(255, 255, 255);
 		static const DWORD DEFAULT_COLOR_CARET = DEFAULT_COLOR_FONT;
 		static const DWORD DEFAULT_COLOR_BOX = D3DCOLOR_ARGB(0, 180, 180, 180);
-		static const float DEFAULT_SINGLE_LINE_STRIDE;
+		static const float DEFAULT_SIDE_CONSTRAINT_STRIDE;
 		static constexpr unsigned __int32 MAX_INSTANT_TEXT_LENGTH = 256;
 		static constexpr unsigned __int32 MAX_INSTANT_TEXT_VERTEX_SIZE = MAX_INSTANT_TEXT_LENGTH * 4;
 		static constexpr unsigned __int32 MAX_INSTANT_TEXT_INDEX_SIZE = MAX_INSTANT_TEXT_LENGTH * 2;
 
 		bool m_bIsInstantText;
-		bool m_bUseMultiline;
 		bool m_bUseAutomaticLineBreak;
 
 		const JWWindow* m_pJWWindow;

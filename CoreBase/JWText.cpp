@@ -5,12 +5,11 @@
 using namespace JWENGINE;
 
 // Static const
-const float JWText::DEFAULT_SINGLE_LINE_STRIDE = 50.0f;
+const float JWText::DEFAULT_SIDE_CONSTRAINT_STRIDE = 20.0f;
 
 JWText::JWText()
 {
 	m_bIsInstantText = true;
-	m_bUseMultiline = false;
 	m_bUseAutomaticLineBreak = false;
 
 	m_pJWWindow = nullptr;
@@ -609,6 +608,34 @@ PRIVATE void JWText::UpdateCaret()
 	{
 		m_CaretSelPosition = min(m_CaretSelPosition, m_NonInstantTextInfo.size() - 1);
 
+		// Left constraint
+		float caret_x = m_NonInstantTextInfo[m_CaretSelPosition].left + m_NonInstantTextOffset.x;
+		float constraint_left = m_ConstraintPosition.x;
+		if (caret_x < constraint_left)
+		{
+			float stride = constraint_left - caret_x;
+			stride = max(stride, DEFAULT_SIDE_CONSTRAINT_STRIDE);
+
+			m_NonInstantTextOffset.x += stride;
+			m_NonInstantTextOffset.x = min(m_NonInstantTextOffset.x, 0);
+		}
+
+		// Right constraint
+		float constraint_right = m_ConstraintPosition.x + m_ConstraintSize.x;
+		size_t current_line_index = m_NonInstantTextInfo[m_CaretSelPosition].line_index;
+		if (caret_x > constraint_right)
+		{
+			float stride = caret_x - constraint_right;
+			stride = max(stride, DEFAULT_SIDE_CONSTRAINT_STRIDE);
+
+			m_NonInstantTextOffset.x -= stride;
+
+			size_t line_end_glyph_index = GetLineEndGlyphIndex(current_line_index);
+			float line_end_glyph_x = m_NonInstantTextInfo[line_end_glyph_index].left;
+
+			m_NonInstantTextOffset.x = max(m_NonInstantTextOffset.x, constraint_right - line_end_glyph_x);
+		}
+
 		// Top constraint
 		float caret_top = m_NonInstantTextInfo[m_CaretSelPosition].top;
 		float constraint_top = m_ConstraintPosition.y;
@@ -625,7 +652,7 @@ PRIVATE void JWText::UpdateCaret()
 			m_NonInstantTextOffset.y = constraint_bottom - caret_bottom;
 		}
 
-		m_CaretPosition.x = m_NonInstantTextInfo[m_CaretSelPosition].left;
+		m_CaretPosition.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[m_CaretSelPosition].left;
 		m_CaretPosition.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[m_CaretSelPosition].top;
 
 		UpdateNonInstantTextVertices();
@@ -752,44 +779,55 @@ void JWText::MoveCaretToRight()
 	UpdateCaret();
 }
 
+PRIVATE auto JWText::GetLineStartGlyphIndex(const size_t LineIndex)->size_t
+{
+	size_t result = SIZE_T_INVALID;
+
+	for (size_t iterator_glyph = 0; iterator_glyph < m_NonInstantTextInfo.size(); iterator_glyph++)
+	{
+		if (m_NonInstantTextInfo[iterator_glyph].line_index == LineIndex)
+		{
+			result = iterator_glyph;
+			break;
+		}
+	}
+
+	return result;
+}
+
+PRIVATE auto JWText::GetLineEndGlyphIndex(const size_t LineIndex)->size_t
+{
+	size_t result = 0;
+
+	for (size_t iterator_glyph = 0; iterator_glyph < m_NonInstantTextInfo.size(); iterator_glyph++)
+	{
+		if (m_NonInstantTextInfo[iterator_glyph].line_index == LineIndex)
+		{
+			result = iterator_glyph;
+		}
+		else if (m_NonInstantTextInfo[iterator_glyph].line_index > LineIndex)
+		{
+			break;
+		}
+	}
+
+	return result;
+}
+
 void JWText::MoveCaretUp()
 {
 	size_t curr_index_in_line = m_NonInstantTextInfo[m_CaretSelPosition].glyph_index_in_line;
 	size_t curr_line_index = m_NonInstantTextInfo[m_CaretSelPosition].line_index;
-
-	if (!curr_line_index)
-	{
-		return;
-	}
-
+		if (!curr_line_index)
+		{
+			return;
+		}
 	size_t goal_line_index = curr_line_index - 1;
 
-	size_t line_start = 0;
-	size_t line_end = 0;
-	size_t line_length = 0;
-	for (size_t iterator_glyph = 0; iterator_glyph < m_CaretSelPosition; iterator_glyph++)
-	{
-		if (m_NonInstantTextInfo[iterator_glyph].line_index == goal_line_index)
-		{
-			line_start = iterator_glyph;
-			break;
-		}
-	}
-
-	for (size_t iterator_glyph = line_start; iterator_glyph < m_NonInstantTextInfo.size(); iterator_glyph++)
-	{
-		if (m_NonInstantTextInfo[iterator_glyph].line_index == goal_line_index)
-		{
-			line_end = iterator_glyph;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	line_length = line_end - line_start;
-
+	size_t line_start = GetLineStartGlyphIndex(goal_line_index);
+	size_t line_end = GetLineEndGlyphIndex(goal_line_index);
+	size_t line_length = line_end - line_start;
+	
 	curr_index_in_line = min(curr_index_in_line, line_length);
 
 	m_CaretSelPosition = line_start + curr_index_in_line;
@@ -803,39 +841,14 @@ void JWText::MoveCaretDown()
 	size_t curr_line_index = m_NonInstantTextInfo[m_CaretSelPosition].line_index;
 	size_t goal_line_index = curr_line_index + 1;
 
-	bool b_found_line = false;
-	size_t line_start = 0;
-	size_t line_end = 0;
-	size_t line_length = 0;
-	for (size_t iterator_glyph = m_CaretSelPosition; iterator_glyph < m_NonInstantTextInfo.size(); iterator_glyph++)
-	{
-		if (m_NonInstantTextInfo[iterator_glyph].line_index == goal_line_index)
+	size_t line_start = GetLineStartGlyphIndex(goal_line_index);
+		if (line_start == SIZE_T_INVALID)
 		{
-			line_start = iterator_glyph;
-			b_found_line = true;
-			break;
+			return;
 		}
-	}
-
-	if (!b_found_line)
-	{
-		return;
-	}
-
-	for (size_t iterator_glyph = line_start; iterator_glyph < m_NonInstantTextInfo.size(); iterator_glyph++)
-	{
-		if (m_NonInstantTextInfo[iterator_glyph].line_index == goal_line_index)
-		{
-			line_end = iterator_glyph;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	line_length = line_end - line_start;
-
+	size_t line_end = GetLineEndGlyphIndex(goal_line_index);
+	size_t line_length = line_end - line_start;
+	
 	curr_index_in_line = min(curr_index_in_line, line_length);
 	
 	m_CaretSelPosition = line_start + curr_index_in_line;

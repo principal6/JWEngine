@@ -29,6 +29,8 @@ namespace JWENGINE
 
 		void Focus() override;
 
+		void ShouldUseMultiline(bool Value) override;
+
 	protected:
 		// Events called in JWGUIWindow (friend class).
 		void WindowKeyDown(WPARAM VirtualKeyCode) override;
@@ -56,5 +58,7 @@ namespace JWENGINE
 		bool m_bIMEInput;
 		bool m_bIMECaretCaptured;
 		size_t m_IMECapturedCaret;
+
+		bool m_bUseMultiline;
 	};
 };

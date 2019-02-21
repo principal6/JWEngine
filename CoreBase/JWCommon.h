@@ -67,6 +67,7 @@ namespace JWENGINE
 
 	using TIndex = size_t;
 	static const size_t TIndex_NotSpecified = static_cast<size_t>(-1);
+	static const size_t SIZE_T_INVALID = static_cast<size_t>(-1);
 
 	static constexpr __int32 MAX_FILE_LEN = 260;
 
