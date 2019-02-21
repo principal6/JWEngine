@@ -392,7 +392,7 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 	UpdateCaret();
 }
 
-void JWText::UpdateNonInstantTextVertices()
+PRIVATE void JWText::UpdateNonInstantTextVertices()
 {
 	// Clear the vertex buffer's uv data.
 	for (size_t iterator = 0; iterator < m_NonInstantVertexData.VertexSize; iterator++)
@@ -435,24 +435,28 @@ void JWText::UpdateNonInstantTextVertices()
 			y1 = m_NonInstantTextOffset.y + glyph.drawing_top;
 			y2 = y1 + glyph.height;
 
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4].x = x1;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4].y = y1;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4].u = u1;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4].v = v1;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].x = x2;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].y = y1;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].u = u2;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].v = v1;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].x = x1;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].y = y2;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].u = u1;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].v = v2;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].x = x2;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].y = y2;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].u = u2;
-			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].v = v2;
+			// Side constraints
+			if ((x2 >= m_ConstraintPosition.x) && (x1 <= m_ConstraintPosition.x + m_ConstraintSize.x))
+			{
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4].x = x1;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4].y = y1;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4].u = u1;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4].v = v1;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].x = x2;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].y = y1;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].u = u2;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].v = v1;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].x = x1;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].y = y2;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].u = u1;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].v = v2;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].x = x2;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].y = y2;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].u = u2;
+				m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].v = v2;
 
-			visible_glyph_count++;
+				visible_glyph_count++;
+			}
 		}
 	}
 

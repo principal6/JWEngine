@@ -64,8 +64,7 @@ namespace JWENGINE
 		void Destroy();
 
 		void UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize);
-		void UpdateNonInstantTextVertices();
-
+		
 		// TODO: SetWatermark(), SetWatermarkColor()
 		void DrawNonInstantText();
 
@@ -112,6 +111,7 @@ namespace JWENGINE
 		auto UpdateVertexBuffer(SVertexData* pVertexData)->EError;
 		auto UpdateIndexBuffer(SIndexData* pIndexData)->EError;
 
+		void UpdateNonInstantTextVertices();
 		void UpdateCaret();
 
 		void SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
