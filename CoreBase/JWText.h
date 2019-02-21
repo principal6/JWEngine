@@ -93,11 +93,11 @@ namespace JWENGINE
 		void MoveCaretDown();
 		void MoveCaretTo(size_t SelPosition);
 
-		void ReleaseSelection();
 		void SelectToLeft();
 		void SelectToRight();
 		void SelectUp();
 		void SelectDown();
+		void ReleaseSelection();
 
 		auto GetCaretSelPosition() const->const size_t;
 		auto GetSelectionStart() const->const size_t;
