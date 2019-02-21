@@ -623,13 +623,17 @@ PRIVATE void JWText::UpdateCaret()
 	{
 		m_CaretSelPosition = min(m_CaretSelPosition, m_NonInstantTextInfo.size() - 1);
 
+		// This is needed in case m_ConstraintSize.x is smaller than DEFAULT_SIDE_CONSTRAINT_STRIDE.
+		float default_side_stride = DEFAULT_SIDE_CONSTRAINT_STRIDE;
+		default_side_stride = min(default_side_stride, m_ConstraintSize.x);
+
 		// Left constraint
 		float caret_x = m_NonInstantTextInfo[m_CaretSelPosition].left + m_NonInstantTextOffset.x;
 		float constraint_left = m_ConstraintPosition.x;
 		if (caret_x < constraint_left)
 		{
 			float stride = constraint_left - caret_x;
-			stride = max(stride, DEFAULT_SIDE_CONSTRAINT_STRIDE);
+			stride = max(stride, default_side_stride);
 
 			m_NonInstantTextOffset.x += stride;
 			m_NonInstantTextOffset.x = min(m_NonInstantTextOffset.x, 0);
@@ -641,7 +645,7 @@ PRIVATE void JWText::UpdateCaret()
 		if (caret_x > constraint_right)
 		{
 			float stride = caret_x - constraint_right;
-			stride = max(stride, DEFAULT_SIDE_CONSTRAINT_STRIDE);
+			stride = max(stride, default_side_stride);
 
 			m_NonInstantTextOffset.x -= stride;
 

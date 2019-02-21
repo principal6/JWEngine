@@ -92,7 +92,7 @@ int main()
 
 	THandle edit1 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(100, 140), D3DXVECTOR2(80, 30));
 	pMainGUIWindow->GetControlPtr(edit1)->ShouldUseMultiline(true);
-	pMainGUIWindow->GetControlPtr(edit1)->ShouldUseAutomaticLineBreak(true);
+	pMainGUIWindow->GetControlPtr(edit1)->ShouldUseAutomaticLineBreak(false);
 	//pMainGUIWindow->GetControlPtr(edit1)->SetText(L"ABCDE\nfg\nHIJKLMNOP");
 	pMainGUIWindow->GetControlPtr(edit1)->SetText(L"This is JWEdit control.\nTest it!\nThird line it is!\nAnd forth this is.");
 
