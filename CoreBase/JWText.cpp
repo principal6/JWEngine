@@ -1017,6 +1017,8 @@ PRIVATE void JWText::UpdateSelectionBox()
 
 		if (line_start == line_end)
 		{
+			// Single-line selection.
+
 			selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[sel_start].left;
 			selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[sel_start].top;
 
@@ -1026,6 +1028,8 @@ PRIVATE void JWText::UpdateSelectionBox()
 		}
 		else
 		{
+			// Multi-line selection.
+
 			for (size_t iterator_line = line_start; iterator_line <= line_end; iterator_line++)
 			{
 				size_t line_start_glyph = GetLineStartGlyphIndex(iterator_line);
@@ -1033,6 +1037,7 @@ PRIVATE void JWText::UpdateSelectionBox()
 
 				if (iterator_line == line_start)
 				{
+					// Select from sel_start to line_end_glyph.
 					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[sel_start].left;
 					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[sel_start].top;
 
@@ -1040,6 +1045,7 @@ PRIVATE void JWText::UpdateSelectionBox()
 				}
 				else if (iterator_line == line_end)
 				{
+					// Select from line_start_glyph to sel_end.
 					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[line_start_glyph].left;
 					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[line_start_glyph].top;
 
@@ -1047,7 +1053,9 @@ PRIVATE void JWText::UpdateSelectionBox()
 				}
 				else
 				{
-					// Select the whole line.
+					// IF,
+					// this line isn't the start line nor the end line,
+					// select the whole line.
 					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[line_start_glyph].left;
 					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[line_start_glyph].top;
 
