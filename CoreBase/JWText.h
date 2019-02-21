@@ -52,6 +52,9 @@ namespace JWENGINE
 		JWText();
 		~JWText() {};
 
+		// TODO: add SetWatermark(), SetWatermarkColor()
+		// TODO: add MoveHome(), MoveEnd(), SelectHome(), SelectEnd()
+
 		// Create instant-text JWText.
 		// A 'JWGUIWindow' must have one instant-text JWText for its controls.
 		auto CreateInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError;
@@ -65,8 +68,6 @@ namespace JWENGINE
 		void Destroy();
 
 		void UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize);
-		
-		// TODO: SetWatermark(), SetWatermarkColor()
 		void DrawNonInstantText();
 
 		// Draw insant text to the window.
