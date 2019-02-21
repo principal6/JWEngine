@@ -334,10 +334,12 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 	{
 		wchar_t Char = 0;
 
+		// If iterator_char meets the end of the Text('\0'), Char must be 0.
 		if (iterator_char < Text.length())
 		{
 			Char = Text[iterator_char];
 		}
+
 		curr_glyph_info.chars_id = GetCharsIDFromCharacter(Char);
 
 		// In order to make '\n' invisible to users.
@@ -370,13 +372,6 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 
 		prev_glyph_info = curr_glyph_info;
 	}
-
-	// Insert the final null character as well!
-	/*
-	curr_glyph_info.chars_id = 0;
-	curr_glyph_info.left = curr_glyph_info.left + curr_glyph_info.width;
-	m_NonInstantTextInfo.push_back(curr_glyph_info);
-	*/
 
 	UpdateNonInstantTextVertices();
 
