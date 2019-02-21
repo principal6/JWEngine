@@ -30,6 +30,7 @@ namespace JWENGINE
 		void Focus() override;
 
 		void ShouldUseMultiline(bool Value) override;
+		void ShouldUseAutomaticLineBreak(bool Value) override;
 
 	protected:
 		// Events called in JWGUIWindow (friend class).

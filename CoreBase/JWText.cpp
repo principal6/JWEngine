@@ -349,6 +349,21 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 
 		SetNonInstantTextGlyph(b_is_line_first_glyph, &curr_glyph_info, &prev_glyph_info);
 
+		if (m_bUseAutomaticLineBreak)
+		{
+			if (curr_glyph_info.left + curr_glyph_info.width >= m_ConstraintPosition.x + m_ConstraintSize.x)
+			{
+				curr_glyph_info.line_index++;
+
+				b_is_line_first_glyph = true;
+				curr_glyph_info.left = Position.x;
+				curr_glyph_info.top += GetLineHeight();
+				curr_glyph_info.glyph_index_in_line = 0;
+
+				SetNonInstantTextGlyph(b_is_line_first_glyph, &curr_glyph_info, &prev_glyph_info);
+			}
+		}
+
 		m_NonInstantTextInfo.push_back(curr_glyph_info);
 
 		curr_glyph_info.glyph_index_in_line++;
@@ -859,4 +874,9 @@ void JWText::MoveCaretDown()
 auto JWText::GetCaretSelPosition() const->const size_t
 {
 	return m_CaretSelPosition;
+}
+
+void JWText::ShouldUseAutomaticLineBreak(bool Value)
+{
+	m_bUseAutomaticLineBreak = Value;
 }

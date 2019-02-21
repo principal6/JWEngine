@@ -176,6 +176,11 @@ void JWEdit::ShouldUseMultiline(bool Value)
 	m_bUseMultiline = Value;
 }
 
+void JWEdit::ShouldUseAutomaticLineBreak(bool Value)
+{
+	m_pEditText->ShouldUseAutomaticLineBreak(Value);
+}
+
 PROTECTED void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 {
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();

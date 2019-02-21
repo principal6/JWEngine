@@ -196,6 +196,9 @@ namespace JWENGINE
 		// [JWEdit]
 		virtual void ShouldUseMultiline(bool Value) {};
 
+		// [JWEdit]
+		virtual void ShouldUseAutomaticLineBreak(bool Value) {};
+
 		// [JWListBox]
 		virtual void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0), D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0)) {};
 		
