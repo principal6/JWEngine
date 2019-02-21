@@ -28,6 +28,9 @@ JWText::JWText()
 
 	m_pSelectionBox = nullptr;
 	m_CapturedSelPosition = SIZE_T_INVALID;
+	m_SelectionStart = 0;
+	m_SelectionEnd = 0;
+	m_bIsTextSelected = false;
 
 	m_NonInstantTextOffset = D3DXVECTOR2(0, 0);
 }
@@ -812,6 +815,8 @@ void JWText::MoveCaretTo(size_t SelPosition)
 	m_CaretSelPosition = SelPosition;
 
 	UpdateCaret();
+
+	ReleaseSelection();
 }
 
 void JWText::MoveCaretToLeft()
@@ -913,6 +918,8 @@ void JWText::ReleaseSelection()
 	m_CapturedSelPosition = SIZE_T_INVALID;
 
 	m_pSelectionBox->ClearAllRectangles();
+	
+	m_bIsTextSelected = false;
 }
 
 void JWText::SelectToLeft()
@@ -991,8 +998,13 @@ PRIVATE void JWText::UpdateSelectionBox()
 {
 	if (m_CapturedSelPosition != SIZE_T_INVALID)
 	{
+		m_bIsTextSelected = true;
+
 		size_t sel_start = min(m_CapturedSelPosition, m_CaretSelPosition);
 		size_t sel_end = max(m_CapturedSelPosition, m_CaretSelPosition);
+
+		m_SelectionStart = sel_start;
+		m_SelectionEnd = sel_end;
 
 		size_t line_start = m_NonInstantTextInfo[sel_start].line_index;
 		size_t line_end = m_NonInstantTextInfo[sel_end].line_index;
@@ -1062,4 +1074,19 @@ auto JWText::GetCaretSelPosition() const->const size_t
 void JWText::ShouldUseAutomaticLineBreak(bool Value)
 {
 	m_bUseAutomaticLineBreak = Value;
+}
+
+auto JWText::GetSelectionStart() const->const size_t
+{
+	return m_SelectionStart;
+}
+
+auto JWText::GetSelectionEnd() const->const size_t
+{
+	return m_SelectionEnd;
+}
+
+auto JWText::IsTextSelected() const->const bool
+{
+	return m_bIsTextSelected;
 }

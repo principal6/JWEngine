@@ -100,6 +100,9 @@ namespace JWENGINE
 		void SelectDown();
 
 		auto GetCaretSelPosition() const->const size_t;
+		auto GetSelectionStart() const->const size_t;
+		auto GetSelectionEnd() const->const size_t;
+		auto IsTextSelected() const->const bool;
 
 		void ShouldUseAutomaticLineBreak(bool Value);
 
@@ -177,6 +180,9 @@ namespace JWENGINE
 
 		JWRectangle* m_pSelectionBox;
 		size_t m_CapturedSelPosition;
+		size_t m_SelectionStart;
+		size_t m_SelectionEnd;
+		bool m_bIsTextSelected;
 
 		D3DXVECTOR2 m_NonInstantTextOffset;
 	};

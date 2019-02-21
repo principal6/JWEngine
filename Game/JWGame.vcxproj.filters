@@ -39,6 +39,9 @@
     <ClCompile Include="..\CoreBase\JWText.cpp">
       <Filter>CoreBase</Filter>
     </ClCompile>
+    <ClCompile Include="..\CoreBase\JWRectangle.cpp">
+      <Filter>CoreBase</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="JWGame.h" />
@@ -79,6 +82,9 @@
       <Filter>CoreBase</Filter>
     </ClInclude>
     <ClInclude Include="..\CoreBase\JWText.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWRectangle.h">
       <Filter>CoreBase</Filter>
     </ClInclude>
   </ItemGroup>

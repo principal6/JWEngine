@@ -40,6 +40,7 @@ namespace JWENGINE
 	private:
 		void InsertCharacter(wchar_t Char);
 		void EraseCharacter(size_t SelPosition);
+		void EraseSelection();
 
 	private:
 		static const DWORD DEFAULT_COLOR_BACKGROUND_EDIT = DEFAULT_COLOR_ALMOST_BLACK;

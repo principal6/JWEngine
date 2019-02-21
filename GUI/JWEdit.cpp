@@ -252,7 +252,15 @@ PROTECTED void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 		m_CaretShowInterval = 0;
 		break;
 	case VK_DELETE:
-		EraseCharacter(curr_caret_sel_position + 1);
+		if (m_pEditText->IsTextSelected())
+		{
+			EraseSelection();
+			m_pEditText->MoveCaretToLeft();
+		}
+		else
+		{
+			EraseCharacter(curr_caret_sel_position + 1);
+		}
 		break;
 	default:
 		break;
@@ -263,22 +271,38 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 {
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
 
+	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
+
 	switch (Char)
 	{
 	case 8: // Backspace
-		if (curr_caret_sel_position)
+		if (m_pEditText->IsTextSelected())
 		{
-			EraseCharacter(curr_caret_sel_position);
-
-			if (curr_caret_sel_position <= m_Text.length())
+			EraseSelection();
+		}
+		else
+		{
+			if (curr_caret_sel_position)
 			{
-				m_pEditText->MoveCaretToLeft();
+				EraseCharacter(curr_caret_sel_position);
+
+				if (curr_caret_sel_position <= m_Text.length())
+				{
+					m_pEditText->MoveCaretToLeft();
+				}
 			}
 		}
+		
 		break;
 	case 13: // Enter
 		if (m_bUseMultiline)
 		{
+			if (m_pEditText->IsTextSelected())
+			{
+				EraseSelection();
+				m_pEditText->MoveCaretToLeft();
+			}
+
 			InsertCharacter(L'\n');
 		}
 		break;
@@ -290,6 +314,12 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 	{
 		if (!m_bIMEInput)
 		{
+			if (m_pEditText->IsTextSelected())
+			{
+				EraseSelection();
+				m_pEditText->MoveCaretToLeft();
+			}
+
 			InsertCharacter(static_cast<wchar_t>(Char));
 		}
 		else
@@ -368,6 +398,20 @@ PRIVATE void JWEdit::EraseCharacter(size_t SelPosition)
 	m_Text = m_Text.substr(0, SelPosition - 1) + m_Text.substr(SelPosition);
 	
 	m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+
+	m_CaretShowInterval = 0;
+}
+
+PRIVATE void JWEdit::EraseSelection()
+{
+	size_t sel_start = m_pEditText->GetSelectionStart();
+	size_t sel_end = m_pEditText->GetSelectionEnd();
+
+	m_Text = m_Text.substr(0, sel_start) + m_Text.substr(sel_end);
+
+	m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+
+	m_pEditText->MoveCaretTo(sel_start + 1);
 
 	m_CaretShowInterval = 0;
 }
