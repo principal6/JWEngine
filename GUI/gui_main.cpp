@@ -90,8 +90,13 @@ int main()
 		->SetAtlasUV(D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32));
 	pMainGUIWindow->GetControlPtr(image1)->SetSize(D3DXVECTOR2(100, 20));
 
-	THandle edit1 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(100, 140), D3DXVECTOR2(160, 50),
-		L"This is JWEdit control");
+	THandle edit1 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(100, 140), D3DXVECTOR2(80, 30),
+		L"ABCDE\nfg\nHIJKLMNOP");
+
+	/*
+	THandle edit1 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(100, 140), D3DXVECTOR2(80, 30),
+		L"This is JWEdit control.\nTest it.\nThird line it is!\nAnd forth this is.");
+	*/
 
 	/*
 	THandle edit2 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(100, 200), D3DXVECTOR2(160, 100),

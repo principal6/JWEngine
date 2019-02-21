@@ -7,6 +7,7 @@ namespace JWENGINE
 	// ***
 	// *** Forward declaration ***
 	class JWWindow;
+	class JWLine;
 
 	struct SVertexImage;
 	struct SIndex3;
@@ -33,14 +34,15 @@ namespace JWENGINE
 	struct SGlyphInfo
 	{
 		size_t chars_id;
-		float x;
-		float y;
-		float y_for_texture;
+		float left;
+		float top;
+		float drawing_top;
 		float width;
 		float height;
 		size_t line_index;
+		size_t glyph_index_in_line;
 
-		SGlyphInfo() : chars_id(0), x(0), y(0), y_for_texture(0), width(0), height(0), line_index(0) {};
+		SGlyphInfo() : chars_id(0), left(0), top(0), drawing_top(0), width(0), height(0), line_index(0), glyph_index_in_line(0) {};
 	};
 
 	class JWText final : public JWBMFontParser
@@ -73,12 +75,20 @@ namespace JWENGINE
 		void DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position,
 			const EHorizontalAlignment HorizontalAlignment = EHorizontalAlignment::Left);
 
+		void UpdateCaret();
+		void DrawCaret();
+
 		// Get pointer to the font texture.
 		// This function needs to be used when you call CreateNonInstantText().
 		auto GetFontTexturePtr() const-> const LPDIRECT3DTEXTURE9;
 
 		// Every line's height is equal to the font's size (ms_FontData.Info.Size).
 		auto GetLineHeight() const->float;
+
+		void MoveCaretToLeft(const size_t Stride = 1);
+		void MoveCaretToRight(const size_t Stride = 1);
+		void MoveCaretUp();
+		void MoveCaretDown();
 
 	private:
 		// @warning: the font texture must be created only once per JWGUIWindow (i.e. per D3D device).
@@ -98,11 +108,13 @@ namespace JWENGINE
 		auto UpdateIndexBuffer(SIndexData* pIndexData)->EError;
 
 		void SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
+		void SetNonInstantTextGlyph(bool bIsLineFirstGlyph, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
 
 		auto GetLineWidth(const WSTRING* pLineText) const->float;
 
 	private:
 		static const DWORD DEFAULT_COLOR_FONT = D3DCOLOR_XRGB(255, 255, 255);
+		static const DWORD DEFAULT_COLOR_CARET = DEFAULT_COLOR_FONT;
 		static const DWORD DEFAULT_COLOR_BOX = D3DCOLOR_ARGB(0, 180, 180, 180);
 		static const float DEFAULT_SINGLE_LINE_STRIDE;
 		static constexpr unsigned __int32 MAX_INSTANT_TEXT_LENGTH = 256;
@@ -137,8 +149,10 @@ namespace JWENGINE
 		VECTOR<SGlyphInfo> m_NonInstantTextInfo;
 
 		bool m_bShowCaret;
+		JWLine* m_pCaretLine;
 		size_t m_CaretSelPosition;
 		D3DXVECTOR2 m_CaretPosition;
+		D3DXVECTOR2 m_CaretSize;
 
 		D3DXVECTOR2 m_NonInstantTextOffset;
 	};

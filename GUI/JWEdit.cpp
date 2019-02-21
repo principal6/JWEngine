@@ -11,10 +11,18 @@ JWEdit::JWEdit()
 {
 	m_bShouldDrawBorder = true;
 
+	// FOR DEBUGGING!!!
+	m_bShouldUseViewport = false;
+
 	// Set default color for every control state.
 	m_Color_Normal = DEFAULT_COLOR_BACKGROUND_EDIT;
 	m_Color_Hover = DEFAULT_COLOR_BACKGROUND_EDIT;
 	m_Color_Pressed = DEFAULT_COLOR_BACKGROUND_EDIT;
+
+	m_PaddedPosition = D3DXVECTOR2(0, 0);
+	m_PaddedSize = D3DXVECTOR2(0, 0);
+
+	m_CaretShowInterval = 0;
 }
 
 auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
@@ -41,8 +49,6 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowShar
 	{
 		if (JW_FAILED(m_pEditText->CreateNonInstantText(m_pSharedData->pWindow, &m_pSharedData->BaseDir, m_pSharedData->pText->GetFontTexturePtr())))
 			return EError::TEXT_NOT_CREATED;
-
-
 	}
 	else
 	{
@@ -50,11 +56,11 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowShar
 	}
 
 	// Set control type.
-	m_ControlType = EControlType::Label;
+	m_ControlType = EControlType::Edit;
 
 	// Set control's size and position.
-	SetSize(Size);
 	SetPosition(Position);
+	SetSize(Size);
 
 	return EError::OK;
 }
@@ -90,5 +96,81 @@ void JWEdit::Draw()
 
 	m_pBackground->Draw();
 
+	m_pEditText->DrawNonInstantText();
+
+	m_pEditText->UpdateCaret();
+
+	// Caret blinks.
+	if (m_bHasFocus)
+	{
+		if (m_CaretShowInterval < DEFAULT_CARET_INTERVAL)
+		{
+			m_pEditText->DrawCaret();
+		}
+		else
+		{
+			if (m_CaretShowInterval >= DEFAULT_CARET_INTERVAL * 2)
+			{
+				m_CaretShowInterval = 0;
+			}
+		}
+		m_CaretShowInterval++;
+	}
+
 	JWControl::EndDrawing();
+}
+
+void JWEdit::SetText(WSTRING Text)
+{
+	JWControl::SetText(Text);
+
+	m_pEditText->UpdateNonInstantText(Text, m_PaddedPosition, m_PaddedSize);
+}
+
+void JWEdit::SetPosition(D3DXVECTOR2 Position)
+{
+	JWControl::SetPosition(Position);
+
+	m_PaddedPosition.x = Position.x + DEFAULT_EDIT_PADDING;
+	m_PaddedPosition.y = Position.y + DEFAULT_EDIT_PADDING;
+}
+
+void JWEdit::SetSize(D3DXVECTOR2 Size)
+{
+	JWControl::SetSize(Size);
+
+	m_PaddedSize.x = Size.x - DEFAULT_EDIT_PADDING * 2;
+	m_PaddedSize.y = Size.y - DEFAULT_EDIT_PADDING * 2;
+}
+
+void JWEdit::Focus()
+{
+	JWControl::Focus();
+
+	m_CaretShowInterval = 0;
+}
+
+void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
+{
+	switch (VirtualKeyCode)
+	{
+	case VK_LEFT:
+		m_pEditText->MoveCaretToLeft();
+		m_CaretShowInterval = 0;
+		break;
+	case VK_RIGHT:
+		m_pEditText->MoveCaretToRight();
+		m_CaretShowInterval = 0;
+		break;
+	case VK_UP:
+		m_pEditText->MoveCaretUp();
+		m_CaretShowInterval = 0;
+		break;
+	case VK_DOWN:
+		m_pEditText->MoveCaretDown();
+		m_CaretShowInterval = 0;
+		break;
+	default:
+		break;
+	}
 }

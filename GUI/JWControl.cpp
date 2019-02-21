@@ -398,6 +398,8 @@ void JWControl::SetBackgroundColor(DWORD Color)
 void JWControl::Focus()
 {
 	m_bHasFocus = true;
+
+	m_pBorderLine->SetBoxColor(DEFAULT_COLOR_BORDER_ACTIVE);
 }
 
 void JWControl::KillFocus()
@@ -405,6 +407,8 @@ void JWControl::KillFocus()
 	m_bHasFocus = false;
 
 	m_ControlState = EControlState::Normal;
+
+	m_pBorderLine->SetBoxColor(DEFAULT_COLOR_BORDER);
 }
 
 void JWControl::SetTextAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment)
