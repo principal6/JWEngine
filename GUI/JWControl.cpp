@@ -360,6 +360,10 @@ void JWControl::SetPosition(D3DXVECTOR2 Position)
 
 void JWControl::SetSize(D3DXVECTOR2 Size)
 {
+	// Limit minimum size.
+	Size.x = max(Size.x, 0);
+	Size.y = max(Size.y, 0);
+
 	m_Size = Size;
 
 	SetTextAlignment(m_HorizontalAlignment, m_VerticalAlignment);

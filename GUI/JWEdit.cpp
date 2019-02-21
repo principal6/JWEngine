@@ -160,6 +160,7 @@ void JWEdit::SetPosition(D3DXVECTOR2 Position)
 
 void JWEdit::SetSize(D3DXVECTOR2 Size)
 {
+	// Limit minimum size.
 	Size.y = max(Size.y, m_pEditText->GetLineHeight() + DEFAULT_EDIT_PADDING * 2);
 
 	JWControl::SetSize(Size);
