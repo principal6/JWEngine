@@ -64,6 +64,7 @@ namespace JWENGINE
 		void Destroy();
 
 		void UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize);
+		void UpdateNonInstantTextVertices();
 
 		// TODO: SetWatermark(), SetWatermarkColor()
 		void DrawNonInstantText();
@@ -75,7 +76,6 @@ namespace JWENGINE
 		void DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position,
 			const EHorizontalAlignment HorizontalAlignment = EHorizontalAlignment::Left);
 
-		void UpdateCaret();
 		void DrawCaret();
 
 		// Get pointer to the font texture.
@@ -85,8 +85,8 @@ namespace JWENGINE
 		// Every line's height is equal to the font's size (ms_FontData.Info.Size).
 		auto GetLineHeight() const->float;
 
-		void MoveCaretToLeft(const size_t Stride = 1);
-		void MoveCaretToRight(const size_t Stride = 1);
+		void MoveCaretToLeft();
+		void MoveCaretToRight();
 		void MoveCaretUp();
 		void MoveCaretDown();
 		void MoveCaretTo(size_t SelPosition);
@@ -109,6 +109,8 @@ namespace JWENGINE
 		auto CreateIndexBuffer(SIndexData* pIndexData)->EError;
 		auto UpdateVertexBuffer(SVertexData* pVertexData)->EError;
 		auto UpdateIndexBuffer(SIndexData* pIndexData)->EError;
+
+		void UpdateCaret();
 
 		void SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
 		void SetNonInstantTextGlyph(bool bIsLineFirstGlyph, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
@@ -151,11 +153,13 @@ namespace JWENGINE
 		
 		VECTOR<SGlyphInfo> m_NonInstantTextInfo;
 
-		bool m_bShowCaret;
-		JWLine* m_pCaretLine;
-		size_t m_CaretSelPosition;
+		D3DXVECTOR2 m_ConstraintPosition;
+		D3DXVECTOR2 m_ConstraintSize;
+
 		D3DXVECTOR2 m_CaretPosition;
 		D3DXVECTOR2 m_CaretSize;
+		JWLine* m_pCaretLine;
+		size_t m_CaretSelPosition;
 
 		D3DXVECTOR2 m_NonInstantTextOffset;
 	};

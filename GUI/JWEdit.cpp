@@ -101,7 +101,7 @@ void JWEdit::Draw()
 
 	m_pEditText->DrawNonInstantText();
 
-	m_pEditText->UpdateCaret();
+	
 
 	// Caret blinks.
 	if (m_bHasFocus)
@@ -193,7 +193,11 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 		if (curr_caret_sel_position)
 		{
 			EraseCharacter(curr_caret_sel_position);
-			m_pEditText->MoveCaretToLeft();
+
+			if (curr_caret_sel_position <= m_Text.length())
+			{
+				m_pEditText->MoveCaretToLeft();
+			}
 		}
 		break;
 	case 13: // Enter

@@ -18,7 +18,9 @@ JWText::JWText()
 	m_pDevice = nullptr;
 	m_pFontTexture = nullptr;
 
-	m_bShowCaret = false;
+	m_ConstraintPosition = D3DXVECTOR2(0, 0);
+	m_ConstraintSize = D3DXVECTOR2(0, 0);
+
 	m_CaretSelPosition = 0;
 	m_CaretPosition = D3DXVECTOR2(0, 0);
 	m_CaretSize = D3DXVECTOR2(0, 0);
@@ -313,12 +315,9 @@ PRIVATE auto JWText::UpdateIndexBuffer(SIndexData* pIndexData)->EError
 
 void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize)
 {
-	// Clear the vertex buffer's uv data.
-	for (size_t iterator = 0; iterator < m_NonInstantVertexData.VertexSize; iterator++)
-	{
-		m_NonInstantVertexData.Vertices[iterator].u = 0;
-		m_NonInstantVertexData.Vertices[iterator].v = 0;
-	}
+	m_ConstraintPosition = Position;
+	m_ConstraintSize = AreaSize;
+	
 	m_NonInstantTextInfo.clear();
 
 	// Convert each character of the text to Chars_ID in ms_FontData
@@ -330,11 +329,15 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 		curr_glyph_info.glyph_index_in_line = 0;
 	SGlyphInfo prev_glyph_info;
 	bool b_is_line_first_glyph = true;
-	bool b_visible_glyph_start_index_set = false;
-	size_t visible_glyph_start_index = 0;
 
-	for (const wchar_t& Char : Text)
+	for (size_t iterator_char = 0; iterator_char <= Text.length(); iterator_char++)
 	{
+		wchar_t Char = 0;
+
+		if (iterator_char < Text.length())
+		{
+			Char = Text[iterator_char];
+		}
 		curr_glyph_info.chars_id = GetCharsIDFromCharacter(Char);
 
 		// In order to make '\n' invisible to users.
@@ -365,71 +368,83 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 			b_is_line_first_glyph = false;
 		}
 
-		// Top constraint
-		if (!b_visible_glyph_start_index_set)
-		{
-			if (curr_glyph_info.top + GetLineHeight() >= Position.y)
-			{
-				visible_glyph_start_index = m_NonInstantTextInfo.size() - 1;
-			}
-			b_visible_glyph_start_index_set = true;
-		}
-
 		prev_glyph_info = curr_glyph_info;
 	}
 
 	// Insert the final null character as well!
+	/*
 	curr_glyph_info.chars_id = 0;
 	curr_glyph_info.left = curr_glyph_info.left + curr_glyph_info.width;
 	m_NonInstantTextInfo.push_back(curr_glyph_info);
+	*/
 
+	UpdateNonInstantTextVertices();
+
+	UpdateCaret();
+}
+
+void JWText::UpdateNonInstantTextVertices()
+{
+	// Clear the vertex buffer's uv data.
+	for (size_t iterator = 0; iterator < m_NonInstantVertexData.VertexSize; iterator++)
+	{
+		m_NonInstantVertexData.Vertices[iterator].u = 0;
+		m_NonInstantVertexData.Vertices[iterator].v = 0;
+	}
 
 	// Set vertex data (but only for the visible glyphs).
 	size_t visible_glyph_count = 0;
 	float u1 = 0, u2 = 0, v1 = 0, v2 = 0;
 	float x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-	for (size_t iterator_glyph = visible_glyph_start_index; iterator_glyph < m_NonInstantTextInfo.size(); iterator_glyph++)
+	float constraint_top = m_ConstraintPosition.y - m_NonInstantTextOffset.y;
+	float constraint_bottom = constraint_top + m_ConstraintSize.y;
+
+	for (size_t iterator_glyph = 0; iterator_glyph < m_NonInstantTextInfo.size(); iterator_glyph++)
 	{
 		const SGlyphInfo& glyph = m_NonInstantTextInfo[iterator_glyph];
 
 		// Bottom constraint
-		if (glyph.top >= Position.y + AreaSize.y)
+		if (glyph.top > constraint_bottom)
 		{
 			break;
 		}
 
-		// Set u, v values
-		u1 = static_cast<float>(ms_FontData.Chars[glyph.chars_id].X) / static_cast<float>(ms_FontData.Common.ScaleW);
-		u2 = u1 + static_cast<float>(ms_FontData.Chars[glyph.chars_id].Width) / static_cast<float>(ms_FontData.Common.ScaleW);
+		// Top constraint
+		if (glyph.top + glyph.height >= constraint_top)
+		{
+			// Set u, v values
+			u1 = static_cast<float>(ms_FontData.Chars[glyph.chars_id].X) / static_cast<float>(ms_FontData.Common.ScaleW);
+			u2 = u1 + static_cast<float>(ms_FontData.Chars[glyph.chars_id].Width) / static_cast<float>(ms_FontData.Common.ScaleW);
 
-		v1 = static_cast<float>(ms_FontData.Chars[glyph.chars_id].Y) / static_cast<float>(ms_FontData.Common.ScaleH);
-		v2 = v1 + static_cast<float>(ms_FontData.Chars[glyph.chars_id].Height) / static_cast<float>(ms_FontData.Common.ScaleH);
+			v1 = static_cast<float>(ms_FontData.Chars[glyph.chars_id].Y) / static_cast<float>(ms_FontData.Common.ScaleH);
+			v2 = v1 + static_cast<float>(ms_FontData.Chars[glyph.chars_id].Height) / static_cast<float>(ms_FontData.Common.ScaleH);
 
-		// Set x, y values
-		x1 = glyph.left;
-		x2 = glyph.left + glyph.width;
+			// Set x, y values
+			x1 = m_NonInstantTextOffset.x + glyph.left;
+			x2 = x1 + glyph.width;
 
-		y1 = glyph.drawing_top;
-		y2 = glyph.drawing_top + glyph.height;
+			y1 = m_NonInstantTextOffset.y + glyph.drawing_top;
+			y2 = y1 + glyph.height;
 
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4].x = x1;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4].y = y1;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4].u = u1;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4].v = v1;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].x = x2;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].y = y1;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].u = u2;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].v = v1;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].x = x1;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].y = y2;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].u = u1;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].v = v2;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].x = x2;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].y = y2;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].u = u2;
-		m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].v = v2;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4].x = x1;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4].y = y1;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4].u = u1;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4].v = v1;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].x = x2;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].y = y1;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].u = u2;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 1].v = v1;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].x = x1;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].y = y2;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].u = u1;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 2].v = v2;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].x = x2;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].y = y2;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].u = u2;
+			m_NonInstantVertexData.Vertices[visible_glyph_count * 4 + 3].v = v2;
 
-		visible_glyph_count++;
+			visible_glyph_count++;
+		}
 	}
 
 	// Update non-instant-text vertex buffer.
@@ -593,16 +608,32 @@ void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position,
 	m_pDevice->SetTexture(0, nullptr);
 }
 
-void JWText::UpdateCaret()
+PRIVATE void JWText::UpdateCaret()
 {
-	//SelPosition = min(SelPosition, m_NonInstantTextInfo.size());
-	
 	if (m_pCaretLine)
 	{
 		m_CaretSelPosition = min(m_CaretSelPosition, m_NonInstantTextInfo.size() - 1);
 
+		// Top constraint
+		float caret_top = m_NonInstantTextInfo[m_CaretSelPosition].top;
+		float constraint_top = m_ConstraintPosition.y;
+		if (caret_top <= constraint_top)
+		{
+			m_NonInstantTextOffset.y = constraint_top - caret_top;
+		}
+
+		// Bottom constraint
+		float caret_bottom = m_NonInstantTextInfo[m_CaretSelPosition].top + m_CaretSize.y;
+		float constraint_bottom = m_ConstraintPosition.y + m_ConstraintSize.y;
+		if (caret_bottom >= constraint_bottom)
+		{
+			m_NonInstantTextOffset.y = constraint_bottom - caret_bottom;
+		}
+
 		m_CaretPosition.x = m_NonInstantTextInfo[m_CaretSelPosition].left;
-		m_CaretPosition.y = m_NonInstantTextInfo[m_CaretSelPosition].top;
+		m_CaretPosition.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[m_CaretSelPosition].top;
+
+		UpdateNonInstantTextVertices();
 
 		m_pCaretLine->SetLine(0, m_CaretPosition, m_CaretSize);
 	}
@@ -704,24 +735,26 @@ PRIVATE auto JWText::GetLineWidth(const WSTRING* pLineText) const->float
 
 void JWText::MoveCaretTo(size_t SelPosition)
 {
-	SelPosition = min(SelPosition, m_NonInstantTextInfo.size() - 1);
-
 	m_CaretSelPosition = SelPosition;
+
+	UpdateCaret();
 }
 
-void JWText::MoveCaretToLeft(const size_t Stride)
+void JWText::MoveCaretToLeft()
 {
-	if (m_CaretSelPosition >= Stride)
+	if (m_CaretSelPosition)
 	{
-		m_CaretSelPosition -= Stride;
+		m_CaretSelPosition--;
+
+		UpdateCaret();
 	}
 }
 
-void JWText::MoveCaretToRight(const size_t Stride)
+void JWText::MoveCaretToRight()
 {
-	m_CaretSelPosition += Stride;
+	m_CaretSelPosition++;
 
-	m_CaretSelPosition = min(m_CaretSelPosition, m_NonInstantTextInfo.size() - 1);
+	UpdateCaret();
 }
 
 void JWText::MoveCaretUp()
@@ -765,6 +798,8 @@ void JWText::MoveCaretUp()
 	curr_index_in_line = min(curr_index_in_line, line_length);
 
 	m_CaretSelPosition = line_start + curr_index_in_line;
+
+	UpdateCaret();
 }
 
 void JWText::MoveCaretDown()
@@ -809,6 +844,8 @@ void JWText::MoveCaretDown()
 	curr_index_in_line = min(curr_index_in_line, line_length);
 	
 	m_CaretSelPosition = line_start + curr_index_in_line;
+
+	UpdateCaret();
 }
 
 auto JWText::GetCaretSelPosition() const->const size_t
