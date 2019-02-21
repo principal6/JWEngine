@@ -90,6 +90,8 @@ namespace JWENGINE
 		void MoveCaretUp();
 		void MoveCaretDown();
 
+		auto GetCaretSelPosition() const->const size_t;
+
 	private:
 		// @warning: the font texture must be created only once per JWGUIWindow (i.e. per D3D device).
 		auto CreateFontTexture(const WSTRING FileName_FNT)->EError;

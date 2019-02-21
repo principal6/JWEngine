@@ -319,6 +319,7 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 		m_NonInstantVertexData.Vertices[iterator].u = 0;
 		m_NonInstantVertexData.Vertices[iterator].v = 0;
 	}
+	m_NonInstantTextInfo.clear();
 
 	// Convert each character of the text to Chars_ID in ms_FontData
 	// in order to position them.
@@ -383,7 +384,7 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 	m_NonInstantTextInfo.push_back(curr_glyph_info);
 
 
-	// Set vertex data.
+	// Set vertex data (but only for the visible glyphs).
 	size_t visible_glyph_count = 0;
 	float u1 = 0, u2 = 0, v1 = 0, v2 = 0;
 	float x1 = 0, x2 = 0, y1 = 0, y2 = 0;
@@ -598,6 +599,8 @@ void JWText::UpdateCaret()
 	
 	if (m_pCaretLine)
 	{
+		m_CaretSelPosition = min(m_CaretSelPosition, m_NonInstantTextInfo.size() - 1);
+
 		m_CaretPosition.x = m_NonInstantTextInfo[m_CaretSelPosition].left;
 		m_CaretPosition.y = m_NonInstantTextInfo[m_CaretSelPosition].top;
 
@@ -799,4 +802,9 @@ void JWText::MoveCaretDown()
 	curr_index_in_line = min(curr_index_in_line, line_length);
 	
 	m_CaretSelPosition = line_start + curr_index_in_line;
+}
+
+auto JWText::GetCaretSelPosition() const->const size_t
+{
+	return m_CaretSelPosition;
 }

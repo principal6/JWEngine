@@ -32,6 +32,11 @@ namespace JWENGINE
 	protected:
 		// Events called in JWGUIWindow (friend class).
 		void WindowKeyDown(WPARAM VirtualKeyCode) override;
+		void WindowCharKey(WPARAM Char) override;
+
+	private:
+		void InsertCharacter(wchar_t Char);
+		void EraseCharacter(size_t SelPosition);
 
 	private:
 		static const DWORD DEFAULT_COLOR_BACKGROUND_EDIT = DEFAULT_COLOR_ALMOST_BLACK;

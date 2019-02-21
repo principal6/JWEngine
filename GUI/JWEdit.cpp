@@ -150,8 +150,10 @@ void JWEdit::Focus()
 	m_CaretShowInterval = 0;
 }
 
-void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
+PROTECTED void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 {
+	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
+
 	switch (VirtualKeyCode)
 	{
 	case VK_LEFT:
@@ -170,7 +172,64 @@ void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 		m_pEditText->MoveCaretDown();
 		m_CaretShowInterval = 0;
 		break;
+	case VK_DELETE:
+		EraseCharacter(curr_caret_sel_position + 1);
+		break;
 	default:
 		break;
 	}
+}
+
+PROTECTED void JWEdit::WindowCharKey(WPARAM Char)
+{
+	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
+
+	switch (Char)
+	{
+	case 8: // Backspace
+		if (curr_caret_sel_position)
+		{
+			EraseCharacter(curr_caret_sel_position);
+			m_pEditText->MoveCaretToLeft();
+		}
+		break;
+	case 13: // Enter
+		InsertCharacter(L'\n');
+		break;
+	default:
+		break;
+	}
+
+	if (Char >= 32)
+	{
+		InsertCharacter(static_cast<wchar_t>(Char));
+	}
+}
+
+PRIVATE void JWEdit::InsertCharacter(wchar_t Char)
+{
+	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
+
+	m_Text = m_Text.substr(0, curr_caret_sel_position) + Char + m_Text.substr(curr_caret_sel_position);
+
+	m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+
+	m_pEditText->MoveCaretToRight();
+}
+
+PRIVATE void JWEdit::EraseCharacter(size_t SelPosition)
+{
+	if (!m_Text.length())
+	{
+		return;
+	}
+
+	if (SelPosition > m_Text.length())
+	{
+		return;
+	}
+
+	m_Text = m_Text.substr(0, SelPosition - 1) + m_Text.substr(SelPosition);
+	
+	m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
 }
