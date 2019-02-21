@@ -152,13 +152,19 @@ void JWEdit::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
 
+	m_pBackground->SetPosition(Position);
+
 	m_PaddedPosition.x = Position.x + DEFAULT_EDIT_PADDING;
 	m_PaddedPosition.y = Position.y + DEFAULT_EDIT_PADDING;
 }
 
 void JWEdit::SetSize(D3DXVECTOR2 Size)
 {
+	Size.y = max(Size.y, m_pEditText->GetLineHeight() + DEFAULT_EDIT_PADDING * 2);
+
 	JWControl::SetSize(Size);
+	
+	m_pBackground->SetSize(Size);
 
 	m_PaddedSize.x = Size.x - DEFAULT_EDIT_PADDING * 2;
 	m_PaddedSize.y = Size.y - DEFAULT_EDIT_PADDING * 2;
