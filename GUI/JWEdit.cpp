@@ -180,7 +180,7 @@ PROTECTED void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 	}
 }
 
-PROTECTED void JWEdit::WindowCharKey(WPARAM Char)
+PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 {
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
 

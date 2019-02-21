@@ -240,7 +240,7 @@ namespace JWENGINE
 		virtual void WindowMouseDown() {};
 		virtual void WindowMouseMove() {};
 		virtual void WindowKeyDown(WPARAM VirtualKeyCode) {};
-		virtual void WindowCharKey(WPARAM Char) {};
+		virtual void WindowCharKeyInput(WPARAM Char) {};
 		virtual void WindowKeyUp(WPARAM VirtualKeyCode) {};
 		virtual void WindowIMEInput(SGUIIMEInputInfo& IMEInfo) {};
 

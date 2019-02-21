@@ -32,7 +32,7 @@ namespace JWENGINE
 	protected:
 		// Events called in JWGUIWindow (friend class).
 		void WindowKeyDown(WPARAM VirtualKeyCode) override;
-		void WindowCharKey(WPARAM Char) override;
+		void WindowCharKeyInput(WPARAM Char) override;
 
 	private:
 		void InsertCharacter(wchar_t Char);

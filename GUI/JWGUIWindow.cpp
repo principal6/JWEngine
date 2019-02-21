@@ -263,7 +263,7 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 				m_pControlWithFocus->WindowKeyDown(Message.wParam);
 				break;
 			case WM_CHAR:
-				m_pControlWithFocus->WindowCharKey(Message.wParam);
+				m_pControlWithFocus->WindowCharKeyInput(Message.wParam);
 				break;
 			case WM_KEYUP:
 				m_pControlWithFocus->WindowKeyUp(Message.wParam);
