@@ -702,6 +702,13 @@ PRIVATE auto JWText::GetLineWidth(const WSTRING* pLineText) const->float
 	return width;
 }
 
+void JWText::MoveCaretTo(size_t SelPosition)
+{
+	SelPosition = min(SelPosition, m_NonInstantTextInfo.size() - 1);
+
+	m_CaretSelPosition = SelPosition;
+}
+
 void JWText::MoveCaretToLeft(const size_t Stride)
 {
 	if (m_CaretSelPosition >= Stride)

@@ -23,6 +23,9 @@ JWEdit::JWEdit()
 	m_PaddedSize = D3DXVECTOR2(0, 0);
 
 	m_CaretShowInterval = 0;
+
+	m_bIMEInput = false;
+	m_bIMECaretCaptured = false;
 }
 
 auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
@@ -202,7 +205,55 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 
 	if (Char >= 32)
 	{
-		InsertCharacter(static_cast<wchar_t>(Char));
+		if (!m_bIMEInput)
+		{
+			InsertCharacter(static_cast<wchar_t>(Char));
+		}
+		else
+		{
+			m_bIMEInput = false;
+		}
+	}
+}
+
+PROTECTED void JWEdit::WindowIMEInput(SGUIIMEInputInfo& IMEInfo)
+{
+	if (IMEInfo.bIMEWriting)
+	{
+		WSTRING temp_string = m_Text;
+
+		if (IMEInfo.IMEWritingChar[0])
+		{
+			if (!m_bIMECaretCaptured)
+			{
+				m_IMECapturedCaret = m_pEditText->GetCaretSelPosition();
+				m_bIMECaretCaptured = true;
+			}
+
+			m_pEditText->MoveCaretTo(m_IMECapturedCaret);
+
+			InsertCharacter(static_cast<wchar_t>(IMEInfo.IMEWritingChar[0]));
+		}
+		else
+		{
+			// The character was erased.
+			m_pEditText->MoveCaretToLeft();
+			m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+
+			m_bIMECaretCaptured = false;
+		}
+
+		m_Text = temp_string;
+	}
+
+	if (IMEInfo.bIMECompleted)
+	{
+		m_pEditText->MoveCaretToLeft();
+
+		InsertCharacter(static_cast<wchar_t>(IMEInfo.IMECompletedChar[0]));
+
+		m_bIMEInput = true;
+		m_bIMECaretCaptured = false;
 	}
 }
 

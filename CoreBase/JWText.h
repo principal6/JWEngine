@@ -89,6 +89,7 @@ namespace JWENGINE
 		void MoveCaretToRight(const size_t Stride = 1);
 		void MoveCaretUp();
 		void MoveCaretDown();
+		void MoveCaretTo(size_t SelPosition);
 
 		auto GetCaretSelPosition() const->const size_t;
 

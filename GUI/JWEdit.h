@@ -33,6 +33,7 @@ namespace JWENGINE
 		// Events called in JWGUIWindow (friend class).
 		void WindowKeyDown(WPARAM VirtualKeyCode) override;
 		void WindowCharKeyInput(WPARAM Char) override;
+		void WindowIMEInput(SGUIIMEInputInfo& IMEInfo) override;
 
 	private:
 		void InsertCharacter(wchar_t Char);
@@ -51,5 +52,9 @@ namespace JWENGINE
 		D3DXVECTOR2 m_PaddedSize;
 
 		size_t m_CaretShowInterval;
+
+		bool m_bIMEInput;
+		bool m_bIMECaretCaptured;
+		size_t m_IMECapturedCaret;
 	};
 };
