@@ -308,6 +308,8 @@ PRIVATE void JWEdit::InsertCharacter(wchar_t Char)
 	m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
 
 	m_pEditText->MoveCaretToRight();
+
+	m_CaretShowInterval = 0;
 }
 
 PRIVATE void JWEdit::EraseCharacter(size_t SelPosition)
@@ -325,4 +327,6 @@ PRIVATE void JWEdit::EraseCharacter(size_t SelPosition)
 	m_Text = m_Text.substr(0, SelPosition - 1) + m_Text.substr(SelPosition);
 	
 	m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+
+	m_CaretShowInterval = 0;
 }
