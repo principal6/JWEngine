@@ -251,6 +251,32 @@ PROTECTED void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 
 		m_CaretShowInterval = 0;
 		break;
+	case VK_HOME:
+		if (p_input_state->ShiftPressed)
+		{
+			m_pEditText->SelectHome();
+		}
+		else
+		{
+			m_pEditText->MoveCaretHome();
+			m_pEditText->ReleaseSelection();
+		}
+
+		m_CaretShowInterval = 0;
+		break;
+	case VK_END:
+		if (p_input_state->ShiftPressed)
+		{
+			m_pEditText->SelectEnd();
+		}
+		else
+		{
+			m_pEditText->MoveCaretEnd();
+			m_pEditText->ReleaseSelection();
+		}
+
+		m_CaretShowInterval = 0;
+		break;
 	case VK_DELETE:
 		if (m_pEditText->IsTextSelected())
 		{

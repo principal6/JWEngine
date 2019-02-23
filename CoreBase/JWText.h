@@ -92,12 +92,16 @@ namespace JWENGINE
 		void MoveCaretToRight();
 		void MoveCaretUp();
 		void MoveCaretDown();
+		void MoveCaretHome();
+		void MoveCaretEnd();
 		void MoveCaretTo(size_t SelPosition);
 
 		void SelectToLeft();
 		void SelectToRight();
 		void SelectUp();
 		void SelectDown();
+		void SelectHome();
+		void SelectEnd();
 		void ReleaseSelection();
 
 		auto GetCaretSelPosition() const->const size_t;

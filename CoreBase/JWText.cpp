@@ -11,7 +11,7 @@ const float JWText::DEFAULT_SIDE_CONSTRAINT_STRIDE = 20.0f;
 JWText::JWText()
 {
 	m_bIsInstantText = true;
-	m_bUseAutomaticLineBreak = false;
+	m_bUseAutomaticLineBreak = true;
 
 	m_pJWWindow = nullptr;
 	m_pBaseDir = nullptr;
@@ -913,6 +913,22 @@ void JWText::MoveCaretDown()
 	UpdateCaret();
 }
 
+void JWText::MoveCaretHome()
+{
+	size_t curr_line_index = m_NonInstantTextInfo[m_CaretSelPosition].line_index;
+	m_CaretSelPosition = GetLineStartGlyphIndex(curr_line_index);
+
+	UpdateCaret();
+}
+
+void JWText::MoveCaretEnd()
+{
+	size_t curr_line_index = m_NonInstantTextInfo[m_CaretSelPosition].line_index;
+	m_CaretSelPosition = GetLineEndGlyphIndex(curr_line_index);
+
+	UpdateCaret();
+}
+
 void JWText::ReleaseSelection()
 {
 	m_CapturedSelPosition = SIZE_T_INVALID;
@@ -927,17 +943,11 @@ void JWText::SelectToLeft()
 	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
 		m_CapturedSelPosition = m_CaretSelPosition;
-
-		MoveCaretToLeft();
-
-		UpdateSelectionBox();
 	}
-	else
-	{
-		MoveCaretToLeft();
 
-		UpdateSelectionBox();
-	}
+	MoveCaretToLeft();
+
+	UpdateSelectionBox();
 }
 
 void JWText::SelectToRight()
@@ -945,17 +955,11 @@ void JWText::SelectToRight()
 	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
 		m_CapturedSelPosition = m_CaretSelPosition;
-
-		MoveCaretToRight();
-
-		UpdateSelectionBox();
 	}
-	else
-	{
-		MoveCaretToRight();
 
-		UpdateSelectionBox();
-	}
+	MoveCaretToRight();
+
+	UpdateSelectionBox();
 }
 
 void JWText::SelectUp()
@@ -963,17 +967,11 @@ void JWText::SelectUp()
 	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
 		m_CapturedSelPosition = m_CaretSelPosition;
-
-		MoveCaretUp();
-
-		UpdateSelectionBox();
 	}
-	else
-	{
-		MoveCaretUp();
 
-		UpdateSelectionBox();
-	}
+	MoveCaretUp();
+
+	UpdateSelectionBox();
 }
 
 void JWText::SelectDown()
@@ -981,17 +979,35 @@ void JWText::SelectDown()
 	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
 		m_CapturedSelPosition = m_CaretSelPosition;
-
-		MoveCaretDown();
-
-		UpdateSelectionBox();
 	}
-	else
+	
+	MoveCaretDown();
+
+	UpdateSelectionBox();
+}
+
+void JWText::SelectHome()
+{
+	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
-		MoveCaretDown();
-
-		UpdateSelectionBox();
+		m_CapturedSelPosition = m_CaretSelPosition;
 	}
+	
+	MoveCaretHome();
+
+	UpdateSelectionBox();
+}
+
+void JWText::SelectEnd()
+{
+	if (m_CapturedSelPosition == SIZE_T_INVALID)
+	{
+		m_CapturedSelPosition = m_CaretSelPosition;
+	}
+
+	MoveCaretEnd();
+
+	UpdateSelectionBox();
 }
 
 PRIVATE void JWText::UpdateSelectionBox()
