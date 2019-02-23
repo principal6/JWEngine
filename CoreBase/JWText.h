@@ -53,7 +53,6 @@ namespace JWENGINE
 		~JWText() {};
 
 		// TODO: add SetWatermark(), SetWatermarkColor()
-		// TODO: add MoveHome(), MoveEnd(), SelectHome(), SelectEnd()
 
 		// Create instant-text JWText.
 		// A 'JWGUIWindow' must have one instant-text JWText for its controls.
