@@ -279,6 +279,7 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 		if (m_pEditText->IsTextSelected())
 		{
 			EraseSelection();
+			m_pEditText->MoveCaretToLeft();
 		}
 		else
 		{
