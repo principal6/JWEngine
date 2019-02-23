@@ -94,7 +94,7 @@ namespace JWENGINE
 		void MoveCaretDown();
 		void MoveCaretHome();
 		void MoveCaretEnd();
-		void MoveCaretTo(size_t SelPosition);
+		void MoveCaretTo(const size_t SelPosition);
 
 		void SelectToLeft();
 		void SelectToRight();
@@ -102,10 +102,12 @@ namespace JWENGINE
 		void SelectDown();
 		void SelectHome();
 		void SelectEnd();
+		void SelectTo(const size_t SelPosition);
 		void SelectAll();
 		void ReleaseSelection();
 
 		auto GetCaretSelPosition() const->const size_t;
+		auto GetMousePressedSelPosition(POINT MousePosition) const->const size_t;
 		auto GetSelectionStart() const->const size_t;
 		auto GetSelectionEnd() const->const size_t;
 		auto IsTextSelected() const->const bool;

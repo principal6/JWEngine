@@ -37,6 +37,8 @@ namespace JWENGINE
 
 	protected:
 		// Events called in JWGUIWindow (friend class).
+		void WindowMouseDown() override;
+		void WindowMouseMove() override;
 		void WindowKeyDown(WPARAM VirtualKeyCode) override;
 		void WindowCharKeyInput(WPARAM Char) override;
 		void WindowIMEInput(SGUIIMEInputInfo& IMEInfo) override;

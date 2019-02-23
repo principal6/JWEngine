@@ -228,6 +228,33 @@ void JWEdit::ShouldUseAutomaticLineBreak(bool Value)
 	m_pEditText->ShouldUseAutomaticLineBreak(Value);
 }
 
+PROTECTED void JWEdit::WindowMouseDown()
+{
+	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
+	
+	if (Static_IsMouseInRECT(p_input_state->MouseDownPosition, m_ControlRect))
+	{
+		if (p_input_state->ShiftPressed)
+		{
+			m_pEditText->SelectTo(m_pEditText->GetMousePressedSelPosition(p_input_state->MouseDownPosition));
+		}
+		else
+		{
+			m_pEditText->MoveCaretTo(m_pEditText->GetMousePressedSelPosition(p_input_state->MouseDownPosition));
+		}
+	}
+}
+
+PROTECTED void JWEdit::WindowMouseMove()
+{
+	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
+
+	if (p_input_state->MouseLeftPressed)
+	{
+		m_pEditText->SelectTo(m_pEditText->GetMousePressedSelPosition(p_input_state->MousePosition));
+	}
+}
+
 PROTECTED void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 {
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();

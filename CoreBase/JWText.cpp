@@ -699,7 +699,7 @@ PRIVATE void JWText::UpdateCaret()
 		// Top constraint
 		float caret_top = m_NonInstantTextInfo[m_CaretSelPosition].top;
 		float constraint_top = m_ConstraintPosition.y;
-		if (caret_top <= constraint_top)
+		if (caret_top + m_NonInstantTextOffset.y <= constraint_top)
 		{
 			m_NonInstantTextOffset.y = constraint_top - caret_top;
 		}
@@ -707,7 +707,7 @@ PRIVATE void JWText::UpdateCaret()
 		// Bottom constraint
 		float caret_bottom = m_NonInstantTextInfo[m_CaretSelPosition].top + m_CaretSize.y;
 		float constraint_bottom = m_ConstraintPosition.y + m_ConstraintSize.y;
-		if (caret_bottom >= constraint_bottom)
+		if (caret_bottom + m_NonInstantTextOffset.y >= constraint_bottom)
 		{
 			m_NonInstantTextOffset.y = constraint_bottom - caret_bottom;
 		}
@@ -823,7 +823,7 @@ PRIVATE auto JWText::GetLineWidth(const WSTRING* pLineText) const->float
 	return width;
 }
 
-void JWText::MoveCaretTo(size_t SelPosition)
+void JWText::MoveCaretTo(const size_t SelPosition)
 {
 	m_CaretSelPosition = SelPosition;
 
@@ -1023,6 +1023,20 @@ void JWText::SelectEnd()
 	UpdateSelectionBox();
 }
 
+void JWText::SelectTo(const size_t SelPosition)
+{
+	if (m_CapturedSelPosition == SIZE_T_INVALID)
+	{
+		m_CapturedSelPosition = m_CaretSelPosition;
+	}
+
+	m_CaretSelPosition = SelPosition;
+
+	UpdateCaret();
+
+	UpdateSelectionBox();
+}
+
 void JWText::SelectAll()
 {
 	m_CapturedSelPosition = 0;
@@ -1125,6 +1139,27 @@ PRIVATE void JWText::UpdateSelectionBox()
 auto JWText::GetCaretSelPosition() const->const size_t
 {
 	return m_CaretSelPosition;
+}
+
+auto JWText::GetMousePressedSelPosition(POINT MousePosition) const->const size_t
+{
+	size_t result = 0;
+
+	float cmp_left = 0;
+	float cmp_top = 0;
+
+	for (size_t iterator_glpyh = 0; iterator_glpyh < m_NonInstantTextInfo.size(); iterator_glpyh++)
+	{
+		cmp_left = m_NonInstantTextInfo[iterator_glpyh].left + m_NonInstantTextOffset.x;
+		cmp_top = m_NonInstantTextInfo[iterator_glpyh].top + m_NonInstantTextOffset.y;
+
+		if ((cmp_left <= MousePosition.x) && (cmp_top <= MousePosition.y))
+		{
+			result = iterator_glpyh;
+		}
+	}
+
+	return result;
 }
 
 void JWText::ShouldUseAutomaticLineBreak(bool Value)
