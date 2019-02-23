@@ -111,13 +111,19 @@ void JWEdit::Draw()
 	{
 		if (m_Watermark.length())
 		{
-			m_pSharedData->pWindow->GetDevice()->SetViewport(&m_PaddedViewport);
+			if (m_bShouldUseViewport)
+			{
+				m_pSharedData->pWindow->GetDevice()->SetViewport(&m_PaddedViewport);
+			}
 
 			m_pSharedData->pText->DrawInstantText(m_Watermark, m_PaddedPosition, EHorizontalAlignment::Left, m_WatermarkColor);
 		}
 	}
 
-	m_pSharedData->pWindow->GetDevice()->SetViewport(&m_PaddedViewport);
+	if (m_bShouldUseViewport)
+	{
+		m_pSharedData->pWindow->GetDevice()->SetViewport(&m_PaddedViewport);
+	}
 
 	m_pEditText->DrawNonInstantText();
 
@@ -140,7 +146,10 @@ void JWEdit::Draw()
 		m_CaretShowInterval++;
 	}
 
-	m_pSharedData->pWindow->GetDevice()->SetViewport(&m_ControlViewport);
+	if (m_bShouldUseViewport)
+	{
+		m_pSharedData->pWindow->GetDevice()->SetViewport(&m_ControlViewport);
+	}
 
 	JWControl::EndDrawing();
 }

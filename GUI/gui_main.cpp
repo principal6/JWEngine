@@ -52,12 +52,12 @@ int main()
 	pMainGUIWindow->GetControlPtr(scrollbar1)->SetScrollRange(2, 5);
 	pMainGUIWindow->GetControlPtr(scrollbar1)->SetScrollPosition(0);
 
-	THandle scrollbar2 = pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(300, 100), D3DXVECTOR2(0, 200));
+	THandle scrollbar2 = pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(320, 100), D3DXVECTOR2(0, 200));
 	pMainGUIWindow->GetControlPtr(scrollbar2)->MakeScrollBar(EScrollBarDirection::Vertical);
 	pMainGUIWindow->GetControlPtr(scrollbar2)->SetScrollRange(10, 30);
 	pMainGUIWindow->GetControlPtr(scrollbar2)->SetScrollPosition(0);
 
-	THandle label1 = pMainGUIWindow->AddControl(EControlType::Label, D3DXVECTOR2(100, 80), D3DXVECTOR2(150, 40), L"레이블입니다!");
+	THandle label1 = pMainGUIWindow->AddControl(EControlType::Label, D3DXVECTOR2(120, 80), D3DXVECTOR2(150, 40), L"레이블입니다!");
 	pMainGUIWindow->GetControlPtr(label1)->SetTextVerticalAlignment(EVerticalAlignment::Middle);
 	pMainGUIWindow->GetControlPtr(label1)->AttachScrollBar(pMainGUIWindow->GetControlPtr(scrollbar2));
 
@@ -90,11 +90,13 @@ int main()
 		->SetAtlasUV(D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32));
 	pMainGUIWindow->GetControlPtr(image1)->SetSize(D3DXVECTOR2(100, 20));
 
-	THandle edit1 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(100, 140), D3DXVECTOR2(100, 42));
+	THandle edit1 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 140), D3DXVECTOR2(280, 200));
 	pMainGUIWindow->GetControlPtr(edit1)->ShouldUseMultiline(true);
-	//pMainGUIWindow->GetControlPtr(edit1)->ShouldUseAutomaticLineBreak(false);
 	pMainGUIWindow->GetControlPtr(edit1)->SetText(L"This is JWEdit-control.\nTest it!\nThird line it is!\nAnd forth this is.");
-	pMainGUIWindow->GetControlPtr(edit1)->SetWatermark(L"WATERMARK TEST");
+	pMainGUIWindow->GetControlPtr(edit1)->SetWatermark(L"Edit 1");
+
+	THandle edit2 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 360), D3DXVECTOR2(180, 60));
+	pMainGUIWindow->GetControlPtr(edit2)->SetWatermark(L"Edit 2");
 
 	myGUI.SetMainLoopFunction(MainLoop);
 

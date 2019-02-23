@@ -46,6 +46,15 @@ namespace JWENGINE
 		SGlyphInfo() : chars_id(0), left(0), top(0), drawing_top(0), width(0), height(0), line_index(0), glyph_index_in_line(0) {};
 	};
 
+	struct SLineInfo
+	{
+		size_t start_glyph_index;
+		size_t end_glyph_index;
+
+		SLineInfo() : start_glyph_index(0), end_glyph_index(0) {};
+		SLineInfo(size_t start, size_t end) : start_glyph_index(start), end_glyph_index(end) {};
+	};
+
 	class JWText final : public JWBMFontParser
 	{
 	public:
@@ -176,6 +185,7 @@ namespace JWENGINE
 		SIndexData m_NonInstantIndexData;
 		
 		VECTOR<SGlyphInfo> m_NonInstantTextInfo;
+		VECTOR<SLineInfo> m_NonInstantTextLineInfo;
 		DWORD m_NonInstantTextColor;
 
 		D3DXVECTOR2 m_ConstraintPosition;

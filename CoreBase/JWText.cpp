@@ -344,6 +344,7 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 	m_ConstraintSize = AreaSize;
 	
 	m_NonInstantTextInfo.clear();
+	m_NonInstantTextLineInfo.clear();
 
 	// Convert each character of the text to Chars_ID in ms_FontData
 	// in order to position them.
@@ -354,6 +355,8 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 		curr_glyph_info.glyph_index_in_line = 0;
 	SGlyphInfo prev_glyph_info;
 	bool b_is_line_first_glyph = true;
+	size_t line_start_index = 0;
+	size_t line_end_index = 0;
 
 	for (size_t iterator_char = 0; iterator_char <= Text.length(); iterator_char++)
 	{
@@ -379,6 +382,9 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 		{
 			if (curr_glyph_info.left + curr_glyph_info.width >= m_ConstraintPosition.x + m_ConstraintSize.x)
 			{
+				m_NonInstantTextLineInfo.push_back(SLineInfo(line_start_index, line_end_index));
+				line_start_index = iterator_char;
+
 				curr_glyph_info.line_index++;
 
 				b_is_line_first_glyph = true;
@@ -398,6 +404,10 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 		{
 			// IF,
 			// the character was '\n'.
+			line_end_index = iterator_char;
+			m_NonInstantTextLineInfo.push_back(SLineInfo(line_start_index, line_end_index));
+			line_start_index = iterator_char + 1;
+
 			curr_glyph_info.line_index++;
 
 			b_is_line_first_glyph = true;
@@ -411,7 +421,10 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 		}
 
 		prev_glyph_info = curr_glyph_info;
+
+		line_end_index = iterator_char;
 	}
+	m_NonInstantTextLineInfo.push_back(SLineInfo(line_start_index, line_end_index));
 
 	UpdateNonInstantTextVertices();
 
@@ -853,13 +866,9 @@ PRIVATE auto JWText::GetLineStartGlyphIndex(const size_t LineIndex)->size_t
 {
 	size_t result = SIZE_T_INVALID;
 
-	for (size_t iterator_glyph = 0; iterator_glyph < m_NonInstantTextInfo.size(); iterator_glyph++)
+	if (LineIndex < m_NonInstantTextLineInfo.size())
 	{
-		if (m_NonInstantTextInfo[iterator_glyph].line_index == LineIndex)
-		{
-			result = iterator_glyph;
-			break;
-		}
+		result = m_NonInstantTextLineInfo[LineIndex].start_glyph_index;
 	}
 
 	return result;
@@ -869,16 +878,9 @@ PRIVATE auto JWText::GetLineEndGlyphIndex(const size_t LineIndex)->size_t
 {
 	size_t result = 0;
 
-	for (size_t iterator_glyph = 0; iterator_glyph < m_NonInstantTextInfo.size(); iterator_glyph++)
+	if (LineIndex < m_NonInstantTextLineInfo.size())
 	{
-		if (m_NonInstantTextInfo[iterator_glyph].line_index == LineIndex)
-		{
-			result = iterator_glyph;
-		}
-		else if (m_NonInstantTextInfo[iterator_glyph].line_index > LineIndex)
-		{
-			break;
-		}
+		result = m_NonInstantTextLineInfo[LineIndex].end_glyph_index;
 	}
 
 	return result;
@@ -1083,11 +1085,15 @@ PRIVATE void JWText::UpdateSelectionBox()
 		{
 			// Multi-line selection.
 
+			size_t line_start_glyph = 0;
+			size_t line_end_glyph = 0;
+			float line_end_x = 0;
+
 			for (size_t iterator_line = line_start; iterator_line <= line_end; iterator_line++)
 			{
-				size_t line_start_glyph = GetLineStartGlyphIndex(iterator_line);
-				size_t line_end_glyph = GetLineEndGlyphIndex(iterator_line);
-				float line_end_x = m_NonInstantTextInfo[line_end_glyph].left;
+				line_start_glyph = GetLineStartGlyphIndex(iterator_line);
+				line_end_glyph = GetLineEndGlyphIndex(iterator_line);
+				line_end_x = m_NonInstantTextInfo[line_end_glyph].left;
 
 				// Check if this is a automatically borken line
 				// if it is, it doesn't end with '\0',
