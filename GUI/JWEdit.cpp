@@ -281,7 +281,6 @@ PROTECTED void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 		if (m_pEditText->IsTextSelected())
 		{
 			EraseSelection();
-			m_pEditText->MoveCaretToLeft();
 		}
 		else
 		{
@@ -308,7 +307,10 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 		}
 		break;
 	case 3: // Ctrl + c
-
+		if (m_pEditText->IsTextSelected())
+		{
+			CopySelection();
+		}
 		break;
 	case 8: // Backspace && !(Ctrl + h)
 		if (p_input_state->ControlPressed)
@@ -319,7 +321,6 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 		if (m_pEditText->IsTextSelected())
 		{
 			EraseSelection();
-			m_pEditText->MoveCaretToLeft();
 		}
 		else
 		{
@@ -346,17 +347,20 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 			if (m_pEditText->IsTextSelected())
 			{
 				EraseSelection();
-				m_pEditText->MoveCaretToLeft();
 			}
 
 			InsertCharacter(L'\n');
 		}
 		break;
 	case 22: // Ctrl + v
-
+		PasteFromClipboard();
 		break;
 	case 24: // Ctrl + x
-
+		if (m_pEditText->IsTextSelected())
+		{
+			CopySelection();
+			EraseSelection();
+		}
 		break;
 	default:
 		break;
@@ -369,7 +373,6 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 			if (m_pEditText->IsTextSelected())
 			{
 				EraseSelection();
-				m_pEditText->MoveCaretToLeft();
 			}
 
 			InsertCharacter(static_cast<wchar_t>(Char));
@@ -435,6 +438,28 @@ PRIVATE void JWEdit::InsertCharacter(wchar_t Char)
 	m_CaretShowInterval = 0;
 }
 
+PRIVATE void JWEdit::InsertString(WSTRING String)
+{
+	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
+
+	WSTRING string_without_return;
+	for (size_t iterator_character = 0; iterator_character < String.length(); iterator_character++)
+	{
+		if (String[iterator_character] != '\r')
+		{
+			string_without_return += String[iterator_character];
+		}
+	}
+
+	m_Text = m_Text.substr(0, curr_caret_sel_position) + string_without_return + m_Text.substr(curr_caret_sel_position);
+
+	m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+
+	m_pEditText->MoveCaretTo(curr_caret_sel_position + string_without_return.length());
+
+	m_CaretShowInterval = 0;
+}
+
 PRIVATE void JWEdit::EraseCharacter(size_t SelPosition)
 {
 	if (!m_Text.length())
@@ -463,7 +488,67 @@ PRIVATE void JWEdit::EraseSelection()
 
 	m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
 
-	m_pEditText->MoveCaretTo(sel_start + 1);
+	m_pEditText->MoveCaretTo(sel_start);
 
 	m_CaretShowInterval = 0;
+}
+
+PRIVATE void JWEdit::CopySelection()
+{
+	size_t sel_start = m_pEditText->GetSelectionStart();
+	size_t sel_end = m_pEditText->GetSelectionEnd();
+
+	WSTRING copied_text = m_Text.substr(sel_start, sel_end - sel_start);
+
+	WSTRING string_with_return;
+	for (size_t iterator_character = 0; iterator_character < copied_text.length(); iterator_character++)
+	{
+		if (copied_text[iterator_character] == '\n')
+		{
+			string_with_return += '\r';
+		}
+
+		string_with_return += copied_text[iterator_character];
+	}
+
+	size_t copied_length = string_with_return.length();
+	
+	HGLOBAL h_memory = GlobalAlloc(GMEM_MOVEABLE, (copied_length + 1) * sizeof(TCHAR));
+
+	LPTSTR lptstrCopy = (LPTSTR)(GlobalLock(h_memory));
+		memcpy(lptstrCopy, &string_with_return.c_str()[0], copied_length * sizeof(TCHAR));
+		lptstrCopy[copied_length] = (TCHAR)0;
+	GlobalUnlock(h_memory);
+
+	if (OpenClipboard(m_pSharedData->pWindow->GethWnd()))
+	{
+		EmptyClipboard();
+
+		SetClipboardData(CF_UNICODETEXT, h_memory);
+
+		CloseClipboard();
+	}
+	
+	//GlobalFree(h_memory);
+}
+
+PRIVATE void JWEdit::PasteFromClipboard()
+{
+	if (OpenClipboard(m_pSharedData->pWindow->GethWnd()))
+	{
+		HGLOBAL h_global = nullptr;
+		LPTSTR string = nullptr;
+
+		if (h_global = GetClipboardData(CF_UNICODETEXT))
+		{
+			if (string = (LPTSTR)GlobalLock(h_global))
+			{
+				GlobalUnlock(h_global);
+
+				InsertString(string);
+			}
+		}
+
+		CloseClipboard();
+	}
 }
