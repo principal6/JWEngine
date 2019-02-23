@@ -101,6 +101,7 @@ namespace JWENGINE
 		void SelectDown();
 		void SelectHome();
 		void SelectEnd();
+		void SelectAll();
 		void ReleaseSelection();
 
 		auto GetCaretSelPosition() const->const size_t;

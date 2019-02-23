@@ -301,7 +301,21 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 
 	switch (Char)
 	{
-	case 8: // Backspace
+	case 1: // Ctrl + a
+		if (!m_pEditText->IsTextSelected())
+		{
+			m_pEditText->SelectAll();
+		}
+		break;
+	case 3: // Ctrl + c
+
+		break;
+	case 8: // Backspace && !(Ctrl + h)
+		if (p_input_state->ControlPressed)
+		{
+			break;
+		}
+
 		if (m_pEditText->IsTextSelected())
 		{
 			EraseSelection();
@@ -321,7 +335,12 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 		}
 		
 		break;
-	case 13: // Enter
+	case 13: // Enter && !(Ctrl + m)
+		if (p_input_state->ControlPressed)
+		{
+			break;
+		}
+
 		if (m_bUseMultiline)
 		{
 			if (m_pEditText->IsTextSelected())
@@ -332,6 +351,12 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 
 			InsertCharacter(L'\n');
 		}
+		break;
+	case 22: // Ctrl + v
+
+		break;
+	case 24: // Ctrl + x
+
 		break;
 	default:
 		break;

@@ -1010,6 +1010,16 @@ void JWText::SelectEnd()
 	UpdateSelectionBox();
 }
 
+void JWText::SelectAll()
+{
+	m_CapturedSelPosition = 0;
+	m_CaretSelPosition = m_NonInstantTextInfo.size() - 1;
+
+	UpdateCaret();
+
+	UpdateSelectionBox();
+}
+
 PRIVATE void JWText::UpdateSelectionBox()
 {
 	if (m_CapturedSelPosition != SIZE_T_INVALID)
