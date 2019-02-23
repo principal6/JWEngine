@@ -11,12 +11,14 @@ const float JWText::DEFAULT_SIDE_CONSTRAINT_STRIDE = 20.0f;
 JWText::JWText()
 {
 	m_bIsInstantText = true;
-	m_bUseAutomaticLineBreak = true;
+	m_bUseAutomaticLineBreak = false;
 
 	m_pJWWindow = nullptr;
 	m_pBaseDir = nullptr;
 	m_pDevice = nullptr;
 	m_pFontTexture = nullptr;
+
+	m_NonInstantTextColor = DEFAULT_COLOR_FONT;
 
 	m_ConstraintPosition = D3DXVECTOR2(0, 0);
 	m_ConstraintSize = D3DXVECTOR2(0, 0);
@@ -416,13 +418,22 @@ void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, cons
 	UpdateCaret();
 }
 
+void JWText::SetNonInstantTextColor(const DWORD FontColor)
+{
+	m_NonInstantTextColor = FontColor;
+
+	UpdateNonInstantTextVertices();
+}
+
 PRIVATE void JWText::UpdateNonInstantTextVertices()
 {
-	// Clear the vertex buffer's uv data.
+	// Clear the vertex buffer's uv data & set font color.
 	for (size_t iterator = 0; iterator < m_NonInstantVertexData.VertexSize; iterator++)
 	{
 		m_NonInstantVertexData.Vertices[iterator].u = 0;
 		m_NonInstantVertexData.Vertices[iterator].v = 0;
+
+		m_NonInstantVertexData.Vertices[iterator].color = m_NonInstantTextColor;
 	}
 
 	// Set vertex data (but only for the visible glyphs).
@@ -531,7 +542,7 @@ void JWText::DrawNonInstantText()
 	m_pDevice->SetTexture(0, nullptr);
 }
 
-void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position, const EHorizontalAlignment HorizontalAlignment)
+void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position, const EHorizontalAlignment HorizontalAlignment, const DWORD FontColor)
 {
 	// If SingleLineText is null, we don't need to draw it.
 	if (!SingleLineText.length())
@@ -576,11 +587,13 @@ void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position,
 		break;
 	}
 
-	// Clear the vertex buffer's uv data.
+	// Clear the vertex buffer's uv data & set font color.
 	for (size_t iterator = 0; iterator < MAX_INSTANT_TEXT_VERTEX_SIZE; iterator++)
 	{
 		m_InstantVertexData.Vertices[iterator].u = 0;
 		m_InstantVertexData.Vertices[iterator].v = 0;
+
+		m_InstantVertexData.Vertices[iterator].color = FontColor;
 	}
 
 	// Convert each character of the text to Chars_ID in ms_FontData
@@ -1060,6 +1073,15 @@ PRIVATE void JWText::UpdateSelectionBox()
 			{
 				size_t line_start_glyph = GetLineStartGlyphIndex(iterator_line);
 				size_t line_end_glyph = GetLineEndGlyphIndex(iterator_line);
+				float line_end_x = m_NonInstantTextInfo[line_end_glyph].left;
+
+				// Check if this is a automatically borken line
+				// if it is, it doesn't end with '\0',
+				// and we must selet the last character with its right position, not left.
+				if (m_NonInstantTextInfo[line_end_glyph].chars_id != 0)
+				{
+					line_end_x += m_NonInstantTextInfo[line_end_glyph].width;
+				}
 
 				if (iterator_line == line_start)
 				{
@@ -1067,7 +1089,7 @@ PRIVATE void JWText::UpdateSelectionBox()
 					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[sel_start].left;
 					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[sel_start].top;
 
-					selection_size.x = m_NonInstantTextInfo[line_end_glyph].left - m_NonInstantTextInfo[sel_start].left;
+					selection_size.x = line_end_x - m_NonInstantTextInfo[sel_start].left;
 				}
 				else if (iterator_line == line_end)
 				{
@@ -1085,7 +1107,7 @@ PRIVATE void JWText::UpdateSelectionBox()
 					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[line_start_glyph].left;
 					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[line_start_glyph].top;
 
-					selection_size.x = m_NonInstantTextInfo[line_end_glyph].left - m_NonInstantTextInfo[line_start_glyph].left;
+					selection_size.x = line_end_x - m_NonInstantTextInfo[line_start_glyph].left;
 				}
 
 				// Top & bottom constraint

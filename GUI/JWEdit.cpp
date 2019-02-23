@@ -5,7 +5,6 @@
 
 using namespace JWENGINE;
 
-
 JWEdit::JWEdit()
 {
 	m_bShouldDrawBorder = true;
@@ -13,8 +12,10 @@ JWEdit::JWEdit()
 	m_pBackground = nullptr;
 	m_pEditText = nullptr;
 
-	// FOR DEBUGGING!!!
-	m_bShouldUseViewport = false;
+	m_FontColor = DEFAULT_COLOR_FONT;
+
+	m_Watermark = DEFAULT_EDIT_WATERMARK;
+	m_WatermarkColor = DEFAULT_COLOR_WATERMARK;
 
 	// Set default color for every control state.
 	m_Color_Normal = DEFAULT_COLOR_BACKGROUND_EDIT;
@@ -69,6 +70,8 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowShar
 	SetPosition(Position);
 	SetSize(Size);
 
+	m_pEditText->UpdateNonInstantText(L"", m_PaddedPosition, m_PaddedSize);
+
 	return EError::OK;
 }
 
@@ -104,6 +107,18 @@ void JWEdit::Draw()
 
 	m_pBackground->Draw();
 
+	if (!m_Text.length())
+	{
+		if (m_Watermark.length())
+		{
+			m_pSharedData->pWindow->GetDevice()->SetViewport(&m_PaddedViewport);
+
+			m_pSharedData->pText->DrawInstantText(m_Watermark, m_PaddedPosition, EHorizontalAlignment::Left, m_WatermarkColor);
+		}
+	}
+
+	m_pSharedData->pWindow->GetDevice()->SetViewport(&m_PaddedViewport);
+
 	m_pEditText->DrawNonInstantText();
 
 	m_pEditText->DrawSelectionBox();
@@ -124,6 +139,8 @@ void JWEdit::Draw()
 		}
 		m_CaretShowInterval++;
 	}
+
+	m_pSharedData->pWindow->GetDevice()->SetViewport(&m_ControlViewport);
 
 	JWControl::EndDrawing();
 }
@@ -155,10 +172,9 @@ void JWEdit::SetPosition(D3DXVECTOR2 Position)
 {
 	JWControl::SetPosition(Position);
 
-	m_pBackground->SetPosition(Position);
+	m_pBackground->SetPosition(m_Position);
 
-	m_PaddedPosition.x = Position.x + DEFAULT_EDIT_PADDING;
-	m_PaddedPosition.y = Position.y + DEFAULT_EDIT_PADDING;
+	UpdatePaddedViewport();
 }
 
 void JWEdit::SetSize(D3DXVECTOR2 Size)
@@ -168,10 +184,26 @@ void JWEdit::SetSize(D3DXVECTOR2 Size)
 
 	JWControl::SetSize(Size);
 	
-	m_pBackground->SetSize(Size);
+	m_pBackground->SetSize(m_Size);
 
-	m_PaddedSize.x = Size.x - DEFAULT_EDIT_PADDING * 2;
-	m_PaddedSize.y = Size.y - DEFAULT_EDIT_PADDING * 2;
+	UpdatePaddedViewport();
+}
+
+void JWEdit::SetFontColor(const DWORD Color)
+{
+	m_FontColor = Color;
+
+	m_pEditText->SetNonInstantTextColor(m_FontColor);
+}
+
+void JWEdit::SetWatermark(const WSTRING Text)
+{
+	m_Watermark = Text;
+}
+
+void JWEdit::SetWatermarkColor(const DWORD Color)
+{
+	m_WatermarkColor = Color;
 }
 
 void JWEdit::Focus()
@@ -184,6 +216,11 @@ void JWEdit::Focus()
 void JWEdit::ShouldUseMultiline(bool Value)
 {
 	m_bUseMultiline = Value;
+
+	if (m_bUseMultiline)
+	{
+		m_pEditText->ShouldUseAutomaticLineBreak(true);
+	}
 }
 
 void JWEdit::ShouldUseAutomaticLineBreak(bool Value)
@@ -342,15 +379,12 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 			break;
 		}
 
-		if (m_bUseMultiline)
+		if (m_pEditText->IsTextSelected())
 		{
-			if (m_pEditText->IsTextSelected())
-			{
-				EraseSelection();
-			}
-
-			InsertCharacter(L'\n');
+			EraseSelection();
 		}
+
+		InsertCharacter(L'\n');
 		break;
 	case 22: // Ctrl + v
 		PasteFromClipboard();
@@ -427,6 +461,14 @@ PROTECTED void JWEdit::WindowIMEInput(SGUIIMEInputInfo& IMEInfo)
 
 PRIVATE void JWEdit::InsertCharacter(wchar_t Char)
 {
+	if (!m_bUseMultiline)
+	{
+		if (Char == '\n')
+		{
+			return;
+		}
+	}
+
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
 
 	m_Text = m_Text.substr(0, curr_caret_sel_position) + Char + m_Text.substr(curr_caret_sel_position);
@@ -448,6 +490,17 @@ PRIVATE void JWEdit::InsertString(WSTRING String)
 		if (String[iterator_character] != '\r')
 		{
 			string_without_return += String[iterator_character];
+		}
+	}
+
+	if (!m_bUseMultiline)
+	{
+		for (size_t iterator_character = 0; iterator_character < string_without_return.length(); iterator_character++)
+		{
+			if (string_without_return[iterator_character] == '\n')
+			{
+				string_without_return = string_without_return.substr(0, iterator_character);
+			}
 		}
 	}
 
@@ -551,4 +604,19 @@ PRIVATE void JWEdit::PasteFromClipboard()
 
 		CloseClipboard();
 	}
+}
+
+PRIVATE void JWEdit::UpdatePaddedViewport()
+{
+	m_PaddedPosition.x = m_Position.x + DEFAULT_EDIT_PADDING;
+	m_PaddedPosition.y = m_Position.y + DEFAULT_EDIT_PADDING;
+
+	m_PaddedSize.x = m_Size.x - DEFAULT_EDIT_PADDING * 2;
+	m_PaddedSize.y = m_Size.y - DEFAULT_EDIT_PADDING * 2;
+
+	m_PaddedViewport = m_ControlViewport;
+	m_PaddedViewport.X = static_cast<DWORD>(m_PaddedPosition.x);
+	m_PaddedViewport.Y = static_cast<DWORD>(m_PaddedPosition.y);
+	m_PaddedViewport.Width = static_cast<DWORD>(m_PaddedSize.x);
+	m_PaddedViewport.Height = static_cast<DWORD>(m_PaddedSize.y);
 }

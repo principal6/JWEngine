@@ -98,6 +98,11 @@ namespace JWENGINE
 	static const DWORD DEFAULT_COLOR_ALMOST_WHITE = D3DCOLOR_XRGB(220, 220, 220);
 	static const DWORD DEFAULT_COLOR_WHITE = D3DCOLOR_XRGB(255, 255, 255);
 
+	static const DWORD DEFAULT_COLOR_FONT = DEFAULT_COLOR_WHITE;
+	static const DWORD DEFAULT_COLOR_WATERMARK = DEFAULT_COLOR_LESS_WHITE;
+
+	static const wchar_t DEFAULT_EDIT_WATERMARK[] = L"JWEdit Control";
+
 	enum class EError
 	{
 		/** No error */

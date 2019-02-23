@@ -141,7 +141,8 @@ namespace JWENGINE
 		virtual void SetTextAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment);
 		virtual void SetTextHorizontalAlignment(EHorizontalAlignment Alignment);
 		virtual void SetTextVerticalAlignment(EVerticalAlignment Alignment);
-		virtual void SetFontColor(DWORD Color);
+		virtual void SetFontColor(const DWORD Color);
+		
 
 		// Focus
 		virtual void Focus();
@@ -198,6 +199,12 @@ namespace JWENGINE
 
 		// [JWEdit]
 		virtual void ShouldUseAutomaticLineBreak(bool Value) {};
+
+		// [JWEdit]
+		virtual void SetWatermark(const WSTRING Text) {};
+
+		// [JWEdit]
+		virtual void SetWatermarkColor(const DWORD Color) {};
 
 		// [JWListBox]
 		virtual void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0), D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0)) {};

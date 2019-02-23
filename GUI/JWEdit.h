@@ -25,6 +25,10 @@ namespace JWENGINE
 		void SetText(WSTRING Text) override;
 		void SetPosition(D3DXVECTOR2 Position) override;
 		void SetSize(D3DXVECTOR2 Size) override;
+		void SetFontColor(const DWORD Color) override;
+
+		void SetWatermark(const WSTRING Text) override;
+		void SetWatermarkColor(const DWORD Color) override;
 
 		void Focus() override;
 
@@ -45,6 +49,8 @@ namespace JWENGINE
 		void CopySelection();
 		void PasteFromClipboard();
 
+		void UpdatePaddedViewport();
+
 	private:
 		static const DWORD DEFAULT_COLOR_BACKGROUND_EDIT = DEFAULT_COLOR_ALMOST_BLACK;
 		static const unsigned int DEFAULT_EDIT_PADDING = 2;
@@ -52,7 +58,12 @@ namespace JWENGINE
 
 		JWImageBox* m_pBackground;
 		JWText* m_pEditText;
+		DWORD m_FontColor;
 
+		WSTRING m_Watermark;
+		DWORD m_WatermarkColor;
+
+		D3DVIEWPORT9 m_PaddedViewport;
 		D3DXVECTOR2 m_PaddedPosition;
 		D3DXVECTOR2 m_PaddedSize;
 

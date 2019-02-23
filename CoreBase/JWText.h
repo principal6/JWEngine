@@ -66,6 +66,7 @@ namespace JWENGINE
 		// Destroy JWText object, no matter it's instant or non-instant.
 		void Destroy();
 
+		void SetNonInstantTextColor(const DWORD FontColor);
 		void UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize);
 		void DrawNonInstantText();
 
@@ -74,7 +75,7 @@ namespace JWENGINE
 		// @warning: instant text must be a single-line text.
 		// If the text is multi-line, it will be clipped.
 		void DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position,
-			const EHorizontalAlignment HorizontalAlignment = EHorizontalAlignment::Left);
+			const EHorizontalAlignment HorizontalAlignment = EHorizontalAlignment::Left, const DWORD FontColor = DEFAULT_COLOR_FONT);
 
 		void DrawCaret();
 
@@ -140,7 +141,6 @@ namespace JWENGINE
 		auto GetLineEndGlyphIndex(const size_t LineIndex)->size_t;
 
 	private:
-		static const DWORD DEFAULT_COLOR_FONT = D3DCOLOR_XRGB(255, 255, 255);
 		static const DWORD DEFAULT_COLOR_CARET = DEFAULT_COLOR_FONT;
 		static const DWORD DEFAULT_COLOR_BOX = D3DCOLOR_ARGB(0, 180, 180, 180);
 		static const DWORD DEFAULT_COLOR_SELECTION = D3DCOLOR_ARGB(100, 255, 0, 255);
@@ -174,6 +174,7 @@ namespace JWENGINE
 		SIndexData m_NonInstantIndexData;
 		
 		VECTOR<SGlyphInfo> m_NonInstantTextInfo;
+		DWORD m_NonInstantTextColor;
 
 		D3DXVECTOR2 m_ConstraintPosition;
 		D3DXVECTOR2 m_ConstraintSize;
