@@ -26,6 +26,9 @@
 	template <typename T>
 	using VECTOR = std::vector<T>;
 
+	template <typename KeyType, typename ValueType>
+	using MAP = std::map<KeyType, ValueType>;
+
 	template <typename T>
 	using UNIQUE_PTR = std::unique_ptr<T>;
 
@@ -34,6 +37,8 @@
 
 	#define MAKE_UNIQUE(T) std::make_unique<T>
 	#define MAKE_SHARED(T) std::make_shared<T>
+	#define MAKE_PAIR(Key, Value) std::make_pair(Key, Value)
+
 #endif
 
 // Static function prefix
@@ -60,10 +65,8 @@ namespace JWENGINE
 
 	using CINT = const __int32;
 
-	using THandle = unsigned __int64;
-	static constexpr THandle THandle_Null = UINT64_MAX;
-
-	using THandleItem = THandle;
+	using THandleItem = unsigned __int64;
+	static constexpr THandleItem THandleItem_Null = UINT64_MAX;
 
 	using TIndex = size_t;
 	static const size_t TIndex_NotSpecified = static_cast<size_t>(-1);

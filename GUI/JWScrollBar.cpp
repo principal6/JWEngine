@@ -114,7 +114,7 @@ void JWScrollBar::Destroy()
 	JW_DESTROY(m_pScroller);
 }
 
-void JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)
+auto JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)->JWControl*
 {
 	m_ScrollBarDirection = Direction;
 
@@ -139,6 +139,8 @@ void JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)
 
 	UpdateButtonSize();
 	UpdateButtonPosition();
+
+	return this;
 }
 
 void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
@@ -378,7 +380,7 @@ void JWScrollBar::SetState(EControlState State)
 	}
 }
 
-void JWScrollBar::SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount)
+auto JWScrollBar::SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount)->JWControl*
 {
 	m_VisibleUnitCount = VisibleUnitCount;
 	m_TotalUnitCount = TotalUnitCount;
@@ -387,9 +389,11 @@ void JWScrollBar::SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount)
 
 	UpdateButtonSize();
 	UpdateButtonPosition();
+
+	return this;
 }
 
-void JWScrollBar::SetScrollPosition(size_t Position)
+auto JWScrollBar::SetScrollPosition(size_t Position)->JWControl*
 {
 	if (Position >= m_ScrollMax)
 		Position = m_ScrollMax;
@@ -411,6 +415,8 @@ void JWScrollBar::SetScrollPosition(size_t Position)
 	default:
 		break;
 	}
+
+	return this;
 }
 
 auto JWScrollBar::GetScrollRange() const->size_t

@@ -78,14 +78,14 @@ PRIVATE auto JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTU
 
 void JWGUIWindow::Destroy()
 {
-	if (m_Controls.size())
+	if (m_pControls.size())
 	{
-		for (JWControl* iterator : m_Controls)
+		for (JWControl* iterator : m_pControls)
 		{
 			JW_DESTROY(iterator);
 		}
 
-		m_Controls.clear();
+		m_pControls.clear();
 	}
 	
 	JW_DESTROY(m_SharedData.pText);
@@ -93,16 +93,14 @@ void JWGUIWindow::Destroy()
 	JW_DESTROY(m_SharedData.pWindow);
 }
 
-auto JWGUIWindow::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text)->const THandle
+auto JWGUIWindow::AddControl(WSTRING ControlName, EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text)->JWControl*
 {
-	THandle Result = 0;
-
 	if (m_bHasMenuBar)
 	{
 		if (Type == EControlType::MenuBar)
 		{
 			// If JWGUIWindow already has a menubar, you can't add another one.
-			return THandle_Null;
+			return nullptr;
 		}
 		else
 		{
@@ -114,68 +112,71 @@ auto JWGUIWindow::AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR
 	switch (Type)
 	{
 	case JWENGINE::TextButton:
-		m_Controls.push_back(new JWTextButton);
+		m_pControls.push_back(new JWTextButton);
 		break;
 	case JWENGINE::ImageButton:
-		m_Controls.push_back(new JWImageButton);
+		m_pControls.push_back(new JWImageButton);
 		break;
 	case JWENGINE::Label:
-		m_Controls.push_back(new JWLabel);
+		m_pControls.push_back(new JWLabel);
 		break;
 	case JWENGINE::Edit:
-		m_Controls.push_back(new JWEdit);
+		m_pControls.push_back(new JWEdit);
 		break;
 	case JWENGINE::CheckBox:
-		m_Controls.push_back(new JWCheckBox);
+		m_pControls.push_back(new JWCheckBox);
 		break;
 	case JWENGINE::RadioBox:
-		m_Controls.push_back(new JWRadioBox);
+		m_pControls.push_back(new JWRadioBox);
 		break;
 	case JWENGINE::ScrollBar:
-		m_Controls.push_back(new JWScrollBar);
+		m_pControls.push_back(new JWScrollBar);
 		break;
 	case JWENGINE::ListBox:
-		m_Controls.push_back(new JWListBox);
+		m_pControls.push_back(new JWListBox);
 		break;
 	case JWENGINE::MenuBar:
-		m_Controls.push_back(new JWMenuBar);
+		m_pControls.push_back(new JWMenuBar);
 		m_bHasMenuBar = true;
-		m_pMenuBar = m_Controls[m_Controls.size() - 1];
+		m_pMenuBar = m_pControls[m_pControls.size() - 1];
 		break;
 	case JWENGINE::ImageBox:
-		m_Controls.push_back(new JWImageBox);
+		m_pControls.push_back(new JWImageBox);
 		break;
 	default:
-		return THandle_Null;
-		break;
+		return nullptr;
 	}
 
-	if (JW_FAILED(m_Controls[m_Controls.size() - 1]->Create(Position, Size, &m_SharedData)))
+	if (JW_FAILED(m_pControls[m_pControls.size() - 1]->Create(Position, Size, &m_SharedData)))
 	{
-		return THandle_Null;
+		JW_DESTROY(m_pControls[m_pControls.size() - 1]);
+		m_pControls.pop_back();
+
+		return nullptr;
 	}
 
 	if (Text.length())
 	{
-		m_Controls[m_Controls.size() - 1]->SetText(Text);
+		m_pControls[m_pControls.size() - 1]->SetText(Text);
 	}
 
-	Result = static_cast<THandle>(m_Controls.size() - 1);
-	return Result;
+	// Control is successfully added.
+	m_ControlsMap.insert(MAKE_PAIR(ControlName, m_pControls.size() - 1));
+
+	return m_pControls[m_pControls.size() - 1];
 }
 
-auto JWGUIWindow::GetControlPtr(const THandle ControlHandle)->JWControl*
+auto JWGUIWindow::GetControlPtr(const WSTRING ControlName)->JWControl*
 {
-	if (ControlHandle == THandle_Null)
+	auto found_control = m_ControlsMap.find(ControlName);
+
+	if (found_control != m_ControlsMap.end())
 	{
-		return nullptr;
+		return m_pControls[found_control->second];
 	}
 	else
 	{
-		size_t safe_index = ControlHandle;
-		safe_index = min(safe_index, m_Controls.size() - 1);
-
-		return m_Controls[safe_index];
+		return nullptr;
 	}
 }
 
@@ -212,19 +213,19 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 	// because lately added controls' position is on top of formerly added controls.
 	// @warning: MenuBar must be the first one to be updated, if it exists,
 	// becuase it's on top of any other controls.
-	if (m_Controls.size())
+	if (m_pControls.size())
 	{
 		if (m_pMenuBar)
 		{
 			m_pMenuBar->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
 		}
 
-		for (size_t iterator_index = m_Controls.size(); iterator_index > 0; iterator_index--)
+		for (size_t iterator_index = m_pControls.size(); iterator_index > 0; iterator_index--)
 		{
 			// In order not to do duplicate update.
-			if (m_Controls[iterator_index - 1] != m_pMenuBar)
+			if (m_pControls[iterator_index - 1] != m_pMenuBar)
 			{
-				m_Controls[iterator_index - 1]->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
+				m_pControls[iterator_index - 1]->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
 			}
 		}
 	}
@@ -237,7 +238,7 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 
 		if (m_pControlWithFocus->GetControlType() == EControlType::RadioBox)
 		{
-			for (JWControl* iterator : m_Controls)
+			for (JWControl* iterator : m_pControls)
 			{
 				if (iterator->GetControlType() == EControlType::RadioBox)
 				{
@@ -283,11 +284,11 @@ PRIVATE void JWGUIWindow::SetFocusOnControl(JWControl* pFocusedControl)
 		return;
 	}
 
-	if (m_Controls.size())
+	if (m_pControls.size())
 	{
 		pFocusedControl->Focus();
 
-		for (JWControl* iterator : m_Controls)
+		for (JWControl* iterator : m_pControls)
 		{
 			if (iterator != pFocusedControl)
 			{
@@ -304,9 +305,9 @@ void JWGUIWindow::BeginRender()
 
 void JWGUIWindow::DrawAllControls()
 {
-	if (m_Controls.size())
+	if (m_pControls.size())
 	{
-		for (JWControl* iterator : m_Controls)
+		for (JWControl* iterator : m_pControls)
 		{
 			if (iterator != m_pMenuBar)
 			{
@@ -336,9 +337,9 @@ void JWGUIWindow::KillFocus()
 {
 	m_pControlWithFocus = nullptr;
 
-	if (m_Controls.size())
+	if (m_pControls.size())
 	{
-		for (JWControl* iterator : m_Controls)
+		for (JWControl* iterator : m_pControls)
 		{
 			iterator->KillFocus();
 		}

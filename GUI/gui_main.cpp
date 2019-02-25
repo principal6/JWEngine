@@ -13,14 +13,11 @@ static JWGUI myGUI;
 JWGUIWindow* pMainGUIWindow;
 JWGUIWindow* pDialogueNewMap;
 
-THandle menubar = THandle_Null;
-THandleItem mb_file_new = THandle_Null;
-THandleItem mb_file_open = THandle_Null;
-THandleItem mb_help_info = THandle_Null;
+THandleItem mb_file_new = THandleItem_Null;
+THandleItem mb_file_open = THandleItem_Null;
+THandleItem mb_help_info = THandleItem_Null;
 
-THandle textbutton1 = THandle_Null;
-
-// TODO: THandle, THandleItem to structure?? (To safely handle these)
+// TODO: THandleItem to structure?? (To safely handle these)
 
 int main()
 {
@@ -36,68 +33,67 @@ int main()
 	myGUI.Create(myWindowData);
 	pMainGUIWindow = myGUI.GetMainGUIWindowPtr();
 
-	menubar = pMainGUIWindow->AddControl(EControlType::MenuBar, D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0));
-	THandleItem mb_file = pMainGUIWindow->GetControlPtr(menubar)->AddMenuBarItem(L"파일");
-		mb_file_new = pMainGUIWindow->GetControlPtr(menubar)->AddMenuBarSubItem(mb_file, L"새로 만들기");
-		mb_file_open = pMainGUIWindow->GetControlPtr(menubar)->AddMenuBarSubItem(mb_file, L"열기");
-	THandleItem mb_help = pMainGUIWindow->GetControlPtr(menubar)->AddMenuBarItem(L"도움말");
-		mb_help_info = pMainGUIWindow->GetControlPtr(menubar)->AddMenuBarSubItem(mb_help, L"정보");
+	pMainGUIWindow->AddControl(L"menubar", EControlType::MenuBar, D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0));
+	THandleItem mb_file = pMainGUIWindow->GetControlPtr(L"menubar")->AddMenuBarItem(L"파일");
+		mb_file_new = pMainGUIWindow->GetControlPtr(L"menubar")->AddMenuBarSubItem(mb_file, L"새로 만들기");
+		mb_file_open = pMainGUIWindow->GetControlPtr(L"menubar")->AddMenuBarSubItem(mb_file, L"열기");
+	THandleItem mb_help = pMainGUIWindow->GetControlPtr(L"menubar")->AddMenuBarItem(L"도움말");
+		mb_help_info = pMainGUIWindow->GetControlPtr(L"menubar")->AddMenuBarSubItem(mb_help, L"정보");
 	
-	textbutton1 = pMainGUIWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
+	pMainGUIWindow->AddControl(L"textbutton1", EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"ABCDE");
 
-	THandle textbutton2 = pMainGUIWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(25, 25), D3DXVECTOR2(100, 50), L"FGHIJ");
-	pMainGUIWindow->GetControlPtr(textbutton2)->ShouldUseToggleSelection(true);
+	pMainGUIWindow->AddControl(L"textbutton2", EControlType::TextButton, D3DXVECTOR2(25, 25), D3DXVECTOR2(100, 50), L"FGHIJ");
+	pMainGUIWindow->GetControlPtr(L"textbutton2")->ShouldUseToggleSelection(true);
 
-	THandle scrollbar1 = pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 0), D3DXVECTOR2(160, 0));
-	pMainGUIWindow->GetControlPtr(scrollbar1)->MakeScrollBar(EScrollBarDirection::Horizontal);
-	pMainGUIWindow->GetControlPtr(scrollbar1)->SetScrollRange(2, 5);
-	pMainGUIWindow->GetControlPtr(scrollbar1)->SetScrollPosition(0);
+	pMainGUIWindow->AddControl(L"scrollbar1", EControlType::ScrollBar, D3DXVECTOR2(340, 0), D3DXVECTOR2(160, 0))
+		->MakeScrollBar(EScrollBarDirection::Horizontal)
+		->SetScrollRange(2, 5)
+		->SetScrollPosition(0);
 
-	THandle scrollbar2 = pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(320, 100), D3DXVECTOR2(0, 200));
-	pMainGUIWindow->GetControlPtr(scrollbar2)->MakeScrollBar(EScrollBarDirection::Vertical);
-	pMainGUIWindow->GetControlPtr(scrollbar2)->SetScrollRange(10, 30);
-	pMainGUIWindow->GetControlPtr(scrollbar2)->SetScrollPosition(0);
+	pMainGUIWindow->AddControl(L"scrollbar2", EControlType::ScrollBar, D3DXVECTOR2(320, 100), D3DXVECTOR2(0, 200))
+		->MakeScrollBar(EScrollBarDirection::Vertical)
+		->SetScrollRange(10, 30)
+		->SetScrollPosition(0);
 
-	THandle label1 = pMainGUIWindow->AddControl(EControlType::Label, D3DXVECTOR2(120, 80), D3DXVECTOR2(150, 40), L"레이블입니다!");
-	pMainGUIWindow->GetControlPtr(label1)->SetTextVerticalAlignment(EVerticalAlignment::Middle);
-	pMainGUIWindow->GetControlPtr(label1)->AttachScrollBar(pMainGUIWindow->GetControlPtr(scrollbar2));
+	pMainGUIWindow->AddControl(L"label1", EControlType::Label, D3DXVECTOR2(120, 80), D3DXVECTOR2(150, 40), L"레이블입니다!");
+	pMainGUIWindow->GetControlPtr(L"label1")->SetTextVerticalAlignment(EVerticalAlignment::Middle);
+	pMainGUIWindow->GetControlPtr(L"label1")->AttachScrollBar(pMainGUIWindow->GetControlPtr(L"scrollbar2"));
 
-	THandle imagebutton1 = pMainGUIWindow->AddControl(EControlType::ImageButton, D3DXVECTOR2(120, 0), D3DXVECTOR2(100, 50));
-	pMainGUIWindow->GetControlPtr(imagebutton1)->MakeSystemArrowButton(ESystemArrowDirection::Left);
+	pMainGUIWindow->AddControl(L"imagebutton1", ::ImageButton, D3DXVECTOR2(120, 0), D3DXVECTOR2(100, 50));
+	pMainGUIWindow->GetControlPtr(L"imagebutton1")->MakeSystemArrowButton(ESystemArrowDirection::Left);
 
-	THandle checkbox1 = pMainGUIWindow->AddControl(EControlType::CheckBox, D3DXVECTOR2(250, 0), D3DXVECTOR2(50, 50));
+	pMainGUIWindow->AddControl(L"checkbox1", EControlType::CheckBox, D3DXVECTOR2(250, 0), D3DXVECTOR2(50, 50));
 
-	THandle radiobox1 = pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 0), D3DXVECTOR2(0, 0));
-	THandle radiobox2 = pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 20), D3DXVECTOR2(0, 0));
+	pMainGUIWindow->AddControl(L"radiobox1", EControlType::RadioBox, D3DXVECTOR2(320, 0), D3DXVECTOR2(0, 0));
+	pMainGUIWindow->AddControl(L"radiobox2", EControlType::RadioBox, D3DXVECTOR2(320, 20), D3DXVECTOR2(0, 0));
 
 	LPDIRECT3DTEXTURE9 test_texture;
 	D3DXIMAGE_INFO test_texture_info;
 
-	THandle listbox1 = pMainGUIWindow->AddControl(EControlType::ListBox, D3DXVECTOR2(360, 100), D3DXVECTOR2(200, 90));
+	pMainGUIWindow->AddControl(L"listbox1", EControlType::ListBox, D3DXVECTOR2(360, 100), D3DXVECTOR2(200, 90));
 	pMainGUIWindow->CreateTexture(L"test_atlas.png", &test_texture, &test_texture_info);
-	pMainGUIWindow->GetControlPtr(listbox1)->ShouldUseImageItem(test_texture, &test_texture_info);
+	pMainGUIWindow->GetControlPtr(L"listbox1")->ShouldUseImageItem(test_texture, &test_texture_info);
 
-	pMainGUIWindow->GetControlPtr(listbox1)->AddListBoxItem(L"1. 안녕하세요?", D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32));
-	pMainGUIWindow->GetControlPtr(listbox1)->AddListBoxItem(L"2. Hello.", D3DXVECTOR2(32, 64), D3DXVECTOR2(16, 16));
-	pMainGUIWindow->GetControlPtr(listbox1)->AddListBoxItem(L"3. Hola.", D3DXVECTOR2(0, 0), D3DXVECTOR2(64, 64));
-	pMainGUIWindow->GetControlPtr(listbox1)->AddListBoxItem(L"4. こんにちは。", D3DXVECTOR2(0, 0), D3DXVECTOR2(64, 64));
-	pMainGUIWindow->GetControlPtr(listbox1)->AddListBoxItem(L"5. Nihao", D3DXVECTOR2(0, 0), D3DXVECTOR2(64, 64));
-	pMainGUIWindow->GetControlPtr(listbox1)->AddListBoxItem(L"6. Привет");
-	pMainGUIWindow->GetControlPtr(listbox1)->AddListBoxItem(L"7. ...");
+	pMainGUIWindow->GetControlPtr(L"listbox1")->AddListBoxItem(L"1. 안녕하세요?", D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32));
+	pMainGUIWindow->GetControlPtr(L"listbox1")->AddListBoxItem(L"2. Hello.", D3DXVECTOR2(32, 64), D3DXVECTOR2(16, 16));
+	pMainGUIWindow->GetControlPtr(L"listbox1")->AddListBoxItem(L"3. Hola.", D3DXVECTOR2(0, 0), D3DXVECTOR2(64, 64));
+	pMainGUIWindow->GetControlPtr(L"listbox1")->AddListBoxItem(L"4. こんにちは。", D3DXVECTOR2(0, 0), D3DXVECTOR2(64, 64));
+	pMainGUIWindow->GetControlPtr(L"listbox1")->AddListBoxItem(L"5. Nihao", D3DXVECTOR2(0, 0), D3DXVECTOR2(64, 64));
+	pMainGUIWindow->GetControlPtr(L"listbox1")->AddListBoxItem(L"6. Привет");
+	pMainGUIWindow->GetControlPtr(L"listbox1")->AddListBoxItem(L"7. ...");
 
-	THandle image1 = pMainGUIWindow->AddControl(EControlType::ImageBox, D3DXVECTOR2(600, 100), D3DXVECTOR2(140, 90));
-	pMainGUIWindow->GetControlPtr(image1)
+	pMainGUIWindow->AddControl(L"imagebox1", EControlType::ImageBox, D3DXVECTOR2(600, 100), D3DXVECTOR2(140, 90))
 		->SetTextureAtlas(test_texture, &test_texture_info)
-		->SetAtlasUV(D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32));
-	pMainGUIWindow->GetControlPtr(image1)->SetSize(D3DXVECTOR2(100, 20));
+		->SetAtlasUV(D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32))
+		->SetSize(D3DXVECTOR2(100, 20));
 
-	THandle edit1 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 140), D3DXVECTOR2(280, 200));
-	pMainGUIWindow->GetControlPtr(edit1)->ShouldUseMultiline(true);
-	pMainGUIWindow->GetControlPtr(edit1)->SetText(L"This is JWEdit-control.\nTest it!\nThird line it is!\nAnd forth this is.");
-	pMainGUIWindow->GetControlPtr(edit1)->SetWatermark(L"Edit 1");
+	pMainGUIWindow->AddControl(L"edit1", EControlType::Edit, D3DXVECTOR2(0, 140), D3DXVECTOR2(280, 200));
+	pMainGUIWindow->GetControlPtr(L"edit1")->ShouldUseMultiline(true);
+	pMainGUIWindow->GetControlPtr(L"edit1")->SetText(L"This is JWEdit-control.\nTest it!\nThird line it is!\nAnd forth this is.");
+	pMainGUIWindow->GetControlPtr(L"edit1")->SetWatermark(L"Edit 1");
 
-	THandle edit2 = pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 360), D3DXVECTOR2(180, 60));
-	pMainGUIWindow->GetControlPtr(edit2)->SetWatermark(L"Edit 2");
+	pMainGUIWindow->AddControl(L"edit2", EControlType::Edit, D3DXVECTOR2(0, 360), D3DXVECTOR2(180, 60));
+	pMainGUIWindow->GetControlPtr(L"edit2")->SetWatermark(L"Edit 2");
 
 	myGUI.SetMainLoopFunction(MainLoop);
 
@@ -108,30 +104,24 @@ int main()
 
 void MainLoop()
 {
-	THandleItem clicked_subitem = THandle_Null;
+	THandleItem clicked_subitem = THandleItem_Null;
 
-	if ((clicked_subitem = pMainGUIWindow->GetControlPtr(menubar)->OnSubItemClick()) != THandle_Null)
+	if ((clicked_subitem = pMainGUIWindow->GetControlPtr(L"menubar")->OnSubItemClick()) != THandleItem_Null)
 	{
 		if (clicked_subitem == mb_file_new)
 		{
-			std::cout << "FILE - NEW" << std::endl;
 			ShowDialogueNewMap();
 		}
 	}
 
 	if (pDialogueNewMap)
 	{
-		if (pDialogueNewMap->GetControlPtr(0)->OnMouseCliked())
+		if (pDialogueNewMap->GetControlPtr(L"btn_close")->OnMouseCliked())
 		{
 			WSTRING text;
-			pDialogueNewMap->GetControlPtr(1)->GetText(&text);
+			pDialogueNewMap->GetControlPtr(L"edit1")->GetText(&text);
 			std::wcout << text.c_str() << std::endl;
 		}
-	}
-	
-	if (pMainGUIWindow->GetControlPtr(textbutton1)->OnMouseCliked())
-	{
-		//std::cout << "CLICK" << std::endl;
 	}
 }
 
@@ -141,11 +131,11 @@ void ShowDialogueNewMap()
 
 	myGUI.AddGUIWindow(myWindowData, &pDialogueNewMap);
 
-	THandle textbutton = pDialogueNewMap->AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"CLOSE");
+	pDialogueNewMap->AddControl(L"btn_close", EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"CLOSE");
 
-	THandle edit1 = pDialogueNewMap->AddControl(EControlType::Edit, D3DXVECTOR2(0, 60), D3DXVECTOR2(120, 0));
-	pDialogueNewMap->GetControlPtr(edit1)->SetWatermark(L"Edit1");
+	pDialogueNewMap->AddControl(L"edit1", EControlType::Edit, D3DXVECTOR2(0, 60), D3DXVECTOR2(120, 0));
+	pDialogueNewMap->GetControlPtr(L"edit1")->SetWatermark(L"Edit1");
 
-	THandle edit2 = pDialogueNewMap->AddControl(EControlType::Edit, D3DXVECTOR2(0, 80), D3DXVECTOR2(120, 0));
-	pDialogueNewMap->GetControlPtr(edit2)->SetWatermark(L"Edit2");
+	pDialogueNewMap->AddControl(L"edit2", EControlType::Edit, D3DXVECTOR2(0, 80), D3DXVECTOR2(120, 0));
+	pDialogueNewMap->GetControlPtr(L"edit2")->SetWatermark(L"Edit2");
 }

@@ -50,10 +50,10 @@ namespace JWENGINE
 		static const int DEFAULT_MENUBAR_HEIGHT = 24;
 		static const int DEFAULT_MENUBAR_ITEM_PADDING = 10;
 		static const D3DXVECTOR2 BLANK_SUBITEMBOX_SIZE;
-		static const THandle MENU_ITEM_THANDLE_BASE = 10000;
+		static const THandleItem MENU_ITEM_THANDLE_BASE = 10000;
 
 		// This means that the total count of sub items of each item should be less than 100.
-		static const THandle MENU_ITEM_THANDLE_STRIDE = 100;
+		static const THandleItem MENU_ITEM_THANDLE_STRIDE = 100;
 
 		// MenuBar's non-button region.
 		JWImageBox* m_pNonButtonRegion;

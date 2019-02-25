@@ -89,14 +89,14 @@ namespace JWENGINE
 		virtual void MakeSystemArrowButton(ESystemArrowDirection Direction) {};
 
 		// [JWScrollBar] Decide the direction (horizontal/vertical) of the JWScrollBar.
-		virtual void MakeScrollBar(EScrollBarDirection Direction) {};
+		virtual auto MakeScrollBar(EScrollBarDirection Direction)->JWControl* { return this; };
 
 		/*
 		** Recall event
 		*/
 		// [JWListBox] Return THandleItem value of the selected sub-item in the JWListBox.
 		// @warning: calling this function initilaizes the clicked subitem index.
-		virtual auto OnSubItemClick()->THandleItem { return THandle_Null; };
+		virtual auto OnSubItemClick()->THandleItem { return THandleItem_Null; };
 
 		// Return true if JWControl's state is Hover.
 		virtual auto OnMouseHover() const->bool;
@@ -183,10 +183,10 @@ namespace JWENGINE
 		virtual auto GetCheckState() const->bool { return true; };
 		
 		// [JWScrollBar]
-		virtual void SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount) {};
+		virtual auto SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount)->JWControl* { return this; };
 
 		// [JWScrollBar]
-		virtual void SetScrollPosition(size_t Position) {};
+		virtual auto SetScrollPosition(size_t Position)->JWControl* { return this; };
 
 		// [JWScrollBar]
 		virtual auto GetScrollRange() const->size_t { return 0; };
@@ -233,12 +233,12 @@ namespace JWENGINE
 		// [JWMenuBar]
 		// @warning: this functions doesn't return 'this' pointer,
 		// but the handle(THandleItem) of the added item.
-		virtual auto AddMenuBarItem(WSTRING Text)->THandleItem { return THandle_Null; };
+		virtual auto AddMenuBarItem(WSTRING Text)->THandleItem { return THandleItem_Null; };
 
 		// [JWMenuBar]
 		// @warning: this functons doesn't return 'this' pointer,
 		// but the handle(THandleItem) of the added subitem.
-		virtual auto AddMenuBarSubItem(THandleItem hItem, WSTRING Text)->THandleItem { return THandle_Null; };
+		virtual auto AddMenuBarSubItem(THandleItem hItem, WSTRING Text)->THandleItem { return THandleItem_Null; };
 
 	protected:
 		virtual void CalculateControlRect();

@@ -35,10 +35,10 @@ namespace JWENGINE
 		auto CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* pTexture, D3DXIMAGE_INFO* pInfo)->EError;
 
 		// Add a control instance to this JWGUIWindow.
-		auto AddControl(EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text = L"")->const THandle;
+		auto AddControl(WSTRING ControlName, EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text = L"")->JWControl*;
 
 		// Get the pointer of the control instance that this JWGUIWindow has.
-		auto GetControlPtr(const THandle ControlHandle)->JWControl*;
+		auto GetControlPtr(const WSTRING ControlName)->JWControl*;
 
 		void Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindowHWND, HWND ActiveWindowHWND);
 
@@ -68,7 +68,8 @@ namespace JWENGINE
 		JWControl* m_pMenuBar;
 		bool m_bHasMenuBar;
 
-		TDynamicArray<JWControl*> m_Controls;
+		std::map<WSTRING, size_t> m_ControlsMap;
+		TDynamicArray<JWControl*> m_pControls;
 		JWControl* m_pControlWithFocus;
 
 		bool m_bDestroyed;

@@ -249,7 +249,7 @@ auto JWMenuBar::OnSubItemClick()->THandleItem
 {
 	THandleItem Result = m_hSelectedSubItem;
 
-	m_hSelectedSubItem = THandle_Null;
+	m_hSelectedSubItem = THandleItem_Null;
 
 	return Result;
 }

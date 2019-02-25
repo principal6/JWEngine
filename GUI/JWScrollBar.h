@@ -20,7 +20,7 @@ namespace JWENGINE
 		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
-		void MakeScrollBar(EScrollBarDirection Direction) override;
+		auto MakeScrollBar(EScrollBarDirection Direction)->JWControl* override;
 
 		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override; // Must override
 
@@ -29,8 +29,8 @@ namespace JWENGINE
 		void SetPosition(D3DXVECTOR2 Position) override;
 		void SetSize(D3DXVECTOR2 Size) override;
 		void SetState(EControlState State) override; // Must override
-		void SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount) override;
-		void SetScrollPosition(size_t Position) override;
+		auto SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount)->JWControl* override;
+		auto SetScrollPosition(size_t Position)->JWControl* override;
 
 		auto GetScrollRange() const->size_t override;
 		auto GetScrollPosition() const->size_t override;
