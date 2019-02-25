@@ -70,7 +70,7 @@ auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowShar
 	SetPosition(Position);
 	SetSize(Size);
 
-	m_pEditText->UpdateNonInstantText(L"", m_PaddedPosition, m_PaddedSize);
+	m_pEditText->SetNonInstantText(L"", m_PaddedPosition, m_PaddedSize);
 
 	return EError::OK;
 }
@@ -174,7 +174,7 @@ void JWEdit::SetText(WSTRING Text)
 
 	JWControl::SetText(Text);
 
-	m_pEditText->UpdateNonInstantText(Text, m_PaddedPosition, m_PaddedSize);
+	m_pEditText->SetNonInstantText(Text, m_PaddedPosition, m_PaddedSize);
 }
 
 void JWEdit::SetPosition(D3DXVECTOR2 Position)
@@ -476,7 +476,7 @@ PROTECTED void JWEdit::WindowIMEInput(SGUIIMEInputInfo& IMEInfo)
 		{
 			// The character was erased.
 			m_pEditText->MoveCaretToLeft();
-			m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+			m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
 
 			m_bIMECaretCaptured = false;
 		}
@@ -509,7 +509,7 @@ PRIVATE void JWEdit::InsertCharacter(wchar_t Char)
 
 	m_Text = m_Text.substr(0, curr_caret_sel_position) + Char + m_Text.substr(curr_caret_sel_position);
 
-	m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+	m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
 
 	m_pEditText->MoveCaretToRight();
 
@@ -542,7 +542,7 @@ PRIVATE void JWEdit::InsertString(WSTRING String)
 
 	m_Text = m_Text.substr(0, curr_caret_sel_position) + string_without_return + m_Text.substr(curr_caret_sel_position);
 
-	m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+	m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
 
 	m_pEditText->MoveCaretTo(curr_caret_sel_position + string_without_return.length());
 
@@ -563,7 +563,7 @@ PRIVATE void JWEdit::EraseCharacter(size_t SelPosition)
 
 	m_Text = m_Text.substr(0, SelPosition - 1) + m_Text.substr(SelPosition);
 	
-	m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+	m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
 
 	m_CaretShowInterval = 0;
 }
@@ -575,7 +575,7 @@ PRIVATE void JWEdit::EraseSelection()
 
 	m_Text = m_Text.substr(0, sel_start) + m_Text.substr(sel_end);
 
-	m_pEditText->UpdateNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+	m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
 
 	m_pEditText->MoveCaretTo(sel_start);
 

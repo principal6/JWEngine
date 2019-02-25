@@ -44,6 +44,8 @@ namespace JWENGINE
 		size_t glyph_index_in_line;
 
 		SGlyphInfo() : chars_id(0), left(0), top(0), drawing_top(0), width(0), height(0), line_index(0), glyph_index_in_line(0) {};
+		SGlyphInfo(float _left, float _top) : chars_id(0), left(_left), top(_top), drawing_top(0), width(0), height(0),
+			line_index(0), glyph_index_in_line(0) {};
 	};
 
 	struct SLineInfo
@@ -76,7 +78,11 @@ namespace JWENGINE
 		void Destroy();
 
 		void SetNonInstantTextColor(const DWORD FontColor);
-		void UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize);
+
+		// Call this function when first set the text, or when the JWEdit control is resized or repositioned.
+		void SetNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize);
+
+		void InsertCharacterInNonInstantText(size_t SelPosition, const wchar_t Character);
 		void DrawNonInstantText();
 
 		// Draw insant text to the window.
@@ -140,12 +146,12 @@ namespace JWENGINE
 		auto UpdateVertexBuffer(SVertexData* pVertexData)->EError;
 		auto UpdateIndexBuffer(SIndexData* pIndexData)->EError;
 
-		void UpdateNonInstantTextVertices();
+		void UpdateNonInstantTextVisibleVertices();
 		void UpdateCaret();
 		void UpdateSelectionBox();
 
 		void SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
-		void SetNonInstantTextGlyph(bool bIsLineFirstGlyph, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
+		void SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
 
 		auto GetLineWidth(const WSTRING* pLineText) const->float;
 		auto GetLineStartGlyphIndex(const size_t LineIndex)->size_t;
@@ -184,7 +190,8 @@ namespace JWENGINE
 		SVertexData m_NonInstantVertexData;
 		SIndexData m_NonInstantIndexData;
 		
-		VECTOR<SGlyphInfo> m_NonInstantTextInfo;
+		WSTRING m_NonInstantText;
+		VECTOR<SGlyphInfo> m_NonInstantTextGlyphInfo;
 		VECTOR<SLineInfo> m_NonInstantTextLineInfo;
 		DWORD m_NonInstantTextColor;
 

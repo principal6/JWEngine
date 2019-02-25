@@ -338,109 +338,138 @@ PRIVATE auto JWText::UpdateIndexBuffer(SIndexData* pIndexData)->EError
 	return EError::NULLPTR_INDEX;
 }
 
-void JWText::UpdateNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize)
+void JWText::SetNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize)
 {
+	m_NonInstantText = Text;
+
 	m_ConstraintPosition = Position;
 	m_ConstraintSize = AreaSize;
 	
-	m_NonInstantTextInfo.clear();
+	m_NonInstantTextGlyphInfo.clear();
 	m_NonInstantTextLineInfo.clear();
 
 	// Convert each character of the text to Chars_ID in ms_FontData
 	// in order to position them.
-	SGlyphInfo curr_glyph_info;
-		curr_glyph_info.line_index = 0;
-		curr_glyph_info.left = Position.x;
-		curr_glyph_info.top = Position.y;
-		curr_glyph_info.glyph_index_in_line = 0;
+	SGlyphInfo curr_glyph_info = SGlyphInfo(m_ConstraintPosition.x, m_ConstraintPosition.y);
 	SGlyphInfo prev_glyph_info;
-	bool b_is_line_first_glyph = true;
-	size_t line_start_index = 0;
-	size_t line_end_index = 0;
+	wchar_t character = 0;
 
-	for (size_t iterator_char = 0; iterator_char <= Text.length(); iterator_char++)
+	for (size_t iterator_char = 0; iterator_char <= m_NonInstantText.length(); iterator_char++)
 	{
-		wchar_t Char = 0;
-
 		// If iterator_char meets the end of the Text('\0'), Char must be 0.
-		if (iterator_char < Text.length())
+		if (iterator_char < m_NonInstantText.length())
 		{
-			Char = Text[iterator_char];
+			character = m_NonInstantText[iterator_char];
 		}
+		else
+		{
+			character = 0;
+		}
+		
+		// Get chars_id.
+		curr_glyph_info.chars_id = GetCharsIDFromCharacter(character);
 
-		curr_glyph_info.chars_id = GetCharsIDFromCharacter(Char);
-
-		// In order to make '\n' invisible to users.
-		if (Char == '\n')
+		// This is required in order to make '\n' invisible to users.
+		if (character == '\n')
 		{
 			curr_glyph_info.chars_id = 0;
 		}
 
-		SetNonInstantTextGlyph(b_is_line_first_glyph, &curr_glyph_info, &prev_glyph_info);
+		SetNonInstantTextGlyph(&curr_glyph_info, &prev_glyph_info);
 
+		// Check automatic line break.
 		if (m_bUseAutomaticLineBreak)
 		{
 			if (curr_glyph_info.left + curr_glyph_info.width >= m_ConstraintPosition.x + m_ConstraintSize.x)
 			{
-				m_NonInstantTextLineInfo.push_back(SLineInfo(line_start_index, line_end_index));
-				line_start_index = iterator_char;
-
+				// Save line info.
 				curr_glyph_info.line_index++;
 
-				b_is_line_first_glyph = true;
-				curr_glyph_info.left = Position.x;
+				curr_glyph_info.left = m_ConstraintPosition.x;
 				curr_glyph_info.top += GetLineHeight();
 				curr_glyph_info.glyph_index_in_line = 0;
 
-				SetNonInstantTextGlyph(b_is_line_first_glyph, &curr_glyph_info, &prev_glyph_info);
+				SetNonInstantTextGlyph(&curr_glyph_info, &prev_glyph_info);
 			}
 		}
 
-		m_NonInstantTextInfo.push_back(curr_glyph_info);
+		// Save glyph info.
+		m_NonInstantTextGlyphInfo.push_back(curr_glyph_info);
 
+		// Advance glyph index in line.
 		curr_glyph_info.glyph_index_in_line++;
 
-		if (Char == '\n')
+		if (character == '\n')
 		{
 			// IF,
-			// the character was '\n'.
-			line_end_index = iterator_char;
-			m_NonInstantTextLineInfo.push_back(SLineInfo(line_start_index, line_end_index));
-			line_start_index = iterator_char + 1;
+			// the character was '\n',
+			// next character needs to be in the next line.
 
 			curr_glyph_info.line_index++;
 
-			b_is_line_first_glyph = true;
-			curr_glyph_info.left = Position.x;
+			curr_glyph_info.left = m_ConstraintPosition.x;
 			curr_glyph_info.top += GetLineHeight();
 			curr_glyph_info.glyph_index_in_line = 0;
-		}
-		else
-		{
-			b_is_line_first_glyph = false;
 		}
 
 		prev_glyph_info = curr_glyph_info;
 
-		line_end_index = iterator_char;
-	}
-	m_NonInstantTextLineInfo.push_back(SLineInfo(line_start_index, line_end_index));
+		if (iterator_char)
+		{
+			if ((curr_glyph_info.glyph_index_in_line == 0) || (iterator_char == m_NonInstantText.length()))
+			{
+				// IF,
+				// this is the first glyph in the line, or the last glyph of the text.
 
-	UpdateNonInstantTextVertices();
+				if (m_NonInstantTextLineInfo.size())
+				{
+					// From the second line and so on.
+					size_t start_index = m_NonInstantTextLineInfo[m_NonInstantTextLineInfo.size() - 1].end_glyph_index + 1;
+					m_NonInstantTextLineInfo.push_back(SLineInfo(start_index, iterator_char));
+				}
+				else
+				{
+					// The first line.
+					m_NonInstantTextLineInfo.push_back(SLineInfo(0, iterator_char));
+				}
+			}
+		}
+		else if (iterator_char == m_NonInstantText.length())
+		{
+			// IF,
+			// the text is null.
+
+			m_NonInstantTextLineInfo.push_back(SLineInfo(0, 0));
+		}
+	}
+
+	UpdateNonInstantTextVisibleVertices();
 
 	UpdateCaret();
+}
+
+void JWText::InsertCharacterInNonInstantText(size_t SelPosition, const wchar_t Character)
+{
+	SGlyphInfo curr_glyph_info = m_NonInstantTextGlyphInfo[SelPosition];
+	SGlyphInfo prev_glyph_info;
+	if (SelPosition)
+	{
+		prev_glyph_info = m_NonInstantTextGlyphInfo[SelPosition - 1];
+	}
+
 }
 
 void JWText::SetNonInstantTextColor(const DWORD FontColor)
 {
 	m_NonInstantTextColor = FontColor;
 
-	UpdateNonInstantTextVertices();
+	UpdateNonInstantTextVisibleVertices();
 }
 
-PRIVATE void JWText::UpdateNonInstantTextVertices()
+PRIVATE void JWText::UpdateNonInstantTextVisibleVertices()
 {
 	// Clear the vertex buffer's uv data & set font color.
+	
 	for (size_t iterator = 0; iterator < m_NonInstantVertexData.VertexSize; iterator++)
 	{
 		m_NonInstantVertexData.Vertices[iterator].u = 0;
@@ -448,6 +477,7 @@ PRIVATE void JWText::UpdateNonInstantTextVertices()
 
 		m_NonInstantVertexData.Vertices[iterator].color = m_NonInstantTextColor;
 	}
+	
 
 	// Set vertex data (but only for the visible glyphs).
 	size_t visible_glyph_count = 0;
@@ -456,9 +486,9 @@ PRIVATE void JWText::UpdateNonInstantTextVertices()
 	float constraint_top = m_ConstraintPosition.y - m_NonInstantTextOffset.y;
 	float constraint_bottom = constraint_top + m_ConstraintSize.y;
 
-	for (size_t iterator_glyph = 0; iterator_glyph < m_NonInstantTextInfo.size(); iterator_glyph++)
+	for (size_t iterator_glyph = 0; iterator_glyph < m_NonInstantTextGlyphInfo.size(); iterator_glyph++)
 	{
-		const SGlyphInfo& glyph = m_NonInstantTextInfo[iterator_glyph];
+		const SGlyphInfo& glyph = m_NonInstantTextGlyphInfo[iterator_glyph];
 
 		// Bottom constraint
 		if (glyph.top > constraint_bottom)
@@ -675,14 +705,14 @@ PRIVATE void JWText::UpdateCaret()
 {
 	if (m_pCaretLine)
 	{
-		m_CaretSelPosition = min(m_CaretSelPosition, m_NonInstantTextInfo.size() - 1);
+		m_CaretSelPosition = min(m_CaretSelPosition, m_NonInstantTextGlyphInfo.size() - 1);
 
 		// This is needed in case m_ConstraintSize.x is smaller than DEFAULT_SIDE_CONSTRAINT_STRIDE.
 		float default_side_stride = DEFAULT_SIDE_CONSTRAINT_STRIDE;
 		default_side_stride = min(default_side_stride, m_ConstraintSize.x);
 
 		// Left constraint
-		float caret_x = m_NonInstantTextInfo[m_CaretSelPosition].left + m_NonInstantTextOffset.x;
+		float caret_x = m_NonInstantTextGlyphInfo[m_CaretSelPosition].left + m_NonInstantTextOffset.x;
 		float constraint_left = m_ConstraintPosition.x;
 		if (caret_x < constraint_left)
 		{
@@ -695,7 +725,7 @@ PRIVATE void JWText::UpdateCaret()
 
 		// Right constraint
 		float constraint_right = m_ConstraintPosition.x + m_ConstraintSize.x;
-		size_t current_line_index = m_NonInstantTextInfo[m_CaretSelPosition].line_index;
+		size_t current_line_index = m_NonInstantTextGlyphInfo[m_CaretSelPosition].line_index;
 		if (caret_x > constraint_right)
 		{
 			float stride = caret_x - constraint_right;
@@ -704,13 +734,13 @@ PRIVATE void JWText::UpdateCaret()
 			m_NonInstantTextOffset.x -= stride;
 
 			size_t line_end_glyph_index = GetLineEndGlyphIndex(current_line_index);
-			float line_end_glyph_x = m_NonInstantTextInfo[line_end_glyph_index].left;
+			float line_end_glyph_x = m_NonInstantTextGlyphInfo[line_end_glyph_index].left;
 
 			m_NonInstantTextOffset.x = max(m_NonInstantTextOffset.x, constraint_right - line_end_glyph_x);
 		}
 
 		// Top constraint
-		float caret_top = m_NonInstantTextInfo[m_CaretSelPosition].top;
+		float caret_top = m_NonInstantTextGlyphInfo[m_CaretSelPosition].top;
 		float constraint_top = m_ConstraintPosition.y;
 		if (caret_top + m_NonInstantTextOffset.y <= constraint_top)
 		{
@@ -718,17 +748,17 @@ PRIVATE void JWText::UpdateCaret()
 		}
 
 		// Bottom constraint
-		float caret_bottom = m_NonInstantTextInfo[m_CaretSelPosition].top + m_CaretSize.y;
+		float caret_bottom = m_NonInstantTextGlyphInfo[m_CaretSelPosition].top + m_CaretSize.y;
 		float constraint_bottom = m_ConstraintPosition.y + m_ConstraintSize.y;
 		if (caret_bottom + m_NonInstantTextOffset.y >= constraint_bottom)
 		{
 			m_NonInstantTextOffset.y = constraint_bottom - caret_bottom;
 		}
 
-		m_CaretPosition.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[m_CaretSelPosition].left;
-		m_CaretPosition.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[m_CaretSelPosition].top;
+		m_CaretPosition.x = m_NonInstantTextOffset.x + m_NonInstantTextGlyphInfo[m_CaretSelPosition].left;
+		m_CaretPosition.y = m_NonInstantTextOffset.y + m_NonInstantTextGlyphInfo[m_CaretSelPosition].top;
 
-		UpdateNonInstantTextVertices();
+		UpdateNonInstantTextVisibleVertices();
 
 		m_pCaretLine->SetLine(0, m_CaretPosition, m_CaretSize);
 	}
@@ -798,9 +828,9 @@ PRIVATE void JWText::SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCu
 	m_InstantVertexData.Vertices[Character_index * 4 + 3].v = v2;
 }
 
-PRIVATE void JWText::SetNonInstantTextGlyph(bool bIsLineFirstGlyph, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo)
+PRIVATE void JWText::SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo)
 {
-	if (!bIsLineFirstGlyph)
+	if (pCurrInfo->glyph_index_in_line)
 	{
 		// This is NOT the first character of the text.
 		pCurrInfo->left = pPrevInfo->left + ms_FontData.Chars[pPrevInfo->chars_id].XAdvance;
@@ -888,8 +918,8 @@ PRIVATE auto JWText::GetLineEndGlyphIndex(const size_t LineIndex)->size_t
 
 void JWText::MoveCaretUp()
 {
-	size_t curr_index_in_line = m_NonInstantTextInfo[m_CaretSelPosition].glyph_index_in_line;
-	size_t curr_line_index = m_NonInstantTextInfo[m_CaretSelPosition].line_index;
+	size_t curr_index_in_line = m_NonInstantTextGlyphInfo[m_CaretSelPosition].glyph_index_in_line;
+	size_t curr_line_index = m_NonInstantTextGlyphInfo[m_CaretSelPosition].line_index;
 	if (!curr_line_index)
 	{
 		return;
@@ -909,8 +939,8 @@ void JWText::MoveCaretUp()
 
 void JWText::MoveCaretDown()
 {
-	size_t curr_index_in_line = m_NonInstantTextInfo[m_CaretSelPosition].glyph_index_in_line;
-	size_t curr_line_index = m_NonInstantTextInfo[m_CaretSelPosition].line_index;
+	size_t curr_index_in_line = m_NonInstantTextGlyphInfo[m_CaretSelPosition].glyph_index_in_line;
+	size_t curr_line_index = m_NonInstantTextGlyphInfo[m_CaretSelPosition].line_index;
 	size_t goal_line_index = curr_line_index + 1;
 
 	size_t line_start = GetLineStartGlyphIndex(goal_line_index);
@@ -930,7 +960,7 @@ void JWText::MoveCaretDown()
 
 void JWText::MoveCaretHome()
 {
-	size_t curr_line_index = m_NonInstantTextInfo[m_CaretSelPosition].line_index;
+	size_t curr_line_index = m_NonInstantTextGlyphInfo[m_CaretSelPosition].line_index;
 	m_CaretSelPosition = GetLineStartGlyphIndex(curr_line_index);
 
 	UpdateCaret();
@@ -938,7 +968,7 @@ void JWText::MoveCaretHome()
 
 void JWText::MoveCaretEnd()
 {
-	size_t curr_line_index = m_NonInstantTextInfo[m_CaretSelPosition].line_index;
+	size_t curr_line_index = m_NonInstantTextGlyphInfo[m_CaretSelPosition].line_index;
 	m_CaretSelPosition = GetLineEndGlyphIndex(curr_line_index);
 
 	UpdateCaret();
@@ -1042,7 +1072,7 @@ void JWText::SelectTo(const size_t SelPosition)
 void JWText::SelectAll()
 {
 	m_CapturedSelPosition = 0;
-	m_CaretSelPosition = m_NonInstantTextInfo.size() - 1;
+	m_CaretSelPosition = m_NonInstantTextGlyphInfo.size() - 1;
 
 	UpdateCaret();
 
@@ -1061,8 +1091,8 @@ PRIVATE void JWText::UpdateSelectionBox()
 		m_SelectionStart = sel_start;
 		m_SelectionEnd = sel_end;
 
-		size_t line_start = m_NonInstantTextInfo[sel_start].line_index;
-		size_t line_end = m_NonInstantTextInfo[sel_end].line_index;
+		size_t line_start = m_NonInstantTextGlyphInfo[sel_start].line_index;
+		size_t line_end = m_NonInstantTextGlyphInfo[sel_end].line_index;
 
 		D3DXVECTOR2 selection_position = D3DXVECTOR2(0, 0);
 		D3DXVECTOR2 selection_size = D3DXVECTOR2(0, 0);
@@ -1074,10 +1104,10 @@ PRIVATE void JWText::UpdateSelectionBox()
 		{
 			// Single-line selection.
 
-			selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[sel_start].left;
-			selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[sel_start].top;
+			selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextGlyphInfo[sel_start].left;
+			selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextGlyphInfo[sel_start].top;
 
-			selection_size.x = m_NonInstantTextInfo[sel_end].left - m_NonInstantTextInfo[sel_start].left;
+			selection_size.x = m_NonInstantTextGlyphInfo[sel_end].left - m_NonInstantTextGlyphInfo[sel_start].left;
 
 			m_pSelectionBox->AddRectangle(selection_size, selection_position);
 		}
@@ -1093,41 +1123,41 @@ PRIVATE void JWText::UpdateSelectionBox()
 			{
 				line_start_glyph = GetLineStartGlyphIndex(iterator_line);
 				line_end_glyph = GetLineEndGlyphIndex(iterator_line);
-				line_end_x = m_NonInstantTextInfo[line_end_glyph].left;
+				line_end_x = m_NonInstantTextGlyphInfo[line_end_glyph].left;
 
 				// Check if this is a automatically borken line
 				// if it is, it doesn't end with '\0',
 				// and we must selet the last character with its right position, not left.
-				if (m_NonInstantTextInfo[line_end_glyph].chars_id != 0)
+				if (m_NonInstantTextGlyphInfo[line_end_glyph].chars_id != 0)
 				{
-					line_end_x += m_NonInstantTextInfo[line_end_glyph].width;
+					line_end_x += m_NonInstantTextGlyphInfo[line_end_glyph].width;
 				}
 
 				if (iterator_line == line_start)
 				{
 					// Select from sel_start to line_end_glyph.
-					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[sel_start].left;
-					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[sel_start].top;
+					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextGlyphInfo[sel_start].left;
+					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextGlyphInfo[sel_start].top;
 
-					selection_size.x = line_end_x - m_NonInstantTextInfo[sel_start].left;
+					selection_size.x = line_end_x - m_NonInstantTextGlyphInfo[sel_start].left;
 				}
 				else if (iterator_line == line_end)
 				{
 					// Select from line_start_glyph to sel_end.
-					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[line_start_glyph].left;
-					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[line_start_glyph].top;
+					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextGlyphInfo[line_start_glyph].left;
+					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextGlyphInfo[line_start_glyph].top;
 
-					selection_size.x = m_NonInstantTextInfo[sel_end].left - m_NonInstantTextInfo[line_start_glyph].left;
+					selection_size.x = m_NonInstantTextGlyphInfo[sel_end].left - m_NonInstantTextGlyphInfo[line_start_glyph].left;
 				}
 				else
 				{
 					// IF,
 					// this line isn't the start line nor the end line,
 					// select the whole line.
-					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextInfo[line_start_glyph].left;
-					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextInfo[line_start_glyph].top;
+					selection_position.x = m_NonInstantTextOffset.x + m_NonInstantTextGlyphInfo[line_start_glyph].left;
+					selection_position.y = m_NonInstantTextOffset.y + m_NonInstantTextGlyphInfo[line_start_glyph].top;
 
-					selection_size.x = line_end_x - m_NonInstantTextInfo[line_start_glyph].left;
+					selection_size.x = line_end_x - m_NonInstantTextGlyphInfo[line_start_glyph].left;
 				}
 
 				// Top & bottom constraint
@@ -1154,10 +1184,10 @@ auto JWText::GetMousePressedSelPosition(POINT MousePosition) const->const size_t
 	float cmp_left = 0;
 	float cmp_top = 0;
 
-	for (size_t iterator_glpyh = 0; iterator_glpyh < m_NonInstantTextInfo.size(); iterator_glpyh++)
+	for (size_t iterator_glpyh = 0; iterator_glpyh < m_NonInstantTextGlyphInfo.size(); iterator_glpyh++)
 	{
-		cmp_left = m_NonInstantTextInfo[iterator_glpyh].left + m_NonInstantTextOffset.x;
-		cmp_top = m_NonInstantTextInfo[iterator_glpyh].top + m_NonInstantTextOffset.y;
+		cmp_left = m_NonInstantTextGlyphInfo[iterator_glpyh].left + m_NonInstantTextOffset.x;
+		cmp_top = m_NonInstantTextGlyphInfo[iterator_glpyh].top + m_NonInstantTextOffset.y;
 
 		if ((cmp_left <= MousePosition.x) && (cmp_top <= MousePosition.y))
 		{
