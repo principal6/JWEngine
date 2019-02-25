@@ -7,10 +7,11 @@
 using namespace JWENGINE;
 
 void MainLoop();
+void ShowDialogueNewMap();
 
 static JWGUI myGUI;
 JWGUIWindow* pMainGUIWindow;
-JWGUIWindow* pNewWindow;
+JWGUIWindow* pDialogueNewMap;
 
 THandle menubar = THandle_Null;
 THandleItem mb_file_new = THandle_Null;
@@ -114,18 +115,37 @@ void MainLoop()
 		if (clicked_subitem == mb_file_new)
 		{
 			std::cout << "FILE - NEW" << std::endl;
+			ShowDialogueNewMap();
+		}
+	}
 
-			SWindowCreationData myWindowData = SWindowCreationData(100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK);
-			
-			pNewWindow = myGUI.AddGUIWindow(myWindowData);
-
-			THandle textbutton = pNewWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"KLMNO");
-			pNewWindow->GetControlPtr(textbutton)->ShouldUseToggleSelection(true);
+	if (pDialogueNewMap)
+	{
+		if (pDialogueNewMap->GetControlPtr(0)->OnMouseCliked())
+		{
+			WSTRING text;
+			pDialogueNewMap->GetControlPtr(1)->GetText(&text);
+			std::wcout << text.c_str() << std::endl;
 		}
 	}
 	
 	if (pMainGUIWindow->GetControlPtr(textbutton1)->OnMouseCliked())
 	{
-		std::cout << "CLICK" << std::endl;
+		//std::cout << "CLICK" << std::endl;
 	}
+}
+
+void ShowDialogueNewMap()
+{
+	SWindowCreationData myWindowData = SWindowCreationData(100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK);
+
+	myGUI.AddGUIWindow(myWindowData, &pDialogueNewMap);
+
+	THandle textbutton = pDialogueNewMap->AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"CLOSE");
+
+	THandle edit1 = pDialogueNewMap->AddControl(EControlType::Edit, D3DXVECTOR2(0, 60), D3DXVECTOR2(120, 0));
+	pDialogueNewMap->GetControlPtr(edit1)->SetWatermark(L"Edit1");
+
+	THandle edit2 = pDialogueNewMap->AddControl(EControlType::Edit, D3DXVECTOR2(0, 80), D3DXVECTOR2(120, 0));
+	pDialogueNewMap->GetControlPtr(edit2)->SetWatermark(L"Edit2");
 }

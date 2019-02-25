@@ -54,16 +54,19 @@ LRESULT CALLBACK JWENGINE::GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam,
 	return(DefWindowProc(hWnd, Message, wParam, lParam));
 }
 
+JWGUI::JWGUI()
+{
+	m_pMainGUIWindow = nullptr;
+}
+
 auto JWGUI::Create(SWindowCreationData& WindowCreationData)->EError
 {
-	JWGUIWindow* p_main_gui_window = nullptr;
-
-	if (p_main_gui_window = new JWGUIWindow)
+	if (m_pMainGUIWindow = new JWGUIWindow)
 	{
 		WindowCreationData.proc = GUIWindowProc;
-		p_main_gui_window->Create(WindowCreationData);
+		m_pMainGUIWindow->Create(WindowCreationData);
 
-		m_pGUIWindows.push_back(p_main_gui_window);
+		m_ppGUIWindows.push_back(&m_pMainGUIWindow);
 
 		return EError::OK;
 	}
@@ -75,32 +78,31 @@ auto JWGUI::Create(SWindowCreationData& WindowCreationData)->EError
 
 void JWGUI::Destroy()
 {
-	if (m_pGUIWindows.size())
+	if (m_ppGUIWindows.size())
 	{
-		for (JWGUIWindow* iterator : m_pGUIWindows)
+		for (JWGUIWindow** iterator : m_ppGUIWindows)
 		{
-			iterator->Destroy();
+			(*iterator)->Destroy();
+			iterator = nullptr;
 		}
 	}
 }
 
-auto JWGUI::AddGUIWindow(SWindowCreationData& WindowCreationData)->JWGUIWindow*
+void JWGUI::AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow** ppGUIWindow)
 {
-	JWGUIWindow* p_new_gui_window = new JWGUIWindow;
+	*ppGUIWindow = new JWGUIWindow;
 
 	WindowCreationData.proc = GUIWindowProc;
-	p_new_gui_window->Create(WindowCreationData);
+	(*ppGUIWindow)->Create(WindowCreationData);
 
-	m_pGUIWindows.push_back(p_new_gui_window);
-
-	return p_new_gui_window;
+	m_ppGUIWindows.push_back(ppGUIWindow);
 }
 
 auto JWGUI::GetMainGUIWindowPtr()->JWGUIWindow*
 {
-	if (m_pGUIWindows.size())
+	if (m_ppGUIWindows.size())
 	{
-		return m_pGUIWindows[0];
+		return *m_ppGUIWindows[0];
 	}
 
 	return nullptr;
@@ -135,40 +137,40 @@ void JWGUI::Run()
 		//std::cout << "[DEBUG] ACTIVE WINDOW HWND: " << hActiveWindow << std::endl;
 
 		// Update all JWGUIWindows.
-		if (m_pGUIWindows.size())
+		if (m_ppGUIWindows.size())
 		{
-			for (JWGUIWindow* iterator : m_pGUIWindows)
+			for (JWGUIWindow** iterator : m_ppGUIWindows)
 			{
-				iterator->Update(m_MSG, ms_IMEInfo, ms_QuitWindowHWND, hActiveWindow);
+				(*iterator)->Update(m_MSG, ms_IMEInfo, ms_QuitWindowHWND, hActiveWindow);
 			}
 		}
 
 		// Check if a JWGUIWindow is destroyed,
 		// If so, erase it from the dynamic array,
 		// and if not, BeginRender().
-		if (m_pGUIWindows.size())
+		if (m_ppGUIWindows.size())
 		{
 			iterator_index = 0;
-			for (JWGUIWindow* iterator : m_pGUIWindows)
+			for (JWGUIWindow** iterator : m_ppGUIWindows)
 			{
-				if (iterator->IsDestroyed())
+				if ((*iterator)->IsDestroyed())
 				{
 					b_gui_window_destroyed = true;
 					destroyed_gui_window_index = iterator_index;
 				}
 					
-				iterator->BeginRender();
+				(*iterator)->BeginRender();
 
 				iterator_index++;
 			}
 		}
 
 		// Draw all the controls in the JWGUIWindow.
-		if (m_pGUIWindows.size())
+		if (m_ppGUIWindows.size())
 		{
-			for (JWGUIWindow* iterator : m_pGUIWindows)
+			for (JWGUIWindow** iterator : m_ppGUIWindows)
 			{
-				iterator->DrawAllControls();
+				(*iterator)->DrawAllControls();
 			}
 		}
 
@@ -178,11 +180,11 @@ void JWGUI::Run()
 			m_pfMainLoop();
 		}
 
-		if (m_pGUIWindows.size())
+		if (m_ppGUIWindows.size())
 		{
-			for (JWGUIWindow* iterator : m_pGUIWindows)
+			for (JWGUIWindow** iterator : m_ppGUIWindows)
 			{
-				iterator->EndRender();
+				(*iterator)->EndRender();
 			}
 		}
 
@@ -203,22 +205,26 @@ void JWGUI::Run()
 				// and the program must exit.
 
 				iterator_index = 0;
-				for (JWGUIWindow* iterator : m_pGUIWindows)
+				for (JWGUIWindow** iterator : m_ppGUIWindows)
 				{
-					JW_DESTROY(m_pGUIWindows[iterator_index]);
+					JW_DESTROY((*m_ppGUIWindows[iterator_index]));
+					m_ppGUIWindows[iterator_index] = nullptr;
+
 					iterator_index++;
 				}
 
-				m_pGUIWindows.clear();
+				m_ppGUIWindows.clear();
 			}
 			else
 			{
-				JW_DESTROY(m_pGUIWindows[destroyed_gui_window_index]);
-				m_pGUIWindows.erase(destroyed_gui_window_index);
+				JW_DESTROY((*m_ppGUIWindows[destroyed_gui_window_index]));
+				m_ppGUIWindows[destroyed_gui_window_index] = nullptr;
+
+				m_ppGUIWindows.erase(destroyed_gui_window_index);
 			}
 		}
 
-		if (!m_pGUIWindows.size())
+		if (!m_ppGUIWindows.size())
 		{
 			m_bIsGUIRunning = false;
 		}

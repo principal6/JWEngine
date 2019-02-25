@@ -172,7 +172,10 @@ auto JWGUIWindow::GetControlPtr(const THandle ControlHandle)->JWControl*
 	}
 	else
 	{
-		return m_Controls[ControlHandle];
+		size_t safe_index = ControlHandle;
+		safe_index = min(safe_index, m_Controls.size() - 1);
+
+		return m_Controls[safe_index];
 	}
 }
 

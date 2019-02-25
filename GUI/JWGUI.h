@@ -9,13 +9,13 @@ namespace JWENGINE
 	class JWGUI final
 	{
 	public:
-		JWGUI() {};
+		JWGUI();
 		~JWGUI() {};
 
 		auto Create(SWindowCreationData& WindowCreationData)->EError;
 		void Destroy();
 
-		auto AddGUIWindow(SWindowCreationData& WindowCreationData)->JWGUIWindow*;
+		void AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow** ppGUIWindow);
 
 		void SetMainLoopFunction(PF_MAINLOOP pfMainLoop);
 
@@ -36,6 +36,7 @@ namespace JWENGINE
 
 		PF_MAINLOOP m_pfMainLoop;
 
-		TLinkedList<JWGUIWindow*> m_pGUIWindows;
+		JWGUIWindow* m_pMainGUIWindow;
+		TLinkedList<JWGUIWindow**> m_ppGUIWindows;
 	};
 };

@@ -485,7 +485,7 @@ auto JWControl::GetSize()->D3DXVECTOR2
 
 void JWControl::GetText(WSTRING* OutPtrText)
 {
-	OutPtrText = &m_Text;
+	*OutPtrText = m_Text;
 }
 
 auto JWControl::GetControlType() const->EControlType
