@@ -43,7 +43,7 @@ namespace JWENGINE
 		size_t line_index;
 		size_t glyph_index_in_line;
 
-		SGlyphInfo() : chars_id(0), left(0), top(0), drawing_top(0), width(0), height(0), line_index(0), glyph_index_in_line(0) {};
+		SGlyphInfo() : chars_id(1), left(0), top(0), drawing_top(0), width(0), height(0), line_index(0), glyph_index_in_line(SIZE_T_INVALID) {};
 		SGlyphInfo(float _left, float _top) : chars_id(0), left(_left), top(_top), drawing_top(0), width(0), height(0),
 			line_index(0), glyph_index_in_line(0) {};
 	};
@@ -82,7 +82,11 @@ namespace JWENGINE
 		// Call this function when first set the text, or when the JWEdit control is resized or repositioned.
 		void SetNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize);
 
-		void InsertCharacterInNonInstantText(size_t SelPosition, const wchar_t Character);
+		// @warning: only used for IME input in order to erase temporary IME character input.
+		void SetNonInstantInnerText(WSTRING Text);
+
+		// Insert a character in non-instant-text at the caret position.
+		void InsertInNonInstantText(const WSTRING String);
 		void DrawNonInstantText();
 
 		// Draw insant text to the window.
@@ -151,7 +155,7 @@ namespace JWENGINE
 		void UpdateSelectionBox();
 
 		void SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
-		void SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
+		void SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* pPrevInfo);
 
 		auto GetLineWidth(const WSTRING* pLineText) const->float;
 		auto GetLineStartGlyphIndex(const size_t LineIndex)->size_t;

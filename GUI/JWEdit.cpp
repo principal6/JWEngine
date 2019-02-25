@@ -423,6 +423,10 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 		InsertCharacter(L'\n');
 		break;
 	case 22: // Ctrl + v
+		if (m_pEditText->IsTextSelected())
+		{
+			EraseSelection();
+		}
 		PasteFromClipboard();
 		break;
 	case 24: // Ctrl + x
@@ -482,6 +486,7 @@ PROTECTED void JWEdit::WindowIMEInput(SGUIIMEInputInfo& IMEInfo)
 		}
 
 		m_Text = temp_string;
+		m_pEditText->SetNonInstantInnerText(m_Text);
 	}
 
 	if (IMEInfo.bIMECompleted)
@@ -509,7 +514,11 @@ PRIVATE void JWEdit::InsertCharacter(wchar_t Char)
 
 	m_Text = m_Text.substr(0, curr_caret_sel_position) + Char + m_Text.substr(curr_caret_sel_position);
 
-	m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+	WSTRING inserted_string;
+	inserted_string += Char;
+	m_pEditText->InsertInNonInstantText(inserted_string);
+
+	//m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
 
 	m_pEditText->MoveCaretToRight();
 

@@ -377,42 +377,8 @@ void JWText::SetNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D
 
 		SetNonInstantTextGlyph(&curr_glyph_info, &prev_glyph_info);
 
-		// Check automatic line break.
-		if (m_bUseAutomaticLineBreak)
-		{
-			if (curr_glyph_info.left + curr_glyph_info.width >= m_ConstraintPosition.x + m_ConstraintSize.x)
-			{
-				// Save line info.
-				curr_glyph_info.line_index++;
-
-				curr_glyph_info.left = m_ConstraintPosition.x;
-				curr_glyph_info.top += GetLineHeight();
-				curr_glyph_info.glyph_index_in_line = 0;
-
-				SetNonInstantTextGlyph(&curr_glyph_info, &prev_glyph_info);
-			}
-		}
-
 		// Save glyph info.
 		m_NonInstantTextGlyphInfo.push_back(curr_glyph_info);
-
-		// Advance glyph index in line.
-		curr_glyph_info.glyph_index_in_line++;
-
-		if (character == '\n')
-		{
-			// IF,
-			// the character was '\n',
-			// next character needs to be in the next line.
-
-			curr_glyph_info.line_index++;
-
-			curr_glyph_info.left = m_ConstraintPosition.x;
-			curr_glyph_info.top += GetLineHeight();
-			curr_glyph_info.glyph_index_in_line = 0;
-		}
-
-		prev_glyph_info = curr_glyph_info;
 
 		if (iterator_char)
 		{
@@ -421,17 +387,21 @@ void JWText::SetNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D
 				// IF,
 				// this is the first glyph in the line, or the last glyph of the text.
 
+				size_t line_start = 0;
+				size_t line_end = iterator_char - 1;
+
 				if (m_NonInstantTextLineInfo.size())
 				{
-					// From the second line and so on.
-					size_t start_index = m_NonInstantTextLineInfo[m_NonInstantTextLineInfo.size() - 1].end_glyph_index + 1;
-					m_NonInstantTextLineInfo.push_back(SLineInfo(start_index, iterator_char));
+					// This is not the first line.
+					line_start = m_NonInstantTextLineInfo[m_NonInstantTextLineInfo.size() - 1].end_glyph_index + 1;
 				}
-				else
+
+				if (iterator_char == m_NonInstantText.length())
 				{
-					// The first line.
-					m_NonInstantTextLineInfo.push_back(SLineInfo(0, iterator_char));
+					line_end++;
 				}
+
+				m_NonInstantTextLineInfo.push_back(SLineInfo(line_start, line_end));
 			}
 		}
 		else if (iterator_char == m_NonInstantText.length())
@@ -448,15 +418,99 @@ void JWText::SetNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D
 	UpdateCaret();
 }
 
-void JWText::InsertCharacterInNonInstantText(size_t SelPosition, const wchar_t Character)
+void JWText::SetNonInstantInnerText(WSTRING Text)
 {
-	SGlyphInfo curr_glyph_info = m_NonInstantTextGlyphInfo[SelPosition];
+	m_NonInstantText = Text;
+}
+
+void JWText::InsertInNonInstantText(const WSTRING String)
+{
+	m_NonInstantText = m_NonInstantText.substr(0, m_CaretSelPosition) + String + m_NonInstantText.substr(m_CaretSelPosition);
+
+	SGlyphInfo curr_glyph_info = SGlyphInfo(m_ConstraintPosition.x, m_ConstraintPosition.y);
 	SGlyphInfo prev_glyph_info;
-	if (SelPosition)
+	if (m_CaretSelPosition)
 	{
-		prev_glyph_info = m_NonInstantTextGlyphInfo[SelPosition - 1];
+		prev_glyph_info = m_NonInstantTextGlyphInfo[m_CaretSelPosition - 1];
+	}
+	wchar_t character = 0;
+
+	for (size_t iterator_char = m_CaretSelPosition; iterator_char <= m_NonInstantText.length(); iterator_char++)
+	{
+		// If iterator_char meets the end of the Text('\0'), Char must be 0.
+		if (iterator_char < m_NonInstantText.length())
+		{
+			character = m_NonInstantText[iterator_char];
+		}
+		else
+		{
+			character = 0;
+		}
+
+		// Get chars_id.
+		curr_glyph_info.chars_id = GetCharsIDFromCharacter(character);
+
+		// This is required in order to make '\n' invisible to users.
+		if (character == '\n')
+		{
+			curr_glyph_info.chars_id = 0;
+		}
+
+		SetNonInstantTextGlyph(&curr_glyph_info, &prev_glyph_info);
+
+		// Save glyph info.
+		if (iterator_char == m_NonInstantTextGlyphInfo.size())
+		{
+			m_NonInstantTextGlyphInfo.push_back(curr_glyph_info);
+		}
+		else
+		{
+			m_NonInstantTextGlyphInfo[iterator_char] = curr_glyph_info;
+		}
+
+		if (iterator_char)
+		{
+			if ((curr_glyph_info.glyph_index_in_line == 0) || (iterator_char == m_NonInstantText.length()))
+			{
+				// IF,
+				// this is the first glyph in the line, or the last glyph of the text.
+
+				size_t line_index = curr_glyph_info.line_index - 1;
+
+				if (iterator_char == m_NonInstantText.length())
+				{
+					line_index++;
+				}
+
+				size_t line_start = 0;
+				size_t line_end = iterator_char - 1;
+
+				if (line_index)
+				{
+					// This is not the first line.
+					line_start = m_NonInstantTextLineInfo[line_index - 1].end_glyph_index + 1;
+				}
+
+				if (iterator_char == m_NonInstantText.length())
+				{
+					line_end++;
+				}
+
+				if (line_index == m_NonInstantTextLineInfo.size())
+				{
+					m_NonInstantTextLineInfo.push_back(SLineInfo(line_start, line_end));
+				}
+				else
+				{
+					m_NonInstantTextLineInfo[line_index] = SLineInfo(line_start, line_end);
+				}
+			}
+		}
 	}
 
+	UpdateNonInstantTextVisibleVertices();
+
+	UpdateCaret();
 }
 
 void JWText::SetNonInstantTextColor(const DWORD FontColor)
@@ -477,7 +531,6 @@ PRIVATE void JWText::UpdateNonInstantTextVisibleVertices()
 
 		m_NonInstantVertexData.Vertices[iterator].color = m_NonInstantTextColor;
 	}
-	
 
 	// Set vertex data (but only for the visible glyphs).
 	size_t visible_glyph_count = 0;
@@ -828,17 +881,48 @@ PRIVATE void JWText::SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCu
 	m_InstantVertexData.Vertices[Character_index * 4 + 3].v = v2;
 }
 
-PRIVATE void JWText::SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo)
+PRIVATE void JWText::SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* pPrevInfo)
 {
+	pCurrInfo->width = static_cast<float>(ms_FontData.Chars[pCurrInfo->chars_id].Width);
+	pCurrInfo->height = static_cast<float>(ms_FontData.Chars[pCurrInfo->chars_id].Height);
+
+	pCurrInfo->line_index = pPrevInfo->line_index;
+	pCurrInfo->top = pPrevInfo->top;
+	pCurrInfo->glyph_index_in_line = pPrevInfo->glyph_index_in_line + 1;
+
 	if (pCurrInfo->glyph_index_in_line)
 	{
 		// This is NOT the first character of the text.
 		pCurrInfo->left = pPrevInfo->left + ms_FontData.Chars[pPrevInfo->chars_id].XAdvance;
 	}
+
+	// Check previous '\n'.
+	if (pPrevInfo->chars_id == 0)
+	{
+		pCurrInfo->line_index++;
+
+		pCurrInfo->glyph_index_in_line = 0;
+		pCurrInfo->left = m_ConstraintPosition.x;
+		pCurrInfo->top += GetLineHeight();
+	}
+
+	// Check automatic line break.
+	if (m_bUseAutomaticLineBreak)
+	{
+		if (pCurrInfo->left + pCurrInfo->width >= m_ConstraintPosition.x + m_ConstraintSize.x)
+		{
+			pCurrInfo->line_index++;
+
+			pCurrInfo->glyph_index_in_line = 0;
+			pCurrInfo->left = m_ConstraintPosition.x;
+			pCurrInfo->top += GetLineHeight();
+		}
+	}
+
 	pCurrInfo->drawing_top = pCurrInfo->top + ms_FontData.Chars[pCurrInfo->chars_id].YOffset;
 
-	pCurrInfo->width = static_cast<float>(ms_FontData.Chars[pCurrInfo->chars_id].Width);
-	pCurrInfo->height = static_cast<float>(ms_FontData.Chars[pCurrInfo->chars_id].Height);
+	// Advance glyph.
+	*pPrevInfo = *pCurrInfo;
 }
 
 auto JWText::GetFontTexturePtr() const-> const LPDIRECT3DTEXTURE9
