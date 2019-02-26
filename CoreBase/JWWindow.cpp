@@ -59,9 +59,9 @@ auto JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)->E
 	if (CreateWINAPIWindow(L"GUI", WindowCreationData.caption.c_str(),
 		WindowCreationData.x, WindowCreationData.y,
 		WindowCreationData.width, WindowCreationData.height,
-		EWindowStyle::OverlappedWindow,
+		WindowCreationData.window_style,
 		WindowCreationData.color_background,
-		WindowCreationData.proc) == nullptr)
+		WindowCreationData.proc, nullptr, WindowCreationData.parent_hwnd) == nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 
 	if (JW_FAILED(InitializeDirectX()))

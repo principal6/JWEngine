@@ -289,6 +289,37 @@ namespace JWENGINE
 		STextureUV(float U1, float U2, float V1, float V2) : u1(U1), u2(U2), v1(V1), v2(V2) {};
 	};
 
+	enum class EWindowStyle : DWORD
+	{
+		Overlapped = WS_OVERLAPPED,
+		Popup = WS_POPUP,
+		Child = WS_CHILD,
+		Minimize = WS_MINIMIZE,
+		Visible = WS_VISIBLE,
+		DIsabled = WS_DISABLED,
+		ClipSiblings = WS_CLIPSIBLINGS,
+		ClipChildren = WS_CLIPCHILDREN,
+		Maximize = WS_MAXIMIZE,
+		Caption = WS_CAPTION, // = WS_BORDER | WS_DLGFRAME
+		Border = WS_BORDER,
+		DlgFrame = WS_DLGFRAME,
+		VScroll = WS_VSCROLL,
+		HScroll = WS_HSCROLL,
+		SysMenu = WS_SYSMENU,
+		ThickFrame = WS_THICKFRAME,
+		Group = WS_GROUP,
+		TabStop = WS_TABSTOP,
+		MinimizeBox = WS_MINIMIZEBOX,
+		MaximizeBox = WS_MAXIMIZEBOX,
+		OverlappedWindow = WS_OVERLAPPEDWINDOW, // = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
+		PopupWindow = WS_POPUPWINDOW, // = WS_POPUP | WS_BORDER | WS_SYSMENU
+		ChildWindow = WS_CHILDWINDOW, // = WS_CHILD
+		ChildWindow2 = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN,
+		ThickPopup = WS_POPUP | WS_THICKFRAME,
+		BorderPopup = WS_POPUP | WS_BORDER,
+		Dialogue = WS_DLGFRAME | WS_SYSMENU,
+	};
+
 	struct SWindowCreationData
 	{
 		WSTRING caption;
@@ -298,10 +329,16 @@ namespace JWENGINE
 		unsigned int height;
 		DWORD color_background;
 		WNDPROC proc;
+		EWindowStyle window_style;
+		HWND parent_hwnd;
+		
+		SWindowCreationData() : x(0), y(0), width(300), height(200), color_background(D3DCOLOR_XRGB(0, 0, 0)),
+			proc(nullptr), window_style(EWindowStyle::OverlappedWindow), parent_hwnd(nullptr) {};
 
-		SWindowCreationData() : x(0), y(0), width(300), height(200), color_background(D3DCOLOR_XRGB(0, 0, 0)), proc(nullptr) {};
-		SWindowCreationData(WSTRING _caption, int _x, int _y, unsigned int _width, unsigned int _height, DWORD _color_background) :
-			caption(_caption), x(_x), y(_y), width(_width), height(_height), color_background(_color_background), proc(nullptr) {};
+		SWindowCreationData(WSTRING _caption, int _x, int _y, unsigned int _width, unsigned int _height, DWORD _color_background,
+			EWindowStyle _window_style = EWindowStyle::OverlappedWindow, HWND _parent_hwnd = nullptr) :
+			caption(_caption), x(_x), y(_y), width(_width), height(_height), color_background(_color_background),
+			proc(nullptr), window_style(_window_style), parent_hwnd(_parent_hwnd) {};
 	};
 
 	// This structure contains data that will be shared in a JWGUIWindow.
