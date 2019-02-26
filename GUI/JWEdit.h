@@ -33,7 +33,8 @@ namespace JWENGINE
 
 		auto ShouldUseMultiline(const bool Value) noexcept->JWControl* override;
 		auto ShouldUseAutomaticLineBreak(const bool Value) noexcept->JWControl* override;
-
+		auto ShouldUseNumberInputsOnly(const bool Value) noexcept->JWControl* override;
+		
 	protected:
 		// Events called in JWGUIWindow (friend class).
 		void WindowMouseDown() override;
@@ -75,5 +76,6 @@ namespace JWENGINE
 		size_t m_IMECapturedCaret;
 
 		bool m_bUseMultiline;
+		bool m_bShouldGetOnlyNumbers;
 	};
 };

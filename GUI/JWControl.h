@@ -193,6 +193,9 @@ namespace JWENGINE
 		virtual auto ShouldUseAutomaticLineBreak(const bool Value)->JWControl* { return this; };
 
 		// [JWEdit]
+		virtual auto ShouldUseNumberInputsOnly(const bool Value)->JWControl* { return this; };
+
+		// [JWEdit]
 		virtual auto SetWatermark(const WSTRING Text)->JWControl* { return this; };
 
 		// [JWEdit]

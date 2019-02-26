@@ -31,6 +31,7 @@ JWEdit::JWEdit()
 	m_bIMECaretCaptured = false;
 
 	m_bUseMultiline = false;
+	m_bShouldGetOnlyNumbers = false;
 }
 
 auto JWEdit::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
@@ -257,6 +258,13 @@ auto JWEdit::ShouldUseAutomaticLineBreak(const bool Value) noexcept->JWControl*
 	return this;
 }
 
+auto JWEdit::ShouldUseNumberInputsOnly(const bool Value) noexcept->JWControl*
+{
+	m_bShouldGetOnlyNumbers = Value;
+
+	return this;
+}
+
 PROTECTED void JWEdit::WindowMouseDown()
 {
 	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
@@ -469,7 +477,18 @@ PROTECTED void JWEdit::WindowCharKeyInput(const WPARAM Char)
 				EraseSelection();
 			}
 
-			InsertCharacter(static_cast<wchar_t>(Char));
+			if (m_bShouldGetOnlyNumbers)
+			{
+				if ((Char >= 48) && (Char <= 57))
+				{
+					InsertCharacter(static_cast<wchar_t>(Char));
+				}
+			}
+			else
+			{
+				InsertCharacter(static_cast<wchar_t>(Char));
+			}
+			
 		}
 		else
 		{
@@ -480,43 +499,46 @@ PROTECTED void JWEdit::WindowCharKeyInput(const WPARAM Char)
 
 PROTECTED void JWEdit::WindowIMEInput(const SGUIIMEInputInfo& IMEInfo)
 {
-	if (IMEInfo.bIMEWriting)
+	if (!m_bShouldGetOnlyNumbers)
 	{
-		WSTRING temp_string = m_Text;
-
-		if (IMEInfo.IMEWritingChar[0])
+		if (IMEInfo.bIMEWriting)
 		{
-			if (!m_bIMECaretCaptured)
+			WSTRING temp_string = m_Text;
+
+			if (IMEInfo.IMEWritingChar[0])
 			{
-				m_IMECapturedCaret = m_pEditText->GetCaretSelPosition();
-				m_bIMECaretCaptured = true;
+				if (!m_bIMECaretCaptured)
+				{
+					m_IMECapturedCaret = m_pEditText->GetCaretSelPosition();
+					m_bIMECaretCaptured = true;
+				}
+
+				m_pEditText->MoveCaretTo(m_IMECapturedCaret);
+
+				InsertCharacter(static_cast<wchar_t>(IMEInfo.IMEWritingChar[0]));
+			}
+			else
+			{
+				// The character was erased.
+				m_pEditText->MoveCaretToLeft();
+				m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+
+				m_bIMECaretCaptured = false;
 			}
 
-			m_pEditText->MoveCaretTo(m_IMECapturedCaret);
-
-			InsertCharacter(static_cast<wchar_t>(IMEInfo.IMEWritingChar[0]));
+			m_Text = temp_string;
+			m_pEditText->SetNonInstantInnerText(m_Text);
 		}
-		else
-		{
-			// The character was erased.
-			m_pEditText->MoveCaretToLeft();
-			m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
 
+		if (IMEInfo.bIMECompleted)
+		{
+			m_pEditText->MoveCaretToLeft();
+
+			InsertCharacter(static_cast<wchar_t>(IMEInfo.IMECompletedChar[0]));
+
+			m_bIMEInput = true;
 			m_bIMECaretCaptured = false;
 		}
-
-		m_Text = temp_string;
-		m_pEditText->SetNonInstantInnerText(m_Text);
-	}
-
-	if (IMEInfo.bIMECompleted)
-	{
-		m_pEditText->MoveCaretToLeft();
-
-		InsertCharacter(static_cast<wchar_t>(IMEInfo.IMECompletedChar[0]));
-
-		m_bIMEInput = true;
-		m_bIMECaretCaptured = false;
 	}
 }
 

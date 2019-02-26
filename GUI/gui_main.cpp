@@ -131,27 +131,26 @@ void ShowDialogueNewMap()
 
 	float edit_offset_x = 100.0f;
 
-	pDialogueNewMap->AddControl(L"label1", EControlType::Label, D3DXVECTOR2(0, 60), D3DXVECTOR2(edit_offset_x, 20))
+	pDialogueNewMap->AddControl(L"label1", EControlType::Label, D3DXVECTOR2(0, 60), D3DXVECTOR2(edit_offset_x, 20), L"맵 이름: ")
 		->SetTextAlignment(EHorizontalAlignment::Right, EVerticalAlignment::Middle)
-		->SetBackgroundColor(0)
-		->SetText(L"맵 이름: ");
+		->SetBackgroundColor(0);
 
-	pDialogueNewMap->AddControl(L"label2", EControlType::Label, D3DXVECTOR2(0, 90), D3DXVECTOR2(edit_offset_x, 20))
+	pDialogueNewMap->AddControl(L"label2", EControlType::Label, D3DXVECTOR2(0, 90), D3DXVECTOR2(edit_offset_x, 20), L"맵 가로 크기: ")
 		->SetTextAlignment(EHorizontalAlignment::Right, EVerticalAlignment::Middle)
-		->SetBackgroundColor(0)
-		->SetText(L"맵 가로 크기: ");
+		->SetBackgroundColor(0);
 
-	pDialogueNewMap->AddControl(L"label3", EControlType::Label, D3DXVECTOR2(0, 120), D3DXVECTOR2(edit_offset_x, 20))
+	pDialogueNewMap->AddControl(L"label3", EControlType::Label, D3DXVECTOR2(0, 120), D3DXVECTOR2(edit_offset_x, 20), L"맵 세로 크기: ")
 		->SetTextAlignment(EHorizontalAlignment::Right, EVerticalAlignment::Middle)
-		->SetBackgroundColor(0)
-		->SetText(L"맵 세로 크기: ");
+		->SetBackgroundColor(0);
 
 	pDialogueNewMap->AddControl(L"edit_name", EControlType::Edit, D3DXVECTOR2(edit_offset_x, 60), D3DXVECTOR2(160, 20))
 		->SetWatermark(L"맵 이름을 입력하세요.");
 
 	pDialogueNewMap->AddControl(L"edit_x_size", EControlType::Edit, D3DXVECTOR2(edit_offset_x, 90), D3DXVECTOR2(160, 20))
+		->ShouldUseNumberInputsOnly(true)
 		->SetWatermark(L"맵의 가로 크기");
 
 	pDialogueNewMap->AddControl(L"edit_y_size", EControlType::Edit, D3DXVECTOR2(edit_offset_x, 120), D3DXVECTOR2(160, 20))
+		->ShouldUseNumberInputsOnly(true)
 		->SetWatermark(L"맵의 세로 크기");
 }
