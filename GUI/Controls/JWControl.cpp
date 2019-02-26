@@ -1,7 +1,7 @@
 #include "JWControl.h"
-#include "../CoreBase/JWWindow.h"
-#include "../CoreBase/JWText.h"
-#include "../CoreBase/JWLine.h"
+#include "../../CoreBase/JWWindow.h"
+#include "../../CoreBase/JWText.h"
+#include "../../CoreBase/JWLine.h"
 #include "JWScrollBar.h"
 
 using namespace JWENGINE;

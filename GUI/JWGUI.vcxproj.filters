@@ -17,6 +17,9 @@
     <Filter Include="CoreType">
       <UniqueIdentifier>{e3be3cde-4516-4971-94a2-f857483c5e84}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\Controls">
+      <UniqueIdentifier>{7fdf172c-9a31-4472-a9cb-f43c2a60ad78}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CoreBase\JWCommon.h">
@@ -34,42 +37,14 @@
     <ClInclude Include="..\CoreBase\JWWindow.h">
       <Filter>CoreBase</Filter>
     </ClInclude>
-    <ClInclude Include="JWGUI.h" />
     <ClInclude Include="..\CoreBase\JWBMFontParser.h">
       <Filter>CoreBase</Filter>
     </ClInclude>
     <ClInclude Include="..\Dependency\tinyxml2.h">
       <Filter>Dependency</Filter>
     </ClInclude>
-    <ClInclude Include="JWControl.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="JWLabel.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="JWEdit.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
     <ClInclude Include="..\CoreBase\JWRectangle.h">
       <Filter>CoreBase</Filter>
-    </ClInclude>
-    <ClInclude Include="JWTextButton.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="JWImageButton.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="JWCheckBox.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="JWRadioBox.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="JWScrollBar.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="JWListBox.h">
-      <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="..\CoreType\TLinkedList.h">
       <Filter>CoreType</Filter>
@@ -77,17 +52,47 @@
     <ClInclude Include="..\CoreType\TDynamicArray.h">
       <Filter>CoreType</Filter>
     </ClInclude>
-    <ClInclude Include="JWMenuBar.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="JWImageBox.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
     <ClInclude Include="JWGUIWindow.h">
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="..\CoreBase\JWText.h">
       <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\JWCheckBox.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\JWControl.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\JWEdit.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\JWImageBox.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\JWImageButton.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\JWLabel.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\JWListBox.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\JWMenuBar.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\JWRadioBox.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\JWScrollBar.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\JWTextButton.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="JWGUI.h">
+      <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -104,54 +109,56 @@
       <Filter>CoreBase</Filter>
     </ClCompile>
     <ClCompile Include="gui_main.cpp" />
-    <ClCompile Include="JWGUI.cpp" />
     <ClCompile Include="..\CoreBase\JWBMFontParser.cpp">
       <Filter>CoreBase</Filter>
     </ClCompile>
     <ClCompile Include="..\Dependency\tinyxml2.cpp">
       <Filter>Dependency</Filter>
     </ClCompile>
-    <ClCompile Include="JWControl.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="JWLabel.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="JWEdit.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
     <ClCompile Include="..\CoreBase\JWRectangle.cpp">
       <Filter>CoreBase</Filter>
-    </ClCompile>
-    <ClCompile Include="JWTextButton.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="JWImageButton.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="JWCheckBox.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="JWRadioBox.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="JWScrollBar.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="JWListBox.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="JWMenuBar.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="JWImageBox.cpp">
-      <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="JWGUIWindow.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="..\CoreBase\JWText.cpp">
       <Filter>CoreBase</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWCheckBox.cpp">
+      <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWControl.cpp">
+      <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWEdit.cpp">
+      <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWImageBox.cpp">
+      <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWImageButton.cpp">
+      <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWLabel.cpp">
+      <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWListBox.cpp">
+      <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWMenuBar.cpp">
+      <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWRadioBox.cpp">
+      <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWScrollBar.cpp">
+      <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWTextButton.cpp">
+      <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="JWGUI.cpp">
+      <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

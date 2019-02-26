@@ -1,6 +1,6 @@
 #include "JWTextButton.h"
-#include "../CoreBase/JWImage.h"
-#include "../CoreBase/JWWindow.h"
+#include "../../CoreBase/JWImage.h"
+#include "../../CoreBase/JWWindow.h"
 
 using namespace JWENGINE;
 

@@ -1,5 +1,5 @@
 #include "JWRadioBox.h"
-#include "../CoreBase/JWImage.h"
+#include "../../CoreBase/JWImage.h"
 
 using namespace JWENGINE;
 

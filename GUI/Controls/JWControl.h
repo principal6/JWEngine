@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../CoreBase/JWCommon.h"
+#include "../../CoreBase/JWCommon.h"
 
 namespace JWENGINE
 {

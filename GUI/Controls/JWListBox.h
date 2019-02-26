@@ -1,7 +1,7 @@
 #pragma once
 
 #include "JWControl.h"
-#include "../CoreType/TLinkedList.h"
+#include "../../CoreType/TLinkedList.h"
 
 namespace JWENGINE
 {

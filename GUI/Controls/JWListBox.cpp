@@ -1,6 +1,6 @@
 #include "JWListBox.h"
-#include "../CoreBase/JWImage.h"
-#include "../CoreBase/JWWindow.h"
+#include "../../CoreBase/JWImage.h"
+#include "../../CoreBase/JWWindow.h"
 #include "JWLabel.h"
 #include "JWScrollBar.h"
 #include "JWImageBox.h"

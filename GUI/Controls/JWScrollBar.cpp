@@ -1,8 +1,8 @@
 #include "JWScrollBar.h"
-#include "../CoreBase/JWImage.h"
-#include "../CoreBase/JWWindow.h"
-#include "../GUI/JWTextButton.h"
-#include "../GUI/JWImageButton.h"
+#include "../../CoreBase/JWImage.h"
+#include "../../CoreBase/JWWindow.h"
+#include "JWTextButton.h"
+#include "JWImageButton.h"
 
 using namespace JWENGINE;
 

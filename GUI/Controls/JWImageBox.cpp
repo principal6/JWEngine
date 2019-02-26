@@ -1,5 +1,5 @@
 #include "JWImageBox.h"
-#include "../CoreBase/JWImage.h"
+#include "../../CoreBase/JWImage.h"
 
 using namespace JWENGINE;
 

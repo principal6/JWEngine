@@ -360,12 +360,12 @@ namespace JWENGINE
 		UV->v2 = UV->v1 + (UnitSize.y / SheetSize.y);
 	}
 
-	inline static void GetTileCols(int SheetWidth, int TileWidth, int* TileCols)
+	inline void GetTileCols(int SheetWidth, int TileWidth, int* TileCols)
 	{
 		*TileCols = static_cast<int>(SheetWidth / TileWidth);
 	}
 
-	inline static void GetTileRows(int SheetHeight, int TileHeight, int* TileRows)
+	inline void GetTileRows(int SheetHeight, int TileHeight, int* TileRows)
 	{
 		*TileRows = static_cast<int>(SheetHeight / TileHeight);
 	}
@@ -403,9 +403,11 @@ namespace JWENGINE
 	inline auto ConvertIntToWSTRING(int In)->WSTRING
 	{
 		WSTRING Result;
+
 		wchar_t temp[MAX_FILE_LEN]{};
 		_itow_s(In, temp, 10);
 		Result = temp;
+
 		return Result;
 	}
 
