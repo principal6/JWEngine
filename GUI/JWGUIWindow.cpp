@@ -98,13 +98,25 @@ auto JWGUIWindow::AddControl(const WSTRING ControlName, const EControlType Type,
 {
 	D3DXVECTOR2 adjusted_position = Position;
 
+	// Check duplicate control name.
+	if (m_ControlsMap.size())
+	{
+		auto already_exist = m_ControlsMap.find(ControlName);
+
+		if (already_exist != m_ControlsMap.end())
+		{
+			// This control name already exists in the controls map.
+			ABORT_RETURN_NULLPTR;
+		}
+	}
+
 	// If this GUIWindow has a MenuBar, we need to offset all the other controls' position.
 	if (m_bHasMenuBar)
 	{
 		if (Type == EControlType::MenuBar)
 		{
 			// If JWGUIWindow already has a menubar, you can't add another one.
-			return nullptr;
+			ABORT_RETURN_NULLPTR;
 		}
 		else
 		{
@@ -148,7 +160,7 @@ auto JWGUIWindow::AddControl(const WSTRING ControlName, const EControlType Type,
 		m_pControls.push_back(new JWImageBox);
 		break;
 	default:
-		return nullptr;
+		ABORT_RETURN_NULLPTR;
 	}
 
 	if (JW_FAILED(m_pControls[m_pControls.size() - 1]->Create(adjusted_position, Size, &m_SharedData)))
@@ -156,7 +168,7 @@ auto JWGUIWindow::AddControl(const WSTRING ControlName, const EControlType Type,
 		JW_DESTROY(m_pControls[m_pControls.size() - 1]);
 		m_pControls.pop_back();
 
-		return nullptr;
+		ABORT_RETURN_NULLPTR;
 	}
 
 	if (Text.length())
@@ -180,7 +192,7 @@ auto JWGUIWindow::GetControlPtr(const WSTRING ControlName)->JWControl*
 	}
 	else
 	{
-		return nullptr;
+		ABORT_RETURN_NULLPTR;
 	}
 }
 

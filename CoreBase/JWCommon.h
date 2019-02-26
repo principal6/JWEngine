@@ -63,6 +63,9 @@ namespace JWENGINE
 	#define JW_DESTROY_SMART(obj) {if(obj) {obj->Destroy();}}
 	#define JW_RELEASE(obj) {if(obj) {obj->Release(); obj = nullptr;}}
 
+	// [DEBUG] abort() and return nullptr
+	#define ABORT_RETURN_NULLPTR {abort(); return nullptr;}
+
 	using CINT = const int;
 
 	using THandleItem = unsigned long long;

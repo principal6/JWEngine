@@ -104,7 +104,7 @@ void MainLoop()
 
 	if ((clicked_subitem = pMainGUIWindow->GetControlPtr(L"menubar")->OnSubItemClick()) != THandleItem_Null)
 	{
-		if (clicked_subitem == mb_file_new)
+		if ((clicked_subitem == mb_file_new) && (!pDialogueNewMap))
 		{
 			ShowDialogueNewMap();
 		}
@@ -115,7 +115,7 @@ void MainLoop()
 		if (pDialogueNewMap->GetControlPtr(L"btn_close")->OnMouseCliked())
 		{
 			WSTRING text;
-			pDialogueNewMap->GetControlPtr(L"edit1")->GetText(&text);
+			pDialogueNewMap->GetControlPtr(L"edit_name")->GetText(&text);
 			std::wcout << text.c_str() << std::endl;
 		}
 	}
@@ -129,9 +129,29 @@ void ShowDialogueNewMap()
 
 	pDialogueNewMap->AddControl(L"btn_close", EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"CLOSE");
 
-	pDialogueNewMap->AddControl(L"edit1", EControlType::Edit, D3DXVECTOR2(0, 60), D3DXVECTOR2(120, 0))
-		->SetWatermark(L"Edit 1");
+	float edit_offset_x = 100.0f;
 
-	pDialogueNewMap->AddControl(L"edit2", EControlType::Edit, D3DXVECTOR2(0, 80), D3DXVECTOR2(120, 0))
-		->SetWatermark(L"Edit 2");
+	pDialogueNewMap->AddControl(L"label1", EControlType::Label, D3DXVECTOR2(0, 60), D3DXVECTOR2(edit_offset_x, 20))
+		->SetTextAlignment(EHorizontalAlignment::Right, EVerticalAlignment::Middle)
+		->SetBackgroundColor(0)
+		->SetText(L"맵 이름: ");
+
+	pDialogueNewMap->AddControl(L"label2", EControlType::Label, D3DXVECTOR2(0, 90), D3DXVECTOR2(edit_offset_x, 20))
+		->SetTextAlignment(EHorizontalAlignment::Right, EVerticalAlignment::Middle)
+		->SetBackgroundColor(0)
+		->SetText(L"맵 가로 크기: ");
+
+	pDialogueNewMap->AddControl(L"label3", EControlType::Label, D3DXVECTOR2(0, 120), D3DXVECTOR2(edit_offset_x, 20))
+		->SetTextAlignment(EHorizontalAlignment::Right, EVerticalAlignment::Middle)
+		->SetBackgroundColor(0)
+		->SetText(L"맵 세로 크기: ");
+
+	pDialogueNewMap->AddControl(L"edit_name", EControlType::Edit, D3DXVECTOR2(edit_offset_x, 60), D3DXVECTOR2(160, 20))
+		->SetWatermark(L"맵 이름을 입력하세요.");
+
+	pDialogueNewMap->AddControl(L"edit_x_size", EControlType::Edit, D3DXVECTOR2(edit_offset_x, 90), D3DXVECTOR2(160, 20))
+		->SetWatermark(L"맵의 가로 크기");
+
+	pDialogueNewMap->AddControl(L"edit_y_size", EControlType::Edit, D3DXVECTOR2(edit_offset_x, 120), D3DXVECTOR2(160, 20))
+		->SetWatermark(L"맵의 세로 크기");
 }
