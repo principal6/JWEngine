@@ -40,7 +40,7 @@ auto StringToWstring(STRING Source) -> WSTRING
 	return Result;
 }
 
-auto JWBMFontParser::ParseComma(STRING Data, UINT ID)->UINT const
+auto JWBMFontParser::ParseComma(const STRING Data, const UINT ID)->UINT const
 {
 	UINT Result = 0;
 	STRING tempString = Data;
@@ -66,7 +66,7 @@ auto JWBMFontParser::ParseComma(STRING Data, UINT ID)->UINT const
 	return Result;
 }
 
-auto JWBMFontParser::Parse(WSTRING FileName)->bool
+auto JWBMFontParser::Parse(const WSTRING FileName)->bool
 {
 	// Clear ms_FontData
 	ms_FontData.Pages.clear();

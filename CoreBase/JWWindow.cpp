@@ -2,9 +2,6 @@
 
 using namespace JWENGINE;
 
-// Static member variable
-int JWWindow::ms_ChildWindowCount = 0;
-
 // Base window procedure for Game window
 LRESULT CALLBACK JWENGINE::BaseWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
@@ -31,18 +28,17 @@ JWWindow::JWWindow()
 
 	memset(m_FileName, 0, MAX_FILE_LEN);
 	memset(m_FileTitle, 0, MAX_FILE_LEN);
-
-	m_hVerticalScrollbar = nullptr;
-	m_hHorizontalScrollbar = nullptr;
 }
 
-auto JWWindow::CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError
+auto JWWindow::CreateGameWindow(CInt X, CInt Y, CInt Width, CInt Height)->EError
 {
 	if (CreateWINAPIWindow(L"Game", X, Y, Width, Height, EWindowStyle::OverlappedWindow, m_BGColor, BaseWindowProc) == nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 
-	if (InitializeDirectX() == -1)
+	if (JW_FAILED(InitializeDirectX()))
+	{
 		return EError::DIRECTX_NOT_CREATED;
+	}
 
 	return EError::OK;
 }
@@ -56,59 +52,15 @@ auto JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)->E
 		EWindowStyle::OverlappedWindow, WindowCreationData.color_background, WindowCreationData.proc) == nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 
-	if (InitializeDirectX() == -1)
+	if (JW_FAILED(InitializeDirectX()))
+	{
 		return EError::DIRECTX_NOT_CREATED;
+	}
 
 	return EError::OK;
 }
 
-auto JWWindow::CreateGUIDialogue(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError
-{
-	// Set DirectX clear color
-	m_BGColor = Color;
-
-	if (CreateWINAPIWindow(L"GUIDialogue", X, Y, Width, Height, EWindowStyle::Dialogue, Color, Proc) == nullptr)
-		return EError::WINAPIWINDOW_NOT_CREATED;
-
-	if (InitializeDirectX() == -1)
-		return EError::DIRECTX_NOT_CREATED;
-
-	return EError::OK;
-}
-
-auto JWWindow::CreateParentWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color,
-	WNDPROC Proc, LPCWSTR MenuName)->EError
-{
-	if (CreateWINAPIWindow(L"Editor", X, Y, Width, Height, EWindowStyle::OverlappedWindow, Color, Proc, MenuName) == nullptr)
-		return EError::WINAPIWINDOW_NOT_CREATED;
-
-	return EError::OK;
-
-}
-
-auto JWWindow::CreateChildWindow(HWND hWndParent, CINT X, CINT Y, CINT Width, CINT Height,
-	DWORD Color, WNDPROC Proc)->EError
-{
-	// Set DirectX clear color
-	m_BGColor = Color;
-
-	WSTRING Name = L"EditorChild";
-	wchar_t temp[MAX_FILE_LEN] {};
-	_itow_s(ms_ChildWindowCount, temp, 10);
-	Name += temp;
-
-	ms_ChildWindowCount++;
-
-	if (CreateWINAPIWindow(Name.c_str(), X, Y, Width, Height, EWindowStyle::ChildWindow2, Color, Proc, nullptr, hWndParent) == nullptr)
-		return EError::WINAPIWINDOW_NOT_CREATED;
-
-	if (InitializeDirectX() == -1)
-		return EError::DIRECTX_NOT_CREATED;
-
-	return EError::OK;
-}
-
-PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, CINT X, CINT Y, CINT Width, CINT Height,
+PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, CInt X, CInt Y, CInt Width, CInt Height,
 	EWindowStyle WindowStyle, DWORD BackColor, WNDPROC Proc, LPCWSTR MenuName, HWND hWndParent)->HWND
 {
 	m_hInstance = GetModuleHandle(nullptr);
@@ -142,7 +94,7 @@ PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, CINT X, CINT Y, C
 	return m_hWnd;
 }
 
-PRIVATE void JWWindow::SetWindowData(int Width, int Height)
+PRIVATE void JWWindow::SetWindowData(CInt Width, CInt Height)
 {
 	m_WindowData.WindowWidth = Width;
 	m_WindowData.WindowHeight = Height;
@@ -150,20 +102,20 @@ PRIVATE void JWWindow::SetWindowData(int Width, int Height)
 	m_WindowData.WindowHalfHeight = static_cast<float>(Height / 2.0f);
 }
 
-PRIVATE auto JWWindow::InitializeDirectX()->int
+PRIVATE auto JWWindow::InitializeDirectX()->EError
 {
 	if (nullptr == (m_pD3D = Direct3DCreate9(D3D_SDK_VERSION)))
-		return -1;
+		return EError::DIRECTX_NOT_CREATED;
 
 	SetDirect3DParameters();
 
 	if (FAILED(m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd,
 		D3DCREATE_HARDWARE_VERTEXPROCESSING, &m_D3DPP, &m_pDevice)))
 	{
-		return -1;
+		return EError::DEVICE_NOT_CREATED;
 	}
 
-	return 0;
+	return EError::OK;
 }
 
 PRIVATE void JWWindow::SetDirect3DParameters()
@@ -188,16 +140,12 @@ PRIVATE void JWWindow::SetDirect3DParameters()
 PRIVATE void JWWindow::UpdateRenderRect()
 {
 	m_RenderRect = { 0, 0, 0, 0 };
+
 	//m_RenderRect.right = m_WindowData.WindowWidth;
 	m_RenderRect.right = m_WindowData.ScreenSize.x;
 
-	if (m_hVerticalScrollbar)
-		m_RenderRect.right -= VERTICAL_SCROLL_BAR_WIDTH;
-
 	//m_RenderRect.bottom = m_WindowData.WindowHeight;
 	m_RenderRect.bottom = m_WindowData.ScreenSize.y;
-	if (m_hHorizontalScrollbar)
-		m_RenderRect.bottom -= HORIZONTAL_SCROLL_BAR_HEIGHT;
 }
 
 void JWWindow::Destroy()
@@ -206,130 +154,17 @@ void JWWindow::Destroy()
 	JW_RELEASE(m_pD3D);
 }
 
-void JWWindow::UseVerticalScrollbar()
-{
-	if (m_hVerticalScrollbar == nullptr)
-	{
-		m_hVerticalScrollbar = CreateWindow(L"scrollbar", NULL, WS_CHILD | WS_VISIBLE | SBS_VERT,
-			0, 0, 0, 0, m_hWnd, (HMENU)100, m_hInstance, NULL);
-
-		SetVerticalScrollbarRange(0);
-
-		UpdateVerticalScrollbarPosition();
-
-		UpdateRenderRect();
-	}
-}
-
-void JWWindow::UseHorizontalScrollbar()
-{
-	if (m_hHorizontalScrollbar == nullptr)
-	{
-		m_hHorizontalScrollbar = CreateWindow(L"scrollbar", NULL, WS_CHILD | WS_VISIBLE | SBS_HORZ,
-			0, 0, 0, 0, m_hWnd, (HMENU)100, m_hInstance, NULL);
-
-		SetHorizontalScrollbarRange(0);
-
-		UpdateHorizontalScrollbarPosition();
-
-		UpdateRenderRect();
-	}
-}
-
-void JWWindow::SetVerticalScrollbarRange(int Max)
-{
-	if (m_hVerticalScrollbar)
-	{
-		SCROLLINFO tInfo;
-		tInfo.cbSize = sizeof(tInfo);
-		tInfo.fMask = SIF_PAGE | SIF_RANGE;
-
-		tInfo.nPage = 1;
-
-		tInfo.nMin = 0;
-		tInfo.nMax = Max;
-		SetScrollInfo(m_hVerticalScrollbar, SB_CTL, &tInfo, TRUE);
-	}
-}
-
-void JWWindow::SetHorizontalScrollbarRange(int Max)
-{
-	if (m_hHorizontalScrollbar)
-	{
-		SCROLLINFO tInfo;
-		tInfo.cbSize = sizeof(tInfo);
-		tInfo.fMask = SIF_PAGE | SIF_RANGE;
-
-		tInfo.nPage = 1;
-
-		tInfo.nMin = 0;
-		tInfo.nMax = Max;
-		SetScrollInfo(m_hHorizontalScrollbar, SB_CTL, &tInfo, TRUE);
-	}
-}
-
-auto JWWindow::GetVerticalScrollbarPosition()->int
-{
-	if (m_hVerticalScrollbar)
-	{
-		return GetScrollPos(m_hVerticalScrollbar, SB_CTL);
-	}
-	else
-	{
-		return 0;
-	}
-}
-auto JWWindow::GetHorizontalScrollbarPosition()->int
-{
-	if (m_hHorizontalScrollbar)
-	{
-		return GetScrollPos(m_hHorizontalScrollbar, SB_CTL);
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-PRIVATE void JWWindow::UpdateVerticalScrollbarPosition()
-{
-	if (m_hVerticalScrollbar)
-	{
-		int x, y, w, h;
-		x = m_WindowData.WindowWidth - VERTICAL_SCROLL_BAR_WIDTH;
-		y = 0;
-		w = VERTICAL_SCROLL_BAR_WIDTH;
-		h = m_WindowData.WindowHeight - HORIZONTAL_SCROLL_BAR_HEIGHT;
-
-		MoveWindow(m_hVerticalScrollbar, x, y, w, h, TRUE);
-	}
-}
-
-PRIVATE void JWWindow::UpdateHorizontalScrollbarPosition()
-{
-	if (m_hHorizontalScrollbar)
-	{
-		int x, y, w, h;
-		x = 0;
-		y = m_WindowData.WindowHeight - HORIZONTAL_SCROLL_BAR_HEIGHT;
-		w = m_WindowData.WindowWidth - VERTICAL_SCROLL_BAR_WIDTH;
-		h = HORIZONTAL_SCROLL_BAR_HEIGHT;
-
-		MoveWindow(m_hHorizontalScrollbar, x, y, w, h, TRUE);
-	}
-}
-
-void JWWindow::SetWindowCaption(WSTRING Caption)
+void JWWindow::SetWindowCaption(const WSTRING Caption)
 {
 	SetWindowTextW(m_hWnd, Caption.c_str());
 }
 
-void JWWindow::SetBackgroundColor(D3DCOLOR color)
+void JWWindow::SetBackgroundColor(const D3DCOLOR color)
 {
 	m_BGColor = color;
 }
 
-void JWWindow::Resize(RECT Rect)
+void JWWindow::Resize(const RECT Rect)
 {
 	SetWindowData(Rect.right, Rect.bottom);
 	//MoveWindow(m_hWnd, Rect.left, Rect.top, Rect.right - Rect.left, Rect.bottom - Rect.top, false);
@@ -379,90 +214,90 @@ auto JWWindow::GetRenderRect() const->const RECT
 	return m_RenderRect;
 }
 
-void JWWindow::UpdateInputState(MSG& Message)
+void JWWindow::UpdateWindowInputState(const MSG& Message)
 {
 	// Window message input
 	// Initialize mouse wheel stride.
-	m_InputState.MouseWheeled = 0;
+	m_WindowInputState.MouseWheeled = 0;
 
-	m_InputState.MouseLeftFirstPressed = false;
+	m_WindowInputState.MouseLeftFirstPressed = false;
 
 	if (Message.hwnd == m_hWnd)
 	{
-		m_InputState.MouseLeftReleased = false;
-		m_InputState.MouseRightReleased = false;
+		m_WindowInputState.MouseLeftReleased = false;
+		m_WindowInputState.MouseRightReleased = false;
 
 		switch (Message.message)
 		{
 		case WM_MOUSEMOVE:
-			m_InputState.MousePosition.x = GET_X_LPARAM(Message.lParam);
-			m_InputState.MousePosition.y = GET_Y_LPARAM(Message.lParam);
+			m_WindowInputState.MousePosition.x = GET_X_LPARAM(Message.lParam);
+			m_WindowInputState.MousePosition.y = GET_Y_LPARAM(Message.lParam);
 			break;
 		case WM_LBUTTONDOWN:
-			if (!m_InputState.MouseLeftPressed)
+			if (!m_WindowInputState.MouseLeftPressed)
 			{
-				m_InputState.MouseLeftFirstPressed = true;
+				m_WindowInputState.MouseLeftFirstPressed = true;
 			}
 
-			m_InputState.MouseLeftPressed = true;
+			m_WindowInputState.MouseLeftPressed = true;
 			
-			m_InputState.MouseDownPosition.x = GET_X_LPARAM(Message.lParam);
-			m_InputState.MouseDownPosition.y = GET_Y_LPARAM(Message.lParam);
+			m_WindowInputState.MouseDownPosition.x = GET_X_LPARAM(Message.lParam);
+			m_WindowInputState.MouseDownPosition.y = GET_Y_LPARAM(Message.lParam);
 			break;
 		case WM_LBUTTONUP:
-			m_InputState.MouseLeftPressed = false;
-			m_InputState.MouseLeftReleased = true;
+			m_WindowInputState.MouseLeftPressed = false;
+			m_WindowInputState.MouseLeftReleased = true;
 			break;
 		case WM_RBUTTONDOWN:
-			m_InputState.MouseRightPressed = true;
+			m_WindowInputState.MouseRightPressed = true;
 			break;
 		case WM_RBUTTONUP:
-			m_InputState.MouseRightPressed = false;
-			m_InputState.MouseRightReleased = true;
+			m_WindowInputState.MouseRightPressed = false;
+			m_WindowInputState.MouseRightReleased = true;
 			break;
 		case WM_MOUSEWHEEL:
-			m_InputState.MouseWheeled = static_cast<__int16>(HIWORD(Message.wParam));
+			m_WindowInputState.MouseWheeled = static_cast<__int16>(HIWORD(Message.wParam));
 			break;
 		default:
 			break;
 		}
 
-		m_InputState.MouseMovedPosition.x = m_InputState.MousePosition.x - m_InputState.MouseDownPosition.x;
-		m_InputState.MouseMovedPosition.y = m_InputState.MousePosition.y - m_InputState.MouseDownPosition.y;
+		m_WindowInputState.MouseMovedPosition.x = m_WindowInputState.MousePosition.x - m_WindowInputState.MouseDownPosition.x;
+		m_WindowInputState.MouseMovedPosition.y = m_WindowInputState.MousePosition.y - m_WindowInputState.MouseDownPosition.y;
 	}
 
 	// Keyboard
 	if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
 	{
-		m_InputState.ControlPressed = true;
+		m_WindowInputState.ControlPressed = true;
 	}
 	else
 	{
-		m_InputState.ControlPressed = false;
+		m_WindowInputState.ControlPressed = false;
 	}
 
 	if (GetAsyncKeyState(VK_MENU) & 0x8000)
 	{
-		m_InputState.AltPressed = true;
+		m_WindowInputState.AltPressed = true;
 	}
 	else
 	{
-		m_InputState.AltPressed = false;
+		m_WindowInputState.AltPressed = false;
 	}
 
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
 	{
-		m_InputState.ShiftPressed = true;
+		m_WindowInputState.ShiftPressed = true;
 	}
 	else
 	{
-		m_InputState.ShiftPressed = false;
+		m_WindowInputState.ShiftPressed = false;
 	}
 }
 
-auto JWWindow::GetWindowInputStatePtr()->SWindowInputState*
+auto JWWindow::GetWindowInputStatePtr() const->const SWindowInputState*
 {
-	return &m_InputState;
+	return &m_WindowInputState;
 }
 
 /** Dialog functions */
@@ -498,12 +333,12 @@ auto JWWindow::SaveFileDlg(LPCWSTR Filter)->BOOL
 	return GetSaveFileName(&m_OFN);
 }
 
-auto JWWindow::GetDlgFileName()->WSTRING
+auto JWWindow::GetDlgFileName() const->const WSTRING
 {
 	return m_FileName;
 }
 
-auto JWWindow::GetDlgFileTitle()->WSTRING
+auto JWWindow::GetDlgFileTitle() const->const WSTRING
 {
 	WSTRING tempString = m_FileName;
 
@@ -513,81 +348,4 @@ auto JWWindow::GetDlgFileTitle()->WSTRING
 		tempString = tempString.substr(temp + 1);
 
 	return tempString;
-}
-
-
-/** Window procedure for Editor window */
-void JWWindow::EditorChildWindowMessageHandler(UINT Message, WPARAM wParam, LPARAM lParam)
-{
-	int tempScrPos;
-	int tempScrMin;
-	int tempScrMax;
-
-	switch (Message)
-	{
-	case WM_MOUSEMOVE:
-		m_InputState.MousePosition.x = GET_X_LPARAM(lParam);
-		m_InputState.MousePosition.y = GET_Y_LPARAM(lParam);
-		break;
-	case WM_LBUTTONDOWN:
-		m_InputState.MouseDownPosition.x = GET_X_LPARAM(lParam);
-		m_InputState.MouseDownPosition.y = GET_Y_LPARAM(lParam);
-		break;
-	case WM_VSCROLL:
-		GetScrollRange((HWND)lParam, SB_CTL, &tempScrMin, &tempScrMax);
-		tempScrPos = GetScrollPos((HWND)lParam, SB_CTL);
-
-		switch (LOWORD(wParam))
-		{
-		case SB_LINEUP:
-			tempScrPos = max(tempScrMin, tempScrPos - 1);
-			break;
-		case SB_LINEDOWN:
-			tempScrPos = min(tempScrMax, tempScrPos + 1);
-			break;
-		case SB_PAGEUP:
-			tempScrPos = max(tempScrMin, tempScrPos - 10);
-			break;
-		case SB_PAGEDOWN:
-			tempScrPos = min(tempScrMax, tempScrPos + 10);
-			break;
-		case SB_THUMBTRACK:
-			tempScrPos = HIWORD(wParam);
-			break;
-		}
-		SetScrollPos((HWND)lParam, SB_CTL, tempScrPos, TRUE);
-		InvalidateRect(m_hWnd, NULL, FALSE);
-		break;
-
-	case WM_HSCROLL:
-		GetScrollRange((HWND)lParam, SB_CTL, &tempScrMin, &tempScrMax);
-		tempScrPos = GetScrollPos((HWND)lParam, SB_CTL);
-
-		switch (LOWORD(wParam))
-		{
-		case SB_LINELEFT:
-			tempScrPos = max(tempScrMin, tempScrPos - 1);
-			break;
-		case SB_LINERIGHT:
-			tempScrPos = min(tempScrMax, tempScrPos + 1);
-			break;
-		case SB_PAGELEFT:
-			tempScrPos = max(tempScrMin, tempScrPos - 10);
-			break;
-		case SB_PAGERIGHT:
-			tempScrPos = min(tempScrMax, tempScrPos + 10);
-			break;
-		case SB_THUMBTRACK:
-			tempScrPos = HIWORD(wParam);
-			break;
-		}
-		SetScrollPos((HWND)lParam, SB_CTL, tempScrPos, TRUE);
-		InvalidateRect(m_hWnd, NULL, FALSE);
-		break;
-
-	case WM_SIZE:
-		UpdateVerticalScrollbarPosition();
-		UpdateHorizontalScrollbarPosition();
-		break;
-	}
 }

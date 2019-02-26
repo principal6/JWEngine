@@ -34,32 +34,29 @@ namespace JWENGINE
 		virtual void FlipHorizontal();
 		virtual void FlipVertical();
 
-		// @warning: SetSize() is used only in Map Editor
-		virtual void SetSize(D3DXVECTOR2 Size);
-		
-		virtual void SetPosition(D3DXVECTOR2 Position);
-		virtual void SetPositionCentered(D3DXVECTOR2 Position);
-		virtual void SetTexture(WSTRING FileName);
+		virtual void SetPosition(const D3DXVECTOR2 Position);
+		virtual void SetPositionCentered(const D3DXVECTOR2 Position);
+		virtual void SetSize(const D3DXVECTOR2 Size);
+		virtual void SetTexture(const WSTRING FileName);
 		virtual void SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo);
-		virtual auto SetColor(DWORD Color)->JWImage*;
-		virtual auto SetAlpha(BYTE Alpha)->JWImage*;
-		virtual auto SetXRGB(DWORD XRGB)->JWImage*;
-		virtual auto SetScale(D3DXVECTOR2 Scale)->JWImage*;
-		virtual auto SetVisibleRange(D3DXVECTOR2 Range)->JWImage*;
-		virtual auto SetAtlasUV(D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 Size,
-			bool bSetSize = true)->JWImage*;
-		virtual auto SetUVRange(float u1, float u2, float v1, float v2)->JWImage*;
-		virtual auto SetBoundingBox(D3DXVECTOR2 ExtraSize)->JWImage*;
-		virtual auto SetBoundingBoxAlpha(BYTE Alpha)->JWImage*;
-		virtual auto SetBoundingBoxXRGB(DWORD XRGB)->JWImage*;
+		virtual auto SetColor(const DWORD Color)->JWImage*;
+		virtual auto SetAlpha(const BYTE Alpha)->JWImage*;
+		virtual auto SetXRGB(const DWORD XRGB)->JWImage*;
+		virtual auto SetScale(const D3DXVECTOR2 Scale)->JWImage*;
+		virtual auto SetVisibleRange(const D3DXVECTOR2 Range)->JWImage*;
+		virtual auto SetAtlasUV(const D3DXVECTOR2 OffsetInAtlas, const D3DXVECTOR2 Size, bool bSetSize = true)->JWImage*;
+		virtual auto SetUVRange(const STextureUV UV)->JWImage*;
+		virtual auto SetBoundingBox(const D3DXVECTOR2 ExtraSize)->JWImage*;
+		virtual auto SetBoundingBoxAlpha(const BYTE Alpha)->JWImage*;
+		virtual auto SetBoundingBoxXRGB(const DWORD XRGB)->JWImage*;
 
-		virtual auto GetSize() const->D3DXVECTOR2;
-		virtual auto GetScaledSize() const->D3DXVECTOR2;
-		virtual auto GetPosition() const->D3DXVECTOR2;
-		virtual auto GetCenterPosition() const->D3DXVECTOR2;
-		virtual auto GetBoundingBox() const->SBoundingBox;
+		virtual auto GetSize() const->const D3DXVECTOR2;
+		virtual auto GetScaledSize() const->const D3DXVECTOR2;
+		virtual auto GetPosition() const->const D3DXVECTOR2;
+		virtual auto GetCenterPosition() const->const D3DXVECTOR2;
+		virtual auto GetBoundingBox() const->const SBoundingBox;
 
-		virtual auto IsTextureLoaded() const->bool;
+		virtual auto IsTextureLoaded() const->const bool;
 
 	protected:
 		virtual void ClearVertexAndIndexData();
@@ -70,7 +67,7 @@ namespace JWENGINE
 		virtual void UpdateIndexBuffer();
 
 		virtual void UpdateVertexData();
-		virtual void UpdateVertexData(float u1, float v1, float u2, float v2);
+		virtual void UpdateVertexData(const STextureUV& UV);
 
 	protected:
 		static const int VISIBLE_RANGE_NOT_SET = -1;

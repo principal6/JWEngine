@@ -29,27 +29,28 @@ namespace JWENGINE
 		JWLine() {};
 		~JWLine() {};
 
-		auto Create(LPDIRECT3DDEVICE9 pDevice)->EError;
-		void CreateMax(LPDIRECT3DDEVICE9 pDevice);
-		void Clear();
+		auto Create(const LPDIRECT3DDEVICE9 pDevice)->EError;
+		auto CreateMax(const LPDIRECT3DDEVICE9 pDevice)->EError;
+		void ClearBuffers();
 		void Destroy();
 
-		void AddLine(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Length, DWORD Color);
-		void AddBox(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size, DWORD Color);
+		void AddLine(const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Length, const DWORD Color);
+		void AddBox(const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Size, const DWORD Color);
 		void AddEnd();
-
-		void SetLine(UINT LineIndex, D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size);
-		void SetLineColor(UINT LineIndex, DWORD Color);
-		void SetLineColor(UINT LineIndex, DWORD ColorA, DWORD ColorB);
-		void SetBox(D3DXVECTOR2 StartPosition, D3DXVECTOR2 Size);
-		void SetBoxColor(DWORD Color);
-		void SetBoxColor(DWORD ColorA, DWORD ColorB);
-		void SetEntireAlpha(BYTE Alpha);
-		void SetEntireXRGB(DWORD Color);
 
 		void UpdateVertexBuffer();
 		void UpdateIndexBuffer();
+
 		void Draw() const;
+
+		void SetLine(const UINT LineIndex, const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Size);
+		void SetLineColor(const UINT LineIndex, const DWORD Color);
+		void SetLineColor(const UINT LineIndex, const DWORD ColorA, const DWORD ColorB);
+		void SetBox(const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Size);
+		void SetBoxColor(const DWORD Color);
+		void SetBoxColor(const DWORD ColorA, const DWORD ColorB);
+		void SetEntireAlpha(const BYTE Alpha);
+		void SetEntireXRGB(const DWORD Color);
 
 	private:
 		void CreateVertexBuffer();

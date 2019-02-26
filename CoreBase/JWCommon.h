@@ -63,7 +63,7 @@ namespace JWENGINE
 	#define JW_DESTROY_SMART(obj) {if(obj) {obj->Destroy();}}
 	#define JW_RELEASE(obj) {if(obj) {obj->Release(); obj = nullptr;}}
 
-	using CINT = const __int32;
+	using CInt = const __int32;
 
 	using THandleItem = unsigned __int64;
 	static constexpr THandleItem THandleItem_Null = UINT64_MAX;
@@ -114,6 +114,7 @@ namespace JWENGINE
 		/** Win32Api, DirectX */
 		WINAPIWINDOW_NOT_CREATED,
 		DIRECTX_NOT_CREATED,
+		DEVICE_NOT_CREATED,
 		TEXTURE_NOT_CREATED,
 		VERTEX_BUFFER_NOT_CREATED,
 		INDEX_BUFFER_NOT_CREATED,

@@ -14,7 +14,7 @@ JWTextButton::JWTextButton()
 	m_bShouleUseToggleSelection = false;
 }
 
-auto JWTextButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWTextButton::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -161,7 +161,7 @@ void JWTextButton::Draw()
 	JWControl::EndDrawing();
 }
 
-void JWTextButton::SetPosition(D3DXVECTOR2 Position)
+auto JWTextButton::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -169,9 +169,11 @@ void JWTextButton::SetPosition(D3DXVECTOR2 Position)
 	{
 		m_pBackground->SetPosition(m_Position);
 	}
+
+	return this;
 }
 
-void JWTextButton::SetSize(D3DXVECTOR2 Size)
+auto JWTextButton::SetSize(const D3DXVECTOR2 Size)->JWControl*
 {
 	JWControl::SetSize(Size);
 
@@ -179,11 +181,15 @@ void JWTextButton::SetSize(D3DXVECTOR2 Size)
 	{
 		m_pBackground->SetSize(m_Size);
 	}
+
+	return this;
 }
 
-void JWTextButton::ShouldUseToggleSelection(bool Value)
+auto JWTextButton::ShouldUseToggleSelection(bool Value)->JWControl*
 {
 	m_bShouleUseToggleSelection = Value;
+
+	return this;
 }
 
 void JWTextButton::KillFocus()

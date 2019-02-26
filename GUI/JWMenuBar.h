@@ -21,21 +21,23 @@ namespace JWENGINE
 		JWMenuBar();
 		~JWMenuBar() {};
 
-		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
+		auto Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
-		auto AddMenuBarItem(WSTRING Text)->THandleItem override;
-		auto AddMenuBarSubItem(THandleItem hItem, WSTRING Text)->THandleItem override;
-
-		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
+		auto AddMenuBarItem(const WSTRING Text)->THandleItem override;
+		auto AddMenuBarSubItem(const THandleItem hItem, const WSTRING Text)->THandleItem override;
 
 		void Draw() override;
 
-		void SetSize(D3DXVECTOR2 Size) override;
+		auto SetSize(const D3DXVECTOR2 Size)->JWControl* override;
 
 		auto OnSubItemClick()->THandleItem override;
 
 		void KillFocus() override;
+
+	protected:
+		// Must be overridden.
+		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
 
 	private:
 		auto GetTHandleItemOfMenuBarItem(TIndex ItemIndex)->THandleItem;

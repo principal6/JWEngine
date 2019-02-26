@@ -17,7 +17,7 @@ JWCheckBox::JWCheckBox()
 	m_bChecked = false;
 }
 
-auto JWCheckBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWCheckBox::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 	{
@@ -105,37 +105,42 @@ void JWCheckBox::Draw()
 	JWControl::EndDrawing();
 }
 
-void JWCheckBox::SetPosition(D3DXVECTOR2 Position)
+auto JWCheckBox::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 
 	m_pBackground->SetPosition(m_Position);
 	m_pCheckImage->SetPosition(m_Position + m_ButtonImageOffset);
+
+	return this;
 }
 
-void JWCheckBox::SetSize(D3DXVECTOR2 Size)
+auto JWCheckBox::SetSize(const D3DXVECTOR2 Size)->JWControl*
 {
-	if (Size.x <= GUI_BUTTON_SIZE.x)
-		Size.x = GUI_BUTTON_SIZE.x;
+	D3DXVECTOR2 adjusted_size = Size;
 
-	if (Size.y <= GUI_BUTTON_SIZE.y)
-		Size.y = GUI_BUTTON_SIZE.y;
+	adjusted_size.x = max(adjusted_size.x, GUI_BUTTON_SIZE.x);
+	adjusted_size.y = max(adjusted_size.y, GUI_BUTTON_SIZE.y);
 
-	m_ButtonImageOffset.x = (Size.x - GUI_BUTTON_SIZE.x) / 2.0f;
-	m_ButtonImageOffset.y = (Size.y - GUI_BUTTON_SIZE.y) / 2.0f;
+	m_ButtonImageOffset.x = (adjusted_size.x - GUI_BUTTON_SIZE.x) / 2.0f;
+	m_ButtonImageOffset.y = (adjusted_size.y - GUI_BUTTON_SIZE.y) / 2.0f;
 
-	JWControl::SetSize(Size);
+	JWControl::SetSize(adjusted_size);
 
 	m_pBackground->SetSize(m_Size);
 	m_pCheckImage->SetPosition(m_Position + m_ButtonImageOffset);
+
+	return this;
 }
 
-void JWCheckBox::SetCheckState(bool Value)
+auto JWCheckBox::SetCheckState(const bool Value)->JWControl*
 {
 	m_bChecked = Value;
+
+	return this;
 }
 
-auto JWCheckBox::GetCheckState() const->bool
+auto JWCheckBox::GetCheckState() const->const bool
 {
 	return m_bChecked;
 }

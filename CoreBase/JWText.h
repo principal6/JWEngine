@@ -102,10 +102,10 @@ namespace JWENGINE
 
 		// Get pointer to the font texture.
 		// This function needs to be used when you call CreateNonInstantText().
-		auto GetFontTexturePtr() const-> const LPDIRECT3DTEXTURE9;
+		auto GetFontTexturePtr() const->const LPDIRECT3DTEXTURE9;
 
 		// Every line's height is equal to the font's size (ms_FontData.Info.Size).
-		auto GetLineHeight() const->float;
+		auto GetLineHeight() const->const float;
 
 		void MoveCaretToLeft();
 		void MoveCaretToRight();
@@ -126,12 +126,12 @@ namespace JWENGINE
 		void ReleaseSelection();
 
 		auto GetCaretSelPosition() const->const size_t;
-		auto GetMousePressedSelPosition(POINT MousePosition) const->const size_t;
+		auto GetMousePressedSelPosition(const POINT MousePosition) const->const size_t;
 		auto GetSelectionStart() const->const size_t;
 		auto GetSelectionEnd() const->const size_t;
 		auto IsTextSelected() const->const bool;
 
-		void ShouldUseAutomaticLineBreak(bool Value);
+		void ShouldUseAutomaticLineBreak(const bool Value);
 
 	private:
 		// @warning: the font texture must be created only once per JWGUIWindow (i.e. per D3D device).
@@ -154,12 +154,12 @@ namespace JWENGINE
 		void UpdateCaret();
 		void UpdateSelectionBox();
 
-		void SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
+		void SetInstantTextGlyph(const size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
 		void SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* pPrevInfo);
 
 		auto GetLineWidth(const WSTRING* pLineText) const->float;
-		auto GetLineStartGlyphIndex(const size_t LineIndex)->size_t;
-		auto GetLineEndGlyphIndex(const size_t LineIndex)->size_t;
+		auto GetLineStartGlyphIndex(const size_t LineIndex) const->const size_t;
+		auto GetLineEndGlyphIndex(const size_t LineIndex) const->const size_t;
 
 	private:
 		static const DWORD DEFAULT_COLOR_CARET = DEFAULT_COLOR_FONT;

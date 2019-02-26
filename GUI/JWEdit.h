@@ -17,31 +17,30 @@ namespace JWENGINE
 		JWEdit();
 		~JWEdit() {};
 
-		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
+		auto Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
 		void Draw() override;
 
-		void SetText(WSTRING Text) override;
-		void SetPosition(D3DXVECTOR2 Position) override;
-		void SetSize(D3DXVECTOR2 Size) override;
-		void SetFontColor(const DWORD Color) override;
-
-		void SetWatermark(const WSTRING Text) override;
-		void SetWatermarkColor(const DWORD Color) override;
+		auto SetPosition(const D3DXVECTOR2 Position)->JWControl* override;
+		auto SetSize(const D3DXVECTOR2 Size)->JWControl* override;
+		auto SetText(const WSTRING Text)->JWControl* override;
+		auto SetFontColor(const DWORD Color)->JWControl* override;
+		auto SetWatermark(const WSTRING Text)->JWControl* override;
+		auto SetWatermarkColor(const DWORD Color)->JWControl* override;
 
 		void Focus() override;
 
-		void ShouldUseMultiline(bool Value) override;
-		void ShouldUseAutomaticLineBreak(bool Value) override;
+		auto ShouldUseMultiline(const bool Value) noexcept->JWControl* override;
+		auto ShouldUseAutomaticLineBreak(const bool Value) noexcept->JWControl* override;
 
 	protected:
 		// Events called in JWGUIWindow (friend class).
 		void WindowMouseDown() override;
 		void WindowMouseMove() override;
-		void WindowKeyDown(WPARAM VirtualKeyCode) override;
-		void WindowCharKeyInput(WPARAM Char) override;
-		void WindowIMEInput(SGUIIMEInputInfo& IMEInfo) override;
+		void WindowKeyDown(const WPARAM VirtualKeyCode) override;
+		void WindowCharKeyInput(const WPARAM Char) override;
+		void WindowIMEInput(const SGUIIMEInputInfo& IMEInfo) override;
 
 	private:
 		void InsertCharacter(wchar_t Char);

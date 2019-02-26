@@ -30,7 +30,7 @@ JWListBox::JWListBox()
 	m_MinimumItemHeight = DEFAULT_ITEM_HEIGHT;
 }
 
-auto JWListBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWListBox::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -99,26 +99,24 @@ void JWListBox::Destroy()
 	JW_DESTROY(m_pScrollBar);
 }
 
-void JWListBox::SetMinimumItemHeight(float Value)
+auto JWListBox::SetMinimumItemHeight(const float Value)->JWControl*
 {
 	m_MinimumItemHeight = Value;
 	m_MinimumItemHeight = max(m_MinimumItemHeight, MINIMUM_ITEM_HEIGHT);
+
+	return this;
 }
 
-void JWListBox::ShouldUseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo)
+auto JWListBox::SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo)->JWControl*
 {
-	m_bUseImageItems = true;
-
 	m_pTextureForImageItem = pTexture;
 	m_pTextureForImageItemInfo = pInfo;
+
+	return this;
 }
 
-void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 SizeInAtlas)
+auto JWListBox::AddListBoxItem(const WSTRING Text, const D3DXVECTOR2 OffsetInAtlas, const D3DXVECTOR2 SizeInAtlas)->JWControl*
 {
-	// Insert space at the head of the text
-	// in order to enhance legibility.
-	Text = L" " + Text;
-
 	// Get this new item's index.
 	size_t item_index = m_pTextItems.size();
 	
@@ -193,6 +191,10 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 	*/
 	JWLabel* new_text_item = new JWLabel;
 
+	// Insert space at the head of the text
+	// in order to enhance legibility.
+	WSTRING adjusted_text = L" " + Text;
+
 	// Calculate text item's position.
 	D3DXVECTOR2 text_item_position = D3DXVECTOR2(item_position.x + SizeInAtlas.x, item_position.y);
 
@@ -200,7 +202,7 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 	D3DXVECTOR2 text_item_size = D3DXVECTOR2(item_size.x - SizeInAtlas.x, item_size.y);
 
 	new_text_item->Create(text_item_position, text_item_size, m_pSharedData);
-	new_text_item->SetText(Text);
+	new_text_item->SetText(adjusted_text);
 	new_text_item->SetTextVerticalAlignment(EVerticalAlignment::Middle);
 	new_text_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));
 	new_text_item->ShouldUseViewport(false);
@@ -225,6 +227,8 @@ void JWListBox::AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas, D3DXVECT
 	{
 		UpdateAutomaticScrollBar();
 	}
+
+	return this;
 }
 
 PRIVATE void JWListBox::UpdateAutomaticScrollBar()
@@ -267,7 +271,7 @@ PRIVATE void JWListBox::UpdateAutomaticScrollBar()
 	}
 }
 
-void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
+PROTECTED void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
 {
 	JWControl::UpdateControlState(ppControlWithMouse, ppControlWithFocus);
 
@@ -282,7 +286,7 @@ void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWControl** p
 		// (although technically it does, the ScrollBar's invisible now.)
 		// set the control state of the ScrollBar to Normal.
 
-		m_pScrollBar->SetState(EControlState::Normal);
+		m_pScrollBar->SetControlState(EControlState::Normal);
 	}
 	else
 	{
@@ -303,12 +307,12 @@ void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWControl** p
 
 				m_pScrollBar->SetScrollPosition(current_scroll_position);
 
-				m_pScrollBar->SetState(EControlState::Hover);
+				m_pScrollBar->SetControlState(EControlState::Hover);
 			}
 		}
 	}
 
-	if (m_pScrollBar->GetState() == EControlState::Normal)
+	if (m_pScrollBar->GetControlState() == EControlState::Normal)
 	{
 		// IF,
 		// ListBox is not being scrolled,
@@ -332,7 +336,7 @@ void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWControl** p
 			{
 				m_pItemBackground[iterator]->UpdateControlState(nullptr, nullptr);
 
-				if (m_pItemBackground[iterator]->GetState() == EControlState::Clicked)
+				if (m_pItemBackground[iterator]->GetControlState() == EControlState::Clicked)
 				{
 					// Save the selected item's index.
 					m_SelectedItemIndex = iterator;
@@ -379,13 +383,13 @@ void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWControl** p
 		{
 			if (iterator == m_SelectedItemIndex)
 			{
-				m_pItemBackground[iterator]->SetStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_BLACK);
-				m_pItemBackground[iterator]->SetStateColor(EControlState::Hover, DEFAULT_COLOR_LESS_BLACK);
+				m_pItemBackground[iterator]->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_BLACK);
+				m_pItemBackground[iterator]->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_LESS_BLACK);
 			}
 			else
 			{
-				m_pItemBackground[iterator]->SetStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
-				m_pItemBackground[iterator]->SetStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_BLACK);
+				m_pItemBackground[iterator]->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
+				m_pItemBackground[iterator]->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_BLACK);
 			}
 		}
 	}
@@ -429,23 +433,29 @@ void JWListBox::Draw()
 	JWControl::EndDrawing();
 }
 
-void JWListBox::SetBackgroundColor(DWORD Color)
+PROTECTED void JWListBox::SetBackgroundColor(DWORD Color)
 {
 	JWControl::SetBackgroundColor(Color);
 
 	m_pBackground->SetColor(Color);
 }
 
-void JWListBox::SetPosition(D3DXVECTOR2 Position)
+auto JWListBox::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
-	m_pBackground->SetPosition(Position);
+
+	m_pBackground->SetPosition(m_Position);
+
+	return this;
 }
 
-void JWListBox::SetSize(D3DXVECTOR2 Size)
+auto JWListBox::SetSize(const D3DXVECTOR2 Size)->JWControl*
 {
 	JWControl::SetSize(Size);
-	m_pBackground->SetSize(Size);
+
+	m_pBackground->SetSize(m_Size);
+
+	return this;
 }
 
 auto JWListBox::GetListBoxItemCount() const->const size_t
@@ -474,12 +484,14 @@ auto JWListBox::GetSelectedItemIndex() const->const TIndex
 	return m_SelectedItemIndex;
 }
 
-void JWListBox::ShouldUseAutomaticScrollBar(bool Value)
+auto JWListBox::ShouldUseAutomaticScrollBar(const bool Value)->JWControl*
 {
 	m_bShouldUseAutomaticScrollBar = Value;
+
+	return this;
 }
 
-void JWListBox::ShouldUseToggleSelection(bool Value)
+auto JWListBox::ShouldUseToggleSelection(const bool Value)->JWControl*
 {
 	m_bShouleUseToggleSelection = Value;
 
@@ -508,6 +520,14 @@ void JWListBox::ShouldUseToggleSelection(bool Value)
 		}
 	}
 	
+	return this;
+}
+
+auto JWListBox::ShouldUseImageItem(const bool Value)->JWControl*
+{
+	m_bUseImageItems = Value;
+
+	return this;
 }
 
 PRIVATE void JWListBox::SetToggleSelectionColor(JWImageBox* pItemBackground)
@@ -515,9 +535,9 @@ PRIVATE void JWListBox::SetToggleSelectionColor(JWImageBox* pItemBackground)
 	// If this ListBox uses toggle selection,
 	// the items' background should not be changed when it's hovered.
 
-	pItemBackground->SetStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
-	pItemBackground->SetStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_BLACK); // See this.
-	pItemBackground->SetStateColor(EControlState::Pressed, DEFAULT_COLOR_LESS_BLACK);
+	pItemBackground->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
+	pItemBackground->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_BLACK); // See this.
+	pItemBackground->SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_LESS_BLACK);
 }
 
 PRIVATE void JWListBox::SetNonToggleSelectionColor(JWImageBox* pItemBackground)
@@ -525,7 +545,7 @@ PRIVATE void JWListBox::SetNonToggleSelectionColor(JWImageBox* pItemBackground)
 	// If this ListBox doesn't use toggle selection,
 	// the default colors of the items' background should be changed when it's hovered.
 
-	pItemBackground->SetStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
-	pItemBackground->SetStateColor(EControlState::Hover, DEFAULT_COLOR_LESS_BLACK); // See this.
-	pItemBackground->SetStateColor(EControlState::Pressed, DEFAULT_COLOR_LESS_BLACK);
+	pItemBackground->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_ALMOST_BLACK);
+	pItemBackground->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_LESS_BLACK); // See this.
+	pItemBackground->SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_LESS_BLACK);
 }

@@ -13,27 +13,34 @@ namespace JWENGINE
 
 	class JWScrollBar final : public JWControl
 	{
+	friend class JWControl;
+	friend class JWListBox;
+
 	public:
 		JWScrollBar();
 		~JWScrollBar() {};
 
-		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
+		auto Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
-		auto MakeScrollBar(EScrollBarDirection Direction)->JWControl* override;
-
-		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override; // Must override
+		auto MakeScrollBar(const EScrollBarDirection Direction)->JWControl* override;
 
 		void Draw() override;
 
-		void SetPosition(D3DXVECTOR2 Position) override;
-		void SetSize(D3DXVECTOR2 Size) override;
-		void SetState(EControlState State) override; // Must override
-		auto SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount)->JWControl* override;
-		auto SetScrollPosition(size_t Position)->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2 Position)->JWControl* override;
+		auto SetSize(const D3DXVECTOR2 Size)->JWControl* override;
+		auto SetScrollRange(const size_t VisibleUnitCount, const size_t TotalUnitCount)->JWControl* override;
+		auto SetScrollPosition(const size_t Position)->JWControl* override;
 
 		auto GetScrollRange() const->size_t override;
 		auto GetScrollPosition() const->size_t override;
+
+	protected:
+		// Must be overridden.
+		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
+
+		// Must be overridden.
+		void SetControlState(EControlState State) override;
 
 	private:
 		void UpdateButtonSize();

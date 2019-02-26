@@ -59,14 +59,14 @@ JWGUI::JWGUI()
 	m_pMainGUIWindow = nullptr;
 }
 
-auto JWGUI::Create(SWindowCreationData& WindowCreationData)->EError
+auto JWGUI::Create(SWindowCreationData& WindowCreationData, JWGUIWindow** OutPtrMainGUIWindow)->EError
 {
-	if (m_pMainGUIWindow = new JWGUIWindow)
+	if (*OutPtrMainGUIWindow = new JWGUIWindow)
 	{
 		WindowCreationData.proc = GUIWindowProc;
-		m_pMainGUIWindow->Create(WindowCreationData);
+		(*OutPtrMainGUIWindow)->Create(WindowCreationData);
 
-		m_ppGUIWindows.push_back(&m_pMainGUIWindow);
+		m_ppGUIWindows.push_back(OutPtrMainGUIWindow);
 
 		return EError::OK;
 	}
@@ -88,27 +88,17 @@ void JWGUI::Destroy()
 	}
 }
 
-void JWGUI::AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow** ppGUIWindow)
+void JWGUI::AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow** OutPtrGUIWindow)
 {
-	*ppGUIWindow = new JWGUIWindow;
+	*OutPtrGUIWindow = new JWGUIWindow;
 
 	WindowCreationData.proc = GUIWindowProc;
-	(*ppGUIWindow)->Create(WindowCreationData);
+	(*OutPtrGUIWindow)->Create(WindowCreationData);
 
-	m_ppGUIWindows.push_back(ppGUIWindow);
+	m_ppGUIWindows.push_back(OutPtrGUIWindow);
 }
 
-auto JWGUI::GetMainGUIWindowPtr()->JWGUIWindow*
-{
-	if (m_ppGUIWindows.size())
-	{
-		return *m_ppGUIWindows[0];
-	}
-
-	return nullptr;
-}
-
-void JWGUI::SetMainLoopFunction(PF_MAINLOOP pfMainLoop)
+void JWGUI::SetMainLoopFunction(const PF_MAINLOOP pfMainLoop)
 {
 	m_pfMainLoop = pfMainLoop;
 }

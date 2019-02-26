@@ -62,7 +62,7 @@ auto JWGUIWindow::Create(const SWindowCreationData& WindowCreationData)->EError
 	return EError::OK;
 }
 
-PRIVATE auto JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* pTexture, D3DXIMAGE_INFO* pInfo)->EError
+PRIVATE auto JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo)->EError
 {
 	WSTRING texture_filename;
 	texture_filename = m_SharedData.BaseDir;
@@ -70,7 +70,7 @@ PRIVATE auto JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTU
 	texture_filename += Filename;
 
 	if (FAILED(D3DXCreateTextureFromFileEx(m_SharedData.pWindow->GetDevice(), texture_filename.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-		D3DX_DEFAULT, D3DX_DEFAULT, 0, pInfo, nullptr, pTexture)))
+		D3DX_DEFAULT, D3DX_DEFAULT, 0, pInfo, nullptr, ppTexture)))
 		return EError::TEXTURE_NOT_CREATED;
 
 	return EError::OK;
@@ -93,8 +93,12 @@ void JWGUIWindow::Destroy()
 	JW_DESTROY(m_SharedData.pWindow);
 }
 
-auto JWGUIWindow::AddControl(WSTRING ControlName, EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text)->JWControl*
+auto JWGUIWindow::AddControl(const WSTRING ControlName, const EControlType Type, const D3DXVECTOR2 Position, const D3DXVECTOR2 Size,
+	const WSTRING Text)->JWControl*
 {
+	D3DXVECTOR2 adjusted_position = Position;
+
+	// If this GUIWindow has a MenuBar, we need to offset all the other controls' position.
 	if (m_bHasMenuBar)
 	{
 		if (Type == EControlType::MenuBar)
@@ -105,7 +109,7 @@ auto JWGUIWindow::AddControl(WSTRING ControlName, EControlType Type, D3DXVECTOR2
 		else
 		{
 			// Adjust y position of every other control.
-			Position.y += m_pMenuBar->GetSize().y;
+			adjusted_position.y += m_pMenuBar->GetSize().y;
 		}
 	}
 
@@ -147,7 +151,7 @@ auto JWGUIWindow::AddControl(WSTRING ControlName, EControlType Type, D3DXVECTOR2
 		return nullptr;
 	}
 
-	if (JW_FAILED(m_pControls[m_pControls.size() - 1]->Create(Position, Size, &m_SharedData)))
+	if (JW_FAILED(m_pControls[m_pControls.size() - 1]->Create(adjusted_position, Size, &m_SharedData)))
 	{
 		JW_DESTROY(m_pControls[m_pControls.size() - 1]);
 		m_pControls.pop_back();
@@ -180,10 +184,10 @@ auto JWGUIWindow::GetControlPtr(const WSTRING ControlName)->JWControl*
 	}
 }
 
-void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindowHWND, HWND ActiveWindowHWND)
+void JWGUIWindow::Update(const MSG& Message, const SGUIIMEInputInfo& IMEInfo, const HWND QuitWindowHWND, const HWND ActiveWindowHWND)
 {
 	// Update JWWindow's input state.
-	m_SharedData.pWindow->UpdateInputState(Message);
+	m_SharedData.pWindow->UpdateWindowInputState(Message);
 
 	if (QuitWindowHWND == m_SharedData.pWindow->GethWnd())
 	{
@@ -202,7 +206,7 @@ void JWGUIWindow::Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindo
 		// this JWGUIWindow is not an active window,
 		// kill the focus of controls.
 
-		KillFocus();
+		KillAllFocus();
 
 		return;
 	}
@@ -298,7 +302,7 @@ PRIVATE void JWGUIWindow::SetFocusOnControl(JWControl* pFocusedControl)
 	}
 }
 
-void JWGUIWindow::BeginRender()
+void JWGUIWindow::BeginRender() const
 {
 	m_SharedData.pWindow->BeginRender();
 }
@@ -328,12 +332,12 @@ void JWGUIWindow::EndRender()
 	m_SharedData.pWindow->EndRender();
 }
 
-auto JWGUIWindow::IsDestroyed()->bool
+auto JWGUIWindow::IsDestroyed() const->const bool
 {
 	return m_bDestroyed;
 }
 
-void JWGUIWindow::KillFocus()
+void JWGUIWindow::KillAllFocus()
 {
 	m_pControlWithFocus = nullptr;
 

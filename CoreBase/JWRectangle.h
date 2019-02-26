@@ -15,15 +15,15 @@ namespace JWENGINE
 		JWRectangle();
 		virtual ~JWRectangle() {};
 
-		virtual auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, UINT MaxNumBox = 1)->EError;
+		virtual auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const UINT MaxNumBox = 1)->EError;
 		virtual void Destroy();
 
 		virtual void ClearAllRectangles();
-		virtual void AddRectangle(D3DXVECTOR2 Size, D3DXVECTOR2 Position);
+		virtual void AddRectangle(const D3DXVECTOR2 Size, const D3DXVECTOR2 Position);
 
 		virtual void Draw();
 
-		virtual void SetRectangleColor(DWORD Color);
+		virtual void SetRectangleColor(const DWORD Color);
 		
 	protected:
 		virtual void ClearVertexAndIndexData();

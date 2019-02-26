@@ -32,18 +32,19 @@ namespace JWENGINE
 		void Destroy();
 
 		// Create a texture that will be used in this particular JWGUIWindow.
-		auto CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* pTexture, D3DXIMAGE_INFO* pInfo)->EError;
+		auto CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo)->EError;
 
 		// Add a control instance to this JWGUIWindow.
-		auto AddControl(WSTRING ControlName, EControlType Type, D3DXVECTOR2 Position, D3DXVECTOR2 Size, WSTRING Text = L"")->JWControl*;
+		auto AddControl(const WSTRING ControlName, const EControlType Type, const D3DXVECTOR2 Position, const D3DXVECTOR2 Size,
+			const WSTRING Text = L"")->JWControl*;
 
 		// Get the pointer of the control instance that this JWGUIWindow has.
 		auto GetControlPtr(const WSTRING ControlName)->JWControl*;
 
-		void Update(MSG& Message, SGUIIMEInputInfo& IMEInfo, HWND QuitWindowHWND, HWND ActiveWindowHWND);
+		void Update(const MSG& Message, const SGUIIMEInputInfo& IMEInfo, const HWND QuitWindowHWND, const HWND ActiveWindowHWND);
 
 		// Must call this function before any draw functions.
-		void BeginRender();
+		void BeginRender() const;
 
 		// Draw all the controls that this JWGUIWindow has.
 		void DrawAllControls();
@@ -53,10 +54,10 @@ namespace JWENGINE
 
 		// Return true if this JWGUIWindow is destroyed.
 		// @warning: when this function returns true, you must call Destroy() method from the outside.
-		auto IsDestroyed()->bool;
+		auto IsDestroyed() const->const bool;
 
-		// Kill focus.
-		void KillFocus();
+		// Kill all the focus.
+		void KillAllFocus();
 
 	private:
 		void SetFocusOnControl(JWControl* pFocusedControl);

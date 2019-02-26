@@ -24,25 +24,25 @@ namespace JWENGINE
 
 	class JWListBox final : public JWControl
 	{
+	friend class JWMenuBar;
+
 	public:
 		JWListBox();
 		~JWListBox() {};
 
-		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
+		auto Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
-		void SetMinimumItemHeight(float Value) override;
-		void ShouldUseImageItem(LPDIRECT3DTEXTURE9 pTexture, D3DXIMAGE_INFO* pInfo) override;
+		auto SetMinimumItemHeight(const float Value)->JWControl* override;
+		auto SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo)->JWControl* override;
 
-		void AddListBoxItem(WSTRING Text, D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0), D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0)) override;
-
-		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
+		auto AddListBoxItem(const WSTRING Text, const D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0),
+			const D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0))->JWControl* override;
 
 		void Draw() override;
 
-		void SetBackgroundColor(DWORD Color) override;
-		void SetPosition(D3DXVECTOR2 Position) override;
-		void SetSize(D3DXVECTOR2 Size) override;
+		auto SetPosition(const D3DXVECTOR2 Position)->JWControl* override;
+		auto SetSize(const D3DXVECTOR2 Size)->JWControl* override;
 
 		auto GetListBoxItemCount() const->const size_t override;
 
@@ -51,11 +51,19 @@ namespace JWENGINE
 
 		auto GetSelectedItemIndex() const->const TIndex override;
 
-		void ShouldUseAutomaticScrollBar(bool Value) override;
-		void ShouldUseToggleSelection(bool Value) override;
+		auto ShouldUseAutomaticScrollBar(const bool Value)->JWControl* override;
+		auto ShouldUseToggleSelection(const bool Value)->JWControl* override;
+		auto ShouldUseImageItem(const bool Value)->JWControl* override;
+
+	protected:
+		// Must be overridden.
+		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
+
+		void SetBackgroundColor(DWORD Color) override;
 
 	private:
 		void UpdateAutomaticScrollBar();
+
 		void SetToggleSelectionColor(JWImageBox* pItemBackground);
 		void SetNonToggleSelectionColor(JWImageBox* pItemBackground);
 
@@ -68,7 +76,7 @@ namespace JWENGINE
 		static const float DEFAULT_ITEM_PADDING_Y;
 
 		LPDIRECT3DTEXTURE9 m_pTextureForImageItem;
-		D3DXIMAGE_INFO* m_pTextureForImageItemInfo;
+		const D3DXIMAGE_INFO* m_pTextureForImageItemInfo;
 
 		TLinkedList<JWImageBox*> m_pItemBackground;
 		TLinkedList<JWLabel*> m_pTextItems;

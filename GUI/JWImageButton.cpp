@@ -27,7 +27,7 @@ JWImageButton::JWImageButton()
 	m_Color_Pressed = DEFAULT_COLOR_NORMAL;
 }
 
-auto JWImageButton::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWImageButton::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -76,8 +76,8 @@ void JWImageButton::Destroy()
 	JW_DESTROY(m_pButtonImage);
 }
 
-void JWImageButton::MakeImageButton(WSTRING TextureAtlasFileName, D3DXVECTOR2 ButtonSizeInTexture, D3DXVECTOR2 NormalOffset,
-	D3DXVECTOR2 HoverOffset, D3DXVECTOR2 PressedOffset)
+auto JWImageButton::MakeImageButton(const WSTRING TextureAtlasFileName, const D3DXVECTOR2 ButtonSizeInTexture, const D3DXVECTOR2 NormalOffset,
+	const D3DXVECTOR2 HoverOffset, const D3DXVECTOR2 PressedOffset)->JWControl*
 {
 	m_pButtonImage->SetTexture(TextureAtlasFileName);
 
@@ -88,9 +88,11 @@ void JWImageButton::MakeImageButton(WSTRING TextureAtlasFileName, D3DXVECTOR2 Bu
 	m_PressedOffset = PressedOffset;
 
 	SetSize(m_Size);
+
+	return this;
 }
 
-void JWImageButton::MakeSystemArrowButton(ESystemArrowDirection Direction)
+auto JWImageButton::MakeSystemArrowButton(const ESystemArrowDirection Direction)->JWControl*
 {
 	float AtlasYOffset = 0;
 
@@ -121,6 +123,8 @@ void JWImageButton::MakeSystemArrowButton(ESystemArrowDirection Direction)
 	m_PressedOffset = D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, AtlasYOffset);
 
 	SetSize(m_Size);
+
+	return this;
 }
 
 void JWImageButton::Draw()
@@ -163,7 +167,7 @@ void JWImageButton::Draw()
 	JWControl::EndDrawing();
 }
 
-void JWImageButton::SetPosition(D3DXVECTOR2 Position)
+auto JWImageButton::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -176,20 +180,20 @@ void JWImageButton::SetPosition(D3DXVECTOR2 Position)
 	{
 		m_pButtonImage->SetPosition(m_Position + m_ButtonImagePositionOffset);
 	}
+
+	return this;
 }
 
-void JWImageButton::SetSize(D3DXVECTOR2 Size)
+auto JWImageButton::SetSize(const D3DXVECTOR2 Size)->JWControl*
 {
-	if (Size.x <= m_ButtonSizeInTexture.x)
-		Size.x = m_ButtonSizeInTexture.x;
+	D3DXVECTOR2 adjusted_size = Size;
+	adjusted_size.x = max(adjusted_size.x, m_ButtonSizeInTexture.x);
+	adjusted_size.y = max(adjusted_size.y, m_ButtonSizeInTexture.y);
 
-	if (Size.y <= m_ButtonSizeInTexture.y)
-		Size.y = m_ButtonSizeInTexture.y;
+	m_ButtonImagePositionOffset.x = (adjusted_size.x - m_ButtonSizeInTexture.x) / 2.0f;
+	m_ButtonImagePositionOffset.y = (adjusted_size.y - m_ButtonSizeInTexture.y) / 2.0f;
 
-	m_ButtonImagePositionOffset.x = (Size.x - m_ButtonSizeInTexture.x) / 2.0f;
-	m_ButtonImagePositionOffset.y = (Size.y - m_ButtonSizeInTexture.y) / 2.0f;
-
-	JWControl::SetSize(m_Size);
+	JWControl::SetSize(adjusted_size);
 
 	if (m_pBackground)
 	{
@@ -200,4 +204,6 @@ void JWImageButton::SetSize(D3DXVECTOR2 Size)
 	{
 		m_pButtonImage->SetPosition(m_Position + m_ButtonImagePositionOffset);
 	}
+
+	return this;
 }

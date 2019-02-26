@@ -52,29 +52,21 @@ namespace JWENGINE
 		JWWindow();
 		~JWWindow() {};
 
-		auto CreateGameWindow(CINT X, CINT Y, CINT Width, CINT Height)->EError;
+		auto CreateGameWindow(CInt X, CInt Y, CInt Width, CInt Height)->EError;
 		auto CreateGUIWindow(const SWindowCreationData& WindowCreationData)->EError;
-		auto CreateGUIDialogue(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color, WNDPROC Proc)->EError;
-		auto CreateParentWindow(CINT X, CINT Y, CINT Width, CINT Height, DWORD Color,
-			WNDPROC Proc, LPCWSTR MenuName)->EError;
-		auto CreateChildWindow(HWND hWndParent, CINT X, CINT Y, CINT Width, CINT Height,
-			DWORD Color, WNDPROC Proc)->EError;
 		void Destroy();
 
-		// Scrollbars
-		void UseVerticalScrollbar();
-		void UseHorizontalScrollbar();
-		void SetVerticalScrollbarRange(int Max);
-		void SetHorizontalScrollbarRange(int Max);
-		auto GetVerticalScrollbarPosition()->int;
-		auto GetHorizontalScrollbarPosition()->int;
+		void SetWindowCaption(const WSTRING Caption);
+		void SetBackgroundColor(const D3DCOLOR color);
+		void Resize(const RECT Rect);
 
-		void SetWindowCaption(WSTRING Caption);
-		void SetBackgroundColor(D3DCOLOR color);
-		void Resize(RECT Rect);
-
-		// Render
+		// 1) Clear()
+		// 2) BeginScene()
 		void BeginRender() const;
+
+		// 1) EndScene()
+		// 2) Present().
+		// 3) Check if the device is lost, and if it is, reset it.
 		void EndRender();
 
 		auto GetDevice() const->const LPDIRECT3DDEVICE9;
@@ -84,45 +76,34 @@ namespace JWENGINE
 		auto GetRenderRect() const->const RECT;
 
 		// Input
-		void UpdateInputState(MSG& Message);
-		auto GetWindowInputStatePtr()->SWindowInputState*;
+		void UpdateWindowInputState(const MSG& Message);
+		auto GetWindowInputStatePtr() const->const SWindowInputState*;
 
 		// Dialog
 		void SetDlgBase();
 		auto OpenFileDlg(LPCWSTR Filter)->BOOL;
 		auto SaveFileDlg(LPCWSTR Filter)->BOOL;
-		auto GetDlgFileName()->WSTRING;
-		auto GetDlgFileTitle()->WSTRING;
-
-		// Editor message handler
-		void EditorChildWindowMessageHandler(UINT Message, WPARAM wParam, LPARAM lParam);
+		auto GetDlgFileName() const->const WSTRING;
+		auto GetDlgFileTitle() const->const WSTRING;
 
 	private:
 		friend LRESULT CALLBACK BaseWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
-		auto CreateWINAPIWindow(const wchar_t* Name, CINT X, CINT Y, CINT Width, CINT Height,
+
+		auto CreateWINAPIWindow(const wchar_t* Name, CInt X, CInt Y, CInt Width, CInt Height,
 			EWindowStyle WindowStyle, DWORD BackColor, WNDPROC Proc, LPCWSTR MenuName = nullptr, HWND hWndParent = nullptr)->HWND;
-		auto InitializeDirectX()->int;
+		auto InitializeDirectX()->EError;
 		void SetDirect3DParameters();
 		void UpdateRenderRect();
 
-		void SetWindowData(int Width, int Height);
-		void UpdateVerticalScrollbarPosition();
-		void UpdateHorizontalScrollbarPosition();
+		void SetWindowData(CInt Width, CInt Height);
 
 	private:
-		static const int VERTICAL_SCROLL_BAR_WIDTH = 20;
-		static const int HORIZONTAL_SCROLL_BAR_HEIGHT = 20;
-		static int ms_ChildWindowCount;
-		
 		HINSTANCE m_hInstance;
 		HWND m_hWnd;
 		RECT m_Rect;
 		mutable RECT m_RenderRect;
 		SWindowData m_WindowData;
-		SWindowInputState m_InputState;
-
-		HWND m_hVerticalScrollbar;
-		HWND m_hHorizontalScrollbar;
+		SWindowInputState m_WindowInputState;
 
 		LPDIRECT3D9 m_pD3D;
 		LPDIRECT3DDEVICE9 m_pDevice;

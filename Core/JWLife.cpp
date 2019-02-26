@@ -175,10 +175,11 @@ PRIVATE void JWLife::SetFrame(int FrameID)
 	{
 	case EAnimationDirection::Left:
 		// Set the UV with the u value flipped
-		UpdateVertexData(tUV.u2, tUV.v1, tUV.u1, tUV.v2);
+		Swap(tUV.u1, tUV.u2);
+		UpdateVertexData(tUV);
 		break;
 	case EAnimationDirection::Right:
-		UpdateVertexData(tUV.u1, tUV.v1, tUV.u2, tUV.v2);
+		UpdateVertexData(tUV);
 		break;
 	default:
 		break;

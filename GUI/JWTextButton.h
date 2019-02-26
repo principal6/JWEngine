@@ -11,21 +11,24 @@ namespace JWENGINE
 
 	class JWTextButton final : public JWControl
 	{
+	friend class JWMenuBar;
+	friend class JWScrollBar;
+
 	public:
 		JWTextButton();
 		~JWTextButton() {};
 
-		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
+		auto Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
 		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
 
 		void Draw() override;
 
-		void SetPosition(D3DXVECTOR2 Position) override;
-		void SetSize(D3DXVECTOR2 Size) override;
+		auto SetPosition(const D3DXVECTOR2 Position)->JWControl* override;
+		auto SetSize(const D3DXVECTOR2 Size)->JWControl* override;
 
-		void ShouldUseToggleSelection(bool Value) override;
+		auto ShouldUseToggleSelection(bool Value)->JWControl* override;
 
 		void KillFocus() override;
 

@@ -33,7 +33,7 @@ JWScrollBar::JWScrollBar()
 	m_ScrollableSize = 0;
 }
 
-auto JWScrollBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWScrollBar::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -80,9 +80,9 @@ auto JWScrollBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindo
 			return EError::IMAGE_BUTTON_NOT_CREATED;
 
 		m_pScroller->ShouldDrawBorder(false);
-		m_pScroller->SetStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_WHITE);
-		m_pScroller->SetStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_WHITE);
-		m_pScroller->SetStateColor(EControlState::Pressed, DEFAULT_COLOR_WHITE);
+		m_pScroller->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_WHITE);
+		m_pScroller->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_WHITE);
+		m_pScroller->SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_WHITE);
 	}
 	else
 	{
@@ -114,7 +114,7 @@ void JWScrollBar::Destroy()
 	JW_DESTROY(m_pScroller);
 }
 
-auto JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)->JWControl*
+auto JWScrollBar::MakeScrollBar(const EScrollBarDirection Direction)->JWControl*
 {
 	m_ScrollBarDirection = Direction;
 
@@ -143,7 +143,7 @@ auto JWScrollBar::MakeScrollBar(EScrollBarDirection Direction)->JWControl*
 	return this;
 }
 
-void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
+PROTECTED void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
 {
 	JWControl::UpdateControlState(ppControlWithMouse, ppControlWithFocus);
 
@@ -157,8 +157,8 @@ void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl**
 	m_pButtonA->UpdateControlState(nullptr, nullptr);
 	m_pButtonB->UpdateControlState(nullptr, nullptr);
 	
-	EControlState button_a_state = m_pButtonA->GetState();
-	EControlState button_b_state = m_pButtonB->GetState();
+	EControlState button_a_state = m_pButtonA->GetControlState();
+	EControlState button_b_state = m_pButtonB->GetControlState();
 
 	if ((button_a_state == EControlState::Clicked) || (button_a_state == EControlState::Pressed))
 	{
@@ -200,9 +200,9 @@ void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl**
 			m_ButtonABPressIntervalTick = 5;
 		}
 	}
-	else if (m_pScroller->GetState() == EControlState::Pressed)
+	else if (m_pScroller->GetControlState() == EControlState::Pressed)
 	{
-		SetState(EControlState::Pressed);
+		SetControlState(EControlState::Pressed);
 
 		if (!m_bScrollerCaptured)
 		{
@@ -259,7 +259,7 @@ void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl**
 			}
 		}
 	}
-	else if ((m_ControlState == EControlState::Pressed) && (m_pScroller->GetState() == EControlState::Normal)
+	else if ((m_ControlState == EControlState::Pressed) && (m_pScroller->GetControlState() == EControlState::Normal)
 		&& (button_a_state == EControlState::Normal) && (button_b_state == EControlState::Normal))
 	{
 		// Press on the body of the scrollbar => Page scroll
@@ -330,57 +330,63 @@ void JWScrollBar::Draw()
 	JWControl::EndDrawing();
 }
 
-void JWScrollBar::SetPosition(D3DXVECTOR2 Position)
+auto JWScrollBar::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 
 	m_pBackground->SetPosition(m_Position);
 
 	UpdateButtonPosition();
+
+	return this;
 }
 
-void JWScrollBar::SetSize(D3DXVECTOR2 Size)
+auto JWScrollBar::SetSize(const D3DXVECTOR2 Size)->JWControl*
 {
+	D3DXVECTOR2 adjusted_size = Size;
+
 	switch (m_ScrollBarDirection)
 	{
 	case JWENGINE::EScrollBarDirection::Horizontal:
-		Size.x = max(Size.x, HORIZONTAL_MINIMUM_SIZE.x);
-		Size.y = max(Size.y, HORIZONTAL_MINIMUM_SIZE.y);
+		adjusted_size.x = max(adjusted_size.x, HORIZONTAL_MINIMUM_SIZE.x);
+		adjusted_size.y = max(adjusted_size.y, HORIZONTAL_MINIMUM_SIZE.y);
 		break;
 	case JWENGINE::EScrollBarDirection::Vertical:
-		Size.x = max(Size.x, VERTICAL_MINIMUM_SIZE.x);
-		Size.y = max(Size.y, VERTICAL_MINIMUM_SIZE.y);
+		adjusted_size.x = max(adjusted_size.x, VERTICAL_MINIMUM_SIZE.x);
+		adjusted_size.y = max(adjusted_size.y, VERTICAL_MINIMUM_SIZE.y);
 		break;
 	default:
 		break;
 	}
 
-	JWControl::SetSize(Size);
+	JWControl::SetSize(adjusted_size);
 
 	m_pBackground->SetSize(m_Size);
 
 	UpdateButtonPosition();
 	UpdateButtonSize();
+
+	return this;
 }
 
-void JWScrollBar::SetState(EControlState State)
+PROTECTED void JWScrollBar::SetControlState(EControlState State)
 {
-	JWControl::SetState(State);
+	JWControl::SetControlState(State);
 
 	if (State == EControlState::Normal)
 	{
 		// When mouse is off scrollbar, Buttons must be set to normal state as well
-		m_pButtonA->SetState(State);
-		m_pButtonB->SetState(State);
+		m_pButtonA->SetControlState(State);
+		m_pButtonB->SetControlState(State);
 
 		if (!m_pSharedData->pWindow->GetWindowInputStatePtr()->MouseLeftPressed)
 		{
-			m_pScroller->SetState(State);
+			m_pScroller->SetControlState(State);
 		}
 	}
 }
 
-auto JWScrollBar::SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount)->JWControl*
+auto JWScrollBar::SetScrollRange(const size_t VisibleUnitCount, const size_t TotalUnitCount)->JWControl*
 {
 	m_VisibleUnitCount = VisibleUnitCount;
 	m_TotalUnitCount = TotalUnitCount;
@@ -393,24 +399,25 @@ auto JWScrollBar::SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount)
 	return this;
 }
 
-auto JWScrollBar::SetScrollPosition(size_t Position)->JWControl*
+auto JWScrollBar::SetScrollPosition(const size_t Position)->JWControl*
 {
-	if (Position >= m_ScrollMax)
-		Position = m_ScrollMax;
+	size_t adjusted_position = Position;
 
-	m_ScrollPosition = Position;
+	adjusted_position = min(adjusted_position, m_ScrollMax);
+	
+	m_ScrollPosition = adjusted_position;
 
-	float new_position = 0;
+	float scroller_position = 0;
 
 	switch (m_ScrollBarDirection)
 	{
 	case JWENGINE::EScrollBarDirection::Horizontal:
-		new_position = (m_ScrollableSize / static_cast<float>(m_TotalUnitCount)) * m_ScrollPosition;
-		MoveScrollerTo(D3DXVECTOR2(new_position, 0));
+		scroller_position = (m_ScrollableSize / static_cast<float>(m_TotalUnitCount)) * m_ScrollPosition;
+		MoveScrollerTo(D3DXVECTOR2(scroller_position, 0));
 		break;
 	case JWENGINE::EScrollBarDirection::Vertical:
-		new_position = (m_ScrollableSize / static_cast<float>(m_TotalUnitCount)) * m_ScrollPosition;
-		MoveScrollerTo(D3DXVECTOR2(0, new_position));
+		scroller_position = (m_ScrollableSize / static_cast<float>(m_TotalUnitCount)) * m_ScrollPosition;
+		MoveScrollerTo(D3DXVECTOR2(0, scroller_position));
 		break;
 	default:
 		break;

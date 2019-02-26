@@ -833,7 +833,7 @@ void JWText::DrawSelectionBox()
 	}
 }
 
-PRIVATE void JWText::SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo)
+PRIVATE void JWText::SetInstantTextGlyph(const size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo)
 {
 	if (Character_index)
 	{
@@ -925,12 +925,12 @@ PRIVATE void JWText::SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* p
 	*pPrevInfo = *pCurrInfo;
 }
 
-auto JWText::GetFontTexturePtr() const-> const LPDIRECT3DTEXTURE9
+auto JWText::GetFontTexturePtr() const->const LPDIRECT3DTEXTURE9
 {
 	return m_pFontTexture;
 }
 
-auto JWText::GetLineHeight() const->float
+auto JWText::GetLineHeight() const->const float
 {
 	return static_cast<float>(ms_FontData.Info.Size);
 }
@@ -976,7 +976,7 @@ void JWText::MoveCaretToRight()
 	UpdateCaret();
 }
 
-PRIVATE auto JWText::GetLineStartGlyphIndex(const size_t LineIndex)->size_t
+PRIVATE auto JWText::GetLineStartGlyphIndex(const size_t LineIndex) const->const size_t
 {
 	size_t result = SIZE_T_INVALID;
 
@@ -988,7 +988,7 @@ PRIVATE auto JWText::GetLineStartGlyphIndex(const size_t LineIndex)->size_t
 	return result;
 }
 
-PRIVATE auto JWText::GetLineEndGlyphIndex(const size_t LineIndex)->size_t
+PRIVATE auto JWText::GetLineEndGlyphIndex(const size_t LineIndex) const->const size_t
 {
 	size_t result = 0;
 
@@ -1261,7 +1261,7 @@ auto JWText::GetCaretSelPosition() const->const size_t
 	return m_CaretSelPosition;
 }
 
-auto JWText::GetMousePressedSelPosition(POINT MousePosition) const->const size_t
+auto JWText::GetMousePressedSelPosition(const POINT MousePosition) const->const size_t
 {
 	size_t result = 0;
 
@@ -1282,7 +1282,7 @@ auto JWText::GetMousePressedSelPosition(POINT MousePosition) const->const size_t
 	return result;
 }
 
-void JWText::ShouldUseAutomaticLineBreak(bool Value)
+void JWText::ShouldUseAutomaticLineBreak(const bool Value)
 {
 	m_bUseAutomaticLineBreak = Value;
 }

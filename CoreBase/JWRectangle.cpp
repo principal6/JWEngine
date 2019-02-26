@@ -20,7 +20,7 @@ JWRectangle::JWRectangle()
 	ClearVertexAndIndexData();
 }
 
-auto JWRectangle::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, UINT MaxNumBox)->EError
+auto JWRectangle::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const UINT MaxNumBox)->EError
 {
 	if (pJWWindow == nullptr)
 		return EError::NULLPTR_WINDOW;
@@ -30,8 +30,8 @@ auto JWRectangle::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, UIN
 	m_pBaseDir = pBaseDir;
 
 	// MaxNumBox >= 1
-	MaxNumBox = max(MaxNumBox, 1);
 	m_MaxNumBox = MaxNumBox;
+	m_MaxNumBox = max(m_MaxNumBox, 1);
 
 	ClearVertexAndIndexData();
 
@@ -150,7 +150,7 @@ void JWRectangle::ClearAllRectangles()
 	UpdateVertexBuffer();
 }
 
-void JWRectangle::AddRectangle(D3DXVECTOR2 Size, D3DXVECTOR2 Position)
+void JWRectangle::AddRectangle(const D3DXVECTOR2 Size, const D3DXVECTOR2 Position)
 {
 	// If box count is max, no adding
 	if (m_BoxCount == m_MaxNumBox)
@@ -181,7 +181,7 @@ void JWRectangle::Draw()
 	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_MaxNumBox * 4, 0, m_MaxNumBox * 2);
 }
 
-void JWRectangle::SetRectangleColor(DWORD Color)
+void JWRectangle::SetRectangleColor(const DWORD Color)
 {
 	m_RectangleColor = Color;
 }

@@ -22,7 +22,7 @@ JWMenuBar::JWMenuBar()
 	m_pSelectedSubItemBox = nullptr;
 }
 
-auto JWMenuBar::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWMenuBar::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -77,12 +77,12 @@ void JWMenuBar::Destroy()
 	JW_DESTROY(m_pNonButtonRegion);
 }
 
-auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
+auto JWMenuBar::AddMenuBarItem(const WSTRING Text)->THandleItem
 {
-	//THandleItem Result = MENU_ITEM_THANDLE_BASE;
-
+	// Create item.
 	MenuItem* new_item = new MenuItem;
 
+	// Calculate item's position.
 	D3DXVECTOR2 item_position = m_Position;
 	if (m_pItems.size())
 	{
@@ -90,6 +90,7 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 		item_position.x += m_pItems[m_pItems.size() - 1]->GetSize().x;
 	}
 
+	// Calculate item's size.
 	D3DXVECTOR2 item_size = m_Size;
 	item_size.x = static_cast<float>(m_pSharedData->pText->GetFontData()->Info.Size * Text.length())
 		+ static_cast<float>(DEFAULT_MENUBAR_ITEM_PADDING * 2);
@@ -99,16 +100,16 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 	new_item->SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 	new_item->ShouldDrawBorder(false);
 	new_item->ShouldUseToggleSelection(true);
-	new_item->SetStateColor(EControlState::Normal, DEFAULT_COLOR_BACKGROUND_MENUBAR);
-	new_item->SetStateColor(EControlState::Hover, DEFAULT_COLOR_HOVER);
-	new_item->SetStateColor(EControlState::Pressed, DEFAULT_COLOR_ALMOST_BLACK);
+	new_item->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_BACKGROUND_MENUBAR);
+	new_item->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_HOVER);
+	new_item->SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_ALMOST_BLACK);
 
 	m_pItems.push_back(new_item);
 
-	//Result += (static_cast<THandle>(m_pItems.size()) - 1) * MENU_ITEM_THANDLE_STRIDE;
-
-	// Create sub-item box
+	// Create sub-item box.
 	MenuSubItemBox* new_subitem_box = new MenuSubItemBox;
+
+	// Calculate sub-item box's position.
 	D3DXVECTOR2 subitembox_position = item_position;
 	subitembox_position.y += static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
 	new_subitem_box->Create(subitembox_position, BLANK_SUBITEMBOX_SIZE, m_pSharedData);
@@ -119,16 +120,16 @@ auto JWMenuBar::AddMenuBarItem(WSTRING Text)->THandleItem
 
 	m_pSubItemBoxes.push_back(new_subitem_box);
 
+	// Calculate background's position.
 	D3DXVECTOR2 background_position = item_position + item_size;
 	background_position.y = 0;
 
 	m_pNonButtonRegion->SetPosition(background_position);
 
 	return GetTHandleItemOfMenuBarItem(m_pItems.size() - 1);
-	//return Result;
 }
 
-auto JWMenuBar::AddMenuBarSubItem(THandleItem hItem, WSTRING Text)->THandleItem
+auto JWMenuBar::AddMenuBarSubItem(const THandleItem hItem, const WSTRING Text)->THandleItem
 {
 	TIndex item_index = GetTIndexOfMenuBarItem(hItem);
 
@@ -164,13 +165,13 @@ void JWMenuBar::KillFocus()
 	UnselectMenuBarItem();
 }
 
-void JWMenuBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
+PROTECTED void JWMenuBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
 {
 	JWControl::UpdateControlState(nullptr, ppControlWithFocus);
 
 	m_pNonButtonRegion->UpdateControlState(nullptr, nullptr);
 
-	if ((m_pNonButtonRegion->GetState() == EControlState::Pressed) || (m_pNonButtonRegion->GetState() == EControlState::Clicked))
+	if ((m_pNonButtonRegion->GetControlState() == EControlState::Pressed) || (m_pNonButtonRegion->GetControlState() == EControlState::Clicked))
 	{
 		UnselectMenuBarItem();
 	}
@@ -180,11 +181,11 @@ void JWMenuBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** p
 		m_pItems[iterator]->UpdateControlState(nullptr, nullptr);
 
 		// Toggle-able JWTextButton doesn't have Clicked state, so we need to check only the Pressed state.
-		if ((m_pItems[iterator]->GetState() == EControlState::Pressed))
+		if ((m_pItems[iterator]->GetControlState() == EControlState::Pressed))
 		{
 			SelectMenuBarItem(iterator);
 		}
-		else if ((m_pItems[iterator]->GetState() == EControlState::Hover))
+		else if ((m_pItems[iterator]->GetControlState() == EControlState::Hover))
 		{
 			if (m_pSelectedItem)
 			{
@@ -205,7 +206,7 @@ void JWMenuBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** p
 		// Sub-item box must have the mouse cursor, when it appears.
 		m_pSelectedSubItemBox->UpdateControlState(ppControlWithMouse, nullptr);
 
-		if (m_pSelectedSubItemBox->GetState() == EControlState::Clicked)
+		if (m_pSelectedSubItemBox->GetControlState() == EControlState::Clicked)
 		{
 			m_hSelectedSubItem = GetTHandleItemOfMenuBarItem(m_SelectedItemIndex) + m_pSelectedSubItemBox->GetSelectedItemIndex() + 1;
 
@@ -239,10 +240,13 @@ void JWMenuBar::Draw()
 	JWControl::EndDrawing();
 }
 
-void JWMenuBar::SetSize(D3DXVECTOR2 Size)
+auto JWMenuBar::SetSize(const D3DXVECTOR2 Size)->JWControl*
 {
 	JWControl::SetSize(Size);
-	m_pNonButtonRegion->SetSize(Size);
+
+	m_pNonButtonRegion->SetSize(m_Size);
+
+	return this;
 }
 
 auto JWMenuBar::OnSubItemClick()->THandleItem
@@ -264,7 +268,7 @@ PRIVATE void JWMenuBar::SelectMenuBarItem(TIndex ItemIndex)
 
 		if (m_pSelectedItem != m_pItems[ItemIndex])
 		{
-			m_pSelectedItem->SetState(EControlState::Normal);
+			m_pSelectedItem->SetControlState(EControlState::Normal);
 		}
 	}
 
@@ -273,16 +277,16 @@ PRIVATE void JWMenuBar::SelectMenuBarItem(TIndex ItemIndex)
 
 	m_SelectedItemIndex = ItemIndex;
 
-	m_pSelectedItem->SetState(EControlState::Pressed);
+	m_pSelectedItem->SetControlState(EControlState::Pressed);
 
-	SetState(EControlState::Pressed);
+	SetControlState(EControlState::Pressed);
 }
 
 PRIVATE void JWMenuBar::UnselectMenuBarItem()
 {
 	if (m_pSelectedItem)
 	{
-		m_pSelectedItem->SetState(EControlState::Normal);
+		m_pSelectedItem->SetControlState(EControlState::Normal);
 	}
 
 	m_pSelectedItem = nullptr;

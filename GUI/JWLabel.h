@@ -11,17 +11,16 @@ namespace JWENGINE
 
 	class JWLabel final : public JWControl
 	{
+	friend class JWListBox;
+
 	public:
 		JWLabel();
 		~JWLabel() {};
 
-		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
+		auto Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
 		void Draw() override;
-
-		void SetPosition(D3DXVECTOR2 Position) override;
-		void SetSize(D3DXVECTOR2 Size) override;
 
 	private:
 		static const BYTE DEFUALT_ALPHA_BACKGROUND_LABEL = 255;

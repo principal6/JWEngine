@@ -7,23 +7,30 @@ namespace JWENGINE
 	// ***
 	// *** Forward declaration ***
 	class JWImage;
+	//class JWListBox;
 	// ***
 
 	class JWImageBox final : public JWControl
 	{
+	friend class JWEdit;
+	friend class JWListBox;
+	friend class JWMenuBar;
+
 	public:
 		JWImageBox();
 		~JWImageBox() {};
 
-		auto Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
+		auto Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
 		void Draw() override;
 
-		void SetPosition(D3DXVECTOR2 Position) override;
-		void SetSize(D3DXVECTOR2 Size) override;
-		auto SetTextureAtlas(LPDIRECT3DTEXTURE9 pTextureAtlas, D3DXIMAGE_INFO* pTextureAtlasInfo)->JWControl* override;
-		auto SetAtlasUV(D3DXVECTOR2 OffsetInAtlas, D3DXVECTOR2 Size)->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2 Position)->JWControl* override;
+		auto SetSize(const D3DXVECTOR2 Size)->JWControl* override;
+		auto SetTextureAtlas(const LPDIRECT3DTEXTURE9 pTextureAtlas, const D3DXIMAGE_INFO* pTextureAtlasInfo)->JWControl* override;
+		auto SetAtlasUV(const D3DXVECTOR2 OffsetInAtlas, const D3DXVECTOR2 Size)->JWControl* override;
+
+	protected:
 		void SetBackgroundColor(DWORD Color) override;
 
 	private:

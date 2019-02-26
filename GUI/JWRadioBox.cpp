@@ -13,7 +13,7 @@ JWRadioBox::JWRadioBox()
 	m_bChecked = false;
 }
 
-auto JWRadioBox::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWRadioBox::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -86,19 +86,23 @@ void JWRadioBox::Draw()
 	JWControl::EndDrawing();
 }
 
-void JWRadioBox::SetPosition(D3DXVECTOR2 Position)
+auto JWRadioBox::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 
 	m_pBackground->SetPosition(m_Position);
+
+	return this;
 }
 
-void JWRadioBox::SetCheckState(bool Value)
+auto JWRadioBox::SetCheckState(const bool Value)->JWControl*
 {
 	m_bChecked = Value;
+
+	return this;
 }
 
-auto JWRadioBox::GetCheckState() const->bool
+auto JWRadioBox::GetCheckState() const->const bool
 {
 	return m_bChecked;
 }

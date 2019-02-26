@@ -153,7 +153,7 @@ void JWEffect::Update()
 {
 	D3DXVECTOR2 MapOffset = m_pMap->GetMapOffset();
 	JWImage::ClearVertexAndIndexData();
-	m_BoundingBoxLine.Clear();
+	m_BoundingBoxLine.ClearBuffers();
 
 	EffectInstanceData* iterator = m_pFisrtInstance;
 	int iterator_n = 0;

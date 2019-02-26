@@ -33,7 +33,7 @@ JWEdit::JWEdit()
 	m_bUseMultiline = false;
 }
 
-auto JWEdit::Create(D3DXVECTOR2 Position, D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWEdit::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -154,65 +154,81 @@ void JWEdit::Draw()
 	JWControl::EndDrawing();
 }
 
-void JWEdit::SetText(WSTRING Text)
-{
-	if (!m_bUseMultiline)
-	{
-		// IF,
-		// the text must be single-line,
-		// clip the text when the iterator first meets '\n' in the text.
-
-		for (size_t iterator_char = 0; iterator_char < Text.length(); iterator_char++)
-		{
-			if (Text[iterator_char] == '\n')
-			{
-				Text = Text.substr(0, iterator_char);
-				break;
-			}
-		}
-	}
-
-	JWControl::SetText(Text);
-
-	m_pEditText->SetNonInstantText(Text, m_PaddedPosition, m_PaddedSize);
-}
-
-void JWEdit::SetPosition(D3DXVECTOR2 Position)
+auto JWEdit::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 
 	m_pBackground->SetPosition(m_Position);
 
 	UpdatePaddedViewport();
+
+	return this;
 }
 
-void JWEdit::SetSize(D3DXVECTOR2 Size)
+auto JWEdit::SetSize(const D3DXVECTOR2 Size)->JWControl*
 {
-	// Limit minimum size.
-	Size.y = max(Size.y, m_pEditText->GetLineHeight() + DEFAULT_EDIT_PADDING * 2);
+	D3DXVECTOR2 adjusted_size = Size;
 
-	JWControl::SetSize(Size);
+	// Limit the minimum size.
+	adjusted_size.y = max(adjusted_size.y, m_pEditText->GetLineHeight() + DEFAULT_EDIT_PADDING * 2);
+
+	JWControl::SetSize(adjusted_size);
 	
 	m_pBackground->SetSize(m_Size);
 
 	UpdatePaddedViewport();
+
+	return this;
 }
 
-void JWEdit::SetFontColor(const DWORD Color)
+auto JWEdit::SetText(const WSTRING Text)->JWControl*
+{
+	WSTRING new_text = Text;
+
+	if (!m_bUseMultiline)
+	{
+		// IF,
+		// the text must be single-line,
+		// clip the text when the iterator first meets '\n' in the text.
+
+		for (size_t iterator_char = 0; iterator_char < new_text.length(); iterator_char++)
+		{
+			if (new_text[iterator_char] == '\n')
+			{
+				new_text = new_text.substr(0, iterator_char);
+				break;
+			}
+		}
+	}
+
+	JWControl::SetText(new_text);
+
+	m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+
+	return this;
+}
+
+auto JWEdit::SetFontColor(const DWORD Color)->JWControl*
 {
 	m_FontColor = Color;
 
 	m_pEditText->SetNonInstantTextColor(m_FontColor);
+
+	return this;
 }
 
-void JWEdit::SetWatermark(const WSTRING Text)
+auto JWEdit::SetWatermark(const WSTRING Text)->JWControl*
 {
 	m_Watermark = Text;
+
+	return this;
 }
 
-void JWEdit::SetWatermarkColor(const DWORD Color)
+auto JWEdit::SetWatermarkColor(const DWORD Color)->JWControl*
 {
 	m_WatermarkColor = Color;
+
+	return this;
 }
 
 void JWEdit::Focus()
@@ -222,7 +238,7 @@ void JWEdit::Focus()
 	m_CaretShowInterval = 0;
 }
 
-void JWEdit::ShouldUseMultiline(bool Value)
+auto JWEdit::ShouldUseMultiline(const bool Value) noexcept->JWControl*
 {
 	m_bUseMultiline = Value;
 
@@ -230,11 +246,15 @@ void JWEdit::ShouldUseMultiline(bool Value)
 	{
 		m_pEditText->ShouldUseAutomaticLineBreak(true);
 	}
+
+	return this;
 }
 
-void JWEdit::ShouldUseAutomaticLineBreak(bool Value)
+auto JWEdit::ShouldUseAutomaticLineBreak(const bool Value) noexcept->JWControl*
 {
 	m_pEditText->ShouldUseAutomaticLineBreak(Value);
+
+	return this;
 }
 
 PROTECTED void JWEdit::WindowMouseDown()
@@ -264,7 +284,7 @@ PROTECTED void JWEdit::WindowMouseMove()
 	}
 }
 
-PROTECTED void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
+PROTECTED void JWEdit::WindowKeyDown(const WPARAM VirtualKeyCode)
 {
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
 
@@ -365,7 +385,7 @@ PROTECTED void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode)
 	}
 }
 
-PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
+PROTECTED void JWEdit::WindowCharKeyInput(const WPARAM Char)
 {
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
 
@@ -458,7 +478,7 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char)
 	}
 }
 
-PROTECTED void JWEdit::WindowIMEInput(SGUIIMEInputInfo& IMEInfo)
+PROTECTED void JWEdit::WindowIMEInput(const SGUIIMEInputInfo& IMEInfo)
 {
 	if (IMEInfo.bIMEWriting)
 	{
