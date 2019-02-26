@@ -22,24 +22,24 @@ namespace JWENGINE
 		JWGame();
 		~JWGame() {};
 
-		auto JWGame::Create(int Width, int Height)->EError;
-		void JWGame::SetRenderFunction(PF_RENDER pfRender);
-		void JWGame::SetKeyboardFunction(PF_KEYBOARD pfKeyboard);
+		auto JWGame::Create(const WSTRING GameName, CINT Width, CINT Height)->EError;
+		void JWGame::SetRenderFunction(const PF_RENDER pfRender);
+		void JWGame::SetKeyboardFunction(const PF_KEYBOARD pfKeyboard);
 		void JWGame::ToggleBoundingBox();
-		auto JWGame::LoadMap(WSTRING FileName)->EError;
+		auto JWGame::LoadMap(const WSTRING FileName)->EError;
 
 		void JWGame::Run();
 		void JWGame::Shutdown();
 
-		void JWGame::SetBackground(WSTRING TextureFN);
+		void JWGame::SetBackgroundTexture(const WSTRING TextureFN);
 
-		auto JWGame::SpriteCreate(WSTRING TextureFN, POINT UnitSize, int numCols, int numRows, float Scale = 1.0f)->JWLife*;
-		void JWGame::SpriteWalk(EAnimationDirection Direction);
+		auto JWGame::SpriteCreate(const WSTRING TextureFN, const POINT UnitSize, CINT numCols, CINT numRows, const float Scale = 1.0f)->JWLife*;
+		void JWGame::SpriteWalk(const EAnimationDirection Direction);
 		void JWGame::SpriteJump();
-		void JWGame::SpriteSetAnimation(EAnimationID AnimationID);
+		void JWGame::SpriteSetAnimation(const EAnimationID AnimationID);
 
-		auto JWGame::SpawnMonster(WSTRING MonsterName, D3DXVECTOR2 GlobalPosition)->JWMonster*;
-		auto JWGame::SpawnEffect(int EffectID, int Damage)->JWEffect*;
+		auto JWGame::SpawnMonster(const WSTRING MonsterName, const D3DXVECTOR2 GlobalPosition)->JWMonster*;
+		auto JWGame::SpawnEffect(CINT EffectID, CINT Damage)->JWEffect*;
 
 		auto JWGame::GetTextObject()->JWText*;
 		auto JWGame::GetSpriteObject()->JWLife*;
@@ -57,7 +57,6 @@ namespace JWENGINE
 		void JWGame::DrawMonsters();
 		void JWGame::DrawSprite();
 		void JWGame::DrawEffects();
-		void JWGame::DrawFont();
 
 		void JWGame::DrawAllBase();
 

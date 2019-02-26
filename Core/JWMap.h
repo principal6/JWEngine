@@ -39,7 +39,8 @@ namespace JWENGINE
 		D3DXVECTOR2 TileSheetSize;
 		D3DXVECTOR2 MoveSheetSize;
 
-		SMapInfo() : MapRows(0), MapCols(0), TileSize(0) {};
+		SMapInfo() : MapRows(0), MapCols(0), TileSize(0), TileSheetRows(0), TileSheetCols(0),
+			MapSize(0, 0), TileSheetSize(0, 0), MoveSheetSize(0, 0) {};
 	};
 
 	struct SMapData
@@ -48,7 +49,7 @@ namespace JWENGINE
 		int MoveID;
 
 		SMapData() : TileID(0), MoveID(0) {};
-		SMapData(int TILEID, int MOVEID) : TileID(TILEID), MoveID(MOVEID) {};
+		SMapData(CINT TILEID, CINT MOVEID) : TileID(TILEID), MoveID(MOVEID) {};
 	};
 
 	class JWMap final : protected JWImage
@@ -57,58 +58,57 @@ namespace JWENGINE
 		JWMap();
 		~JWMap() {};
 
-		auto JWMap::Create(JWWindow* pJWWindow, WSTRING* pBaseDir)->EError;
+		auto JWMap::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError;
 		void JWMap::Destroy() override;
 
-		void JWMap::CreateMap(SMapInfo* InPtr_Info);
-		void JWMap::LoadMap(WSTRING FileName);
-		void JWMap::SaveMap(WSTRING FileName);
-		//void JWMap::EditMap(const JWTileMapSelector* InPtr_Selector, bool bErase = false);
+		void JWMap::CreateMap(const SMapInfo* InPtr_Info);
+		void JWMap::LoadMap(const WSTRING FileName);
+		void JWMap::SaveMap(const WSTRING FileName);
 
 		void JWMap::Draw() override;
 
-		void JWMap::SetMode(EMapMode Mode);
-		void JWMap::SetPosition(D3DXVECTOR2 Offset);
+		void JWMap::SetMode(const EMapMode Mode);
+		void JWMap::SetPosition(const D3DXVECTOR2 Offset);
 
 		// Global position for map movement in game (Position's Y value inversed)
-		void JWMap::SetGlobalPosition(D3DXVECTOR2 Offset);
+		void JWMap::SetGlobalPosition(const D3DXVECTOR2 Offset);
 
-		auto JWMap::DoesMapExist() const->bool;
-		auto JWMap::GetMode() const->EMapMode;
-		void JWMap::GetMapInfo(SMapInfo* Outptr_Info) const;
-		auto JWMap::GetMapOffset() const->D3DXVECTOR2;
-		auto JWMap::GetMapOffsetZeroY() const->int;
-		auto JWMap::GetVelocityAfterCollision(SBoundingBox BB, D3DXVECTOR2 Velocity) const->D3DXVECTOR2;
+		auto JWMap::DoesMapExist() const->const bool;
+		auto JWMap::GetMode() const->const EMapMode;
+		void JWMap::GetMapInfo(SMapInfo* OutPtr_Info) const;
+		auto JWMap::GetMapOffset() const->const D3DXVECTOR2;
+		auto JWMap::GetMapOffsetZeroY() const->CINT;
+		auto JWMap::GetVelocityAfterCollision(SBoundingBox BB, D3DXVECTOR2 Velocity) const->const D3DXVECTOR2;
 
 	private:
-		static auto JWMap::ConvertIDtoUV(int ID, int TileSize, D3DXVECTOR2 SheetSize)->STextureUV;
-		static auto JWMap::ConvertIDToXY(int ID, int Cols)->D3DXVECTOR2;
-		static auto JWMap::ConvertXYToID(D3DXVECTOR2 XY, int Cols)->int;
-		static auto JWMap::ConvertXYToID(POINT XY, int Cols)->int;
-		static auto JWMap::ConvertPositionToXY(D3DXVECTOR2 Position, D3DXVECTOR2 Offset,
-			int TileSize, bool YRoundUp = false)->D3DXVECTOR2;
+		static auto JWMap::ConvertIDtoUV(const int ID, const int TileSize, const D3DXVECTOR2 SheetSize)->STextureUV;
+		static auto JWMap::ConvertIDToXY(const int ID, const int Cols)->D3DXVECTOR2;
+		static auto JWMap::ConvertXYToID(const D3DXVECTOR2 XY, const int Cols)->int;
+		static auto JWMap::ConvertXYToID(const POINT XY, const int Cols)->int;
+		static auto JWMap::ConvertPositionToXY(const D3DXVECTOR2 Position, const D3DXVECTOR2 Offset,
+			const int TileSize, const bool YRoundUp = false)->D3DXVECTOR2;
 
 		void JWMap::ClearAllData();
 
 		void JWMap::MakeMapBase();
-		void JWMap::AddMapFragmentTile(int TileID, int X, int Y);
-		void JWMap::AddMapFragmentMove(int MoveID, int X, int Y);
+		void JWMap::AddMapFragmentTile(const int TileID, const int X, const int Y);
+		void JWMap::AddMapFragmentMove(const int MoveID, const int X, const int Y);
 		void JWMap::AddEnd();
-		void JWMap::SetTileTexture(WSTRING FileName);
-		void JWMap::SetMoveTexture(WSTRING FileName);
-		void JWMap::ParseLoadedMapData(WSTRING* InoutPtr_WSTRING); // For loading maps
-		void JWMap::MakeLoadedMap(WSTRING* InoutPtr_WSTRING); // For loading maps
+		void JWMap::SetTileTexture(const WSTRING FileName);
+		void JWMap::SetMoveTexture(const WSTRING FileName);
+		void JWMap::ParseLoadedMapData(WSTRING* InOutPtr_WSTRING); // For loading maps
+		void JWMap::MakeLoadedMap(WSTRING* InOutPtr_WSTRING); // For loading maps
 		void JWMap::GetMapDataForSave(WSTRING* OutPtr_WSTRING) const; // For saving maps
-		void JWMap::GetMapDataPartForSave(int DataID, wchar_t* OutPtr_wchar, int size) const; // For saving maps
+		void JWMap::GetMapDataPartForSave(const int DataID, wchar_t* OutPtr_wchar, const int Size) const; // For saving maps
 
 		void JWMap::CreateVertexBufferMove(); // IndexBuffer is not needed because they are the same
 		void JWMap::UpdateVertexBufferMove();
 
-		auto JWMap::IsMovableTile(int MapID, EMapDirection Direction) const->bool;
-		auto JWMap::GetMapTileBoundary(int MapID, EMapDirection Direction) const->float;
+		auto JWMap::IsMovableTile(const int MapID, const EMapDirection Direction) const->bool;
+		auto JWMap::GetMapTileBoundary(const int MapID, const EMapDirection Direction) const->float;
 
-		void JWMap::SetMapFragmentTile(int TileID, int X, int Y);
-		void JWMap::SetMapFragmentMove(int MoveID, int X, int Y);
+		void JWMap::SetMapFragmentTile(const int TileID, const int X, const int Y);
+		void JWMap::SetMapFragmentMove(const int MoveID, const int X, const int Y);
 
 	private:
 		static const int MAX_LINE_LEN;

@@ -52,7 +52,7 @@ namespace JWENGINE
 		JWWindow();
 		~JWWindow() {};
 
-		auto CreateGameWindow(CInt X, CInt Y, CInt Width, CInt Height)->EError;
+		auto CreateGameWindow(const SWindowCreationData& WindowCreationData)->EError;
 		auto CreateGUIWindow(const SWindowCreationData& WindowCreationData)->EError;
 		void Destroy();
 
@@ -89,13 +89,13 @@ namespace JWENGINE
 	private:
 		friend LRESULT CALLBACK BaseWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
-		auto CreateWINAPIWindow(const wchar_t* Name, CInt X, CInt Y, CInt Width, CInt Height,
+		auto CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Caption, CINT X, CINT Y, CINT Width, CINT Height,
 			EWindowStyle WindowStyle, DWORD BackColor, WNDPROC Proc, LPCWSTR MenuName = nullptr, HWND hWndParent = nullptr)->HWND;
 		auto InitializeDirectX()->EError;
 		void SetDirect3DParameters();
 		void UpdateRenderRect();
 
-		void SetWindowData(CInt Width, CInt Height);
+		void SetWindowData(CINT Width, CINT Height);
 
 	private:
 		HINSTANCE m_hInstance;

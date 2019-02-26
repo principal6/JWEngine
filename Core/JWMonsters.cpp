@@ -8,9 +8,10 @@ using namespace JWENGINE;
 	JWMonsterType Class
 -----------------------------------------------------------------------------*/
 
-auto JWMonsterType::AddAnimation(SAnimationData Value)->JWMonsterType*
+auto JWMonsterType::AddAnimation(const SAnimationData Value)->JWMonsterType*
 {
 	m_AnimData.push_back(Value);
+
 	return this;
 }
 
@@ -29,7 +30,7 @@ JWMonster::JWMonster()
 	m_HPBar = nullptr;
 }
 
-auto JWMonster::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError
+auto JWMonster::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError
 {
 	if (JW_SUCCEEDED(JWLife::Create(pJWWindow, pBaseDir, pMap)))
 	{
@@ -57,32 +58,32 @@ void JWMonster::Destroy()
 	JW_DESTROY(m_HPBar);
 }
 
-void JWMonster::SetUIPosition(D3DXVECTOR2 Position)
+void JWMonster::SetUIPosition(const D3DXVECTOR2 Position)
 {
-	D3DXVECTOR2 tPos = GetCenterPosition();
-	tPos.y = Position.y;
-	tPos.y -= OFFSET_Y_HPBAR + m_BoundingBoxExtraSize.y;
-	tPos.x -= m_HPFrame->GetSize().x / 2.0f;
+	D3DXVECTOR2 adjusted_position = GetCenterPosition();
+	adjusted_position.y = Position.y;
+	adjusted_position.y -= OFFSET_Y_HPBAR + m_BoundingBoxExtraSize.y;
+	adjusted_position.x -= m_HPFrame->GetSize().x / 2.0f;
 
-	m_HPFrame->SetPosition(tPos);
-	m_HPBar->SetPosition(tPos);
+	m_HPFrame->SetPosition(adjusted_position);
+	m_HPBar->SetPosition(adjusted_position);
 }
 
-void JWMonster::SetMonsterType(JWMonsterType Type)
+void JWMonster::SetMonsterType(const JWMonsterType Type)
 {
 	m_Type = Type;
 	m_HPCurr = Type.m_HPMax;
 }
 
-auto JWMonster::SetGlobalPosition(D3DXVECTOR2 Position)->JWMonster*
+auto JWMonster::SetGlobalPosition(const D3DXVECTOR2 Position)->JWMonster*
 {
-	m_GlobalPos = Position;
+	m_GlobalPosition = Position;
 	JWLife::CalculateGlobalPositionInverse();
 
-	JWLife::SetPosition(m_GlobalPosInverse);
+	JWLife::SetPosition(m_GlobalPositionInverse);
 
 	if (m_bUILoaded)
-		SetUIPosition(m_GlobalPosInverse);
+		SetUIPosition(m_GlobalPositionInverse);
 
 	return this;
 }
@@ -92,17 +93,17 @@ void JWMonster::UpdateGlobalPosition()
 	D3DXVECTOR2 MapOffset = m_pMap->GetMapOffset();
 	float MapOffsetZeroY = static_cast<float>(m_pMap->GetMapOffsetZeroY());
 
-	D3DXVECTOR2 tGP = m_GlobalPos;
-	m_GlobalPos.x += MapOffset.x;
-	m_GlobalPos.y -= MapOffset.y - MapOffsetZeroY;
+	D3DXVECTOR2 tGP = m_GlobalPosition;
+	m_GlobalPosition.x += MapOffset.x;
+	m_GlobalPosition.y -= MapOffset.y - MapOffsetZeroY;
 
 	CalculateGlobalPositionInverse();
-	m_GlobalPos = tGP;
+	m_GlobalPosition = tGP;
 
-	SetPosition(m_GlobalPosInverse);
+	SetPosition(m_GlobalPositionInverse);
 
 	if (m_bUILoaded)
-		SetUIPosition(m_GlobalPosInverse);
+		SetUIPosition(m_GlobalPositionInverse);
 }
 
 void JWMonster::CalculateHP()
@@ -113,11 +114,10 @@ void JWMonster::CalculateHP()
 	m_HPBar->SetVisibleRange(D3DXVECTOR2(tWidth * fPercent, m_HPBar->GetScaledSize().y));
 }
 
-void JWMonster::Damage(int Damage)
+void JWMonster::Damage(CINT Damage)
 {
 	m_HPCurr -= Damage;
-	if (m_HPCurr < 0)
-		m_HPCurr = 0;
+	m_HPCurr = max(m_HPCurr, 0);
 }
 
 void JWMonster::Draw()
@@ -137,7 +137,7 @@ void JWMonster::Draw()
 // Static member variable declaration
 LPDIRECT3DDEVICE9 JWMonsterManager::m_pDevice;
 
-auto JWMonsterManager::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError
+auto JWMonsterManager::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError
 {
 	if (pJWWindow == nullptr)
 		return EError::NULLPTR_WINDOW;
@@ -165,13 +165,14 @@ void JWMonsterManager::Destroy()
 	}
 }
 
-auto JWMonsterManager::AddMonsterType(JWMonsterType Value)->JWMonsterType*
+auto JWMonsterManager::AddMonsterType(const JWMonsterType NewType)->JWMonsterType*
 {
-	m_Types.push_back(Value);
+	m_Types.push_back(NewType);
+
 	return &m_Types[m_Types.size() - 1];
 }
 
-auto JWMonsterManager::Spawn(WSTRING MonsterName, D3DXVECTOR2 GlobalPosition)->JWMonster*
+auto JWMonsterManager::Spawn(const WSTRING MonsterName, const D3DXVECTOR2 GlobalPosition)->JWMonster*
 {
 	for (JWMonsterType& TypeIterator : m_Types)
 	{

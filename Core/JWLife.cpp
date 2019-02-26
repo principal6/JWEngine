@@ -22,20 +22,20 @@ JWLife::JWLife()
 
 	m_UnitSize = D3DXVECTOR2(0.0f, 0.0f);
 
-	m_GlobalPos = D3DXVECTOR2(0.0f, 0.0f);
-	m_GlobalPosInverse = D3DXVECTOR2(0.0f, 0.0f);
+	m_GlobalPosition = D3DXVECTOR2(0.0f, 0.0f);
+	m_GlobalPositionInverse = D3DXVECTOR2(0.0f, 0.0f);
 	m_Velocity = D3DXVECTOR2(0.0f, 0.0f);
 	m_bHitGround = true;
 }
 
-auto JWLife::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError
+auto JWLife::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError
 {
 	if (JW_SUCCEEDED(JWImage::Create(pJWWindow, pBaseDir)))
 	{
 		if (nullptr == (m_pMap = pMap))
 			return EError::NULLPTR_MAP;
 
-		SetGlobalPosition(m_GlobalPos);
+		SetGlobalPosition(m_GlobalPosition);
 
 		return EError::OK;
 	}
@@ -43,7 +43,7 @@ auto JWLife::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError
 	return EError::IMAGE_NOT_CREATED;
 }
 
-auto JWLife::MakeLife(WSTRING TextureFN, POINT UnitSize, int numCols, int numRows, float Scale)->JWLife*
+auto JWLife::MakeLife(const WSTRING TextureFN, const POINT UnitSize, CINT numCols, CINT numRows, const float Scale)->JWLife*
 {
 	JWImage::SetTexture(TextureFN);
 	JWImage::SetScale(D3DXVECTOR2(Scale, Scale));
@@ -55,7 +55,7 @@ auto JWLife::MakeLife(WSTRING TextureFN, POINT UnitSize, int numCols, int numRow
 	return this;
 }
 
-PRIVATE void JWLife::SetNumRowsAndCols(POINT UnitSize, int numCols, int numRows)
+PRIVATE void JWLife::SetNumRowsAndCols(const POINT UnitSize, CINT numCols, CINT numRows)
 {
 	m_SheetCols = numCols;
 	m_SheetRows = numRows;
@@ -76,7 +76,7 @@ PRIVATE void JWLife::SetNumRowsAndCols(POINT UnitSize, int numCols, int numRows)
 	SetFrame(0);
 }
 
-auto JWLife::AddAnimation(SAnimationData Value)->JWLife*
+auto JWLife::AddAnimation(const SAnimationData Value)->JWLife*
 {
 	int AnimIDInt = static_cast<int>(Value.AnimID);
 
@@ -88,7 +88,7 @@ auto JWLife::AddAnimation(SAnimationData Value)->JWLife*
 	return this;
 }
 
-void JWLife::SetAnimation(EAnimationID AnimID, bool bForceSet, bool bShouldRepeat)
+void JWLife::SetAnimation(const EAnimationID AnimID, const bool bForceSet, const bool bShouldRepeat)
 {
 	// If AnimID is not in the m_AnimData, then exit the function
 	auto iterator_AnimDataMap = m_AnimDataMap.find(static_cast<int>(AnimID));
@@ -163,7 +163,7 @@ void JWLife::SetAnimation(EAnimationID AnimID, bool bForceSet, bool bShouldRepea
 	}
 }
 
-PRIVATE void JWLife::SetFrame(int FrameID)
+PRIVATE void JWLife::SetFrame(CINT FrameID)
 {
 	if ((m_SheetRows == 0) || (m_SheetCols == 0))
 		return;
@@ -227,64 +227,59 @@ void JWLife::SetDirection(EAnimationDirection Direction)
 	m_AnimDir = Direction;
 }
 
-auto JWLife::GetScaledUnitSize() const->D3DXVECTOR2
-{
-	return m_ScaledSize;
-}
-
-auto JWLife::GetDirection() const->EAnimationDirection
+auto JWLife::GetDirection() const->const EAnimationDirection
 {
 	return m_AnimDir;
 }
 
 void JWLife::CalculateGlobalPositionInverse()
 {
-	m_GlobalPosInverse = m_GlobalPos;
-	m_GlobalPosInverse.y = m_pJWWindow->GetWindowData()->WindowHeight - m_ScaledSize.y - m_GlobalPos.y;
+	m_GlobalPositionInverse = m_GlobalPosition;
+	m_GlobalPositionInverse.y = m_pJWWindow->GetWindowData()->WindowHeight - m_ScaledSize.y - m_GlobalPosition.y;
 }
 
 void JWLife::CalculateGlobalPosition()
 {
-	m_GlobalPos = m_GlobalPosInverse;
-	m_GlobalPos.y = m_pJWWindow->GetWindowData()->WindowHeight - m_ScaledSize.y - m_GlobalPosInverse.y;
+	m_GlobalPosition = m_GlobalPositionInverse;
+	m_GlobalPosition.y = m_pJWWindow->GetWindowData()->WindowHeight - m_ScaledSize.y - m_GlobalPositionInverse.y;
 }
 
-auto JWLife::SetGlobalPosition(D3DXVECTOR2 Position)->JWLife*
+auto JWLife::SetGlobalPosition(const D3DXVECTOR2 Position)->JWLife*
 {
-	m_GlobalPos = Position;
+	m_GlobalPosition = Position;
 	CalculateGlobalPositionInverse();
 
-	if (m_GlobalPosInverse.x > m_pJWWindow->GetWindowData()->WindowHalfWidth)
-		m_GlobalPosInverse.x = m_pJWWindow->GetWindowData()->WindowHalfWidth;
+	if (m_GlobalPositionInverse.x > m_pJWWindow->GetWindowData()->WindowHalfWidth)
+		m_GlobalPositionInverse.x = m_pJWWindow->GetWindowData()->WindowHalfWidth;
 
-	if (m_GlobalPosInverse.y < m_pJWWindow->GetWindowData()->WindowHalfHeight)
-		m_GlobalPosInverse.y = m_pJWWindow->GetWindowData()->WindowHalfHeight;
+	if (m_GlobalPositionInverse.y < m_pJWWindow->GetWindowData()->WindowHalfHeight)
+		m_GlobalPositionInverse.y = m_pJWWindow->GetWindowData()->WindowHalfHeight;
 
-	SetPosition(m_GlobalPosInverse);
+	SetPosition(m_GlobalPositionInverse);
 
 	return this;
 }
 
-auto JWLife::GetGlobalPosition() const->D3DXVECTOR2
+auto JWLife::GetGlobalPosition() const->const D3DXVECTOR2
 {
-	return m_GlobalPos;
+	return m_GlobalPosition;
 }
 
-auto JWLife::GetGlobalPositionInverse() const->D3DXVECTOR2
+auto JWLife::GetGlobalPositionInverse() const->const D3DXVECTOR2
 {
-	return m_GlobalPosInverse;
+	return m_GlobalPositionInverse;
 }
 
-auto JWLife::GetVelocity() const->D3DXVECTOR2
+auto JWLife::GetVelocity() const->const D3DXVECTOR2
 {
 	return m_Velocity;
 }
 
-auto JWLife::GetOffsetForMapMove() const->D3DXVECTOR2
+auto JWLife::GetOffsetForMapMove() const->const D3DXVECTOR2
 {
 	D3DXVECTOR2 Result;
-	Result.x = m_GlobalPos.x - m_pJWWindow->GetWindowData()->WindowHalfWidth;
-	Result.y = m_GlobalPosInverse.y - m_pJWWindow->GetWindowData()->WindowHalfHeight;
+	Result.x = m_GlobalPosition.x - m_pJWWindow->GetWindowData()->WindowHalfWidth;
+	Result.y = m_GlobalPositionInverse.y - m_pJWWindow->GetWindowData()->WindowHalfHeight;
 
 	if (Result.x < 0)
 		Result.x = 0;
@@ -295,50 +290,55 @@ auto JWLife::GetOffsetForMapMove() const->D3DXVECTOR2
 	return Result;
 }
 
-void JWLife::Accelerate(D3DXVECTOR2 Accel)
+auto JWLife::GetScaledUnitSize() const->const D3DXVECTOR2
+{
+	return m_ScaledSize;
+}
+
+void JWLife::Accelerate(const D3DXVECTOR2 Accel)
 {
 	m_Velocity += Accel;
 }
 
-void JWLife::AddVelocity(D3DXVECTOR2 Vel)
+void JWLife::AddVelocity(const D3DXVECTOR2 Vel)
 {
 	m_Velocity += Vel;
 }
 
-void JWLife::SetVelocity(D3DXVECTOR2 Vel)
+void JWLife::SetVelocity(const D3DXVECTOR2 Vel)
 {
 	m_Velocity = Vel;
 }
 
 void JWLife::MoveWithVelocity()
 {
-	m_GlobalPos.x += m_Velocity.x;
-	m_GlobalPos.y -= m_Velocity.y; // @warning: Y value of GlobalPos is in the opposite direction!
+	m_GlobalPosition.x += m_Velocity.x;
+	m_GlobalPosition.y -= m_Velocity.y; // @warning: Y value of GlobalPos is in the opposite direction!
 
 	CalculateGlobalPositionInverse();
 
-	if (m_GlobalPosInverse.x < m_pJWWindow->GetWindowData()->WindowHalfWidth)
+	if (m_GlobalPositionInverse.x < m_pJWWindow->GetWindowData()->WindowHalfWidth)
 	{
-		m_Position.x = m_GlobalPos.x;
+		m_Position.x = m_GlobalPosition.x;
 	}
-	if (m_GlobalPosInverse.y > m_pJWWindow->GetWindowData()->WindowHalfHeight)
+	if (m_GlobalPositionInverse.y > m_pJWWindow->GetWindowData()->WindowHalfHeight)
 	{
-		m_Position.y = m_GlobalPosInverse.y;
+		m_Position.y = m_GlobalPositionInverse.y;
 	}
 
 	SetPosition(m_Position);
 }
 
-void JWLife::MoveConst(D3DXVECTOR2 dXY)
+void JWLife::MoveConst(const D3DXVECTOR2 dXY)
 {
-	m_GlobalPos.x += dXY.x;
-	m_GlobalPos.y -= dXY.y; // @warning: Y value of GlobalPos is in the opposite direction!
+	m_GlobalPosition.x += dXY.x;
+	m_GlobalPosition.y -= dXY.y; // @warning: Y value of GlobalPos is in the opposite direction!
 
 	CalculateGlobalPositionInverse();
 
-	if (m_GlobalPosInverse.x < m_pJWWindow->GetWindowData()->WindowHalfWidth)
+	if (m_GlobalPositionInverse.x < m_pJWWindow->GetWindowData()->WindowHalfWidth)
 	{
-		m_Position.x = m_GlobalPos.x;
+		m_Position.x = m_GlobalPosition.x;
 	}
 	else
 	{
@@ -346,9 +346,9 @@ void JWLife::MoveConst(D3DXVECTOR2 dXY)
 			m_Position.x = m_pJWWindow->GetWindowData()->WindowHalfWidth;
 	}
 
-	if (m_GlobalPosInverse.y > m_pJWWindow->GetWindowData()->WindowHalfHeight)
+	if (m_GlobalPositionInverse.y > m_pJWWindow->GetWindowData()->WindowHalfHeight)
 	{
-		m_Position.y = m_GlobalPosInverse.y;
+		m_Position.y = m_GlobalPositionInverse.y;
 	}
 	else
 	{
@@ -359,7 +359,7 @@ void JWLife::MoveConst(D3DXVECTOR2 dXY)
 	SetPosition(m_Position);
 }
 
-void JWLife::Walk(EAnimationDirection Direction)
+void JWLife::Walk(const EAnimationDirection Direction)
 {
 	D3DXVECTOR2 Velocity;
 	switch (Direction)

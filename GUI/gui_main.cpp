@@ -23,7 +23,7 @@ int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	SWindowCreationData myWindowData = SWindowCreationData(0, 100, 800, 600, DEFAULT_COLOR_LESS_BLACK);
+	SWindowCreationData myWindowData = SWindowCreationData(L"JWGUI Test Window", 0, 100, 800, 600, DEFAULT_COLOR_LESS_BLACK);
 	myGUI.Create(myWindowData, &pMainGUIWindow);
 
 	pMainGUIWindow->AddControl(L"menubar", EControlType::MenuBar, D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0));
@@ -122,7 +122,7 @@ void MainLoop()
 
 void ShowDialogueNewMap()
 {
-	SWindowCreationData myWindowData = SWindowCreationData(100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK);
+	SWindowCreationData myWindowData = SWindowCreationData(L"New map", 100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK);
 
 	myGUI.AddGUIWindow(myWindowData, &pDialogueNewMap);
 

@@ -14,7 +14,7 @@ JWEffect::JWEffect()
 	m_pLastInstance = nullptr;
 }	
 
-auto JWEffect::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError
+auto JWEffect::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError
 {
 	if (pJWWindow == nullptr)
 		return EError::NULLPTR_WINDOW;
@@ -72,7 +72,7 @@ void JWEffect::Destroy()
 	JWImage::Destroy();
 }
 
-auto JWEffect::SetTextureAtlas(WSTRING FileName, int numCols, int numRows)->JWEffect*
+auto JWEffect::SetTextureAtlas(const WSTRING FileName, CINT numCols, CINT numRows)->JWEffect*
 {
 	JWImage::SetTexture(FileName);
 	m_TextureAtlasCols = numCols;
@@ -83,8 +83,8 @@ auto JWEffect::SetTextureAtlas(WSTRING FileName, int numCols, int numRows)->JWEf
 	return this;
 }
 
-auto JWEffect::AddEffectType(EEffectType Type, SAnimationData Data, D3DXVECTOR2 SpawnOffset, D3DXVECTOR2 BBSize,
-	int Delay, int RepeatCount)->JWEffect*
+auto JWEffect::AddEffectType(const EEffectType Type, const SAnimationData Data, const D3DXVECTOR2 SpawnOffset, const D3DXVECTOR2 BBSize,
+	CINT Delay, CINT RepeatCount)->JWEffect*
 {
 	// Add this new effect type to the vector array
 	m_TypeData.push_back(EffectTypeData(Type, Data, SpawnOffset, BBSize, Delay, RepeatCount));
@@ -96,7 +96,7 @@ auto JWEffect::AddEffectType(EEffectType Type, SAnimationData Data, D3DXVECTOR2 
 }
 
 // Every effect is spawned at global position
-auto JWEffect::Spawn(int EffectTypeID, D3DXVECTOR2 Pos, EAnimationDirection Dir, int Damage)->JWEffect*
+auto JWEffect::Spawn(CINT EffectTypeID, const D3DXVECTOR2 Pos, const EAnimationDirection Dir, CINT Damage)->JWEffect*
 {
 	// No more space for a new effect
 	if (m_InstanceCount >= MAX_UNIT_COUNT)

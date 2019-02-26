@@ -16,7 +16,7 @@ const wchar_t* JWMap::MOVE_64 = L"move64.png";
 /*-----------------------------------------------------------------------------
 	Static method declaration
 -----------------------------------------------------------------------------*/
-auto JWMap::ConvertIDtoUV(int ID, int TileSize, D3DXVECTOR2 SheetSize)->STextureUV
+auto JWMap::ConvertIDtoUV(const int ID, const int TileSize, const D3DXVECTOR2 SheetSize)->STextureUV
 {
 	STextureUV Result;
 	int tTileCols, tTileRows;
@@ -36,7 +36,7 @@ auto JWMap::ConvertIDtoUV(int ID, int TileSize, D3DXVECTOR2 SheetSize)->STexture
 	return Result;
 }
 
-auto JWMap::ConvertIDToXY(int ID, int Cols)->D3DXVECTOR2
+auto JWMap::ConvertIDToXY(const int ID, const int Cols)->D3DXVECTOR2
 {
 	D3DXVECTOR2 Result = D3DXVECTOR2(0, 0);
 
@@ -46,17 +46,17 @@ auto JWMap::ConvertIDToXY(int ID, int Cols)->D3DXVECTOR2
 	return Result;
 }
 
-auto JWMap::ConvertXYToID(D3DXVECTOR2 XY, int Cols)->int
+auto JWMap::ConvertXYToID(const D3DXVECTOR2 XY, const int Cols)->int
 {
 	return static_cast<int>(XY.x) + (static_cast<int>(XY.y) * Cols);
 }
 
-auto JWMap::ConvertXYToID(POINT XY, int Cols)->int
+auto JWMap::ConvertXYToID(const POINT XY, const int Cols)->int
 {
 	return XY.x + (XY.y * Cols);
 }
 
-auto JWMap::ConvertPositionToXY(D3DXVECTOR2 Position, D3DXVECTOR2 Offset, int TileSize, bool YRoundUp)->D3DXVECTOR2
+auto JWMap::ConvertPositionToXY(const D3DXVECTOR2 Position, const D3DXVECTOR2 Offset, const int TileSize, const bool YRoundUp)->D3DXVECTOR2
 {
 	D3DXVECTOR2 Result;
 
@@ -101,7 +101,7 @@ JWMap::JWMap()
 	m_OffsetZeroY = 0;
 }
 
-auto JWMap::Create(JWWindow* pJWWindow, WSTRING* pBaseDir)->EError
+auto JWMap::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError
 {
 	if (pJWWindow == nullptr)
 		return EError::NULLPTR_WINDOW;
@@ -133,7 +133,7 @@ void JWMap::Destroy()
 	JWImage::Destroy();
 }
 
-void JWMap::CreateMap(SMapInfo* InPtr_Info)
+void JWMap::CreateMap(const SMapInfo* InPtr_Info)
 {
 	m_MapInfo = *InPtr_Info;
 
@@ -151,7 +151,7 @@ void JWMap::CreateMap(SMapInfo* InPtr_Info)
 	AddEnd();
 }
 
-void JWMap::LoadMap(WSTRING FileName)
+void JWMap::LoadMap(const WSTRING FileName)
 {
 	WSTRING NewFileName;
 	NewFileName = *m_pBaseDir;
@@ -183,51 +183,51 @@ void JWMap::LoadMap(WSTRING FileName)
 	filein.close();
 }
 
-PRIVATE void JWMap::ParseLoadedMapData(WSTRING* InoutPtr_WSTRING)
+PRIVATE void JWMap::ParseLoadedMapData(WSTRING* InOutPtr_WSTRING)
 {
 	size_t tempFind = -1;
 	int tempInt = 0;
-	tempFind = InoutPtr_WSTRING->find_first_of('#');
+	tempFind = InOutPtr_WSTRING->find_first_of('#');
 	if (tempFind)
 	{
-		m_MapInfo.MapName = InoutPtr_WSTRING->substr(0, tempFind);
-		*InoutPtr_WSTRING = InoutPtr_WSTRING->substr(tempFind + 1);
+		m_MapInfo.MapName = InOutPtr_WSTRING->substr(0, tempFind);
+		*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(tempFind + 1);
 	}
 
-	tempFind = InoutPtr_WSTRING->find_first_of('#');
+	tempFind = InOutPtr_WSTRING->find_first_of('#');
 	if (tempFind)
 	{
-		tempInt = _wtoi(InoutPtr_WSTRING->substr(0, tempFind).c_str());
+		tempInt = _wtoi(InOutPtr_WSTRING->substr(0, tempFind).c_str());
 		m_MapInfo.TileSize = tempInt;
-		*InoutPtr_WSTRING = InoutPtr_WSTRING->substr(tempFind + 1);
+		*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(tempFind + 1);
 	}
 
-	tempFind = InoutPtr_WSTRING->find_first_of('#');
+	tempFind = InOutPtr_WSTRING->find_first_of('#');
 	if (tempFind)
 	{
-		tempInt = _wtoi(InoutPtr_WSTRING->substr(0, tempFind).c_str());
+		tempInt = _wtoi(InOutPtr_WSTRING->substr(0, tempFind).c_str());
 		m_MapInfo.MapCols = tempInt;
-		*InoutPtr_WSTRING = InoutPtr_WSTRING->substr(tempFind + 1);
+		*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(tempFind + 1);
 	}
 
-	tempFind = InoutPtr_WSTRING->find_first_of('#');
+	tempFind = InOutPtr_WSTRING->find_first_of('#');
 	if (tempFind)
 	{
-		tempInt = _wtoi(InoutPtr_WSTRING->substr(0, tempFind).c_str());
+		tempInt = _wtoi(InOutPtr_WSTRING->substr(0, tempFind).c_str());
 		m_MapInfo.MapRows = tempInt;
-		*InoutPtr_WSTRING = InoutPtr_WSTRING->substr(tempFind + 1);
+		*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(tempFind + 1);
 	}
 
-	tempFind = InoutPtr_WSTRING->find_first_of('#');
+	tempFind = InOutPtr_WSTRING->find_first_of('#');
 	if (tempFind)
 	{
-		m_MapInfo.TileSheetName = InoutPtr_WSTRING->substr(0, tempFind);
-		*InoutPtr_WSTRING = InoutPtr_WSTRING->substr(tempFind + 2);
+		m_MapInfo.TileSheetName = InOutPtr_WSTRING->substr(0, tempFind);
+		*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(tempFind + 2);
 	}
 }
 
 // @warning: this fuction must be called in LoadMap()
-PRIVATE void JWMap::MakeLoadedMap(WSTRING* InoutPtr_WSTRING)
+PRIVATE void JWMap::MakeLoadedMap(WSTRING* InOutPtr_WSTRING)
 {
 	MakeMapBase();
 
@@ -237,26 +237,26 @@ PRIVATE void JWMap::MakeLoadedMap(WSTRING* InoutPtr_WSTRING)
 	{
 		for (int j = 0; j < m_MapInfo.MapCols; j++)
 		{
-			tTileID = _wtoi(InoutPtr_WSTRING->substr(0, MAX_TILEID_LEN).c_str());
+			tTileID = _wtoi(InOutPtr_WSTRING->substr(0, MAX_TILEID_LEN).c_str());
 			if (tTileID == 999)
 				tTileID = -1;
 
-			tMoveID = _wtoi(InoutPtr_WSTRING->substr(MAX_TILEID_LEN, MAX_MOVEID_LEN).c_str());
+			tMoveID = _wtoi(InOutPtr_WSTRING->substr(MAX_TILEID_LEN, MAX_MOVEID_LEN).c_str());
 
 			AddMapFragmentTile(tTileID, j, i);
 			AddMapFragmentMove(tMoveID, j, i);
 			m_MapData.push_back(SMapData(tTileID, tMoveID));
 
-			*InoutPtr_WSTRING = InoutPtr_WSTRING->substr(MAX_TILEID_LEN);
-			*InoutPtr_WSTRING = InoutPtr_WSTRING->substr(MAX_MOVEID_LEN);
+			*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(MAX_TILEID_LEN);
+			*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(MAX_MOVEID_LEN);
 		}
-		*InoutPtr_WSTRING = InoutPtr_WSTRING->substr(1); // Delete '\n' in the string data
+		*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(1); // Delete '\n' in the string data
 	}
-	InoutPtr_WSTRING->clear();
+	InOutPtr_WSTRING->clear();
 	AddEnd();
 }
 
-void JWMap::SaveMap(WSTRING FileName)
+void JWMap::SaveMap(const WSTRING FileName)
 {
 	WOFSTREAM fileout;
 	fileout.open(FileName, WOFSTREAM::out);
@@ -305,7 +305,7 @@ PRIVATE void JWMap::GetMapDataForSave(WSTRING *OutPtr_WSTRING) const
 	}
 }
 
-PRIVATE void JWMap::GetMapDataPartForSave(int DataID, wchar_t* OutPtr_wchar, int size) const
+PRIVATE void JWMap::GetMapDataPartForSave(const int DataID, wchar_t* OutPtr_wchar, const int Size) const
 {
 	WSTRING tempStr;
 	wchar_t tempWC[255] = { 0 };
@@ -351,55 +351,10 @@ PRIVATE void JWMap::GetMapDataPartForSave(int DataID, wchar_t* OutPtr_wchar, int
 		return;
 	}
 
-	wcscpy_s(OutPtr_wchar, size, tempStr.c_str());
+	wcscpy_s(OutPtr_wchar, Size, tempStr.c_str());
 }
 
-/*
-void JWMap::EditMap(const JWTileMapSelector* InPtr_Selector, bool bErase)
-{
-	POINT TilePos = InPtr_Selector->GetTileSelectorPositionInCells();
-	POINT MapPos = InPtr_Selector->GetMapSelectorPositionInCells();
-	POINT Size = InPtr_Selector->GetSelectionSizeInCells();
-
-	int TileID = 0;
-	POINT iter_map_pos{ 0, 0 };
-	POINT iter_tile_pos{ 0, 0 };
-	for (int iter_x = 0; iter_x <= Size.x; iter_x++)
-	{
-		for (int iter_y = 0; iter_y <= Size.y; iter_y++)
-		{
-			iter_map_pos.x = MapPos.x + iter_x;
-			iter_map_pos.y = MapPos.y + iter_y;
-
-			iter_tile_pos.x = TilePos.x + iter_x;
-			iter_tile_pos.y = TilePos.y + iter_y;
-			TileID = ConvertXYToID(iter_tile_pos, m_MapInfo.TileSheetCols);
-
-			if (bErase)
-				TileID = -1;
-
-			switch (m_CurrMapMode)
-			{
-			case JWENGINE::EMapMode::TileMode:
-				SetMapFragmentTile(TileID, iter_map_pos.x, iter_map_pos.y);
-				break;
-			case JWENGINE::EMapMode::MoveMode:
-				// @warning
-				// Erase tile ID is not -1 but 0 for MoveMode
-				if (TileID == -1)
-					TileID = 0;
-
-				SetMapFragmentMove(TileID, iter_map_pos.x, iter_map_pos.y);
-				break;
-			default:
-				break;
-			}
-		}
-	}
-}
-*/
-
-PRIVATE void JWMap::SetTileTexture(WSTRING FileName)
+PRIVATE void JWMap::SetTileTexture(const WSTRING FileName)
 {
 	JWImage::SetTexture(FileName);
 
@@ -413,7 +368,7 @@ PRIVATE void JWMap::SetTileTexture(WSTRING FileName)
 	}
 }
 
-PRIVATE void JWMap::SetMoveTexture(WSTRING FileName)
+PRIVATE void JWMap::SetMoveTexture(const WSTRING FileName)
 {
 	if (m_pTextureMove)
 	{
@@ -472,7 +427,7 @@ PRIVATE void JWMap::MakeMapBase()
 	}
 }
 
-PRIVATE void JWMap::AddMapFragmentTile(int TileID, int X, int Y)
+PRIVATE void JWMap::AddMapFragmentTile(const int TileID, const int X, const int Y)
 {
 	STextureUV tUV = ConvertIDtoUV(TileID, m_MapInfo.TileSize, m_MapInfo.TileSheetSize);
 
@@ -499,7 +454,7 @@ PRIVATE void JWMap::AddMapFragmentTile(int TileID, int X, int Y)
 	m_Indices.push_back(SIndex3(tVertCount - 4, tVertCount - 1, tVertCount - 2));
 }
 
-PRIVATE void JWMap::AddMapFragmentMove(int MoveID, int X, int Y)
+PRIVATE void JWMap::AddMapFragmentMove(const int MoveID, const int X, const int Y)
 {
 	// @warning: This function should be called only if MoveSheet is loaded first
 	if (m_MapInfo.MoveSheetSize.x && m_MapInfo.MoveSheetSize.y)
@@ -557,7 +512,7 @@ PRIVATE void JWMap::UpdateVertexBufferMove()
 	m_pVBMove->Unlock();
 }
 
-PRIVATE auto JWMap::GetMapTileBoundary(int MapID, EMapDirection Dir) const->float
+PRIVATE auto JWMap::GetMapTileBoundary(const int MapID, const EMapDirection Dir) const->float
 {
 	float Result = 0;
 
@@ -587,7 +542,7 @@ PRIVATE auto JWMap::GetMapTileBoundary(int MapID, EMapDirection Dir) const->floa
 	return Result;
 }
 
-PRIVATE auto JWMap::IsMovableTile(int MapID, EMapDirection Dir) const->bool
+PRIVATE auto JWMap::IsMovableTile(const int MapID, const EMapDirection Dir) const->bool
 {
 	if ((MapID >= (m_MapInfo.MapCols * m_MapInfo.MapRows)) || (MapID < 0))
 		return true;
@@ -620,7 +575,7 @@ PRIVATE auto JWMap::IsMovableTile(int MapID, EMapDirection Dir) const->bool
 	}
 }
 
-void JWMap::SetMode(EMapMode Mode)
+void JWMap::SetMode(const EMapMode Mode)
 {
 	switch (Mode)
 	{
@@ -641,7 +596,7 @@ void JWMap::SetMode(EMapMode Mode)
 	//assert(0);
 }
 
-void JWMap::SetPosition(D3DXVECTOR2 Offset)
+void JWMap::SetPosition(const D3DXVECTOR2 Offset)
 {
 	int VertID0 = 0;
 	float tX = 0;
@@ -686,7 +641,7 @@ void JWMap::SetPosition(D3DXVECTOR2 Offset)
 	}
 }
 
-void JWMap::SetGlobalPosition(D3DXVECTOR2 Offset)
+void JWMap::SetGlobalPosition(const D3DXVECTOR2 Offset)
 {
 	float MapH = static_cast<float>(m_MapInfo.MapRows * m_MapInfo.TileSize);
 	float NewOffsetY = m_pJWWindow->GetWindowData()->WindowHeight - MapH + Offset.y;
@@ -694,7 +649,7 @@ void JWMap::SetGlobalPosition(D3DXVECTOR2 Offset)
 	SetPosition(D3DXVECTOR2(Offset.x, NewOffsetY));
 }
 
-PRIVATE void JWMap::SetMapFragmentTile(int TileID, int X, int Y)
+PRIVATE void JWMap::SetMapFragmentTile(const int TileID, const int X, const int Y)
 {
 	if ((X < m_MapInfo.MapCols) && (Y < m_MapInfo.MapRows))
 	{
@@ -732,7 +687,7 @@ PRIVATE void JWMap::SetMapFragmentTile(int TileID, int X, int Y)
 	}
 }
 
-PRIVATE void JWMap::SetMapFragmentMove(int MoveID, int X, int Y)
+PRIVATE void JWMap::SetMapFragmentMove(const int MoveID, const int X, const int Y)
 {
 	if ((X < m_MapInfo.MapCols) && (Y < m_MapInfo.MapRows))
 	{
@@ -796,32 +751,32 @@ void JWMap::Draw()
 	m_pDevice->SetTexture(0, nullptr);
 }
 
-auto JWMap::DoesMapExist() const->bool
+auto JWMap::DoesMapExist() const->const bool
 { 
 	return m_bMapExist;
 };
 
-auto JWMap::GetMode() const->EMapMode
+auto JWMap::GetMode() const->const EMapMode
 {
 	return m_CurrMapMode;
 }
 
-void JWMap::GetMapInfo(SMapInfo* Outptr_Info) const
+void JWMap::GetMapInfo(SMapInfo* OutPtr_Info) const
 {
-	*Outptr_Info = m_MapInfo;
+	*OutPtr_Info = m_MapInfo;
 }
 
-auto JWMap::GetMapOffset() const->D3DXVECTOR2
+auto JWMap::GetMapOffset() const->const D3DXVECTOR2
 { 
 	return m_Offset;
 }
 
-auto JWMap::GetMapOffsetZeroY() const->int
+auto JWMap::GetMapOffsetZeroY() const->CINT
 { 
 	return m_OffsetZeroY;
 }
 
-auto JWMap::GetVelocityAfterCollision(SBoundingBox BB, D3DXVECTOR2 Velocity) const->D3DXVECTOR2
+auto JWMap::GetVelocityAfterCollision(SBoundingBox BB, D3DXVECTOR2 Velocity) const->const D3DXVECTOR2
 {
 	D3DXVECTOR2 NewVelocity = Velocity;
 

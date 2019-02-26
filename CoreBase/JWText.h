@@ -166,9 +166,9 @@ namespace JWENGINE
 		static const DWORD DEFAULT_COLOR_BOX = D3DCOLOR_ARGB(0, 180, 180, 180);
 		static const DWORD DEFAULT_COLOR_SELECTION = D3DCOLOR_ARGB(100, 255, 0, 255);
 		static const float DEFAULT_SIDE_CONSTRAINT_STRIDE;
-		static constexpr unsigned __int32 MAX_INSTANT_TEXT_LENGTH = 256;
-		static constexpr unsigned __int32 MAX_INSTANT_TEXT_VERTEX_SIZE = MAX_INSTANT_TEXT_LENGTH * 4;
-		static constexpr unsigned __int32 MAX_INSTANT_TEXT_INDEX_SIZE = MAX_INSTANT_TEXT_LENGTH * 2;
+		static constexpr unsigned int MAX_INSTANT_TEXT_LENGTH = 256;
+		static constexpr unsigned int MAX_INSTANT_TEXT_VERTEX_SIZE = MAX_INSTANT_TEXT_LENGTH * 4;
+		static constexpr unsigned int MAX_INSTANT_TEXT_INDEX_SIZE = MAX_INSTANT_TEXT_LENGTH * 2;
 
 		bool m_bIsInstantText;
 		bool m_bUseAutomaticLineBreak;

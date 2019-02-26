@@ -30,9 +30,17 @@ JWWindow::JWWindow()
 	memset(m_FileTitle, 0, MAX_FILE_LEN);
 }
 
-auto JWWindow::CreateGameWindow(CInt X, CInt Y, CInt Width, CInt Height)->EError
+auto JWWindow::CreateGameWindow(const SWindowCreationData& WindowCreationData)->EError
 {
-	if (CreateWINAPIWindow(L"Game", X, Y, Width, Height, EWindowStyle::OverlappedWindow, m_BGColor, BaseWindowProc) == nullptr)
+	// Set DirectX clear color
+	m_BGColor = WindowCreationData.color_background;
+
+	if (CreateWINAPIWindow(L"Game", WindowCreationData.caption.c_str(),
+		WindowCreationData.x, WindowCreationData.y,
+		WindowCreationData.width, WindowCreationData.height,
+		EWindowStyle::OverlappedWindow,
+		m_BGColor,
+		BaseWindowProc) == nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 
 	if (JW_FAILED(InitializeDirectX()))
@@ -48,8 +56,12 @@ auto JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)->E
 	// Set DirectX clear color
 	m_BGColor = WindowCreationData.color_background;
 
-	if (CreateWINAPIWindow(L"GUI", WindowCreationData.x, WindowCreationData.y, WindowCreationData.width, WindowCreationData.height,
-		EWindowStyle::OverlappedWindow, WindowCreationData.color_background, WindowCreationData.proc) == nullptr)
+	if (CreateWINAPIWindow(L"GUI", WindowCreationData.caption.c_str(),
+		WindowCreationData.x, WindowCreationData.y,
+		WindowCreationData.width, WindowCreationData.height,
+		EWindowStyle::OverlappedWindow,
+		WindowCreationData.color_background,
+		WindowCreationData.proc) == nullptr)
 		return EError::WINAPIWINDOW_NOT_CREATED;
 
 	if (JW_FAILED(InitializeDirectX()))
@@ -60,7 +72,7 @@ auto JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)->E
 	return EError::OK;
 }
 
-PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, CInt X, CInt Y, CInt Width, CInt Height,
+PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Caption, CINT X, CINT Y, CINT Width, CINT Height,
 	EWindowStyle WindowStyle, DWORD BackColor, WNDPROC Proc, LPCWSTR MenuName, HWND hWndParent)->HWND
 {
 	m_hInstance = GetModuleHandle(nullptr);
@@ -84,7 +96,7 @@ PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, CInt X, CInt Y, C
 	m_Rect = { X, Y, X + Width, Y + Height };
 	AdjustWindowRect(&m_Rect, (DWORD)WindowStyle, false);
 
-	m_hWnd = CreateWindow(Name, Name, (DWORD)WindowStyle, m_Rect.left, m_Rect.top,
+	m_hWnd = CreateWindow(Name, Caption, (DWORD)WindowStyle, m_Rect.left, m_Rect.top,
 		m_Rect.right - m_Rect.left, m_Rect.bottom - m_Rect.top, hWndParent, (HMENU)nullptr, m_hInstance, nullptr);
 
 	ShowWindow(m_hWnd, SW_SHOW);
@@ -94,7 +106,7 @@ PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, CInt X, CInt Y, C
 	return m_hWnd;
 }
 
-PRIVATE void JWWindow::SetWindowData(CInt Width, CInt Height)
+PRIVATE void JWWindow::SetWindowData(CINT Width, CINT Height)
 {
 	m_WindowData.WindowWidth = Width;
 	m_WindowData.WindowHeight = Height;

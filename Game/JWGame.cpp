@@ -13,7 +13,7 @@ JWGame::JWGame()
 	m_bDrawBoundingBoxes = false;
 }
 
-auto JWGame::Create(int Width, int Height)->EError
+auto JWGame::Create(const WSTRING GameName, CINT Width, CINT Height)->EError
 {
 	// Set base directory
 	wchar_t tempDir[MAX_FILE_LEN]{};
@@ -24,9 +24,11 @@ auto JWGame::Create(int Width, int Height)->EError
 	std::wcout << m_BaseDir.c_str() << std::endl;
 
 	// Create base (window and initialize Direct3D9)
+	SWindowCreationData game_window_data = SWindowCreationData(GameName, WINDOW_X, WINDOW_Y, Width, Height, DEFAULT_COLOR_BLACK);
+
 	if (m_Window = MAKE_UNIQUE(JWWindow)())
 	{
-		if (JW_FAILED(m_Window->CreateGameWindow(WINDOW_X, WINDOW_Y, Width, Height)))
+		if (JW_FAILED(m_Window->CreateGameWindow(game_window_data)))
 			return EError::WINDOW_NOT_CREATED;
 
 		// Set main window handle
@@ -86,12 +88,12 @@ auto JWGame::Create(int Width, int Height)->EError
 	return EError::OK;
 }
 
-void JWGame::SetRenderFunction(PF_RENDER pfRender)
+void JWGame::SetRenderFunction(const PF_RENDER pfRender)
 {
 	m_pfRender = pfRender;
 }
 
-void JWGame::SetKeyboardFunction(PF_KEYBOARD pfKeyboard)
+void JWGame::SetKeyboardFunction(const PF_KEYBOARD pfKeyboard)
 {
 	m_pfKeyboard = pfKeyboard;
 }
@@ -105,7 +107,7 @@ void JWGame::ToggleBoundingBox()
 	}
 }
 
-auto JWGame::LoadMap(WSTRING FileName)->EError
+auto JWGame::LoadMap(const WSTRING FileName)->EError
 {
 	if (m_Map)
 	{
@@ -230,19 +232,19 @@ void JWGame::Destroy()
 	JW_DESTROY_SMART(m_Window);
 }
 
-void JWGame::SetBackground(WSTRING TextureFN)
+void JWGame::SetBackgroundTexture(const WSTRING TextureFN)
 {
 	assert(m_Background);
 	m_Background->SetTexture(TextureFN);
 }
 
-auto JWGame::SpriteCreate(WSTRING TextureFN, POINT UnitSize, int numCols, int numRows, float Scale)->JWLife*
+auto JWGame::SpriteCreate(const WSTRING TextureFN, const POINT UnitSize, CINT numCols, CINT numRows, const float Scale)->JWLife*
 {
 	assert(m_Sprite);
 	return m_Sprite->MakeLife(TextureFN, UnitSize, numCols, numRows, Scale);
 }
 
-void JWGame::SpriteWalk(EAnimationDirection Direction)
+void JWGame::SpriteWalk(const EAnimationDirection Direction)
 {
 	assert(m_Sprite);
 	m_Sprite->Walk(Direction);
@@ -254,19 +256,19 @@ void JWGame::SpriteJump()
 	m_Sprite->Jump();
 }
 
-void JWGame::SpriteSetAnimation(EAnimationID AnimationID)
+void JWGame::SpriteSetAnimation(const EAnimationID AnimationID)
 {
 	assert(m_Sprite);
 	m_Sprite->SetAnimation(AnimationID);
 }
 
-auto JWGame::SpawnEffect(int EffectID, int Damage)->JWEffect*
+auto JWGame::SpawnEffect(CINT EffectID, CINT Damage)->JWEffect*
 {
 	assert(m_EffectManager);
 	return m_EffectManager->Spawn(EffectID, m_Sprite->GetCenterPosition(), m_Sprite->GetDirection(), Damage);
 }
 
-auto JWGame::SpawnMonster(WSTRING MonsterName, D3DXVECTOR2 GlobalPosition)->JWMonster*
+auto JWGame::SpawnMonster(const WSTRING MonsterName, const D3DXVECTOR2 GlobalPosition)->JWMonster*
 {
 	assert(m_MonsterManager);
 	return m_MonsterManager->Spawn(MonsterName, GlobalPosition);

@@ -16,32 +16,32 @@ namespace JWENGINE
 		JWLife();
 		virtual ~JWLife() {};
 
-		virtual auto JWLife::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError;
+		virtual auto JWLife::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError;
 
-		virtual auto JWLife::MakeLife(WSTRING TextureFN, POINT UnitSize, int numCols, int numRows, float Scale = 1.0f)->JWLife*;
+		virtual auto JWLife::MakeLife(const WSTRING TextureFN, const POINT UnitSize, CINT numCols, CINT numRows, const float Scale = 1.0f)->JWLife*;
 
-		virtual auto JWLife::SetGlobalPosition(D3DXVECTOR2 Position)->JWLife*;
+		virtual auto JWLife::SetGlobalPosition(const D3DXVECTOR2 Position)->JWLife*;
 
-		virtual auto JWLife::GetGlobalPosition() const->D3DXVECTOR2;
-		virtual auto JWLife::GetGlobalPositionInverse() const->D3DXVECTOR2;
-		virtual auto JWLife::GetVelocity() const->D3DXVECTOR2;
-		virtual auto JWLife::GetOffsetForMapMove() const->D3DXVECTOR2;
-		virtual auto JWLife::GetScaledUnitSize() const->D3DXVECTOR2;
+		virtual auto JWLife::GetGlobalPosition() const->const D3DXVECTOR2;
+		virtual auto JWLife::GetGlobalPositionInverse() const->const D3DXVECTOR2;
+		virtual auto JWLife::GetVelocity() const->const D3DXVECTOR2;
+		virtual auto JWLife::GetOffsetForMapMove() const->const D3DXVECTOR2;
+		virtual auto JWLife::GetScaledUnitSize() const->const D3DXVECTOR2;
 
 		// Animation
-		virtual auto JWLife::AddAnimation(SAnimationData Value)->JWLife*;
-		virtual void JWLife::SetAnimation(EAnimationID AnimID, bool ForceSet = false, bool bShouldRepeat = false);
+		virtual auto JWLife::AddAnimation(const SAnimationData Value)->JWLife*;
+		virtual void JWLife::SetAnimation(const EAnimationID AnimID, const bool ForceSet = false, const bool bShouldRepeat = false);
 		virtual void JWLife::Animate();
-		virtual void JWLife::SetDirection(EAnimationDirection Direction);
-		virtual auto JWLife::GetDirection() const->EAnimationDirection;
+		virtual void JWLife::SetDirection(const EAnimationDirection Direction);
+		virtual auto JWLife::GetDirection() const->const EAnimationDirection;
 
 		// Move
-		virtual void JWLife::Accelerate(D3DXVECTOR2 Accel);
-		virtual void JWLife::AddVelocity(D3DXVECTOR2 Vel);
-		virtual void JWLife::SetVelocity(D3DXVECTOR2 Vel);
+		virtual void JWLife::Accelerate(const D3DXVECTOR2 Accel);
+		virtual void JWLife::AddVelocity(const D3DXVECTOR2 Vel);
+		virtual void JWLife::SetVelocity(const D3DXVECTOR2 Vel);
 		virtual void JWLife::MoveWithVelocity();
-		virtual void JWLife::MoveConst(D3DXVECTOR2 dXY);
-		virtual void JWLife::Walk(EAnimationDirection Direction);
+		virtual void JWLife::MoveConst(const D3DXVECTOR2 dXY);
+		virtual void JWLife::Walk(const EAnimationDirection Direction);
 		virtual void JWLife::Jump();
 		virtual void JWLife::Gravitate();
 
@@ -50,7 +50,7 @@ namespace JWENGINE
 		virtual void JWLife::CalculateGlobalPosition();
 
 		// Animation
-		virtual void JWLife::SetFrame(int FrameID);
+		virtual void JWLife::SetFrame(CINT FrameID);
 
 	protected:
 		static const D3DXVECTOR2 JUMP_POWER;
@@ -58,15 +58,15 @@ namespace JWENGINE
 		static const float STRIDE;
 
 		const JWMap* m_pMap;
-		D3DXVECTOR2 m_GlobalPos;
-		D3DXVECTOR2 m_GlobalPosInverse;
+		D3DXVECTOR2 m_GlobalPosition;
+		D3DXVECTOR2 m_GlobalPositionInverse;
 		D3DXVECTOR2 m_Velocity;
 		bool m_bHitGround;
 
 		D3DXVECTOR2 m_UnitSize;
 
 	private:
-		virtual void JWLife::SetNumRowsAndCols(POINT UnitSize, int numCols, int numRows);
+		virtual void JWLife::SetNumRowsAndCols(const POINT UnitSize, CINT numCols, CINT numRows);
 
 	private:
 		int m_SheetRows;

@@ -54,10 +54,10 @@ namespace JWENGINE
 			m_Damage(Damage), m_MaxRepeatCount(RepeatCount) {};
 
 		void SetNext(EffectInstanceData* Next) { m_pNext = Next; };
-		void SetCurrFrame(int FrameID) { m_CurrFrame = FrameID; };
-		void SetCurrRepeatCount(int Value) { m_CurrRepeatCount = Value; };
-		void SetDamage(int Damage) { m_Damage = Damage; };
-		void SetBoundingBox(SBoundingBox NewBB) { m_BoundingBox = NewBB; };
+		void SetCurrFrame(CINT FrameID) { m_CurrFrame = FrameID; };
+		void SetCurrRepeatCount(CINT Value) { m_CurrRepeatCount = Value; };
+		void SetDamage(CINT Damage) { m_Damage = Damage; };
+		void SetBoundingBox(const SBoundingBox NewBB) { m_BoundingBox = NewBB; };
 
 		auto GetBoundingBox() const { return m_BoundingBox; };
 		auto GetNext() const { return m_pNext; };
@@ -88,13 +88,15 @@ namespace JWENGINE
 		JWEffect();
 		~JWEffect() {};
 
-		auto JWEffect::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError;
+		auto JWEffect::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError;
 		void JWEffect::Destroy() override;
 
-		auto JWEffect::SetTextureAtlas(WSTRING FileName, int numCols, int numRows)->JWEffect*;
-		auto JWEffect::AddEffectType(EEffectType Type, SAnimationData Data, D3DXVECTOR2 SpawnOffset, D3DXVECTOR2 BBSize,
-			int Delay, int RepeatCount = 1)->JWEffect*;
-		auto JWEffect::Spawn(int EffectTypeID, D3DXVECTOR2 Pos, EAnimationDirection Dir, int Damage)->JWEffect*;
+		auto JWEffect::SetTextureAtlas(const WSTRING FileName, CINT numCols, CINT numRows)->JWEffect*;
+
+		auto JWEffect::AddEffectType(const EEffectType Type, const SAnimationData Data, const D3DXVECTOR2 SpawnOffset, const D3DXVECTOR2 BBSize,
+			CINT Delay, CINT RepeatCount = 1)->JWEffect*;
+
+		auto JWEffect::Spawn(CINT EffectTypeID, const D3DXVECTOR2 Pos, const EAnimationDirection Dir, CINT Damage)->JWEffect*;
 
 		void JWEffect::Draw() override;
 		void JWEffect::DrawBoundingBox() override;

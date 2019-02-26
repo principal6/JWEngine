@@ -10,6 +10,16 @@ namespace JWENGINE
 	class JWMonsterType final
 	{
 	public:
+		JWMonsterType() {};
+		JWMonsterType(WSTRING Name, WSTRING TextureFileName, POINT LifeSize, int TextureNumCols, int TextureNumRows, int HP,
+			D3DXVECTOR2 BoundingBoxExtraSize) :
+			m_Name(Name), m_TextureFileName(TextureFileName), m_UnitSize(LifeSize), m_TextureNumCols(TextureNumCols),
+			m_TextureNumRows(TextureNumRows), m_HPMax(HP), m_BoundingBoxExtraSize(BoundingBoxExtraSize){};
+		~JWMonsterType() {};
+
+		auto AddAnimation(const SAnimationData Value)->JWMonsterType*;
+
+	public:
 		WSTRING m_Name;
 		WSTRING m_TextureFileName;
 		POINT m_UnitSize;
@@ -18,16 +28,6 @@ namespace JWENGINE
 		int m_HPMax;
 		VECTOR<SAnimationData> m_AnimData;
 		D3DXVECTOR2 m_BoundingBoxExtraSize;
-
-	public:
-		JWMonsterType() {};
-		JWMonsterType(WSTRING Name, WSTRING TextureFileName, POINT LifeSize, int TextureNumCols, int TextureNumRows, int HP,
-			D3DXVECTOR2 BoundingBoxExtraSize) :
-			m_Name(Name), m_TextureFileName(TextureFileName), m_UnitSize(LifeSize), m_TextureNumCols(TextureNumCols),
-			m_TextureNumRows(TextureNumRows), m_HPMax(HP), m_BoundingBoxExtraSize(BoundingBoxExtraSize){};
-		~JWMonsterType() {};
-
-		auto JWMonsterType::AddAnimation(SAnimationData Value)->JWMonsterType*;
 	};
 
 	/*-----------------------------------------------------------------------------
@@ -39,19 +39,19 @@ namespace JWENGINE
 		JWMonster();
 		~JWMonster() {};
 
-		auto JWMonster::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError;
-		void JWMonster::Destroy() override;
+		auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError;
+		void Destroy() override;
 
-		void JWMonster::SetMonsterType(JWMonsterType Type);
-		auto JWMonster::SetGlobalPosition(D3DXVECTOR2 Position)->JWMonster* override;
-		void JWMonster::Damage(int Damage);
+		void SetMonsterType(const JWMonsterType Type);
+		auto SetGlobalPosition(const D3DXVECTOR2 Position)->JWMonster* override;
+		void Damage(CINT Damage);
 
-		void JWMonster::Draw();
+		void Draw();
 
 	private:
-		void JWMonster::SetUIPosition(D3DXVECTOR2 Position);
-		void JWMonster::CalculateHP();
-		void JWMonster::UpdateGlobalPosition();
+		void SetUIPosition(const D3DXVECTOR2 Position);
+		void CalculateHP();
+		void UpdateGlobalPosition();
 
 	private:
 		static const float OFFSET_Y_HPBAR;
@@ -72,24 +72,25 @@ namespace JWENGINE
 		JWMonsterManager() {};
 		~JWMonsterManager() {};
 
-		auto JWMonsterManager::Create(JWWindow* pJWWindow, WSTRING* pBaseDir, JWMap* pMap)->EError;
-		void JWMonsterManager::Destroy();
+		auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError;
+		void Destroy();
 
-		auto JWMonsterManager::AddMonsterType(JWMonsterType Value)->JWMonsterType*;
-		auto JWMonsterManager::Spawn(WSTRING MonsterName, D3DXVECTOR2 GlobalPosition)->JWMonster*;
+		auto AddMonsterType(const JWMonsterType NewType)->JWMonsterType*;
+		auto Spawn(const WSTRING MonsterName, const D3DXVECTOR2 GlobalPosition)->JWMonster*;
 
-		void JWMonsterManager::Animate();
-		void JWMonsterManager::Gravitate();
-		void JWMonsterManager::Draw();
-		void JWMonsterManager::DrawBoundingBox();
+		void Animate();
+		void Gravitate();
+		void Draw();
+		void DrawBoundingBox();
 
-		auto JWMonsterManager::GetInstancePointer()->VECTOR<JWMonster>*;
+		auto GetInstancePointer()->VECTOR<JWMonster>*;
 
 	private:
 		static LPDIRECT3DDEVICE9 m_pDevice;
-		JWWindow* m_pJWWindow;
-		WSTRING* m_pBaseDir;
-		JWMap* m_pMap;
+
+		const JWWindow* m_pJWWindow;
+		const WSTRING* m_pBaseDir;
+		const JWMap* m_pMap;
 
 		VECTOR<JWMonsterType> m_Types;
 		VECTOR<JWMonster> m_Instances;
