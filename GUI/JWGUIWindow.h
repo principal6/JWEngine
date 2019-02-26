@@ -35,8 +35,8 @@ namespace JWENGINE
 		auto CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo)->EError;
 
 		// Add a control instance to this JWGUIWindow.
-		auto AddControl(const WSTRING ControlName, const EControlType Type, const D3DXVECTOR2 Position, const D3DXVECTOR2 Size,
-			const WSTRING Text = L"")->JWControl*;
+		auto AddControl(const EControlType Type, const D3DXVECTOR2 Position, const D3DXVECTOR2 Size,
+			const WSTRING ControlName = L"")->JWControl*;
 
 		// Get the pointer of the control instance that this JWGUIWindow has.
 		auto GetControlPtr(const WSTRING ControlName)->JWControl*;

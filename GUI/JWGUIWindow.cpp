@@ -93,15 +93,22 @@ void JWGUIWindow::Destroy()
 	JW_DESTROY(m_SharedData.pWindow);
 }
 
-auto JWGUIWindow::AddControl(const WSTRING ControlName, const EControlType Type, const D3DXVECTOR2 Position, const D3DXVECTOR2 Size,
-	const WSTRING Text)->JWControl*
+auto JWGUIWindow::AddControl(const EControlType Type, const D3DXVECTOR2 Position, const D3DXVECTOR2 Size,
+	const WSTRING ControlName)->JWControl*
 {
 	D3DXVECTOR2 adjusted_position = Position;
+	WSTRING automatic_control_name = ControlName;
+
+	if (!automatic_control_name.length())
+	{
+		automatic_control_name = L"control";
+		automatic_control_name += ConvertIntToWSTRING(static_cast<int>(m_pControls.size() - 1));
+	}
 
 	// Check duplicate control name.
 	if (m_ControlsMap.size())
 	{
-		auto already_exist = m_ControlsMap.find(ControlName);
+		auto already_exist = m_ControlsMap.find(automatic_control_name);
 
 		if (already_exist != m_ControlsMap.end())
 		{
@@ -171,13 +178,8 @@ auto JWGUIWindow::AddControl(const WSTRING ControlName, const EControlType Type,
 		ABORT_RETURN_NULLPTR;
 	}
 
-	if (Text.length())
-	{
-		m_pControls[m_pControls.size() - 1]->SetText(Text);
-	}
-
 	// Control is successfully added.
-	m_ControlsMap.insert(MAKE_PAIR(ControlName, m_pControls.size() - 1));
+	m_ControlsMap.insert(MAKE_PAIR(automatic_control_name, m_pControls.size() - 1));
 
 	return m_pControls[m_pControls.size() - 1];
 }
