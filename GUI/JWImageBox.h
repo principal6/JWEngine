@@ -29,9 +29,7 @@ namespace JWENGINE
 		auto SetSize(const D3DXVECTOR2 Size)->JWControl* override;
 		auto SetTextureAtlas(const LPDIRECT3DTEXTURE9 pTextureAtlas, const D3DXIMAGE_INFO* pTextureAtlasInfo)->JWControl* override;
 		auto SetAtlasUV(const D3DXVECTOR2 OffsetInAtlas, const D3DXVECTOR2 Size)->JWControl* override;
-
-	protected:
-		void SetBackgroundColor(DWORD Color) override;
+		auto SetBackgroundColor(DWORD Color)->JWControl* override;
 
 	private:
 		DWORD m_ColorBackground;

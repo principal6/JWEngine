@@ -136,9 +136,11 @@ auto JWImageBox::SetAtlasUV(const D3DXVECTOR2 OffsetInAtlas, const D3DXVECTOR2 S
 	return this;
 }
 
-PROTECTED void JWImageBox::SetBackgroundColor(DWORD Color)
+auto JWImageBox::SetBackgroundColor(DWORD Color)->JWControl*
 {
 	JWControl::SetBackgroundColor(Color);
 
 	m_pBackground->SetColor(Color);
+
+	return this;
 }

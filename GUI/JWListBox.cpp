@@ -433,11 +433,13 @@ void JWListBox::Draw()
 	JWControl::EndDrawing();
 }
 
-PROTECTED void JWListBox::SetBackgroundColor(DWORD Color)
+auto JWListBox::SetBackgroundColor(DWORD Color)->JWControl*
 {
 	JWControl::SetBackgroundColor(Color);
 
 	m_pBackground->SetColor(Color);
+
+	return this;
 }
 
 auto JWListBox::SetPosition(const D3DXVECTOR2 Position)->JWControl*

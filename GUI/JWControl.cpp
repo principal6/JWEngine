@@ -387,21 +387,27 @@ void JWControl::SetControlStateColor(const EControlState State, const DWORD Colo
 	}
 }
 
-void JWControl::SetBorderColor(const DWORD Color)
+auto JWControl::SetBorderColor(const DWORD Color)->JWControl*
 {
 	m_pBorderLine->SetBoxColor(Color);
+
+	return this;
 }
 
-void JWControl::SetBorderColor(const DWORD ColorA, const DWORD ColorB)
+auto JWControl::SetBorderColor(const DWORD ColorA, const DWORD ColorB)->JWControl*
 {
 	m_pBorderLine->SetBoxColor(ColorA, ColorB);
+
+	return this;
 }
 
-void JWControl::SetBackgroundColor(const DWORD Color)
+auto JWControl::SetBackgroundColor(const DWORD Color)->JWControl*
 {
 	m_Color_Normal = Color;
 	m_Color_Hover = Color;
 	m_Color_Pressed = Color;
+
+	return this;
 }
 
 void JWControl::Focus()

@@ -43,6 +43,7 @@ namespace JWENGINE
 
 		auto SetPosition(const D3DXVECTOR2 Position)->JWControl* override;
 		auto SetSize(const D3DXVECTOR2 Size)->JWControl* override;
+		auto SetBackgroundColor(DWORD Color)->JWControl* override;
 
 		auto GetListBoxItemCount() const->const size_t override;
 
@@ -58,8 +59,6 @@ namespace JWENGINE
 	protected:
 		// Must be overridden.
 		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
-
-		void SetBackgroundColor(DWORD Color) override;
 
 	private:
 		void UpdateAutomaticScrollBar();

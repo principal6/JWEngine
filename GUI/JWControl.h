@@ -120,6 +120,9 @@ namespace JWENGINE
 		// Setter
 		virtual auto SetPosition(const D3DXVECTOR2 Position)->JWControl*;
 		virtual auto SetSize(const D3DXVECTOR2 Size)->JWControl*;
+		virtual auto SetBorderColor(const DWORD Color)->JWControl*;
+		virtual auto SetBorderColor(const DWORD ColorA, const DWORD ColorB)->JWControl*;
+		virtual auto SetBackgroundColor(const DWORD Color)->JWControl*;
 
 		// Getter
 		virtual auto GetPosition() const->const D3DXVECTOR2;
@@ -252,10 +255,6 @@ namespace JWENGINE
 		*/
 		virtual void SetControlState(const EControlState State);
 		virtual void SetControlStateColor(const EControlState State, const DWORD Color);
-		virtual void SetBorderColor(const DWORD Color);
-		virtual void SetBorderColor(const DWORD ColorA, const DWORD ColorB);
-		virtual void SetBackgroundColor(const DWORD Color);
-
 
 		/*
 		** Focus-related functions

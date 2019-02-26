@@ -49,7 +49,8 @@ int main()
 		->SetScrollPosition(0);
 
 	pMainGUIWindow->AddControl(L"label1", EControlType::Label, D3DXVECTOR2(120, 80), D3DXVECTOR2(150, 40), L"레이블입니다!")
-		->SetTextVerticalAlignment(EVerticalAlignment::Middle)
+		->SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle)
+		->SetBackgroundColor(D3DCOLOR_ARGB(100, 0, 255, 255))
 		->AttachScrollBar(pMainGUIWindow->GetControlPtr(L"scrollbar2"));
 
 	pMainGUIWindow->AddControl(L"imagebutton1", ::ImageButton, D3DXVECTOR2(120, 0), D3DXVECTOR2(100, 50))
