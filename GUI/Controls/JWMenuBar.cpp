@@ -8,7 +8,7 @@
 using namespace JWENGINE;
 
 // Static const
-const D3DXVECTOR2 JWMenuBar::BLANK_SUBITEMBOX_SIZE = D3DXVECTOR2(100.0f, 60.0f);
+const D3DXVECTOR2& JWMenuBar::BLANK_SUBITEMBOX_SIZE = D3DXVECTOR2(100.0f, 60.0f);
 
 JWMenuBar::JWMenuBar()
 {
@@ -22,7 +22,7 @@ JWMenuBar::JWMenuBar()
 	m_pSelectedSubItemBox = nullptr;
 }
 
-auto JWMenuBar::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWMenuBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -77,7 +77,7 @@ void JWMenuBar::Destroy()
 	JW_DESTROY(m_pNonButtonRegion);
 }
 
-auto JWMenuBar::AddMenuBarItem(const WSTRING Text)->THandleItem
+auto JWMenuBar::AddMenuBarItem(const WSTRING& Text)->THandleItem
 {
 	// Create item.
 	MenuItem* new_item = new MenuItem;
@@ -129,7 +129,7 @@ auto JWMenuBar::AddMenuBarItem(const WSTRING Text)->THandleItem
 	return GetTHandleItemOfMenuBarItem(m_pItems.size() - 1);
 }
 
-auto JWMenuBar::AddMenuBarSubItem(const THandleItem hItem, const WSTRING Text)->THandleItem
+auto JWMenuBar::AddMenuBarSubItem(const THandleItem hItem, const WSTRING& Text)->THandleItem
 {
 	TIndex item_index = GetTIndexOfMenuBarItem(hItem);
 
@@ -240,7 +240,7 @@ void JWMenuBar::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWMenuBar::SetSize(const D3DXVECTOR2 Size)->JWControl*
+auto JWMenuBar::SetSize(const D3DXVECTOR2& Size)->JWControl*
 {
 	JWControl::SetSize(Size);
 

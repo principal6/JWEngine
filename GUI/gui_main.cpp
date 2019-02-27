@@ -18,14 +18,16 @@ THandleItem mb_file_open = THandleItem_Null;
 THandleItem mb_help_info = THandleItem_Null;
 
 // TODO: THandleItem to structure?? (To safely handle these)
+// Add Frame & VericalDivider & HorizontalDivider
 
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
-	SWindowCreationData myWindowData = SWindowCreationData(L"JWGUI Test Window", 0, 100, 800, 600, DEFAULT_COLOR_LESS_BLACK);
-	myGUI.Create(myWindowData, &pMainGUIWindow);
-
+	
+	SWindowCreationData myWindowData = SWindowCreationData(L"JWGUI Test Window", 0, 100, 800, 600, DEFAULT_COLOR_LESS_BLACK,
+		EWindowStyle::OverlappedWindow | EWindowStyle::ClipChildren);
+	myGUI.Create(myWindowData, pMainGUIWindow);
+	
 	pMainGUIWindow->AddControl(EControlType::MenuBar, D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), L"menubar");
 	THandleItem mb_file = pMainGUIWindow->GetControlPtr(L"menubar")->AddMenuBarItem(L"파일");
 		mb_file_new = pMainGUIWindow->GetControlPtr(L"menubar")->AddMenuBarSubItem(mb_file, L"새로 만들기");
@@ -118,17 +120,19 @@ void MainLoop()
 		if (pDialogueNewMap->GetControlPtr(L"btn_close")->OnMouseCliked())
 		{
 			WSTRING text;
-			pDialogueNewMap->GetControlPtr(L"edit_name")->GetText(&text);
+			pDialogueNewMap->GetControlPtr(L"edit_name")->GetText(text);
 			std::wcout << text.c_str() << std::endl;
+			
+			myGUI.DestroyGUIWindow(pDialogueNewMap);
 		}
 	}
 }
 
 void ShowDialogueNewMap()
 {
-	SWindowCreationData myWindowData = SWindowCreationData(L"New map", 100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK);
+	SWindowCreationData myWindowData = SWindowCreationData(L"New map", 100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK, EWindowStyle::Dialogue);
 
-	myGUI.AddGUIWindow(myWindowData, &pDialogueNewMap);
+	myGUI.AddGUIWindow(myWindowData, pDialogueNewMap);
 
 	pDialogueNewMap->AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"btn_close")
 		->SetText(L"Close");

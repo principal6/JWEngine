@@ -6,8 +6,6 @@ namespace JWENGINE
 {
 	// ***
 	// *** Forward declaration ***
-	class JWGUIWindow;
-	class JWWindow;
 	class JWLine;
 	class JWScrollBar;
 
@@ -74,7 +72,7 @@ namespace JWENGINE
 		virtual ~JWControl() {};
 
 		// Create JWControl.
-		virtual auto Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError;
+		virtual auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError;
 
 		// Destroy JWControl.
 		virtual void Destroy();
@@ -83,8 +81,8 @@ namespace JWENGINE
 		** Maker functions for sub-classes
 		*/
 		// [JWImageButton] Make a normal JWImageButton.
-		virtual auto MakeImageButton(const WSTRING TextureAtlasFileName, const D3DXVECTOR2 ButtonSizeInTexture, const D3DXVECTOR2 NormalOffset,
-			const D3DXVECTOR2 HoverOffset, const D3DXVECTOR2 PressedOffset)->JWControl* { return this; };
+		virtual auto MakeImageButton(const WSTRING& TextureAtlasFileName, const D3DXVECTOR2& ButtonSizeInTexture, const D3DXVECTOR2& NormalOffset,
+			const D3DXVECTOR2& HoverOffset, const D3DXVECTOR2& PressedOffset)->JWControl* { return this; };
 
 		// [JWImageButton] Make a system arrow JWImageButton.
 		virtual auto MakeSystemArrowButton(const ESystemArrowDirection Direction)->JWControl* { return this; };
@@ -110,16 +108,16 @@ namespace JWENGINE
 		/*
 		** Text(font)-related functions
 		*/
-		virtual auto SetText(const WSTRING Text)->JWControl*;
-		virtual auto GetText(WSTRING* OutPtrText)->JWControl*;
+		virtual auto SetText(const WSTRING& Text)->JWControl*;
+		virtual auto GetText(WSTRING& OutText)->JWControl*;
 		virtual auto SetTextAlignment(const EHorizontalAlignment HorizontalAlignment, const EVerticalAlignment VerticalAlignment)->JWControl*;
 		virtual auto SetTextHorizontalAlignment(const EHorizontalAlignment Alignment)->JWControl*;
 		virtual auto SetTextVerticalAlignment(const EVerticalAlignment Alignment)->JWControl*;
 		virtual auto SetFontColor(const DWORD Color)->JWControl*;
 
 		// Setter
-		virtual auto SetPosition(const D3DXVECTOR2 Position)->JWControl*;
-		virtual auto SetSize(const D3DXVECTOR2 Size)->JWControl*;
+		virtual auto SetPosition(const D3DXVECTOR2& Position)->JWControl*;
+		virtual auto SetSize(const D3DXVECTOR2& Size)->JWControl*;
 		virtual auto SetBorderColor(const DWORD Color)->JWControl*;
 		virtual auto SetBorderColor(const DWORD ColorA, const DWORD ColorB)->JWControl*;
 		virtual auto SetBackgroundColor(const DWORD Color)->JWControl*;
@@ -166,7 +164,7 @@ namespace JWENGINE
 		virtual auto SetTextureAtlas(const LPDIRECT3DTEXTURE9 pTextureAtlas, const D3DXIMAGE_INFO* pTextureAtlasInfo)->JWControl* { return this; };
 
 		// [JWImageBox]
-		virtual auto SetAtlasUV(const D3DXVECTOR2 OffsetInAtlas, const D3DXVECTOR2 Size)->JWControl* { return this; };
+		virtual auto SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size)->JWControl* { return this; };
 
 		// [JWCheckBox] | [JWRadioBox]
 		virtual auto SetCheckState(const bool Value)->JWControl* { return this; };
@@ -196,7 +194,7 @@ namespace JWENGINE
 		virtual auto ShouldUseNumberInputsOnly(const bool Value)->JWControl* { return this; };
 
 		// [JWEdit]
-		virtual auto SetWatermark(const WSTRING Text)->JWControl* { return this; };
+		virtual auto SetWatermark(const WSTRING& Text)->JWControl* { return this; };
 
 		// [JWEdit]
 		virtual auto SetWatermarkColor(const DWORD Color)->JWControl* { return this; };
@@ -214,8 +212,8 @@ namespace JWENGINE
 		virtual auto SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo)->JWControl* { return this; };
 
 		// [JWListBox]
-		virtual auto AddListBoxItem(const WSTRING Text, const D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0),
-			const D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0))->JWControl* { return this; };
+		virtual auto AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInAtlas = D3DXVECTOR2(0, 0),
+			const D3DXVECTOR2& SizeInAtlas = D3DXVECTOR2(0, 0))->JWControl* { return this; };
 
 		// [JWListBox]
 		virtual auto SetMinimumItemHeight(const float Value)->JWControl* { return this; };
@@ -232,12 +230,12 @@ namespace JWENGINE
 		// [JWMenuBar]
 		// @warning: this functions doesn't return 'this' pointer,
 		// but the handle(THandleItem) of the added item.
-		virtual auto AddMenuBarItem(const WSTRING Text)->THandleItem { return THandleItem_Null; };
+		virtual auto AddMenuBarItem(const WSTRING& Text)->THandleItem { return THandleItem_Null; };
 
 		// [JWMenuBar]
 		// @warning: this functons doesn't return 'this' pointer,
 		// but the handle(THandleItem) of the added subitem.
-		virtual auto AddMenuBarSubItem(const THandleItem hItem, const WSTRING Text)->THandleItem { return THandleItem_Null; };
+		virtual auto AddMenuBarSubItem(const THandleItem hItem, const WSTRING& Text)->THandleItem { return THandleItem_Null; };
 
 	protected:
 		// Calculate RECT of this control.

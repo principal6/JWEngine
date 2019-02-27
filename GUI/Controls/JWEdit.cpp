@@ -34,7 +34,7 @@ JWEdit::JWEdit()
 	m_bShouldGetOnlyNumbers = false;
 }
 
-auto JWEdit::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -155,7 +155,7 @@ void JWEdit::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWEdit::SetPosition(const D3DXVECTOR2 Position)->JWControl*
+auto JWEdit::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -166,7 +166,7 @@ auto JWEdit::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 	return this;
 }
 
-auto JWEdit::SetSize(const D3DXVECTOR2 Size)->JWControl*
+auto JWEdit::SetSize(const D3DXVECTOR2& Size)->JWControl*
 {
 	D3DXVECTOR2 adjusted_size = Size;
 
@@ -182,7 +182,7 @@ auto JWEdit::SetSize(const D3DXVECTOR2 Size)->JWControl*
 	return this;
 }
 
-auto JWEdit::SetText(const WSTRING Text)->JWControl*
+auto JWEdit::SetText(const WSTRING& Text)->JWControl*
 {
 	WSTRING new_text = Text;
 
@@ -218,7 +218,7 @@ auto JWEdit::SetFontColor(const DWORD Color)->JWControl*
 	return this;
 }
 
-auto JWEdit::SetWatermark(const WSTRING Text)->JWControl*
+auto JWEdit::SetWatermark(const WSTRING& Text)->JWControl*
 {
 	m_Watermark = Text;
 

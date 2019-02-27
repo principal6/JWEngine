@@ -18,7 +18,7 @@ JWImageBox::JWImageBox()
 	m_Color_Pressed = DEFAULT_COLOR_NORMAL;
 }
 
-auto JWImageBox::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWImageBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 	{
@@ -100,7 +100,7 @@ void JWImageBox::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWImageBox::SetPosition(const D3DXVECTOR2 Position)->JWControl*
+auto JWImageBox::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -110,7 +110,7 @@ auto JWImageBox::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 	return this;
 }
 
-auto JWImageBox::SetSize(const D3DXVECTOR2 Size)->JWControl*
+auto JWImageBox::SetSize(const D3DXVECTOR2& Size)->JWControl*
 {
 	JWControl::SetSize(Size);
 
@@ -129,7 +129,7 @@ auto JWImageBox::SetTextureAtlas(const LPDIRECT3DTEXTURE9 pTextureAtlas, const D
 	return this;
 }
 
-auto JWImageBox::SetAtlasUV(const D3DXVECTOR2 OffsetInAtlas, const D3DXVECTOR2 Size)->JWControl*
+auto JWImageBox::SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size)->JWControl*
 {
 	m_pImage->SetAtlasUV(OffsetInAtlas, Size);
 

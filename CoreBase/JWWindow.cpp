@@ -162,11 +162,17 @@ PRIVATE void JWWindow::UpdateRenderRect()
 
 void JWWindow::Destroy()
 {
+	if (m_hWnd)
+	{
+		DestroyWindow(m_hWnd);
+		m_hWnd = nullptr;
+	}
+
 	JW_RELEASE(m_pDevice);
 	JW_RELEASE(m_pD3D);
 }
 
-void JWWindow::SetWindowCaption(const WSTRING Caption)
+void JWWindow::SetWindowCaption(const WSTRING& Caption)
 {
 	SetWindowTextW(m_hWnd, Caption.c_str());
 }

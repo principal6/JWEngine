@@ -66,7 +66,7 @@ void JWLine::Destroy()
 	JW_RELEASE(m_pVB);
 }
 
-void JWLine::AddLine(const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Length, const DWORD Color)
+void JWLine::AddLine(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Length, const DWORD Color)
 {
 	m_Vertices.push_back(SVertexLine(StartPosition.x, StartPosition.y, Color));
 	m_Vertices.push_back(SVertexLine(StartPosition.x + Length.x, StartPosition.y + Length.y, Color));
@@ -75,7 +75,7 @@ void JWLine::AddLine(const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Length, 
 	m_Indices.push_back(SIndex2(tIndicesCount * 2, tIndicesCount * 2 + 1));
 }
 
-void JWLine::AddBox(const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Size, const DWORD Color)
+void JWLine::AddBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size, const DWORD Color)
 {
 	AddLine(StartPosition, D3DXVECTOR2(Size.x, 0), Color); // Top
 	AddLine(StartPosition, D3DXVECTOR2(0, Size.y), Color); // Left
@@ -154,7 +154,7 @@ void JWLine::Draw() const
 	m_pDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 0, 0, static_cast<int>(m_Vertices.size()), 0, static_cast<int>(m_Indices.size()));
 }
 
-void JWLine::SetLine(const UINT LineIndex, const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Size)
+void JWLine::SetLine(const UINT LineIndex, const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size)
 {
 	if (LineIndex * 2 <= static_cast<UINT>(m_Vertices.size()))
 	{
@@ -192,7 +192,7 @@ void JWLine::SetLineColor(const UINT LineIndex, const DWORD ColorA, const DWORD 
 	}
 }
 
-void JWLine::SetBox(const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Size)
+void JWLine::SetBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size)
 {
 	if (m_Vertices.size())
 	{

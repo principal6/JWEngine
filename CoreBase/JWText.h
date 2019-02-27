@@ -80,20 +80,20 @@ namespace JWENGINE
 		void SetNonInstantTextColor(const DWORD FontColor);
 
 		// Call this function when first set the text, or when the JWEdit control is resized or repositioned.
-		void SetNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize);
+		void SetNonInstantText(WSTRING Text, const D3DXVECTOR2& Position, const D3DXVECTOR2& AreaSize);
 
 		// @warning: only used for IME input in order to erase temporary IME character input.
 		void SetNonInstantInnerText(WSTRING Text);
 
 		// Insert a character in non-instant-text at the caret position.
-		void InsertInNonInstantText(const WSTRING String);
+		void InsertInNonInstantText(const WSTRING& String);
 		void DrawNonInstantText();
 
 		// Draw insant text to the window.
 		// Since it's instant text, there's no update function.
 		// @warning: instant text must be a single-line text.
 		// If the text is multi-line, it will be clipped.
-		void DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position,
+		void DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2& Position,
 			const EHorizontalAlignment HorizontalAlignment = EHorizontalAlignment::Left, const DWORD FontColor = DEFAULT_COLOR_FONT);
 
 		void DrawCaret();
@@ -135,7 +135,7 @@ namespace JWENGINE
 
 	private:
 		// @warning: the font texture must be created only once per JWGUIWindow (i.e. per D3D device).
-		auto CreateFontTexture(const WSTRING FileName_FNT)->EError;
+		auto CreateFontTexture(const WSTRING& FileName_FNT)->EError;
 
 		// Create vertex and index buffers for instant text with limited length (MAX_INSTANT_TEXT_LENGTH).
 		// @warning: this function is called in CreateFontTexture().

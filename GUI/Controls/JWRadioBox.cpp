@@ -13,7 +13,7 @@ JWRadioBox::JWRadioBox()
 	m_bChecked = false;
 }
 
-auto JWRadioBox::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWRadioBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -86,7 +86,7 @@ void JWRadioBox::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWRadioBox::SetPosition(const D3DXVECTOR2 Position)->JWControl*
+auto JWRadioBox::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 

@@ -150,7 +150,7 @@ void JWRectangle::ClearAllRectangles()
 	UpdateVertexBuffer();
 }
 
-void JWRectangle::AddRectangle(const D3DXVECTOR2 Size, const D3DXVECTOR2 Position)
+void JWRectangle::AddRectangle(const D3DXVECTOR2& Size, const D3DXVECTOR2& Position)
 {
 	// If box count is max, no adding
 	if (m_BoxCount == m_MaxNumBox)

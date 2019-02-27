@@ -33,7 +33,7 @@ JWControl::JWControl()
 	m_bHasFocus = false;
 }
 
-auto JWControl::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWControl::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	// Set shared data pointer.
 	m_pSharedData = pSharedData;
@@ -321,7 +321,7 @@ PROTECTED void JWControl::UpdateViewport()
 	m_ControlViewport.Height = static_cast<DWORD>(m_Size.y);
 }
 
-auto JWControl::SetPosition(const D3DXVECTOR2 Position)->JWControl*
+auto JWControl::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 {
 	m_Position = Position;
 
@@ -340,7 +340,7 @@ auto JWControl::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 	return this;
 }
 
-auto JWControl::SetSize(const D3DXVECTOR2 Size)->JWControl*
+auto JWControl::SetSize(const D3DXVECTOR2& Size)->JWControl*
 {
 	D3DXVECTOR2 adjusted_size = Size;
 
@@ -426,7 +426,7 @@ void JWControl::KillFocus()
 	m_pBorderLine->SetBoxColor(DEFAULT_COLOR_BORDER);
 }
 
-auto JWControl::SetText(const WSTRING Text)->JWControl*
+auto JWControl::SetText(const WSTRING& Text)->JWControl*
 {
 	m_Text = Text;
 
@@ -435,9 +435,9 @@ auto JWControl::SetText(const WSTRING Text)->JWControl*
 	return this;
 }
 
-auto JWControl::GetText(WSTRING* OutPtrText)->JWControl*
+auto JWControl::GetText(WSTRING& OutText)->JWControl*
 {
-	*OutPtrText = m_Text;
+	OutText = m_Text;
 
 	return this;
 }

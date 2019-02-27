@@ -4,7 +4,7 @@ using namespace JWENGINE;
 
 // Static member variables
 SGUIIMEInputInfo JWGUI::ms_IMEInfo;
-HWND JWGUI::ms_QuitWindowHWND;
+VECTOR<HWND> JWGUI::ms_hWndQuitStack;
 
 // Base window procedure for GUI window
 LRESULT CALLBACK JWENGINE::GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
@@ -47,8 +47,8 @@ LRESULT CALLBACK JWENGINE::GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam,
 		ImmReleaseContext(hWnd, hIMC);
 		break;
 	case WM_DESTROY:
+		JWGUI::ms_hWndQuitStack.push_back(hWnd);
 		PostQuitMessage(0);
-		JWGUI::ms_QuitWindowHWND = hWnd;
 		return 0;
 	}
 	return(DefWindowProc(hWnd, Message, wParam, lParam));
@@ -59,14 +59,14 @@ JWGUI::JWGUI()
 	m_pMainGUIWindow = nullptr;
 }
 
-auto JWGUI::Create(SWindowCreationData& WindowCreationData, JWGUIWindow** OutPtrMainGUIWindow)->EError
+auto JWGUI::Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow)->EError
 {
-	if (*OutPtrMainGUIWindow = new JWGUIWindow)
+	if (OutPtrMainGUIWindow = new JWGUIWindow)
 	{
 		WindowCreationData.proc = GUIWindowProc;
-		(*OutPtrMainGUIWindow)->Create(WindowCreationData);
+		OutPtrMainGUIWindow->Create(WindowCreationData);
 
-		m_ppGUIWindows.push_back(OutPtrMainGUIWindow);
+		m_ppGUIWindows.push_back(&OutPtrMainGUIWindow);
 
 		return EError::OK;
 	}
@@ -82,20 +82,43 @@ void JWGUI::Destroy()
 	{
 		for (JWGUIWindow** iterator : m_ppGUIWindows)
 		{
-			(*iterator)->Destroy();
+			JW_DESTROY((*iterator));
+
 			iterator = nullptr;
 		}
 	}
 }
 
-void JWGUI::AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow** OutPtrGUIWindow)
+void JWGUI::AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrGUIWindow)
 {
-	*OutPtrGUIWindow = new JWGUIWindow;
+	OutPtrGUIWindow = new JWGUIWindow;
 
 	WindowCreationData.proc = GUIWindowProc;
-	(*OutPtrGUIWindow)->Create(WindowCreationData);
+	OutPtrGUIWindow->Create(WindowCreationData);
 
-	m_ppGUIWindows.push_back(OutPtrGUIWindow);
+	m_ppGUIWindows.push_back(&OutPtrGUIWindow);
+}
+
+void JWGUI::DestroyGUIWindow(const JWGUIWindow* pGUIWindow)
+{
+	if (m_ppGUIWindows.size())
+	{
+		size_t iterator_window_index = 0;
+
+		for (JWGUIWindow** iterator : m_ppGUIWindows)
+		{
+			if ((*iterator) == pGUIWindow)
+			{
+				JW_DESTROY((*iterator));
+				iterator = nullptr;
+				break;
+			}
+
+			iterator_window_index++;
+		}
+
+		m_ppGUIWindows.erase(iterator_window_index);
+	}
 }
 
 void JWGUI::SetMainLoopFunction(const PF_MAINLOOP pfMainLoop)
@@ -131,7 +154,7 @@ void JWGUI::Run()
 		{
 			for (JWGUIWindow** iterator : m_ppGUIWindows)
 			{
-				(*iterator)->Update(m_MSG, ms_IMEInfo, ms_QuitWindowHWND, hActiveWindow);
+				(*iterator)->Update(m_MSG, ms_IMEInfo, ms_hWndQuitStack, hActiveWindow);
 			}
 		}
 
@@ -218,8 +241,6 @@ void JWGUI::Run()
 		{
 			m_bIsGUIRunning = false;
 		}
-
-		ms_QuitWindowHWND = nullptr;
 	}
 
 	Destroy();

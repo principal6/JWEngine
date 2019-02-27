@@ -30,19 +30,19 @@ namespace JWENGINE
 		JWListBox();
 		~JWListBox() {};
 
-		auto Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
 		auto SetMinimumItemHeight(const float Value)->JWControl* override;
 		auto SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo)->JWControl* override;
 
-		auto AddListBoxItem(const WSTRING Text, const D3DXVECTOR2 OffsetInAtlas = D3DXVECTOR2(0, 0),
-			const D3DXVECTOR2 SizeInAtlas = D3DXVECTOR2(0, 0))->JWControl* override;
+		auto AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInAtlas = D3DXVECTOR2(0, 0),
+			const D3DXVECTOR2& SizeInAtlas = D3DXVECTOR2(0, 0))->JWControl* override;
 
 		void Draw() override;
 
-		auto SetPosition(const D3DXVECTOR2 Position)->JWControl* override;
-		auto SetSize(const D3DXVECTOR2 Size)->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2& Position)->JWControl* override;
+		auto SetSize(const D3DXVECTOR2& Size)->JWControl* override;
 		auto SetBackgroundColor(DWORD Color)->JWControl* override;
 
 		auto GetListBoxItemCount() const->const size_t override;

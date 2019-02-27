@@ -17,7 +17,7 @@ JWCheckBox::JWCheckBox()
 	m_bChecked = false;
 }
 
-auto JWCheckBox::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWCheckBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 	{
@@ -105,7 +105,7 @@ void JWCheckBox::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWCheckBox::SetPosition(const D3DXVECTOR2 Position)->JWControl*
+auto JWCheckBox::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -115,7 +115,7 @@ auto JWCheckBox::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 	return this;
 }
 
-auto JWCheckBox::SetSize(const D3DXVECTOR2 Size)->JWControl*
+auto JWCheckBox::SetSize(const D3DXVECTOR2& Size)->JWControl*
 {
 	D3DXVECTOR2 adjusted_size = Size;
 

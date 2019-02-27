@@ -11,7 +11,7 @@ JWLabel::JWLabel()
 	m_Color_Pressed = DEFAULT_COLOR_BACKGROUND_LABEL;
 }
 
-auto JWLabel::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWLabel::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;

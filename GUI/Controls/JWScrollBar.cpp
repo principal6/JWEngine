@@ -7,8 +7,8 @@
 using namespace JWENGINE;
 
 // Static const
-const D3DXVECTOR2 JWScrollBar::HORIZONTAL_MINIMUM_SIZE = D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, GUI_BUTTON_SIZE.y);
-const D3DXVECTOR2 JWScrollBar::VERTICAL_MINIMUM_SIZE = D3DXVECTOR2(GUI_BUTTON_SIZE.x, GUI_BUTTON_SIZE.y * 2);
+const D3DXVECTOR2& JWScrollBar::HORIZONTAL_MINIMUM_SIZE = D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, GUI_BUTTON_SIZE.y);
+const D3DXVECTOR2& JWScrollBar::VERTICAL_MINIMUM_SIZE = D3DXVECTOR2(GUI_BUTTON_SIZE.x, GUI_BUTTON_SIZE.y * 2);
 
 JWScrollBar::JWScrollBar()
 {
@@ -33,7 +33,7 @@ JWScrollBar::JWScrollBar()
 	m_ScrollableSize = 0;
 }
 
-auto JWScrollBar::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -330,7 +330,7 @@ void JWScrollBar::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWScrollBar::SetPosition(const D3DXVECTOR2 Position)->JWControl*
+auto JWScrollBar::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -341,7 +341,7 @@ auto JWScrollBar::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 	return this;
 }
 
-auto JWScrollBar::SetSize(const D3DXVECTOR2 Size)->JWControl*
+auto JWScrollBar::SetSize(const D3DXVECTOR2& Size)->JWControl*
 {
 	D3DXVECTOR2 adjusted_size = Size;
 

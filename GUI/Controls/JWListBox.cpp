@@ -30,7 +30,7 @@ JWListBox::JWListBox()
 	m_MinimumItemHeight = DEFAULT_ITEM_HEIGHT;
 }
 
-auto JWListBox::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWListBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -115,7 +115,7 @@ auto JWListBox::SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, cons
 	return this;
 }
 
-auto JWListBox::AddListBoxItem(const WSTRING Text, const D3DXVECTOR2 OffsetInAtlas, const D3DXVECTOR2 SizeInAtlas)->JWControl*
+auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& SizeInAtlas)->JWControl*
 {
 	// Get this new item's index.
 	size_t item_index = m_pTextItems.size();
@@ -442,7 +442,7 @@ auto JWListBox::SetBackgroundColor(DWORD Color)->JWControl*
 	return this;
 }
 
-auto JWListBox::SetPosition(const D3DXVECTOR2 Position)->JWControl*
+auto JWListBox::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -451,7 +451,7 @@ auto JWListBox::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 	return this;
 }
 
-auto JWListBox::SetSize(const D3DXVECTOR2 Size)->JWControl*
+auto JWListBox::SetSize(const D3DXVECTOR2& Size)->JWControl*
 {
 	JWControl::SetSize(Size);
 

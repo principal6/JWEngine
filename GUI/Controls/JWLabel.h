@@ -17,7 +17,7 @@ namespace JWENGINE
 		JWLabel();
 		~JWLabel() {};
 
-		auto Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
 		void Draw() override;

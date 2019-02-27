@@ -66,7 +66,7 @@ auto JWBMFontParser::ParseComma(const STRING Data, const UINT ID)->UINT const
 	return Result;
 }
 
-auto JWBMFontParser::Parse(const WSTRING FileName)->bool
+auto JWBMFontParser::Parse(const WSTRING& FileName)->bool
 {
 	// Clear ms_FontData
 	ms_FontData.Pages.clear();

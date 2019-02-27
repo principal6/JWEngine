@@ -12,10 +12,12 @@ namespace JWENGINE
 		JWGUI();
 		~JWGUI() {};
 
-		auto Create(SWindowCreationData& WindowCreationData, JWGUIWindow** OutPtrMainGUIWindow)->EError;
+		auto Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow)->EError;
 		void Destroy();
 
-		void AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow** OutPtrGUIWindow);
+		void AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrGUIWindow);
+
+		void DestroyGUIWindow(const JWGUIWindow* pGUIWindow);
 
 		void SetMainLoopFunction(const PF_MAINLOOP pfMainLoop);
 
@@ -26,7 +28,7 @@ namespace JWENGINE
 
 	private:
 		static SGUIIMEInputInfo ms_IMEInfo;
-		static HWND ms_QuitWindowHWND;
+		static VECTOR<HWND> ms_hWndQuitStack;
 
 		bool m_bIsGUIRunning;
 

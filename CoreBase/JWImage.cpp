@@ -200,14 +200,14 @@ void JWImage::FlipVertical()
 	UpdateVertexBuffer();
 }
 
-void JWImage::SetPosition(const D3DXVECTOR2 Position)
+void JWImage::SetPosition(const D3DXVECTOR2& Position)
 {
 	m_Position = Position;
 
 	UpdateVertexData();
 }
 
-void JWImage::SetPositionCentered(const D3DXVECTOR2 Position)
+void JWImage::SetPositionCentered(const D3DXVECTOR2& Position)
 {
 	m_Position = D3DXVECTOR2(Position.x - (static_cast<float>(m_ScaledSize.x) / 2.0f),
 		Position.y - (static_cast<float>(m_ScaledSize.y) / 2.0f));
@@ -215,7 +215,7 @@ void JWImage::SetPositionCentered(const D3DXVECTOR2 Position)
 	UpdateVertexData();
 }
 
-void JWImage::SetSize(const D3DXVECTOR2 Size)
+void JWImage::SetSize(const D3DXVECTOR2& Size)
 {
 	m_Size = Size;
 
@@ -227,7 +227,7 @@ void JWImage::SetSize(const D3DXVECTOR2 Size)
 	UpdateVertexData();
 }
 
-void JWImage::SetTexture(const WSTRING FileName)
+void JWImage::SetTexture(const WSTRING& FileName)
 {
 	if (m_pTexture)
 	{
@@ -326,7 +326,7 @@ auto JWImage::SetXRGB(const DWORD XRGB)->JWImage*
 	return this;
 }
 
-auto JWImage::SetScale(const D3DXVECTOR2 Scale)->JWImage*
+auto JWImage::SetScale(const D3DXVECTOR2& Scale)->JWImage*
 {
 	m_Scale = Scale;
 
@@ -340,7 +340,7 @@ auto JWImage::SetScale(const D3DXVECTOR2 Scale)->JWImage*
 	return this;
 }
 
-auto JWImage::SetVisibleRange(const D3DXVECTOR2 Range)->JWImage*
+auto JWImage::SetVisibleRange(const D3DXVECTOR2& Range)->JWImage*
 {
 	m_VisibleRange = Range;
 
@@ -349,7 +349,7 @@ auto JWImage::SetVisibleRange(const D3DXVECTOR2 Range)->JWImage*
 	return this;
 }
 
-auto JWImage::SetAtlasUV(const D3DXVECTOR2 OffsetInAtlas, const D3DXVECTOR2 Size, bool bSetSize)->JWImage*
+auto JWImage::SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size, bool bSetSize)->JWImage*
 {
 	if (m_Vertices.size())
 	{
@@ -380,7 +380,7 @@ auto JWImage::SetUVRange(const STextureUV UV)->JWImage*
 	return this;
 }
 
-auto JWImage::SetBoundingBox(const D3DXVECTOR2 ExtraSize)->JWImage*
+auto JWImage::SetBoundingBox(const D3DXVECTOR2& ExtraSize)->JWImage*
 {
 	m_BoundingBoxExtraSize = ExtraSize;
 

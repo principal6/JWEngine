@@ -24,33 +24,22 @@ namespace JWENGINE
 	// @warning: JWGUIWindow is created on one and only JWWindow.
 	class JWGUIWindow final
 	{
+	friend class JWGUI;
+
 	public:
 		JWGUIWindow();
 		~JWGUIWindow() {};
-
-		auto Create(const SWindowCreationData& WindowCreationData)->EError;
-		void Destroy();
 
 		// Create a texture that will be used in this particular JWGUIWindow.
 		auto CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo)->EError;
 
 		// Add a control instance to this JWGUIWindow.
-		auto AddControl(const EControlType Type, const D3DXVECTOR2 Position, const D3DXVECTOR2 Size,
-			const WSTRING ControlName = L"")->JWControl*;
+		auto AddControl(const EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName = L"")->JWControl*;
 
 		// Get the pointer of the control instance that this JWGUIWindow has.
-		auto GetControlPtr(const WSTRING ControlName)->JWControl*;
+		auto GetControlPtr(const WSTRING& ControlName)->JWControl*;
 
-		void Update(const MSG& Message, const SGUIIMEInputInfo& IMEInfo, const HWND QuitWindowHWND, const HWND ActiveWindowHWND);
-
-		// Must call this function before any draw functions.
-		void BeginRender() const;
-
-		// Draw all the controls that this JWGUIWindow has.
-		void DrawAllControls();
-
-		// Must call this function after all the draw functions.
-		void EndRender();
+		auto GetSharedDataPtr() const->const SGUIWindowSharedData*;
 
 		// Return true if this JWGUIWindow is destroyed.
 		// @warning: when this function returns true, you must call Destroy() method from the outside.
@@ -58,6 +47,28 @@ namespace JWENGINE
 
 		// Kill all the focus.
 		void KillAllFocus();
+
+	protected:
+		// This is called in JWGUI (friend class).
+		auto Create(const SWindowCreationData& WindowCreationData)->EError;
+
+		// This is called in JWGUI (friend class).
+		void Destroy();
+
+		// This is called in JWGUI (friend class).
+		void Update(const MSG& Message, const SGUIIMEInputInfo& IMEInfo, VECTOR<HWND>& hWndQuitStack, const HWND ActiveWindowHWND);
+
+		// This is called in JWGUI (friend class).
+		// Must call this function before any draw functions.
+		void BeginRender() const;
+
+		// This is called in JWGUI (friend class).
+		// Draw all the controls that this JWGUIWindow has.
+		void DrawAllControls();
+
+		// This is called in JWGUI (friend class).
+		// Must call this function after all the draw functions.
+		void EndRender();
 
 	private:
 		void SetFocusOnControl(JWControl* pFocusedControl);

@@ -19,7 +19,7 @@ namespace JWENGINE
 		virtual void Destroy();
 
 		virtual void ClearAllRectangles();
-		virtual void AddRectangle(const D3DXVECTOR2 Size, const D3DXVECTOR2 Position);
+		virtual void AddRectangle(const D3DXVECTOR2& Size, const D3DXVECTOR2& Position);
 
 		virtual void Draw();
 

@@ -76,7 +76,7 @@ PRIVATE auto JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTU
 	return EError::OK;
 }
 
-void JWGUIWindow::Destroy()
+PROTECTED void JWGUIWindow::Destroy()
 {
 	if (m_pControls.size())
 	{
@@ -93,8 +93,7 @@ void JWGUIWindow::Destroy()
 	JW_DESTROY(m_SharedData.pWindow);
 }
 
-auto JWGUIWindow::AddControl(const EControlType Type, const D3DXVECTOR2 Position, const D3DXVECTOR2 Size,
-	const WSTRING ControlName)->JWControl*
+auto JWGUIWindow::AddControl(const EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName)->JWControl*
 {
 	D3DXVECTOR2 adjusted_position = Position;
 	WSTRING automatic_control_name = ControlName;
@@ -184,7 +183,7 @@ auto JWGUIWindow::AddControl(const EControlType Type, const D3DXVECTOR2 Position
 	return m_pControls[m_pControls.size() - 1];
 }
 
-auto JWGUIWindow::GetControlPtr(const WSTRING ControlName)->JWControl*
+auto JWGUIWindow::GetControlPtr(const WSTRING& ControlName)->JWControl*
 {
 	auto found_control = m_ControlsMap.find(ControlName);
 
@@ -198,20 +197,30 @@ auto JWGUIWindow::GetControlPtr(const WSTRING ControlName)->JWControl*
 	}
 }
 
-void JWGUIWindow::Update(const MSG& Message, const SGUIIMEInputInfo& IMEInfo, const HWND QuitWindowHWND, const HWND ActiveWindowHWND)
+auto JWGUIWindow::GetSharedDataPtr() const->const SGUIWindowSharedData*
+{
+	return &m_SharedData;
+}
+
+void JWGUIWindow::Update(const MSG& Message, const SGUIIMEInputInfo& IMEInfo, VECTOR<HWND>& hWndQuitStack, const HWND ActiveWindowHWND)
 {
 	// Update JWWindow's input state.
 	m_SharedData.pWindow->UpdateWindowInputState(Message);
 
-	if (QuitWindowHWND == m_SharedData.pWindow->GethWnd())
+	if (hWndQuitStack.size())
 	{
-		// IF,
-		// win32-api-window is destroyed,
-		// so JWGUIWindow must do!
+		if (hWndQuitStack[hWndQuitStack.size() - 1] == m_SharedData.pWindow->GethWnd())
+		{
+			// IF,
+			// win32-api-window is destroyed,
+			// so JWGUIWindow must do!
 
-		m_bDestroyed = true;
+			m_bDestroyed = true;
 
-		return;
+			hWndQuitStack.pop_back();
+
+			return;
+		}
 	}
 
 	if (ActiveWindowHWND != m_SharedData.pWindow->GethWnd())

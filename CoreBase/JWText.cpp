@@ -146,7 +146,7 @@ void JWText::Destroy()
 	JW_DELETE_ARRAY(m_NonInstantIndexData.Indices);
 }
 
-PRIVATE auto JWText::CreateFontTexture(const WSTRING FileName_FNT)->EError
+PRIVATE auto JWText::CreateFontTexture(const WSTRING& FileName_FNT)->EError
 {
 	if (m_pFontTexture)
 	{
@@ -338,7 +338,7 @@ PRIVATE auto JWText::UpdateIndexBuffer(SIndexData* pIndexData)->EError
 	return EError::NULLPTR_INDEX;
 }
 
-void JWText::SetNonInstantText(WSTRING Text, const D3DXVECTOR2 Position, const D3DXVECTOR2 AreaSize)
+void JWText::SetNonInstantText(WSTRING Text, const D3DXVECTOR2& Position, const D3DXVECTOR2& AreaSize)
 {
 	m_NonInstantText = Text;
 
@@ -423,7 +423,7 @@ void JWText::SetNonInstantInnerText(WSTRING Text)
 	m_NonInstantText = Text;
 }
 
-void JWText::InsertInNonInstantText(const WSTRING String)
+void JWText::InsertInNonInstantText(const WSTRING& String)
 {
 	m_NonInstantText = m_NonInstantText.substr(0, m_CaretSelPosition) + String + m_NonInstantText.substr(m_CaretSelPosition);
 
@@ -638,7 +638,7 @@ void JWText::DrawNonInstantText()
 	m_pDevice->SetTexture(0, nullptr);
 }
 
-void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2 Position, const EHorizontalAlignment HorizontalAlignment, const DWORD FontColor)
+void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2& Position, const EHorizontalAlignment HorizontalAlignment, const DWORD FontColor)
 {
 	// If SingleLineText is null, we don't need to draw it.
 	if (!SingleLineText.length())

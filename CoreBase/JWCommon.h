@@ -83,7 +83,7 @@ namespace JWENGINE
 	static constexpr int MAX_UNIT_COUNT = 100;
 
 	static const wchar_t GUI_TEXTURE_FILENAME[] = L"jwgui_button.png";
-	static const D3DXVECTOR2 GUI_BUTTON_SIZE = D3DXVECTOR2(15.0f, 15.0f);
+	static const D3DXVECTOR2& GUI_BUTTON_SIZE = D3DXVECTOR2(15.0f, 15.0f);
 
 	const wchar_t ASSET_DIR[] = L"\\Asset\\";
 	const wchar_t DEFAULT_FONT[] = L"dotumche12all.fnt";
@@ -296,7 +296,7 @@ namespace JWENGINE
 		Child = WS_CHILD,
 		Minimize = WS_MINIMIZE,
 		Visible = WS_VISIBLE,
-		DIsabled = WS_DISABLED,
+		Disabled = WS_DISABLED,
 		ClipSiblings = WS_CLIPSIBLINGS,
 		ClipChildren = WS_CLIPCHILDREN,
 		Maximize = WS_MAXIMIZE,
@@ -313,12 +313,11 @@ namespace JWENGINE
 		MaximizeBox = WS_MAXIMIZEBOX,
 		OverlappedWindow = WS_OVERLAPPEDWINDOW, // = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
 		PopupWindow = WS_POPUPWINDOW, // = WS_POPUP | WS_BORDER | WS_SYSMENU
-		ChildWindow = WS_CHILDWINDOW, // = WS_CHILD
-		ChildWindow2 = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN,
-		ThickPopup = WS_POPUP | WS_THICKFRAME,
-		BorderPopup = WS_POPUP | WS_BORDER,
+		ChildWindow = WS_CHILDWINDOW,
 		Dialogue = WS_DLGFRAME | WS_SYSMENU,
 	};
+
+	DEFINE_ENUM_FLAG_OPERATORS(EWindowStyle);
 
 	struct SWindowCreationData
 	{

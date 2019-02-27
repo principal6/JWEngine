@@ -14,7 +14,7 @@ JWTextButton::JWTextButton()
 	m_bShouleUseToggleSelection = false;
 }
 
-auto JWTextButton::Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWTextButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
 {
 	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
 		return EError::CONTROL_NOT_CREATED;
@@ -161,7 +161,7 @@ void JWTextButton::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWTextButton::SetPosition(const D3DXVECTOR2 Position)->JWControl*
+auto JWTextButton::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -173,7 +173,7 @@ auto JWTextButton::SetPosition(const D3DXVECTOR2 Position)->JWControl*
 	return this;
 }
 
-auto JWTextButton::SetSize(const D3DXVECTOR2 Size)->JWControl*
+auto JWTextButton::SetSize(const D3DXVECTOR2& Size)->JWControl*
 {
 	JWControl::SetSize(Size);
 

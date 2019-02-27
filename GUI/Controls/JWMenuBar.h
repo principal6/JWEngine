@@ -21,15 +21,15 @@ namespace JWENGINE
 		JWMenuBar();
 		~JWMenuBar() {};
 
-		auto Create(const D3DXVECTOR2 Position, const D3DXVECTOR2 Size, const SGUIWindowSharedData* pSharedData)->EError override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError override;
 		void Destroy() override;
 
-		auto AddMenuBarItem(const WSTRING Text)->THandleItem override;
-		auto AddMenuBarSubItem(const THandleItem hItem, const WSTRING Text)->THandleItem override;
+		auto AddMenuBarItem(const WSTRING& Text)->THandleItem override;
+		auto AddMenuBarSubItem(const THandleItem hItem, const WSTRING& Text)->THandleItem override;
 
 		void Draw() override;
 
-		auto SetSize(const D3DXVECTOR2 Size)->JWControl* override;
+		auto SetSize(const D3DXVECTOR2& Size)->JWControl* override;
 
 		auto OnSubItemClick()->THandleItem override;
 
@@ -51,7 +51,7 @@ namespace JWENGINE
 		static const DWORD DEFAULT_COLOR_BACKGROUND_MENUBAR = DEFAULT_COLOR_NORMAL;
 		static const int DEFAULT_MENUBAR_HEIGHT = 24;
 		static const int DEFAULT_MENUBAR_ITEM_PADDING = 10;
-		static const D3DXVECTOR2 BLANK_SUBITEMBOX_SIZE;
+		static const D3DXVECTOR2& BLANK_SUBITEMBOX_SIZE;
 		static const THandleItem MENU_ITEM_THANDLE_BASE = 10000;
 
 		// This means that the total count of sub items of each item should be less than 100.

@@ -34,8 +34,8 @@ namespace JWENGINE
 		void ClearBuffers();
 		void Destroy();
 
-		void AddLine(const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Length, const DWORD Color);
-		void AddBox(const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Size, const DWORD Color);
+		void AddLine(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Length, const DWORD Color);
+		void AddBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size, const DWORD Color);
 		void AddEnd();
 
 		void UpdateVertexBuffer();
@@ -43,10 +43,10 @@ namespace JWENGINE
 
 		void Draw() const;
 
-		void SetLine(const UINT LineIndex, const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Size);
+		void SetLine(const UINT LineIndex, const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size);
 		void SetLineColor(const UINT LineIndex, const DWORD Color);
 		void SetLineColor(const UINT LineIndex, const DWORD ColorA, const DWORD ColorB);
-		void SetBox(const D3DXVECTOR2 StartPosition, const D3DXVECTOR2 Size);
+		void SetBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size);
 		void SetBoxColor(const DWORD Color);
 		void SetBoxColor(const DWORD ColorA, const DWORD ColorB);
 		void SetEntireAlpha(const BYTE Alpha);

@@ -24,8 +24,8 @@ namespace JWENGINE
 		auto CreateGameWindow(const SWindowCreationData& WindowCreationData)->EError;
 		auto CreateGUIWindow(const SWindowCreationData& WindowCreationData)->EError;
 		void Destroy();
-
-		void SetWindowCaption(const WSTRING Caption);
+		
+		void SetWindowCaption(const WSTRING& Caption);
 		void SetBackgroundColor(const D3DCOLOR color);
 		void Resize(const RECT Rect);
 
