@@ -17,19 +17,19 @@ namespace JWENGINE
 		JWEdit();
 		~JWEdit() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError override;
-		void Destroy() override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		void Destroy() noexcept override;
 
-		void Draw() override;
+		void Draw() noexcept override;
 
-		auto SetPosition(const D3DXVECTOR2& Position)->JWControl* override;
-		auto SetSize(const D3DXVECTOR2& Size)->JWControl* override;
-		auto SetText(const WSTRING& Text)->JWControl* override;
-		auto SetFontColor(const DWORD Color)->JWControl* override;
-		auto SetWatermark(const WSTRING& Text)->JWControl* override;
-		auto SetWatermarkColor(const DWORD Color)->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
+		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
+		auto SetText(const WSTRING& Text) noexcept->JWControl* override;
+		auto SetFontColor(const DWORD Color) noexcept->JWControl* override;
+		auto SetWatermark(const WSTRING& Text) noexcept->JWControl* override;
+		auto SetWatermarkColor(const DWORD Color) noexcept->JWControl* override;
 
-		void Focus() override;
+		void Focus() noexcept override;
 
 		auto ShouldUseMultiline(const bool Value) noexcept->JWControl* override;
 		auto ShouldUseAutomaticLineBreak(const bool Value) noexcept->JWControl* override;
@@ -37,21 +37,21 @@ namespace JWENGINE
 		
 	protected:
 		// Events called in JWGUIWindow (friend class).
-		void WindowMouseDown() override;
-		void WindowMouseMove() override;
-		void WindowKeyDown(const WPARAM VirtualKeyCode) override;
-		void WindowCharKeyInput(const WPARAM Char) override;
-		void WindowIMEInput(const SGUIIMEInputInfo& IMEInfo) override;
+		void WindowMouseDown() noexcept override;
+		void WindowMouseMove() noexcept override;
+		void WindowKeyDown(const WPARAM VirtualKeyCode) noexcept override;
+		void WindowCharKeyInput(const WPARAM Char) noexcept override;
+		void WindowIMEInput(const SGUIIMEInputInfo& IMEInfo) noexcept override;
 
 	private:
-		void InsertCharacter(wchar_t Char);
-		void InsertString(WSTRING String);
-		void EraseCharacter(size_t SelPosition);
-		void EraseSelection();
-		void CopySelection();
-		void PasteFromClipboard();
+		void InsertCharacter(wchar_t Char) noexcept;
+		void InsertString(WSTRING String) noexcept;
+		void EraseCharacter(size_t SelPosition) noexcept;
+		void EraseSelection() noexcept;
+		void CopySelection() noexcept;
+		void PasteFromClipboard() noexcept;
 
-		void UpdatePaddedViewport();
+		void UpdatePaddedViewport() noexcept;
 
 	private:
 		static const DWORD DEFAULT_COLOR_BACKGROUND_EDIT = DEFAULT_COLOR_ALMOST_BLACK;

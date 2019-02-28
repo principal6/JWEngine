@@ -15,8 +15,10 @@ int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	if (JW_SUCCEEDED(g_MyGame.Create(L"Fox", 800, 600)))
+	try
 	{
+		g_MyGame.Create(L"Fox", 800, 600);
+
 		g_MyGame.SetBackgroundTexture(L"colored_talltrees.png");
 
 		g_MyGame.LoadMap(L"map01.jwm");
@@ -50,6 +52,11 @@ int main()
 		g_MyGame.SetKeyboardFunction(Keyboard);
 
 		g_MyGame.Run();
+	}
+	catch (const EError& error)
+	{
+		std::cout << "[ERROR] ERROR CODE (" << static_cast<int>(error) << ")" << std::endl;
+		abort();
 	}
 
 	return 0;

@@ -13,7 +13,7 @@ JWImage::JWImage()
 	m_pIndexBuffer = nullptr;
 	m_pTexture = nullptr;
 
-	ClearVertexAndIndexData();
+	ClearVertexAndIndex();
 
 	m_Size = D3DXVECTOR2(0, 0);
 	m_ScaledSize = D3DXVECTOR2(0, 0);
@@ -30,38 +30,33 @@ JWImage::JWImage()
 	m_bUseStaticTexture = false;
 }
 
-auto JWImage::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError
+void JWImage::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)
 {
 	if (pJWWindow == nullptr)
-		return EError::NULLPTR_WINDOW;
+	{
+		throw EError::NULLPTR_WINDOW;
+	}
 
 	m_pJWWindow = pJWWindow;
 	m_pDevice = pJWWindow->GetDevice();
 	m_pBaseDir = pBaseDir;
 
-	ClearVertexAndIndexData();
+	ClearVertexAndIndex();
+
 	CreateVertexBuffer();
 	CreateIndexBuffer();
 	UpdateVertexBuffer();
 	UpdateIndexBuffer();
 
-	if (SUCCEEDED(m_BoundingBoxLine.Create(m_pDevice)))
-	{
-		m_BoundingBoxLine.AddBox(D3DXVECTOR2(0, 0), D3DXVECTOR2(10, 10), m_BoundingBoxColor);
-		m_BoundingBoxLine.AddEnd();
-
-		return EError::OK;
-	}
-	
-	return EError::IMAGE_NOT_CREATED;
+	m_BoundingBoxLine.Create(m_pDevice);
+	m_BoundingBoxLine.AddBox(D3DXVECTOR2(0, 0), D3DXVECTOR2(10, 10), m_BoundingBoxColor);
+	m_BoundingBoxLine.AddEnd();
 }
 
-void JWImage::Destroy()
+void JWImage::Destroy() noexcept
 {
 	m_pJWWindow = nullptr;
 	m_pDevice = nullptr; // Just set to nullptr cuz it's newed in <JWWindow> class
-
-	ClearVertexAndIndexData();
 
 	m_BoundingBoxLine.Destroy();
 
@@ -73,7 +68,7 @@ void JWImage::Destroy()
 	JW_RELEASE(m_pVertexBuffer);
 }
 
-PROTECTED void JWImage::ClearVertexAndIndexData()
+PROTECTED void JWImage::ClearVertexAndIndex() noexcept
 {
 	m_Vertices.clear();
 	m_Indices.clear();
@@ -89,10 +84,10 @@ PROTECTED void JWImage::CreateVertexBuffer()
 		m_Vertices.push_back(SVertexImage(m_Position.x + m_Size.x, m_Position.y + m_Size.y, 1.0f, 1.0f));
 	}
 
-	int rVertSize = sizeof(SVertexImage) * static_cast<int>(m_Vertices.size());
-	if (FAILED(m_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
+	int vertex_size = sizeof(SVertexImage) * static_cast<int>(m_Vertices.size());
+	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 	{
-		return;
+		throw EError::VERTEX_BUFFER_NOT_CREATED;
 	}
 }
 
@@ -104,10 +99,10 @@ PROTECTED void JWImage::CreateIndexBuffer()
 		m_Indices.push_back(SIndex3(0, 3, 2));
 	}
 
-	int rIndSize = sizeof(SIndex3) * static_cast<int>(m_Indices.size());
-	if (FAILED(m_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
+	int index_size = sizeof(SIndex3) * static_cast<int>(m_Indices.size());
+	if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 	{
-		return;
+		throw EError::INDEX_BUFFER_NOT_CREATED;
 	}
 }
 
@@ -115,13 +110,13 @@ PROTECTED void JWImage::UpdateVertexBuffer()
 {
 	if (m_Vertices.size())
 	{
-		int rVertSize = sizeof(SVertexImage) * static_cast<int>(m_Vertices.size());
+		int vertex_size = sizeof(SVertexImage) * static_cast<int>(m_Vertices.size());
 		VOID* pVertices;
-		if (FAILED(m_pVertexBuffer->Lock(0, rVertSize, (void**)&pVertices, 0)))
+		if (FAILED(m_pVertexBuffer->Lock(0, vertex_size, (void**)&pVertices, 0)))
 		{
-			return;
+			throw EError::VERTEX_BUFFER_NOT_LOCKED;
 		}
-		memcpy(pVertices, &m_Vertices[0], rVertSize);
+		memcpy(pVertices, &m_Vertices[0], vertex_size);
 		m_pVertexBuffer->Unlock();
 	}
 }
@@ -130,18 +125,18 @@ PROTECTED void JWImage::UpdateIndexBuffer()
 {
 	if (m_Indices.size())
 	{
-		int rIndSize = sizeof(SIndex3) * static_cast<int>(m_Indices.size());
+		int index_size = sizeof(SIndex3) * static_cast<int>(m_Indices.size());
 		VOID* pIndices;
-		if (FAILED(m_pIndexBuffer->Lock(0, rIndSize, (void **)&pIndices, 0)))
+		if (FAILED(m_pIndexBuffer->Lock(0, index_size, (void **)&pIndices, 0)))
 		{
-			return;
+			throw EError::INDEX_BUFFER_NOT_LOCKED;
 		}
-		memcpy(pIndices, &m_Indices[0], rIndSize);
+		memcpy(pIndices, &m_Indices[0], index_size);
 		m_pIndexBuffer->Unlock();
 	}
 }
 
-void JWImage::Draw()
+void JWImage::Draw() noexcept
 {
 	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
 	m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -170,13 +165,13 @@ void JWImage::Draw()
 	m_pDevice->SetTexture(0, nullptr);
 }
 
-void JWImage::DrawBoundingBox()
+void JWImage::DrawBoundingBox() noexcept
 {
 	m_BoundingBoxLine.SetBox(m_Position + m_BoundingBox.PositionOffset, m_BoundingBox.Size);
 	m_BoundingBoxLine.Draw();
 }
 
-void JWImage::FlipHorizontal()
+void JWImage::FlipHorizontal() noexcept
 {
 	float tempu1 = m_Vertices[0].u;
 
@@ -188,7 +183,7 @@ void JWImage::FlipHorizontal()
 	UpdateVertexBuffer();
 }
 
-void JWImage::FlipVertical()
+void JWImage::FlipVertical() noexcept
 {
 	float tempv1 = m_Vertices[0].v;
 
@@ -200,14 +195,14 @@ void JWImage::FlipVertical()
 	UpdateVertexBuffer();
 }
 
-void JWImage::SetPosition(const D3DXVECTOR2& Position)
+void JWImage::SetPosition(const D3DXVECTOR2& Position) noexcept
 {
 	m_Position = Position;
 
 	UpdateVertexData();
 }
 
-void JWImage::SetPositionCentered(const D3DXVECTOR2& Position)
+void JWImage::SetPositionCentered(const D3DXVECTOR2& Position) noexcept
 {
 	m_Position = D3DXVECTOR2(Position.x - (static_cast<float>(m_ScaledSize.x) / 2.0f),
 		Position.y - (static_cast<float>(m_ScaledSize.y) / 2.0f));
@@ -215,7 +210,7 @@ void JWImage::SetPositionCentered(const D3DXVECTOR2& Position)
 	UpdateVertexData();
 }
 
-void JWImage::SetSize(const D3DXVECTOR2& Size)
+void JWImage::SetSize(const D3DXVECTOR2& Size) noexcept
 {
 	m_Size = Size;
 
@@ -229,11 +224,7 @@ void JWImage::SetSize(const D3DXVECTOR2& Size)
 
 void JWImage::SetTexture(const WSTRING& FileName)
 {
-	if (m_pTexture)
-	{
-		m_pTexture->Release();
-		m_pTexture = nullptr;
-	}
+	JW_RELEASE(m_pTexture);
 
 	WSTRING NewFileName;
 	NewFileName = *m_pBaseDir;
@@ -243,7 +234,9 @@ void JWImage::SetTexture(const WSTRING& FileName)
 	D3DXIMAGE_INFO tImageInfo;
 	if (FAILED(D3DXCreateTextureFromFileEx(m_pDevice, NewFileName.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
 		D3DX_DEFAULT, D3DX_DEFAULT, 0, &tImageInfo, nullptr, &m_pTexture)))
-		return;
+	{
+		throw EError::TEXTURE_NOT_CREATED;
+	}
 
 	m_Size.x = static_cast<float>(tImageInfo.Width);
 	m_Size.y = static_cast<float>(tImageInfo.Height);
@@ -257,7 +250,7 @@ void JWImage::SetTexture(const WSTRING& FileName)
 	UpdateVertexData();
 }
 
-void JWImage::SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo)
+void JWImage::SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo) noexcept
 {
 	m_bUseStaticTexture = true;
 
@@ -284,7 +277,7 @@ void JWImage::SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO
 	UpdateVertexData();
 }
 
-auto JWImage::SetColor(const DWORD Color)->JWImage*
+auto JWImage::SetColor(const DWORD Color) noexcept->JWImage*
 {
 	if (m_Vertices.size())
 	{
@@ -298,7 +291,7 @@ auto JWImage::SetColor(const DWORD Color)->JWImage*
 	return this;
 }
 
-auto JWImage::SetAlpha(const BYTE Alpha)->JWImage*
+auto JWImage::SetAlpha(const BYTE Alpha) noexcept->JWImage*
 {
 	if (m_Vertices.size())
 	{
@@ -312,7 +305,7 @@ auto JWImage::SetAlpha(const BYTE Alpha)->JWImage*
 	return this;
 }
 
-auto JWImage::SetXRGB(const DWORD XRGB)->JWImage*
+auto JWImage::SetXRGB(const DWORD XRGB) noexcept->JWImage*
 {
 	if(m_Vertices.size())
 	{
@@ -326,7 +319,7 @@ auto JWImage::SetXRGB(const DWORD XRGB)->JWImage*
 	return this;
 }
 
-auto JWImage::SetScale(const D3DXVECTOR2& Scale)->JWImage*
+auto JWImage::SetScale(const D3DXVECTOR2& Scale) noexcept->JWImage*
 {
 	m_Scale = Scale;
 
@@ -340,7 +333,7 @@ auto JWImage::SetScale(const D3DXVECTOR2& Scale)->JWImage*
 	return this;
 }
 
-auto JWImage::SetVisibleRange(const D3DXVECTOR2& Range)->JWImage*
+auto JWImage::SetVisibleRange(const D3DXVECTOR2& Range) noexcept->JWImage*
 {
 	m_VisibleRange = Range;
 
@@ -349,12 +342,14 @@ auto JWImage::SetVisibleRange(const D3DXVECTOR2& Range)->JWImage*
 	return this;
 }
 
-auto JWImage::SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size, bool bSetSize)->JWImage*
+auto JWImage::SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size, bool bSetSize) noexcept->JWImage*
 {
 	if (m_Vertices.size())
 	{
 		if (bSetSize)
+		{
 			SetSize(Size);
+		}
 
 		m_OffsetInAtlas = OffsetInAtlas;
 
@@ -370,7 +365,7 @@ auto JWImage::SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Si
 	return this;
 }
 
-auto JWImage::SetUVRange(const STextureUV UV)->JWImage*
+auto JWImage::SetUVRange(const STextureUV UV) noexcept->JWImage*
 {
 	if (m_Vertices.size())
 	{
@@ -380,7 +375,7 @@ auto JWImage::SetUVRange(const STextureUV UV)->JWImage*
 	return this;
 }
 
-auto JWImage::SetBoundingBox(const D3DXVECTOR2& ExtraSize)->JWImage*
+auto JWImage::SetBoundingBox(const D3DXVECTOR2& ExtraSize) noexcept->JWImage*
 {
 	m_BoundingBoxExtraSize = ExtraSize;
 
@@ -393,29 +388,35 @@ auto JWImage::SetBoundingBox(const D3DXVECTOR2& ExtraSize)->JWImage*
 	return this;
 }
 
-auto JWImage::SetBoundingBoxAlpha(const BYTE Alpha)->JWImage*
+auto JWImage::SetBoundingBoxAlpha(const BYTE Alpha) noexcept->JWImage*
 {
 	SetColorAlpha(&m_BoundingBoxColor, Alpha);
 	m_BoundingBoxLine.SetEntireAlpha(Alpha);
+
 	return this;
 }
 
-auto JWImage::SetBoundingBoxXRGB(const DWORD XRGB)->JWImage*
+auto JWImage::SetBoundingBoxXRGB(const DWORD XRGB) noexcept->JWImage*
 {
 	SetColorXRGB(&m_BoundingBoxColor, XRGB);
 	m_BoundingBoxLine.SetEntireXRGB(XRGB);
+
 	return this;
 }
 
-PROTECTED void JWImage::UpdateVertexData()
+PROTECTED void JWImage::UpdateVertexData() noexcept
 {
 	if (m_Vertices.size() < 4)
+	{
 		return;
+	}
 
 	D3DXVECTOR2 tempSize = m_Size;
 
 	if ((m_VisibleRange.x != VISIBLE_RANGE_NOT_SET) && (m_VisibleRange.y != VISIBLE_RANGE_NOT_SET))
+	{
 		tempSize = m_VisibleRange;
+	}
 
 	m_Vertices[0].x = m_Position.x;
 	m_Vertices[0].y = m_Position.y;
@@ -429,10 +430,12 @@ PROTECTED void JWImage::UpdateVertexData()
 	UpdateVertexBuffer();
 }
 
-PROTECTED void JWImage::UpdateVertexData(const STextureUV& UV)
+PROTECTED void JWImage::UpdateVertexData(const STextureUV& UV) noexcept
 {
 	if (m_Vertices.size() < 4)
+	{
 		return;
+	}
 
 	m_Vertices[0].u = UV.u1;
 	m_Vertices[0].v = UV.v1;
@@ -446,22 +449,22 @@ PROTECTED void JWImage::UpdateVertexData(const STextureUV& UV)
 	UpdateVertexBuffer();
 }
 
-auto JWImage::GetSize() const->const D3DXVECTOR2
+auto JWImage::GetSize() const noexcept->const D3DXVECTOR2&
 {
 	return m_Size;
 }
 
-auto JWImage::GetScaledSize() const->const D3DXVECTOR2
+auto JWImage::GetScaledSize() const noexcept->const D3DXVECTOR2&
 {
 	return m_ScaledSize;
 }
 
-auto JWImage::GetPosition() const->const D3DXVECTOR2
+auto JWImage::GetPosition() const noexcept->const D3DXVECTOR2&
 {
 	return m_Position;
 }
 
-auto JWImage::GetCenterPosition() const->const D3DXVECTOR2
+auto JWImage::GetCenterPosition() const noexcept->const D3DXVECTOR2
 {
 	D3DXVECTOR2 Result = m_Position;
 	Result.x += m_ScaledSize.x / 2.0f;
@@ -470,7 +473,7 @@ auto JWImage::GetCenterPosition() const->const D3DXVECTOR2
 	return Result;
 }
 
-auto JWImage::GetBoundingBox() const->const SBoundingBox
+auto JWImage::GetBoundingBox() const noexcept->const SBoundingBox
 {
 	SBoundingBox Result;
 	Result.PositionOffset = m_Position + m_BoundingBox.PositionOffset;
@@ -479,9 +482,10 @@ auto JWImage::GetBoundingBox() const->const SBoundingBox
 	return Result;
 }
 
-auto JWImage::IsTextureLoaded() const->const bool
+auto JWImage::IsTextureLoaded() const noexcept->const bool
 {
 	if (m_pTexture)
 		return true;
+
 	return false;
 }

@@ -9,27 +9,20 @@ JWFrame::JWFrame()
 	m_pBackground = nullptr;
 }
 
-auto JWFrame::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWFrame::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
 {
-	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
-	{
-		return EError::CONTROL_NOT_CREATED;
-	}
-
+	JWControl::Create(Position, Size, pSharedData);
+	
 	// Create a JWImageBox for background.
 	if (m_pBackground = new JWImageBox)
 	{
 		m_pBackground->ShouldBeOffsetByMenuBar(false);
 
-		if (JW_FAILED(m_pBackground->Create(Position, Size, pSharedData)))
-			return EError::IMAGE_NOT_CREATED;
-
-		m_pBackground->SetPosition(Position);
-		m_pBackground->SetSize(Size);
+		m_pBackground->Create(Position, Size, pSharedData);
 	}
 	else
 	{
-		return EError::ALLOCATION_FAILURE;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Set control type.
@@ -39,17 +32,17 @@ auto JWFrame::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const
 	SetPosition(Position);
 	SetSize(Size);
 
-	return EError::OK;
+	return this;
 }
 
-void JWFrame::Destroy()
+void JWFrame::Destroy() noexcept
 {
 	JWControl::Destroy();
 
 	JW_DESTROY(m_pBackground);
 }
 
-auto JWFrame::AddChildControl(JWControl* pChildControl)->JWControl*
+auto JWFrame::AddChildControl(JWControl* pChildControl) noexcept->JWControl*
 {
 	if (m_pChildControls.size())
 	{
@@ -72,7 +65,7 @@ auto JWFrame::AddChildControl(JWControl* pChildControl)->JWControl*
 	return this;
 }
 
-void JWFrame::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
+void JWFrame::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept
 {
 	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 
@@ -92,7 +85,7 @@ void JWFrame::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppC
 	JWControl::UpdateControlState(ppControlWithMouse, ppControlWithFocus);
 }
 
-void JWFrame::Draw()
+void JWFrame::Draw() noexcept
 {
 	JWControl::BeginDrawing();
 
@@ -129,7 +122,7 @@ void JWFrame::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWFrame::SetPosition(const D3DXVECTOR2& Position)->JWControl*
+auto JWFrame::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -151,7 +144,7 @@ auto JWFrame::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 	return this;
 }
 
-auto JWFrame::SetSize(const D3DXVECTOR2& Size)->JWControl*
+auto JWFrame::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 {
 	JWControl::SetSize(Size);
 

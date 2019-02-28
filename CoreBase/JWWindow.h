@@ -21,50 +21,49 @@ namespace JWENGINE
 		JWWindow();
 		~JWWindow() {};
 
-		auto CreateGameWindow(const SWindowCreationData& WindowCreationData)->EError;
-		auto CreateGUIWindow(const SWindowCreationData& WindowCreationData)->EError;
-		void Destroy();
+		void CreateGameWindow(const SWindowCreationData& WindowCreationData);
+		void CreateGUIWindow(const SWindowCreationData& WindowCreationData);
+		void Destroy() noexcept;
 		
-		void SetWindowCaption(const WSTRING& Caption);
-		void SetBackgroundColor(const D3DCOLOR color);
-		void Resize(const RECT Rect);
+		void SetWindowCaption(const WSTRING& Caption) noexcept;
+		void SetBackgroundColor(const D3DCOLOR color) noexcept;
+		void Resize(const RECT Rect) noexcept;
 
 		// 1) Clear()
 		// 2) BeginScene()
-		void BeginRender() const;
+		void BeginRender() const noexcept;
 
 		// 1) EndScene()
 		// 2) Present().
 		// 3) Check if the device is lost, and if it is, reset it.
-		void EndRender();
+		void EndRender() noexcept;
 
-		auto GetDevice() const->const LPDIRECT3DDEVICE9;
-		auto GethWnd() const->const HWND;
-		auto GethInstance() const->const HINSTANCE;
-		auto GetWindowData() const->const SWindowData*;
-		auto GetRenderRect() const->const RECT;
+		auto GetDevice() const noexcept->const LPDIRECT3DDEVICE9;
+		auto GethWnd() const noexcept->const HWND;
+		auto GethInstance() const noexcept->const HINSTANCE;
+		auto GetWindowData() const noexcept->const SWindowData*;
+		auto GetRenderRect() const noexcept->const RECT;
 
-		// Input
-		void UpdateWindowInputState(const MSG& Message);
-		auto GetWindowInputStatePtr() const->const SWindowInputState*;
+		// InputState
+		void UpdateWindowInputState(const MSG& Message) noexcept;
+		auto GetWindowInputStatePtr() const noexcept->const SWindowInputState*;
 
 		// Dialog
-		void SetDlgBase();
-		auto OpenFileDlg(LPCWSTR Filter)->BOOL;
-		auto SaveFileDlg(LPCWSTR Filter)->BOOL;
-		auto GetDlgFileName() const->const WSTRING;
-		auto GetDlgFileTitle() const->const WSTRING;
+		void SetDlgBase() noexcept;
+		auto OpenFileDlg(LPCWSTR Filter) noexcept->BOOL;
+		auto SaveFileDlg(LPCWSTR Filter) noexcept->BOOL;
+		auto GetDlgFileName() const noexcept->const WSTRING;
+		auto GetDlgFileTitle() const noexcept->const WSTRING;
 
 	private:
 		friend LRESULT CALLBACK BaseWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
 		auto CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Caption, CINT X, CINT Y, CINT Width, CINT Height,
 			EWindowStyle WindowStyle, DWORD BackColor, WNDPROC Proc, LPCWSTR MenuName = nullptr, HWND hWndParent = nullptr)->HWND;
-		auto InitializeDirectX()->EError;
-		void SetDirect3DParameters();
-		void UpdateRenderRect();
-
-		void SetWindowData(CINT Width, CINT Height);
+		void SetWindowData(CINT Width, CINT Height) noexcept;
+		void InitializeDirectX();
+		void SetDirect3DParameters() noexcept;
+		void UpdateRenderRect() noexcept;
 
 	private:
 		HINSTANCE m_hInstance;

@@ -18,35 +18,26 @@ JWImageBox::JWImageBox()
 	m_Color_Pressed = DEFAULT_COLOR_NORMAL;
 }
 
-auto JWImageBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWImageBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
 {
-	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
-	{
-		return EError::CONTROL_NOT_CREATED;
-	}
+	JWControl::Create(Position, Size, pSharedData);
 	
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
-		{
-			return EError::IMAGE_NOT_CREATED;
-		}
+		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
 	}
 	else
 	{
-		return EError::ALLOCATION_FAILURE;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	if (m_pImage = new JWImage)
 	{
-		if (JW_FAILED(m_pImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
-		{
-			return EError::IMAGE_NOT_CREATED;
-		}
+		m_pImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
 	}
 	else
 	{
-		return EError::ALLOCATION_FAILURE;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Set default alignment
@@ -59,10 +50,10 @@ auto JWImageBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, co
 	SetPosition(Position);
 	SetSize(Size);
 
-	return EError::OK;
+	return this;
 }
 
-void JWImageBox::Destroy()
+void JWImageBox::Destroy() noexcept
 {
 	JWControl::Destroy();
 
@@ -70,7 +61,7 @@ void JWImageBox::Destroy()
 	JW_DESTROY(m_pImage);
 }
 
-void JWImageBox::Draw()
+void JWImageBox::Draw() noexcept
 {
 	JWControl::BeginDrawing();
 
@@ -100,7 +91,7 @@ void JWImageBox::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWImageBox::SetPosition(const D3DXVECTOR2& Position)->JWControl*
+auto JWImageBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -110,7 +101,7 @@ auto JWImageBox::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 	return this;
 }
 
-auto JWImageBox::SetSize(const D3DXVECTOR2& Size)->JWControl*
+auto JWImageBox::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 {
 	JWControl::SetSize(Size);
 
@@ -122,21 +113,21 @@ auto JWImageBox::SetSize(const D3DXVECTOR2& Size)->JWControl*
 	return this;
 }
 
-auto JWImageBox::SetTextureAtlas(const LPDIRECT3DTEXTURE9 pTextureAtlas, const D3DXIMAGE_INFO* pTextureAtlasInfo)->JWControl*
+auto JWImageBox::SetTextureAtlas(const LPDIRECT3DTEXTURE9 pTextureAtlas, const D3DXIMAGE_INFO* pTextureAtlasInfo) noexcept->JWControl*
 {
 	m_pImage->SetTexture(pTextureAtlas, pTextureAtlasInfo);
 
 	return this;
 }
 
-auto JWImageBox::SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size)->JWControl*
+auto JWImageBox::SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size) noexcept->JWControl*
 {
 	m_pImage->SetAtlasUV(OffsetInAtlas, Size);
 
 	return this;
 }
 
-auto JWImageBox::SetBackgroundColor(DWORD Color)->JWControl*
+auto JWImageBox::SetBackgroundColor(DWORD Color) noexcept->JWControl*
 {
 	JWControl::SetBackgroundColor(Color);
 

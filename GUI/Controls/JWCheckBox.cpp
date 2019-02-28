@@ -18,40 +18,31 @@ JWCheckBox::JWCheckBox()
 	m_bChecked = false;
 }
 
-auto JWCheckBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWCheckBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
 {
-	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
-	{
-		return EError::CONTROL_NOT_CREATED;
-	}
+	JWControl::Create(Position, Size, pSharedData);
 
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
-		{
-			return EError::IMAGE_NOT_CREATED;
-		}
+		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
 		m_pBackground->SetColor(DEFAULT_COLOR_ALMOST_WHITE);
 		m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 	}
 	else
 	{
-		return EError::IMAGE_NOT_CREATED;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	if (m_pCheckImage = new JWImage)
 	{
-		if (JW_FAILED(m_pCheckImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
-		{
-			return EError::IMAGE_NOT_CREATED;
-		}
+		m_pCheckImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
 		m_pCheckImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 		m_pCheckImage->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
 		m_pCheckImage->SetAtlasUV(D3DXVECTOR2(0, GUI_BUTTON_SIZE.y * 2), GUI_BUTTON_SIZE);
 	}
 	else
 	{
-		return EError::IMAGE_NOT_CREATED;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Set default alignment
@@ -64,10 +55,10 @@ auto JWCheckBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, co
 	SetPosition(Position);
 	SetSize(Size);
 
-	return EError::OK;
+	return this;
 }
 
-void JWCheckBox::Destroy()
+void JWCheckBox::Destroy() noexcept
 {
 	JWControl::Destroy();
 
@@ -75,7 +66,7 @@ void JWCheckBox::Destroy()
 	JW_DESTROY(m_pCheckImage);
 }
 
-void JWCheckBox::Draw()
+void JWCheckBox::Draw() noexcept
 {
 	JWControl::BeginDrawing();
 
@@ -106,7 +97,7 @@ void JWCheckBox::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWCheckBox::SetPosition(const D3DXVECTOR2& Position)->JWControl*
+auto JWCheckBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 	
@@ -116,7 +107,7 @@ auto JWCheckBox::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 	return this;
 }
 
-auto JWCheckBox::SetSize(const D3DXVECTOR2& Size)->JWControl*
+auto JWCheckBox::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 {
 	D3DXVECTOR2 adjusted_size = Size;
 
@@ -134,14 +125,14 @@ auto JWCheckBox::SetSize(const D3DXVECTOR2& Size)->JWControl*
 	return this;
 }
 
-auto JWCheckBox::SetCheckState(const bool Value)->JWControl*
+auto JWCheckBox::SetCheckState(const bool Value) noexcept->JWControl*
 {
 	m_bChecked = Value;
 
 	return this;
 }
 
-auto JWCheckBox::GetCheckState() const->const bool
+auto JWCheckBox::GetCheckState() const noexcept->const bool
 {
 	return m_bChecked;
 }

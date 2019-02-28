@@ -32,7 +32,7 @@ namespace JWENGINE
 		~JWGUIWindow() {};
 
 		// Create a texture that will be used in this particular JWGUIWindow.
-		auto CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo)->EError;
+		void CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo);
 
 		// Add a control instance to this JWGUIWindow.
 		auto AddControl(const EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName = L"")->JWControl*;
@@ -40,43 +40,43 @@ namespace JWENGINE
 		// Get the pointer of the control instance that this JWGUIWindow has.
 		auto GetControlPtr(const WSTRING& ControlName)->JWControl*;
 
-		auto GetSharedDataPtr() const->const SGUIWindowSharedData*;
+		auto GetSharedDataPtr() const noexcept->const SGUIWindowSharedData*;
 
 		// Return true if this JWGUIWindow is destroyed.
 		// @warning: when this function returns true, you must call Destroy() method from the outside.
-		auto IsDestroyed() const->const bool;
+		auto IsDestroyed() const noexcept->const bool;
 
-		auto HasMenuBar() const->const bool;
+		auto HasMenuBar() const noexcept->const bool;
 
-		auto GetMenuBarHeight() const->const float;
+		auto GetMenuBarHeight() const noexcept->const float;
 
 		// Kill all the focus.
-		void KillAllFocus();
+		void KillAllFocus() noexcept;
 
 	protected:
 		// This is called in JWGUI (friend class).
-		auto Create(const SWindowCreationData& WindowCreationData)->EError;
+		void Create(const SWindowCreationData& WindowCreationData);
 
 		// This is called in JWGUI (friend class).
-		void Destroy();
+		void Destroy() noexcept;
 
 		// This is called in JWGUI (friend class).
-		void Update(const MSG& Message, const SGUIIMEInputInfo& IMEInfo, VECTOR<HWND>& hWndQuitStack, const HWND ActiveWindowHWND);
+		void Update(const MSG& Message, const SGUIIMEInputInfo& IMEInfo, VECTOR<HWND>& hWndQuitStack, const HWND ActiveWindowHWND) noexcept;
 
 		// This is called in JWGUI (friend class).
 		// Must call this function before any draw functions.
-		void BeginRender() const;
+		void BeginRender() const noexcept;
 
 		// This is called in JWGUI (friend class).
 		// Draw all the controls that this JWGUIWindow has.
-		void DrawAllControls();
+		void DrawAllControls() noexcept;
 
 		// This is called in JWGUI (friend class).
 		// Must call this function after all the draw functions.
-		void EndRender();
+		void EndRender() noexcept;
 
 	private:
-		void SetFocusOnControl(JWControl* pFocusedControl);
+		void SetFocusOnControl(JWControl* pFocusedControl) noexcept;
 
 	private:
 		SGUIWindowSharedData m_SharedData;

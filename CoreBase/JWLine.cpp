@@ -2,71 +2,61 @@
 
 using namespace JWENGINE;
 
-auto JWLine::Create(const LPDIRECT3DDEVICE9 pDevice)->EError
+JWLine::JWLine()
 {
-	if (nullptr == (m_pDevice = pDevice))
-		return EError::NULLPTR_DEVICE;
+	m_pDevice = nullptr;
 
 	m_pVB = nullptr;
 	m_pIB = nullptr;
-
-	return EError::OK;
 }
 
-auto JWLine::CreateMax(const LPDIRECT3DDEVICE9 pDevice)->EError
+void JWLine::Create(const LPDIRECT3DDEVICE9 pDevice)
+{
+	if (nullptr == (m_pDevice = pDevice))
+	{
+		throw EError::NULLPTR_DEVICE;
+	}
+}
+
+void JWLine::CreateMax(const LPDIRECT3DDEVICE9 pDevice) noexcept
 {
 	Create(pDevice);
 
 	CreateVertexBufferMax();
 	CreateIndexBufferMax();
-
-	return EError::OK;
 }
 
 PRIVATE void JWLine::CreateVertexBufferMax()
 {
-	if (m_pVB)
-	{
-		m_pVB->Release();
-		m_pVB = nullptr;
-	}
+	JW_RELEASE(m_pVB);
 
-	int rVertSize = sizeof(SVertexLine) * MAX_UNIT_COUNT * 8;
-	if (FAILED(m_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
-		return;
+	int vertex_size = sizeof(SVertexLine) * MAX_UNIT_COUNT * 8;
+	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
+	{
+		throw EError::VERTEX_BUFFER_NOT_CREATED;
+	}
 }
 
 PRIVATE void JWLine::CreateIndexBufferMax()
 {
-	if (m_pIB)
+	JW_RELEASE(m_pIB);
+
+	int index_size = sizeof(SIndex2) * MAX_UNIT_COUNT * 4;
+	if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
 	{
-		m_pIB->Release();
-		m_pIB = nullptr;
+		throw EError::INDEX_BUFFER_NOT_CREATED;
 	}
-
-	int rIndSize = sizeof(SIndex2) * MAX_UNIT_COUNT * 4;
-	if (FAILED(m_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
-		return;
 }
 
-void JWLine::ClearBuffers()
-{
-	m_Vertices.clear();
-	m_Indices.clear();
-}
-
-void JWLine::Destroy()
+void JWLine::Destroy() noexcept
 {
 	m_pDevice = nullptr; // Just set to nullptr, becuase it's newed in <JWWindow> class
-
-	m_Vertices.clear();
-	m_Indices.clear();
 
 	JW_RELEASE(m_pIB);
 	JW_RELEASE(m_pVB);
 }
 
-void JWLine::AddLine(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Length, const DWORD Color)
+void JWLine::AddLine(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Length, const DWORD Color) noexcept
 {
 	m_Vertices.push_back(SVertexLine(StartPosition.x, StartPosition.y, Color));
 	m_Vertices.push_back(SVertexLine(StartPosition.x + Length.x, StartPosition.y + Length.y, Color));
@@ -75,7 +65,7 @@ void JWLine::AddLine(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Length
 	m_Indices.push_back(SIndex2(tIndicesCount * 2, tIndicesCount * 2 + 1));
 }
 
-void JWLine::AddBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size, const DWORD Color)
+void JWLine::AddBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size, const DWORD Color) noexcept
 {
 	AddLine(StartPosition, D3DXVECTOR2(Size.x, 0), Color); // Top
 	AddLine(StartPosition, D3DXVECTOR2(0, Size.y), Color); // Left
@@ -83,7 +73,7 @@ void JWLine::AddBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size, c
 	AddLine(D3DXVECTOR2(StartPosition.x, StartPosition.y + Size.y), D3DXVECTOR2(Size.x, 0), Color); // Bottom
 }
 
-void JWLine::AddEnd()
+void JWLine::AddEnd() noexcept
 {
 	CreateVertexBuffer();
 	CreateIndexBuffer();
@@ -93,57 +83,65 @@ void JWLine::AddEnd()
 
 PRIVATE void JWLine::CreateVertexBuffer()
 {
-	if (m_pVB)
+	if (!m_pVB)
 	{
-		m_pVB->Release();
-		m_pVB = nullptr;
+		int vertex_size = sizeof(SVertexLine) * static_cast<int>(m_Vertices.size());
+		if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
+		{
+			throw EError::VERTEX_BUFFER_NOT_CREATED;
+		}
 	}
-
-	int rVertSize = sizeof(SVertexLine) * static_cast<int>(m_Vertices.size());
-	if (FAILED(m_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
-		return;
 }
 
 PRIVATE void JWLine::CreateIndexBuffer()
 {
-	if (m_pIB)
+	if (!m_pIB)
 	{
-		m_pIB->Release();
-		m_pIB = nullptr;
+		int index_size = sizeof(SIndex2) * static_cast<int>(m_Indices.size());
+		if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
+		{
+			throw EError::INDEX_BUFFER_NOT_CREATED;
+		}
 	}
-
-	int rIndSize = sizeof(SIndex2) * static_cast<int>(m_Indices.size());
-	if (FAILED(m_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
-		return;
 }
 
-void JWLine::UpdateVertexBuffer()
+void JWLine::ClearVertexAndIndex() noexcept
 {
-	if (m_Vertices.size() > 0)
+	m_Vertices.clear();
+	m_Indices.clear();
+}
+
+PRIVATE void JWLine::UpdateVertexBuffer()
+{
+	if (m_Vertices.size())
 	{
-		int rVertSize = sizeof(SVertexLine) * static_cast<int>(m_Vertices.size());
+		int vertex_size = sizeof(SVertexLine) * static_cast<int>(m_Vertices.size());
 		VOID* pVertices;
-		if (FAILED(m_pVB->Lock(0, rVertSize, (void**)&pVertices, 0)))
-			return;
-		memcpy(pVertices, &m_Vertices[0], rVertSize);
+		if (FAILED(m_pVB->Lock(0, vertex_size, (void**)&pVertices, 0)))
+		{
+			throw EError::VERTEX_BUFFER_NOT_LOCKED;
+		}
+		memcpy(pVertices, &m_Vertices[0], vertex_size);
 		m_pVB->Unlock();
 	}
 }
 
-void JWLine::UpdateIndexBuffer()
+PRIVATE void JWLine::UpdateIndexBuffer()
 {
-	if (m_Indices.size() > 0)
+	if (m_Indices.size())
 	{
-		int rIndSize = sizeof(SIndex2) * static_cast<int>(m_Indices.size());
+		int index_size = sizeof(SIndex2) * static_cast<int>(m_Indices.size());
 		VOID* pIndices;
-		if (FAILED(m_pIB->Lock(0, rIndSize, (void **)&pIndices, 0)))
-			return;
-		memcpy(pIndices, &m_Indices[0], rIndSize);
+		if (FAILED(m_pIB->Lock(0, index_size, (void **)&pIndices, 0)))
+		{
+			throw EError::INDEX_BUFFER_NOT_LOCKED;
+		}
+		memcpy(pIndices, &m_Indices[0], index_size);
 		m_pIB->Unlock();
 	}
 }
 
-void JWLine::Draw() const
+void JWLine::Draw() const noexcept
 {
 	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 	m_pDevice->SetTexture(0, nullptr);
@@ -154,7 +152,7 @@ void JWLine::Draw() const
 	m_pDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 0, 0, static_cast<int>(m_Vertices.size()), 0, static_cast<int>(m_Indices.size()));
 }
 
-void JWLine::SetLine(const UINT LineIndex, const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size)
+void JWLine::SetLine(const UINT LineIndex, const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size) noexcept
 {
 	if (LineIndex * 2 <= static_cast<UINT>(m_Vertices.size()))
 	{
@@ -168,7 +166,7 @@ void JWLine::SetLine(const UINT LineIndex, const D3DXVECTOR2& StartPosition, con
 	}
 }
 
-void JWLine::SetLineColor(const UINT LineIndex, const DWORD Color)
+void JWLine::SetLineColor(const UINT LineIndex, const DWORD Color) noexcept
 {
 	if (LineIndex * 2 <= static_cast<UINT>(m_Vertices.size()))
 	{
@@ -180,7 +178,7 @@ void JWLine::SetLineColor(const UINT LineIndex, const DWORD Color)
 	}
 }
 
-void JWLine::SetLineColor(const UINT LineIndex, const DWORD ColorA, const DWORD ColorB)
+void JWLine::SetLineColor(const UINT LineIndex, const DWORD ColorA, const DWORD ColorB) noexcept
 {
 	if (LineIndex * 2 <= static_cast<UINT>(m_Vertices.size()))
 	{
@@ -192,7 +190,7 @@ void JWLine::SetLineColor(const UINT LineIndex, const DWORD ColorA, const DWORD 
 	}
 }
 
-void JWLine::SetBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size)
+void JWLine::SetBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size) noexcept
 {
 	if (m_Vertices.size())
 	{
@@ -203,7 +201,7 @@ void JWLine::SetBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size)
 	}
 }
 
-void JWLine::SetBoxColor(const DWORD Color)
+void JWLine::SetBoxColor(const DWORD Color) noexcept
 {
 	SetLineColor(0, Color);
 	SetLineColor(1, Color);
@@ -211,7 +209,7 @@ void JWLine::SetBoxColor(const DWORD Color)
 	SetLineColor(3, Color);
 }
 
-void JWLine::SetBoxColor(const DWORD ColorA, const DWORD ColorB)
+void JWLine::SetBoxColor(const DWORD ColorA, const DWORD ColorB) noexcept
 {
 	SetLineColor(0, ColorA, ColorB);
 	SetLineColor(1, ColorA, ColorB);
@@ -219,7 +217,7 @@ void JWLine::SetBoxColor(const DWORD ColorA, const DWORD ColorB)
 	SetLineColor(3, ColorB, ColorB);
 }
 
-void JWLine::SetEntireAlpha(const BYTE Alpha)
+void JWLine::SetEntireAlpha(const BYTE Alpha) noexcept
 {
 	if (m_Vertices.size())
 	{
@@ -231,7 +229,7 @@ void JWLine::SetEntireAlpha(const BYTE Alpha)
 	}
 }
 
-void JWLine::SetEntireXRGB(const DWORD Color)
+void JWLine::SetEntireXRGB(const DWORD Color) noexcept
 {
 	if (m_Vertices.size())
 	{

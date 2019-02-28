@@ -25,34 +25,40 @@ const float JWMonster::OFFSET_Y_HPBAR = 16.0f;
 JWMonster::JWMonster()
 {
 	m_HPCurr = 0;
-	m_bUILoaded = false;
 	m_HPFrame = nullptr;
 	m_HPBar = nullptr;
 }
 
-auto JWMonster::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError
+auto JWMonster::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->JWMonster*
 {
-	if (JW_SUCCEEDED(JWLife::Create(pJWWindow, pBaseDir, pMap)))
+	JWLife::Create(pJWWindow, pBaseDir, pMap);
+
+	if (m_HPFrame = new JWImage)
 	{
-		m_HPFrame = new JWImage;
 		m_HPFrame->Create(pJWWindow, pBaseDir);
 		m_HPFrame->SetTexture(L"gamegui.png");
 		m_HPFrame->SetAtlasUV(D3DXVECTOR2(0, 0), D3DXVECTOR2(47, 10));
+	}
+	else
+	{
+		throw EError::ALLOCATION_FAILURE;
+	}
 
-		m_HPBar = new JWImage;
+	if (m_HPBar = new JWImage)
+	{
 		m_HPBar->Create(pJWWindow, pBaseDir);
 		m_HPBar->SetTexture(L"gamegui.png");
 		m_HPBar->SetAtlasUV(D3DXVECTOR2(0, 10), D3DXVECTOR2(47, 10));
-
-		m_bUILoaded = true;
-
-		return EError::OK;
+	}
+	else
+	{
+		throw EError::ALLOCATION_FAILURE;
 	}
 
-	return EError::LIFE_NOT_CREATED;
+	return this;
 }
 
-void JWMonster::Destroy()
+void JWMonster::Destroy() noexcept
 {
 	JW_DESTROY(m_HPFrame);
 	JW_DESTROY(m_HPBar);
@@ -60,6 +66,11 @@ void JWMonster::Destroy()
 
 void JWMonster::SetUIPosition(const D3DXVECTOR2 Position)
 {
+	if ((!m_HPFrame) || (!m_HPBar))
+	{
+		return;
+	}
+
 	D3DXVECTOR2 adjusted_position = GetCenterPosition();
 	adjusted_position.y = Position.y;
 	adjusted_position.y -= OFFSET_Y_HPBAR + m_BoundingBoxExtraSize.y;
@@ -82,8 +93,7 @@ auto JWMonster::SetGlobalPosition(const D3DXVECTOR2 Position)->JWMonster*
 
 	JWLife::SetPosition(m_GlobalPositionInverse);
 
-	if (m_bUILoaded)
-		SetUIPosition(m_GlobalPositionInverse);
+	SetUIPosition(m_GlobalPositionInverse);
 
 	return this;
 }
@@ -102,8 +112,7 @@ void JWMonster::UpdateGlobalPosition()
 
 	SetPosition(m_GlobalPositionInverse);
 
-	if (m_bUILoaded)
-		SetUIPosition(m_GlobalPositionInverse);
+	SetUIPosition(m_GlobalPositionInverse);
 }
 
 void JWMonster::CalculateHP()
@@ -120,7 +129,7 @@ void JWMonster::Damage(CINT Damage)
 	m_HPCurr = max(m_HPCurr, 0);
 }
 
-void JWMonster::Draw()
+void JWMonster::Draw() noexcept
 {
 	CalculateHP();
 	UpdateGlobalPosition();
@@ -137,20 +146,22 @@ void JWMonster::Draw()
 // Static member variable declaration
 LPDIRECT3DDEVICE9 JWMonsterManager::m_pDevice;
 
-auto JWMonsterManager::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError
+void JWMonsterManager::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)
 {
 	if (pJWWindow == nullptr)
-		return EError::NULLPTR_WINDOW;
-
+	{
+		throw EError::NULLPTR_WINDOW;
+	}
+	
 	if (pMap == nullptr)
-		return EError::NULLPTR_MAP;
-
+	{
+		throw EError::NULLPTR_MAP;
+	}
+	
 	m_pJWWindow = pJWWindow;
 	m_pDevice = pJWWindow->GetDevice();
 	m_pBaseDir = pBaseDir;
 	m_pMap = pMap;
-
-	return EError::OK;
 }
 
 void JWMonsterManager::Destroy()

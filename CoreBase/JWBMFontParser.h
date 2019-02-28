@@ -32,18 +32,20 @@ namespace JWENGINE
 			struct BMPadding;
 			struct BMSpacing;
 
+			// The order of the paddings is the following
+			// Up, Right, Down, Left.
 			struct BMPadding
 			{
-				// The order of the paddings is the following
 				UINT Up;
 				UINT Right;
 				UINT Down;
 				UINT Left;
 			};
 
+			// The order of the spacings is the following
+			// Horz, Vert.
 			struct BMSpacing
 			{
-				// The order of the spacings is the following
 				UINT Horz;
 				UINT Vert;
 			};
@@ -62,6 +64,12 @@ namespace JWENGINE
 			UINT bOutline; // Outline thickness for the characters
 		};
 
+		// Channel value
+		// 0 - if the channel holds the glyph data
+		// 1 - if it holds the outline
+		// 2 - if it holds the glyph and the outline
+		// 3 - if its set to zero, and
+		// 4 - if its set to one.
 		struct BMCommon
 		{
 			UINT LineHeight; // Distance in pixels between each line of text
@@ -70,12 +78,7 @@ namespace JWENGINE
 			UINT ScaleH; // Height of the texture
 			UINT Pages; // Number of texture pages
 			BOOL IsPacked; // True if monochrome characters have been packed into each of the texture channels
-			// Channel value
-			// 0 - if the channel holds the glyph data
-			// 1 - if it holds the outline
-			// 2 - if it holds the glyph and the outline
-			// 3 - if its set to zero, and
-			// 4 - if its set to one.
+			
 			UINT AlphaChnl;
 			UINT RedChnl;
 			UINT GreenChnl;
@@ -129,12 +132,12 @@ namespace JWENGINE
 		JWBMFontParser() {};
 		virtual ~JWBMFontParser() {};
 
-		virtual auto Parse(const WSTRING& FileName)->bool;
-		virtual auto GetFontData()->const BMFont* const;
-		virtual auto GetCharsIDFromCharacter(const wchar_t Character) const->const size_t;
+		virtual auto Parse(const WSTRING& FileName) noexcept->const bool;
+		virtual auto GetFontData() const noexcept->const BMFont*;
+		virtual auto GetCharsIDFromCharacter(const wchar_t Character) const noexcept->const size_t;
 
 	protected:
-		virtual auto ParseComma(const STRING Data, const UINT ID)->UINT const;
+		virtual auto ParseComma(const STRING Data, const UINT ID) noexcept->const UINT;
 
 	protected:
 		static BMFont ms_FontData;

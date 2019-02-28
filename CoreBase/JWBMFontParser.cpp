@@ -6,7 +6,7 @@ using namespace JWENGINE;
 // Static member variable declaration
 BMFont JWBMFontParser::ms_FontData;
 
-auto WstringToString(WSTRING Source) -> STRING
+auto WstringToString(WSTRING Source)->STRING
 {
 	STRING Result;
 
@@ -23,7 +23,7 @@ auto WstringToString(WSTRING Source) -> STRING
 	return Result;
 }
 
-auto StringToWstring(STRING Source) -> WSTRING
+auto StringToWstring(STRING Source)->WSTRING
 {
 	WSTRING Result;
 
@@ -40,7 +40,7 @@ auto StringToWstring(STRING Source) -> WSTRING
 	return Result;
 }
 
-auto JWBMFontParser::ParseComma(const STRING Data, const UINT ID)->UINT const
+auto JWBMFontParser::ParseComma(const STRING Data, const UINT ID) noexcept->const UINT
 {
 	UINT Result = 0;
 	STRING tempString = Data;
@@ -66,7 +66,7 @@ auto JWBMFontParser::ParseComma(const STRING Data, const UINT ID)->UINT const
 	return Result;
 }
 
-auto JWBMFontParser::Parse(const WSTRING& FileName)->bool
+auto JWBMFontParser::Parse(const WSTRING& FileName) noexcept->const bool
 {
 	// Clear ms_FontData
 	ms_FontData.Pages.clear();
@@ -262,12 +262,12 @@ auto JWBMFontParser::Parse(const WSTRING& FileName)->bool
 	return false;
 }
 
-auto JWBMFontParser::GetFontData()->const BMFont* const
+auto JWBMFontParser::GetFontData() const noexcept->const BMFont*
 {
 	return &ms_FontData;
 }
 
-auto JWBMFontParser::GetCharsIDFromCharacter(const wchar_t Character) const->const size_t
+auto JWBMFontParser::GetCharsIDFromCharacter(const wchar_t Character) const noexcept->const size_t
 {
 	wchar_t limited_character = static_cast<wchar_t>(min(Character, MAX_WCHAR_INDEX));
 	return ms_FontData.MappedCharacters[limited_character];

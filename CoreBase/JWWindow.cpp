@@ -30,7 +30,7 @@ JWWindow::JWWindow()
 	memset(m_FileTitle, 0, MAX_FILE_LEN);
 }
 
-auto JWWindow::CreateGameWindow(const SWindowCreationData& WindowCreationData)->EError
+void JWWindow::CreateGameWindow(const SWindowCreationData& WindowCreationData)
 {
 	// Set DirectX clear color
 	m_BGColor = WindowCreationData.color_background;
@@ -41,17 +41,14 @@ auto JWWindow::CreateGameWindow(const SWindowCreationData& WindowCreationData)->
 		EWindowStyle::OverlappedWindow,
 		m_BGColor,
 		BaseWindowProc) == nullptr)
-		return EError::WINAPIWINDOW_NOT_CREATED;
-
-	if (JW_FAILED(InitializeDirectX()))
 	{
-		return EError::DIRECTX_NOT_CREATED;
+		throw EError::WINAPIWINDOW_NOT_CREATED;
 	}
 
-	return EError::OK;
+	InitializeDirectX();
 }
 
-auto JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)->EError
+void JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)
 {
 	// Set DirectX clear color
 	m_BGColor = WindowCreationData.color_background;
@@ -62,14 +59,11 @@ auto JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)->E
 		WindowCreationData.window_style,
 		WindowCreationData.color_background,
 		WindowCreationData.proc, nullptr, WindowCreationData.parent_hwnd) == nullptr)
-		return EError::WINAPIWINDOW_NOT_CREATED;
-
-	if (JW_FAILED(InitializeDirectX()))
 	{
-		return EError::DIRECTX_NOT_CREATED;
+		throw EError::WINAPIWINDOW_NOT_CREATED;
 	}
 
-	return EError::OK;
+	InitializeDirectX();
 }
 
 PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Caption, CINT X, CINT Y, CINT Width, CINT Height,
@@ -96,8 +90,11 @@ PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Ca
 	m_Rect = { X, Y, X + Width, Y + Height };
 	AdjustWindowRect(&m_Rect, (DWORD)WindowStyle, false);
 
-	m_hWnd = CreateWindow(Name, Caption, (DWORD)WindowStyle, m_Rect.left, m_Rect.top,
-		m_Rect.right - m_Rect.left, m_Rect.bottom - m_Rect.top, hWndParent, (HMENU)nullptr, m_hInstance, nullptr);
+	if ((m_hWnd = CreateWindow(Name, Caption, (DWORD)WindowStyle, m_Rect.left, m_Rect.top,
+		m_Rect.right - m_Rect.left, m_Rect.bottom - m_Rect.top, hWndParent, (HMENU)nullptr, m_hInstance, nullptr)) == nullptr)
+	{
+		throw EError::NULLPTR_HWND;
+	}
 
 	ShowWindow(m_hWnd, SW_SHOW);
 
@@ -106,7 +103,7 @@ PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Ca
 	return m_hWnd;
 }
 
-PRIVATE void JWWindow::SetWindowData(CINT Width, CINT Height)
+PRIVATE void JWWindow::SetWindowData(CINT Width, CINT Height) noexcept
 {
 	m_WindowData.WindowWidth = Width;
 	m_WindowData.WindowHeight = Height;
@@ -114,23 +111,23 @@ PRIVATE void JWWindow::SetWindowData(CINT Width, CINT Height)
 	m_WindowData.WindowHalfHeight = static_cast<float>(Height / 2.0f);
 }
 
-PRIVATE auto JWWindow::InitializeDirectX()->EError
+PRIVATE void JWWindow::InitializeDirectX()
 {
 	if (nullptr == (m_pD3D = Direct3DCreate9(D3D_SDK_VERSION)))
-		return EError::DIRECTX_NOT_CREATED;
+	{
+		throw EError::DIRECT3D_NOT_CREATED;
+	}
 
 	SetDirect3DParameters();
 
 	if (FAILED(m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd,
 		D3DCREATE_HARDWARE_VERTEXPROCESSING, &m_D3DPP, &m_pDevice)))
 	{
-		return EError::DEVICE_NOT_CREATED;
+		throw EError::DEVICE_NOT_CREATED;
 	}
-
-	return EError::OK;
 }
 
-PRIVATE void JWWindow::SetDirect3DParameters()
+PRIVATE void JWWindow::SetDirect3DParameters() noexcept
 {
 	ZeroMemory(&m_D3DPP, sizeof(m_D3DPP));
 	m_D3DPP.Windowed = TRUE;
@@ -149,7 +146,7 @@ PRIVATE void JWWindow::SetDirect3DParameters()
 	UpdateRenderRect();
 }
 
-PRIVATE void JWWindow::UpdateRenderRect()
+PRIVATE void JWWindow::UpdateRenderRect() noexcept
 {
 	m_RenderRect = { 0, 0, 0, 0 };
 
@@ -160,7 +157,7 @@ PRIVATE void JWWindow::UpdateRenderRect()
 	m_RenderRect.bottom = m_WindowData.ScreenSize.y;
 }
 
-void JWWindow::Destroy()
+void JWWindow::Destroy() noexcept
 {
 	if (m_hWnd)
 	{
@@ -172,17 +169,17 @@ void JWWindow::Destroy()
 	JW_RELEASE(m_pD3D);
 }
 
-void JWWindow::SetWindowCaption(const WSTRING& Caption)
+void JWWindow::SetWindowCaption(const WSTRING& Caption) noexcept
 {
 	SetWindowTextW(m_hWnd, Caption.c_str());
 }
 
-void JWWindow::SetBackgroundColor(const D3DCOLOR color)
+void JWWindow::SetBackgroundColor(const D3DCOLOR color) noexcept
 {
 	m_BGColor = color;
 }
 
-void JWWindow::Resize(const RECT Rect)
+void JWWindow::Resize(const RECT Rect) noexcept
 {
 	SetWindowData(Rect.right, Rect.bottom);
 	//MoveWindow(m_hWnd, Rect.left, Rect.top, Rect.right - Rect.left, Rect.bottom - Rect.top, false);
@@ -190,13 +187,13 @@ void JWWindow::Resize(const RECT Rect)
 	UpdateRenderRect();
 }
 
-void JWWindow::BeginRender() const
+void JWWindow::BeginRender() const noexcept
 {
 	m_pDevice->Clear(0, nullptr, D3DCLEAR_TARGET, m_BGColor, 1.0f, 0);
 	m_pDevice->BeginScene();
 }
 
-void JWWindow::EndRender()
+void JWWindow::EndRender() noexcept
 {
 	m_pDevice->EndScene();
 
@@ -207,32 +204,32 @@ void JWWindow::EndRender()
 
 }
 
-auto JWWindow::GetDevice() const->const LPDIRECT3DDEVICE9
+auto JWWindow::GetDevice() const noexcept->const LPDIRECT3DDEVICE9
 {
 	return m_pDevice;
 }
 
-auto JWWindow::GethWnd() const->const HWND
+auto JWWindow::GethWnd() const noexcept->const HWND
 {
 	return m_hWnd;
 }
 
-auto JWWindow::GethInstance() const->const HINSTANCE
+auto JWWindow::GethInstance() const noexcept->const HINSTANCE
 {
 	return m_hInstance;
 }
 
-auto JWWindow::GetWindowData() const->const SWindowData*
+auto JWWindow::GetWindowData() const noexcept->const SWindowData*
 {
 	return &m_WindowData;
 }
 
-auto JWWindow::GetRenderRect() const->const RECT
+auto JWWindow::GetRenderRect() const noexcept->const RECT
 {
 	return m_RenderRect;
 }
 
-void JWWindow::UpdateWindowInputState(const MSG& Message)
+void JWWindow::UpdateWindowInputState(const MSG& Message) noexcept
 {
 	// Window message input
 	// Initialize mouse wheel stride.
@@ -313,13 +310,13 @@ void JWWindow::UpdateWindowInputState(const MSG& Message)
 	}
 }
 
-auto JWWindow::GetWindowInputStatePtr() const->const SWindowInputState*
+auto JWWindow::GetWindowInputStatePtr() const noexcept->const SWindowInputState*
 {
 	return &m_WindowInputState;
 }
 
 /** Dialog functions */
-void JWWindow::SetDlgBase()
+void JWWindow::SetDlgBase() noexcept
 {
 	ZeroMemory(&m_OFN, sizeof(m_OFN));
 	m_OFN.lStructSize = sizeof(m_OFN);
@@ -335,35 +332,39 @@ void JWWindow::SetDlgBase()
 	m_OFN.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 }
 
-auto JWWindow::OpenFileDlg(LPCWSTR Filter)->BOOL
+auto JWWindow::OpenFileDlg(LPCWSTR Filter) noexcept->BOOL
 {
 	SetDlgBase();
+
 	m_OFN.lpstrFilter = Filter;
 
 	return GetOpenFileName(&m_OFN);
 }
 
-auto JWWindow::SaveFileDlg(LPCWSTR Filter)->BOOL
+auto JWWindow::SaveFileDlg(LPCWSTR Filter) noexcept->BOOL
 {
 	SetDlgBase();
+
 	m_OFN.lpstrFilter = Filter;
 
 	return GetSaveFileName(&m_OFN);
 }
 
-auto JWWindow::GetDlgFileName() const->const WSTRING
+auto JWWindow::GetDlgFileName() const noexcept->const WSTRING
 {
 	return m_FileName;
 }
 
-auto JWWindow::GetDlgFileTitle() const->const WSTRING
+auto JWWindow::GetDlgFileTitle() const noexcept->const WSTRING
 {
 	WSTRING tempString = m_FileName;
 
 	size_t temp = tempString.find_last_of('\\');
 
 	if (temp)
+	{
 		tempString = tempString.substr(temp + 1);
+	}
 
 	return tempString;
 }

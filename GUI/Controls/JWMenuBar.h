@@ -21,30 +21,30 @@ namespace JWENGINE
 		JWMenuBar();
 		~JWMenuBar() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError override;
-		void Destroy() override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		void Destroy() noexcept override;
 
 		auto AddMenuBarItem(const WSTRING& Text)->THandleItem override;
-		auto AddMenuBarSubItem(const THandleItem hItem, const WSTRING& Text)->THandleItem override;
+		auto AddMenuBarSubItem(const THandleItem hItem, const WSTRING& Text) noexcept->THandleItem override;
 
-		void Draw() override;
+		void Draw() noexcept override;
 
-		auto SetSize(const D3DXVECTOR2& Size)->JWControl* override;
+		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
 
-		auto OnSubItemClick()->THandleItem override;
+		auto OnSubItemClick() noexcept->THandleItem override;
 
-		void KillFocus() override;
+		void KillFocus() noexcept override;
 
 	protected:
 		// Must be overridden.
-		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
+		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
 	private:
-		auto GetTHandleItemOfMenuBarItem(TIndex ItemIndex)->THandleItem;
-		auto GetTIndexOfMenuBarItem(THandleItem hItem)->TIndex;
+		auto GetTHandleItemOfMenuBarItem(TIndex ItemIndex) noexcept->THandleItem;
+		auto GetTIndexOfMenuBarItem(THandleItem hItem) noexcept->TIndex;
 
-		void SelectMenuBarItem(TIndex ItemIndex);
-		void UnselectMenuBarItem();
+		void SelectMenuBarItem(TIndex ItemIndex) noexcept;
+		void UnselectMenuBarItem() noexcept;
 
 	private:
 		static const BYTE DEFUALT_ALPHA_BACKGROUND_MENUBAR = 255;

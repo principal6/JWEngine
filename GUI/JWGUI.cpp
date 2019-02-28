@@ -59,7 +59,7 @@ JWGUI::JWGUI()
 	m_pMainGUIWindow = nullptr;
 }
 
-auto JWGUI::Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow)->EError
+void JWGUI::Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow)
 {
 	if (OutPtrMainGUIWindow = new JWGUIWindow)
 	{
@@ -67,16 +67,14 @@ auto JWGUI::Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtr
 		OutPtrMainGUIWindow->Create(WindowCreationData);
 
 		m_ppGUIWindows.push_back(&OutPtrMainGUIWindow);
-
-		return EError::OK;
 	}
 	else
 	{
-		return EError::ALLOCATION_FAILURE;
+		throw EError::ALLOCATION_FAILURE;
 	}
 }
 
-void JWGUI::Destroy()
+void JWGUI::Destroy() noexcept
 {
 	if (m_ppGUIWindows.size())
 	{
@@ -91,7 +89,10 @@ void JWGUI::Destroy()
 
 void JWGUI::AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrGUIWindow)
 {
-	OutPtrGUIWindow = new JWGUIWindow;
+	if ((OutPtrGUIWindow = new JWGUIWindow) == nullptr)
+	{
+		throw EError::ALLOCATION_FAILURE;
+	}
 
 	WindowCreationData.proc = GUIWindowProc;
 	OutPtrGUIWindow->Create(WindowCreationData);
@@ -99,7 +100,7 @@ void JWGUI::AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow*& 
 	m_ppGUIWindows.push_back(&OutPtrGUIWindow);
 }
 
-void JWGUI::DestroyGUIWindow(const JWGUIWindow* pGUIWindow)
+void JWGUI::DestroyGUIWindow(const JWGUIWindow* pGUIWindow) noexcept
 {
 	if (m_ppGUIWindows.size())
 	{
@@ -121,12 +122,12 @@ void JWGUI::DestroyGUIWindow(const JWGUIWindow* pGUIWindow)
 	}
 }
 
-void JWGUI::SetMainLoopFunction(const PF_MAINLOOP pfMainLoop)
+void JWGUI::SetMainLoopFunction(const PF_MAINLOOP pfMainLoop) noexcept
 {
 	m_pfMainLoop = pfMainLoop;
 }
 
-void JWGUI::Run()
+void JWGUI::Run() noexcept
 {
 	bool b_gui_window_destroyed = false;
 	size_t destroyed_gui_window_index = 0;

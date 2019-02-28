@@ -16,30 +16,31 @@ namespace JWENGINE
 		JWInput();
 		~JWInput() {};
 
-		auto Create(HWND hWnd, HINSTANCE hInstance)->EError;
-		void Destroy();
+		void Create(const HWND hWnd, const HINSTANCE hInstance);
+		void Destroy() noexcept;
 
-		auto OnKeyDown(DWORD DIK_KeyCode)->bool;
-		auto OnKeyUp(DWORD DIK_KeyCode)->bool;
-		auto OnMouseMove()->DIMOUSESTATE2;
-		auto OnMouseButtonDown(int button)->bool;
-		auto OnMouseButtonUp(int button)->bool;
+		auto OnKeyDown(const DWORD DIK_KeyCode) noexcept->const bool;
+		auto OnKeyUp(const DWORD DIK_KeyCode) const noexcept->const bool;
+		auto OnMouseMove() noexcept->const DIMOUSESTATE2;
+		auto OnMouseButtonDown(const int button) noexcept->const bool;
+		auto OnMouseButtonUp(const int button) noexcept->const bool;
 
-		auto GetMouseButtonDown(int button)->bool;
-		auto GetKeyState(DWORD DIK_KeyCode) const->bool;
-		void GetAllKeyState(bool* Keys);
+		auto IsMouseButtonDown(const int button) noexcept->const bool;
+		auto GetKeyState(const DWORD DIK_KeyCode) const noexcept->const bool;
+		void GetAllKeyState(bool* Keys) noexcept;
 
 	private:
-		bool CreateMouseDevice(DWORD dwFlags);
-		bool CreateKeyboardDevice(DWORD dwFlags);
-		bool CheckMouseButton(int button);
+		void CreateMouseDevice(DWORD dwFlags);
+		void CreateKeyboardDevice(DWORD dwFlags);
+
+		void CheckMouseButton(const int button) noexcept;
 
 	private:
 		HWND m_hWnd;
 
-		LPDIRECTINPUT8 m_DI8;
-		LPDIRECTINPUTDEVICE8 m_DIDevKeyboard;
-		LPDIRECTINPUTDEVICE8 m_DIDevMouse;
+		LPDIRECTINPUT8 m_pDirectInput;
+		LPDIRECTINPUTDEVICE8 m_pKeyboardDevice;
+		LPDIRECTINPUTDEVICE8 m_pMouseDevice;
 
 		char m_BufferKeyState[NUM_KEYS];
 		bool m_KeyDown[NUM_KEYS];

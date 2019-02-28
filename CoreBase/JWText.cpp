@@ -37,16 +37,16 @@ JWText::JWText()
 	m_NonInstantTextOffset = D3DXVECTOR2(0, 0);
 }
 
-auto JWText::CreateInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError
+void JWText::CreateInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir)
 {
 	if (m_pFontTexture)
 	{
-		return EError::DUPLICATE_CREATION;
+		throw EError::DUPLICATE_CREATION;
 	}
 
 	if ((m_pJWWindow = pJWWindow) == nullptr)
 	{
-		return EError::NULLPTR_WINDOW;
+		throw EError::NULLPTR_WINDOW;
 	}
 
 	m_pBaseDir = pBaseDir;
@@ -59,20 +59,18 @@ auto JWText::CreateInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDi
 
 	// This is an instant-text JWText.
 	m_bIsInstantText = true;
-
-	return EError::OK;
 }
 
-auto JWText::CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const LPDIRECT3DTEXTURE9 pFontTexture)->EError
+void JWText::CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const LPDIRECT3DTEXTURE9 pFontTexture)
 {
 	if (m_pFontTexture)
 	{
-		return EError::DUPLICATE_CREATION;
+		throw EError::DUPLICATE_CREATION;
 	}
 
 	if ((m_pJWWindow = pJWWindow) == nullptr)
 	{
-		return EError::NULLPTR_WINDOW;
+		throw EError::NULLPTR_WINDOW;
 	}
 
 	m_pBaseDir = pBaseDir;
@@ -93,7 +91,7 @@ auto JWText::CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBas
 	}
 	else
 	{
-		return EError::ALLOCATION_FAILURE;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Create a JWRectangle for selection box.
@@ -101,23 +99,19 @@ auto JWText::CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBas
 	{
 		UINT max_box_num = static_cast<UINT>((m_pJWWindow->GetWindowData()->ScreenSize.y / GetLineHeight()) + 1);
 
-		if (JW_FAILED(m_pSelectionBox->Create(m_pJWWindow, m_pBaseDir, max_box_num)))
-			return EError::RECTANGLE_NOT_CREATED;
-
+		m_pSelectionBox->Create(m_pJWWindow, m_pBaseDir, max_box_num);
 		m_pSelectionBox->SetRectangleColor(DEFAULT_COLOR_SELECTION);
 	}
 	else
 	{
-		return EError::ALLOCATION_FAILURE;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// This is a non-instant-text JWText.
 	m_bIsInstantText = false;
-
-	return EError::OK;
 }
 
-void JWText::Destroy()
+void JWText::Destroy() noexcept
 {
 	m_pDevice = nullptr;
 
@@ -146,11 +140,11 @@ void JWText::Destroy()
 	JW_DELETE_ARRAY(m_NonInstantIndexData.Indices);
 }
 
-PRIVATE auto JWText::CreateFontTexture(const WSTRING& FileName_FNT)->EError
+PRIVATE void JWText::CreateFontTexture(const WSTRING& FileName_FNT)
 {
 	if (m_pFontTexture)
 	{
-		return EError::DUPLICATE_CREATION;
+		throw EError::DUPLICATE_CREATION;
 	}
 
 	// Set file name to Parse FNT file.
@@ -179,16 +173,14 @@ PRIVATE auto JWText::CreateFontTexture(const WSTRING& FileName_FNT)->EError
 	// Craete texture without color key
 	if (FAILED(D3DXCreateTextureFromFileExW(m_pDevice, new_file_name.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
 		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &m_pFontTexture)))
-		return EError::TEXTURE_NOT_CREATED;
-
-	return EError::OK;
+		throw EError::TEXTURE_NOT_CREATED;
 }
 
-PRIVATE auto JWText::CreateInstantTextBuffers()->EError
+PRIVATE void JWText::CreateInstantTextBuffers()
 {
 	if (m_InstantVertexData.pBuffer)
 	{
-		return EError::DUPLICATE_CREATION;
+		throw EError::DUPLICATE_CREATION;
 	}
 
 	// Set maximum size
@@ -224,15 +216,13 @@ PRIVATE auto JWText::CreateInstantTextBuffers()->EError
 	CreateIndexBuffer(&m_InstantIndexData);
 	UpdateVertexBuffer(&m_InstantVertexData);
 	UpdateIndexBuffer(&m_InstantIndexData);
-
-	return EError::OK;
 }
 
-PRIVATE auto JWText::CreateNonInstantTextBuffers()->EError
+PRIVATE void JWText::CreateNonInstantTextBuffers()
 {
 	if (m_NonInstantVertexData.pBuffer)
 	{
-		return EError::DUPLICATE_CREATION;
+		throw EError::DUPLICATE_CREATION;
 	}
 
 	UINT ScreenWidth = m_pJWWindow->GetWindowData()->ScreenSize.x;
@@ -280,31 +270,27 @@ PRIVATE auto JWText::CreateNonInstantTextBuffers()->EError
 	UpdateIndexBuffer(&m_NonInstantIndexData);
 
 	m_bIsInstantText = true;
-
-	return EError::OK;
 }
 
-PRIVATE auto JWText::CreateVertexBuffer(SVertexData* pVertexData)->EError
+PRIVATE void JWText::CreateVertexBuffer(SVertexData* pVertexData)
 {
 	int vertex_size_in_byte = sizeof(SVertexImage) * pVertexData->VertexSize;
 	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size_in_byte, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &pVertexData->pBuffer, nullptr)))
 	{
-		return EError::VERTEX_BUFFER_NOT_CREATED;
+		throw EError::VERTEX_BUFFER_NOT_CREATED;
 	}
-	return EError::OK;
 }
 
-PRIVATE auto JWText::CreateIndexBuffer(SIndexData* pIndexData)->EError
+PRIVATE void JWText::CreateIndexBuffer(SIndexData* pIndexData)
 {
 	int index_size_in_byte = sizeof(SIndex3) * pIndexData->IndexSize;
 	if (FAILED(m_pDevice->CreateIndexBuffer(index_size_in_byte, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &pIndexData->pBuffer, nullptr)))
 	{
-		return EError::INDEX_BUFFER_NOT_CREATED;
+		throw EError::INDEX_BUFFER_NOT_CREATED;
 	}
-	return EError::OK;
 }
 
-PRIVATE auto JWText::UpdateVertexBuffer(SVertexData* pVertexData)->EError
+PRIVATE void JWText::UpdateVertexBuffer(SVertexData* pVertexData)
 {
 	if (pVertexData->Vertices)
 	{
@@ -312,16 +298,19 @@ PRIVATE auto JWText::UpdateVertexBuffer(SVertexData* pVertexData)->EError
 		VOID* pVertices;
 		if (FAILED(pVertexData->pBuffer->Lock(0, temp_vertex_size, (void**)&pVertices, 0)))
 		{
-			return EError::VERTEX_BUFFER_NOT_LOCKED;
+			throw EError::VERTEX_BUFFER_NOT_LOCKED;
 		}
 		memcpy(pVertices, &pVertexData->Vertices[0], temp_vertex_size);
 		pVertexData->pBuffer->Unlock();
-		return EError::OK;
+		
 	}
-	return EError::NULLPTR_VERTEX;
+	else
+	{
+		throw EError::NULLPTR_VERTEX;
+	}
 }
 
-PRIVATE auto JWText::UpdateIndexBuffer(SIndexData* pIndexData)->EError
+PRIVATE void JWText::UpdateIndexBuffer(SIndexData* pIndexData)
 {
 	if (pIndexData->Indices)
 	{
@@ -329,16 +318,18 @@ PRIVATE auto JWText::UpdateIndexBuffer(SIndexData* pIndexData)->EError
 		VOID* pIndices;
 		if (FAILED(pIndexData->pBuffer->Lock(0, temp_index_size, (void **)&pIndices, 0)))
 		{
-			return EError::INDEX_BUFFER_NOT_LOCKED;
+			throw EError::INDEX_BUFFER_NOT_LOCKED;
 		}
 		memcpy(pIndices, &pIndexData->Indices[0], temp_index_size);
 		pIndexData->pBuffer->Unlock();
-		return EError::OK;
 	}
-	return EError::NULLPTR_INDEX;
+	else
+	{
+		throw EError::NULLPTR_INDEX;
+	}
 }
 
-void JWText::SetNonInstantText(WSTRING Text, const D3DXVECTOR2& Position, const D3DXVECTOR2& AreaSize)
+void JWText::SetNonInstantText(WSTRING Text, const D3DXVECTOR2& Position, const D3DXVECTOR2& AreaSize) noexcept
 {
 	m_NonInstantText = Text;
 
@@ -418,12 +409,19 @@ void JWText::SetNonInstantText(WSTRING Text, const D3DXVECTOR2& Position, const 
 	UpdateCaret();
 }
 
-void JWText::SetNonInstantInnerText(WSTRING Text)
+void JWText::SetNonInstantTextString(WSTRING Text) noexcept
 {
 	m_NonInstantText = Text;
 }
 
-void JWText::InsertInNonInstantText(const WSTRING& String)
+void JWText::SetNonInstantTextColor(const DWORD FontColor) noexcept
+{
+	m_NonInstantTextColor = FontColor;
+
+	UpdateNonInstantTextVisibleVertices();
+}
+
+void JWText::InsertInNonInstantText(const WSTRING& String) noexcept
 {
 	m_NonInstantText = m_NonInstantText.substr(0, m_CaretSelPosition) + String + m_NonInstantText.substr(m_CaretSelPosition);
 
@@ -513,14 +511,7 @@ void JWText::InsertInNonInstantText(const WSTRING& String)
 	UpdateCaret();
 }
 
-void JWText::SetNonInstantTextColor(const DWORD FontColor)
-{
-	m_NonInstantTextColor = FontColor;
-
-	UpdateNonInstantTextVisibleVertices();
-}
-
-PRIVATE void JWText::UpdateNonInstantTextVisibleVertices()
+PRIVATE void JWText::UpdateNonInstantTextVisibleVertices() noexcept
 {
 	// Clear the vertex buffer's uv data & set font color.
 	
@@ -595,7 +586,7 @@ PRIVATE void JWText::UpdateNonInstantTextVisibleVertices()
 	UpdateVertexBuffer(&m_NonInstantVertexData);
 }
 
-void JWText::DrawNonInstantText()
+void JWText::DrawNonInstantText() const noexcept
 {
 	// Set alpha blending on.
 	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
@@ -638,7 +629,8 @@ void JWText::DrawNonInstantText()
 	m_pDevice->SetTexture(0, nullptr);
 }
 
-void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2& Position, const EHorizontalAlignment HorizontalAlignment, const DWORD FontColor)
+void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2& Position,
+	const EHorizontalAlignment HorizontalAlignment, const DWORD FontColor) noexcept
 {
 	// If SingleLineText is null, we don't need to draw it.
 	if (!SingleLineText.length())
@@ -754,7 +746,7 @@ void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2& Position
 	m_pDevice->SetTexture(0, nullptr);
 }
 
-PRIVATE void JWText::UpdateCaret()
+PRIVATE void JWText::UpdateCaret() noexcept
 {
 	if (m_pCaretLine)
 	{
@@ -817,7 +809,7 @@ PRIVATE void JWText::UpdateCaret()
 	}
 }
 
-void JWText::DrawCaret()
+void JWText::DrawCaret() const noexcept
 {
 	if (m_pCaretLine)
 	{
@@ -825,7 +817,7 @@ void JWText::DrawCaret()
 	}
 }
 
-void JWText::DrawSelectionBox()
+void JWText::DrawSelectionBox() const noexcept
 {
 	if (m_pSelectionBox)
 	{
@@ -833,7 +825,7 @@ void JWText::DrawSelectionBox()
 	}
 }
 
-PRIVATE void JWText::SetInstantTextGlyph(const size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo)
+PRIVATE void JWText::SetInstantTextGlyph(const size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo) noexcept
 {
 	if (Character_index)
 	{
@@ -881,7 +873,7 @@ PRIVATE void JWText::SetInstantTextGlyph(const size_t Character_index, SGlyphInf
 	m_InstantVertexData.Vertices[Character_index * 4 + 3].v = v2;
 }
 
-PRIVATE void JWText::SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* pPrevInfo)
+PRIVATE void JWText::SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* pPrevInfo) noexcept
 {
 	pCurrInfo->width = static_cast<float>(ms_FontData.Chars[pCurrInfo->chars_id].Width);
 	pCurrInfo->height = static_cast<float>(ms_FontData.Chars[pCurrInfo->chars_id].Height);
@@ -925,17 +917,17 @@ PRIVATE void JWText::SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* p
 	*pPrevInfo = *pCurrInfo;
 }
 
-auto JWText::GetFontTexturePtr() const->const LPDIRECT3DTEXTURE9
+auto JWText::GetFontTexturePtr() const noexcept->const LPDIRECT3DTEXTURE9
 {
 	return m_pFontTexture;
 }
 
-auto JWText::GetLineHeight() const->const float
+auto JWText::GetLineHeight() const noexcept->const float
 {
 	return static_cast<float>(ms_FontData.Info.Size);
 }
 
-PRIVATE auto JWText::GetLineWidth(const WSTRING* pLineText) const->float
+PRIVATE auto JWText::GetLineWidth(const WSTRING* pLineText) const noexcept->const float
 {
 	size_t iterator_character = 0;
 	size_t chars_id = 0;
@@ -950,16 +942,7 @@ PRIVATE auto JWText::GetLineWidth(const WSTRING* pLineText) const->float
 	return width;
 }
 
-void JWText::MoveCaretTo(const size_t SelPosition)
-{
-	m_CaretSelPosition = SelPosition;
-
-	UpdateCaret();
-
-	ReleaseSelection();
-}
-
-void JWText::MoveCaretToLeft()
+void JWText::MoveCaretToLeft() noexcept
 {
 	if (m_CaretSelPosition)
 	{
@@ -969,14 +952,14 @@ void JWText::MoveCaretToLeft()
 	}
 }
 
-void JWText::MoveCaretToRight()
+void JWText::MoveCaretToRight() noexcept
 {
 	m_CaretSelPosition++;
 
 	UpdateCaret();
 }
 
-PRIVATE auto JWText::GetLineStartGlyphIndex(const size_t LineIndex) const->const size_t
+PRIVATE auto JWText::GetLineStartGlyphIndex(const size_t LineIndex) const noexcept->const size_t
 {
 	size_t result = SIZE_T_INVALID;
 
@@ -988,7 +971,7 @@ PRIVATE auto JWText::GetLineStartGlyphIndex(const size_t LineIndex) const->const
 	return result;
 }
 
-PRIVATE auto JWText::GetLineEndGlyphIndex(const size_t LineIndex) const->const size_t
+PRIVATE auto JWText::GetLineEndGlyphIndex(const size_t LineIndex) const noexcept->const size_t
 {
 	size_t result = 0;
 
@@ -1000,7 +983,7 @@ PRIVATE auto JWText::GetLineEndGlyphIndex(const size_t LineIndex) const->const s
 	return result;
 }
 
-void JWText::MoveCaretUp()
+void JWText::MoveCaretUp() noexcept
 {
 	size_t curr_index_in_line = m_NonInstantTextGlyphInfo[m_CaretSelPosition].glyph_index_in_line;
 	size_t curr_line_index = m_NonInstantTextGlyphInfo[m_CaretSelPosition].line_index;
@@ -1021,7 +1004,7 @@ void JWText::MoveCaretUp()
 	UpdateCaret();
 }
 
-void JWText::MoveCaretDown()
+void JWText::MoveCaretDown() noexcept
 {
 	size_t curr_index_in_line = m_NonInstantTextGlyphInfo[m_CaretSelPosition].glyph_index_in_line;
 	size_t curr_line_index = m_NonInstantTextGlyphInfo[m_CaretSelPosition].line_index;
@@ -1042,7 +1025,7 @@ void JWText::MoveCaretDown()
 	UpdateCaret();
 }
 
-void JWText::MoveCaretHome()
+void JWText::MoveCaretHome() noexcept
 {
 	size_t curr_line_index = m_NonInstantTextGlyphInfo[m_CaretSelPosition].line_index;
 	m_CaretSelPosition = GetLineStartGlyphIndex(curr_line_index);
@@ -1050,7 +1033,7 @@ void JWText::MoveCaretHome()
 	UpdateCaret();
 }
 
-void JWText::MoveCaretEnd()
+void JWText::MoveCaretEnd() noexcept
 {
 	size_t curr_line_index = m_NonInstantTextGlyphInfo[m_CaretSelPosition].line_index;
 	m_CaretSelPosition = GetLineEndGlyphIndex(curr_line_index);
@@ -1058,16 +1041,16 @@ void JWText::MoveCaretEnd()
 	UpdateCaret();
 }
 
-void JWText::ReleaseSelection()
+void JWText::MoveCaretTo(const size_t SelPosition) noexcept
 {
-	m_CapturedSelPosition = SIZE_T_INVALID;
+	m_CaretSelPosition = SelPosition;
 
-	m_pSelectionBox->ClearAllRectangles();
-	
-	m_bIsTextSelected = false;
+	UpdateCaret();
+
+	ReleaseSelection();
 }
 
-void JWText::SelectToLeft()
+void JWText::SelectToLeft() noexcept
 {
 	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
@@ -1079,7 +1062,7 @@ void JWText::SelectToLeft()
 	UpdateSelectionBox();
 }
 
-void JWText::SelectToRight()
+void JWText::SelectToRight() noexcept
 {
 	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
@@ -1091,7 +1074,7 @@ void JWText::SelectToRight()
 	UpdateSelectionBox();
 }
 
-void JWText::SelectUp()
+void JWText::SelectUp() noexcept
 {
 	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
@@ -1103,7 +1086,7 @@ void JWText::SelectUp()
 	UpdateSelectionBox();
 }
 
-void JWText::SelectDown()
+void JWText::SelectDown() noexcept
 {
 	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
@@ -1115,7 +1098,7 @@ void JWText::SelectDown()
 	UpdateSelectionBox();
 }
 
-void JWText::SelectHome()
+void JWText::SelectHome() noexcept
 {
 	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
@@ -1127,7 +1110,7 @@ void JWText::SelectHome()
 	UpdateSelectionBox();
 }
 
-void JWText::SelectEnd()
+void JWText::SelectEnd() noexcept
 {
 	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
@@ -1139,7 +1122,7 @@ void JWText::SelectEnd()
 	UpdateSelectionBox();
 }
 
-void JWText::SelectTo(const size_t SelPosition)
+void JWText::SelectTo(const size_t SelPosition) noexcept
 {
 	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
@@ -1153,7 +1136,7 @@ void JWText::SelectTo(const size_t SelPosition)
 	UpdateSelectionBox();
 }
 
-void JWText::SelectAll()
+void JWText::SelectAll() noexcept
 {
 	m_CapturedSelPosition = 0;
 	m_CaretSelPosition = m_NonInstantTextGlyphInfo.size() - 1;
@@ -1163,7 +1146,16 @@ void JWText::SelectAll()
 	UpdateSelectionBox();
 }
 
-PRIVATE void JWText::UpdateSelectionBox()
+void JWText::ReleaseSelection() noexcept
+{
+	m_CapturedSelPosition = SIZE_T_INVALID;
+
+	m_pSelectionBox->ClearAllRectangles();
+
+	m_bIsTextSelected = false;
+}
+
+PRIVATE void JWText::UpdateSelectionBox() noexcept
 {
 	if (m_CapturedSelPosition != SIZE_T_INVALID)
 	{
@@ -1256,12 +1248,12 @@ PRIVATE void JWText::UpdateSelectionBox()
 	}
 }
 
-auto JWText::GetCaretSelPosition() const->const size_t
+auto JWText::GetCaretSelPosition() const noexcept->const size_t
 {
 	return m_CaretSelPosition;
 }
 
-auto JWText::GetMousePressedSelPosition(const POINT MousePosition) const->const size_t
+auto JWText::GetMousePressedSelPosition(const POINT MousePosition) const noexcept->const size_t
 {
 	size_t result = 0;
 
@@ -1282,22 +1274,22 @@ auto JWText::GetMousePressedSelPosition(const POINT MousePosition) const->const 
 	return result;
 }
 
-void JWText::ShouldUseAutomaticLineBreak(const bool Value)
-{
-	m_bUseAutomaticLineBreak = Value;
-}
-
-auto JWText::GetSelectionStart() const->const size_t
+auto JWText::GetSelectionStart() const noexcept->const size_t
 {
 	return m_SelectionStart;
 }
 
-auto JWText::GetSelectionEnd() const->const size_t
+auto JWText::GetSelectionEnd() const noexcept->const size_t
 {
 	return m_SelectionEnd;
 }
 
-auto JWText::IsTextSelected() const->const bool
+auto JWText::IsTextSelected() const noexcept->const bool
 {
 	return m_bIsTextSelected;
+}
+
+void JWText::ShouldUseAutomaticLineBreak(const bool Value) noexcept
+{
+	m_bUseAutomaticLineBreak = Value;
 }

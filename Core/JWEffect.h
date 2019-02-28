@@ -88,26 +88,26 @@ namespace JWENGINE
 		JWEffect();
 		~JWEffect() {};
 
-		auto JWEffect::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError;
-		void JWEffect::Destroy() override;
+		auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->JWEffect*;
+		void Destroy() noexcept override;
 
-		auto JWEffect::SetTextureAtlas(const WSTRING FileName, CINT numCols, CINT numRows)->JWEffect*;
+		auto SetTextureAtlas(const WSTRING FileName, CINT numCols, CINT numRows)->JWEffect*;
 
-		auto JWEffect::AddEffectType(const EEffectType Type, const SAnimationData Data, const D3DXVECTOR2 SpawnOffset, const D3DXVECTOR2 BBSize,
+		auto AddEffectType(const EEffectType Type, const SAnimationData Data, const D3DXVECTOR2 SpawnOffset, const D3DXVECTOR2 BBSize,
 			CINT Delay, CINT RepeatCount = 1)->JWEffect*;
 
-		auto JWEffect::Spawn(CINT EffectTypeID, const D3DXVECTOR2 Pos, const EAnimationDirection Dir, CINT Damage)->JWEffect*;
+		auto Spawn(CINT EffectTypeID, const D3DXVECTOR2 Pos, const EAnimationDirection Dir, CINT Damage)->JWEffect*;
 
-		void JWEffect::Draw() override;
-		void JWEffect::DrawBoundingBox() override;
+		void Draw() noexcept override;
+		void DrawBoundingBox() noexcept override;
 
-		void JWEffect::CheckCollisionWithMonsters(JWMonsterManager* pMonsters);
+		void CheckCollisionWithMonsters(JWMonsterManager* pMonsters);
 
 	private:
-		void JWEffect::CreateVertexBuffer() override;
-		void JWEffect::CreateIndexBuffer() override;
-		void JWEffect::DeleteInstance(EffectInstanceData* pInstance);
-		void JWEffect::Update();
+		void CreateVertexBuffer() override;
+		void CreateIndexBuffer() override;
+		void Unspawn(EffectInstanceData* pInstance);
+		void Update();
 
 	private:
 		const JWMap* m_pMap;

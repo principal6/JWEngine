@@ -39,14 +39,14 @@ namespace JWENGINE
 		JWMonster();
 		~JWMonster() {};
 
-		auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError;
-		void Destroy() override;
+		auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->JWMonster* override;
+		void Destroy() noexcept override;
 
 		void SetMonsterType(const JWMonsterType Type);
 		auto SetGlobalPosition(const D3DXVECTOR2 Position)->JWMonster* override;
 		void Damage(CINT Damage);
 
-		void Draw();
+		void Draw() noexcept;
 
 	private:
 		void SetUIPosition(const D3DXVECTOR2 Position);
@@ -58,7 +58,6 @@ namespace JWENGINE
 
 		JWMonsterType m_Type;
 		int m_HPCurr;
-		bool m_bUILoaded;
 		JWImage *m_HPFrame;
 		JWImage *m_HPBar;
 	};
@@ -72,7 +71,7 @@ namespace JWENGINE
 		JWMonsterManager() {};
 		~JWMonsterManager() {};
 
-		auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError;
+		void Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap);
 		void Destroy();
 
 		auto AddMonsterType(const JWMonsterType NewType)->JWMonsterType*;

@@ -67,99 +67,101 @@ namespace JWENGINE
 
 		// Create instant-text JWText.
 		// A 'JWGUIWindow' must have one instant-text JWText for its controls.
-		auto CreateInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError;
+		void CreateInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir);
 
 		// Create non-instant-text JWText.
 		// A 'JWEdit' control must call this function when it's being created.
 		// To fill in the third paramater(pFontTexture), call GetFontTexturePtr() of the JWGUIWindow-shared JWText object.
-		auto CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const LPDIRECT3DTEXTURE9 pFontTexture)->EError;
+		void CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const LPDIRECT3DTEXTURE9 pFontTexture);
 
 		// Destroy JWText object, no matter it's instant or non-instant.
-		void Destroy();
-
-		void SetNonInstantTextColor(const DWORD FontColor);
+		void Destroy() noexcept;
 
 		// Call this function when first set the text, or when the JWEdit control is resized or repositioned.
-		void SetNonInstantText(WSTRING Text, const D3DXVECTOR2& Position, const D3DXVECTOR2& AreaSize);
+		void SetNonInstantText(WSTRING Text, const D3DXVECTOR2& Position, const D3DXVECTOR2& AreaSize) noexcept;
 
 		// @warning: only used for IME input in order to erase temporary IME character input.
-		void SetNonInstantInnerText(WSTRING Text);
+		void SetNonInstantTextString(WSTRING Text) noexcept;
+
+		void SetNonInstantTextColor(const DWORD FontColor) noexcept;
 
 		// Insert a character in non-instant-text at the caret position.
-		void InsertInNonInstantText(const WSTRING& String);
-		void DrawNonInstantText();
+		void InsertInNonInstantText(const WSTRING& String) noexcept;
+
+		void DrawNonInstantText() const noexcept;
 
 		// Draw insant text to the window.
 		// Since it's instant text, there's no update function.
 		// @warning: instant text must be a single-line text.
 		// If the text is multi-line, it will be clipped.
 		void DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2& Position,
-			const EHorizontalAlignment HorizontalAlignment = EHorizontalAlignment::Left, const DWORD FontColor = DEFAULT_COLOR_FONT);
+			const EHorizontalAlignment HorizontalAlignment = EHorizontalAlignment::Left, const DWORD FontColor = DEFAULT_COLOR_FONT) noexcept;
 
-		void DrawCaret();
+		void DrawCaret() const noexcept;
 
-		void DrawSelectionBox();
+		void DrawSelectionBox() const noexcept;
 
 		// Get pointer to the font texture.
 		// This function needs to be used when you call CreateNonInstantText().
-		auto GetFontTexturePtr() const->const LPDIRECT3DTEXTURE9;
+		auto GetFontTexturePtr() const noexcept->const LPDIRECT3DTEXTURE9;
 
 		// Every line's height is equal to the font's size (ms_FontData.Info.Size).
-		auto GetLineHeight() const->const float;
+		auto GetLineHeight() const noexcept->const float;
 
-		void MoveCaretToLeft();
-		void MoveCaretToRight();
-		void MoveCaretUp();
-		void MoveCaretDown();
-		void MoveCaretHome();
-		void MoveCaretEnd();
-		void MoveCaretTo(const size_t SelPosition);
+		void MoveCaretToLeft() noexcept;
+		void MoveCaretToRight() noexcept;
+		void MoveCaretUp() noexcept;
+		void MoveCaretDown() noexcept;
+		void MoveCaretHome() noexcept;
+		void MoveCaretEnd() noexcept;
+		void MoveCaretTo(const size_t SelPosition) noexcept;
 
-		void SelectToLeft();
-		void SelectToRight();
-		void SelectUp();
-		void SelectDown();
-		void SelectHome();
-		void SelectEnd();
-		void SelectTo(const size_t SelPosition);
-		void SelectAll();
-		void ReleaseSelection();
+		void SelectToLeft() noexcept;
+		void SelectToRight() noexcept;
+		void SelectUp() noexcept;
+		void SelectDown() noexcept;
+		void SelectHome() noexcept;
+		void SelectEnd() noexcept;
+		void SelectTo(const size_t SelPosition) noexcept;
+		void SelectAll() noexcept;
+		void ReleaseSelection() noexcept;
 
-		auto GetCaretSelPosition() const->const size_t;
-		auto GetMousePressedSelPosition(const POINT MousePosition) const->const size_t;
-		auto GetSelectionStart() const->const size_t;
-		auto GetSelectionEnd() const->const size_t;
-		auto IsTextSelected() const->const bool;
+		auto GetCaretSelPosition() const noexcept->const size_t;
+		auto GetMousePressedSelPosition(const POINT MousePosition) const noexcept->const size_t;
+		auto GetSelectionStart() const noexcept->const size_t;
+		auto GetSelectionEnd() const noexcept->const size_t;
 
-		void ShouldUseAutomaticLineBreak(const bool Value);
+		auto IsTextSelected() const noexcept->const bool;
+
+		void ShouldUseAutomaticLineBreak(const bool Value) noexcept;
 
 	private:
 		// @warning: the font texture must be created only once per JWGUIWindow (i.e. per D3D device).
-		auto CreateFontTexture(const WSTRING& FileName_FNT)->EError;
+		void CreateFontTexture(const WSTRING& FileName_FNT);
 
 		// Create vertex and index buffers for instant text with limited length (MAX_INSTANT_TEXT_LENGTH).
 		// @warning: this function is called in CreateFontTexture().
-		auto CreateInstantTextBuffers()->EError;
+		void CreateInstantTextBuffers();
 
 		// Create vertex and index buffers for non-instant text with limited length
 		// (the length is computed to be the maximum, in accordance with screen's size and font's size.)
-		auto CreateNonInstantTextBuffers()->EError;
+		void CreateNonInstantTextBuffers();
 
-		auto CreateVertexBuffer(SVertexData* pVertexData)->EError;
-		auto CreateIndexBuffer(SIndexData* pIndexData)->EError;
-		auto UpdateVertexBuffer(SVertexData* pVertexData)->EError;
-		auto UpdateIndexBuffer(SIndexData* pIndexData)->EError;
+		void CreateVertexBuffer(SVertexData* pVertexData);
+		void CreateIndexBuffer(SIndexData* pIndexData);
+		void UpdateVertexBuffer(SVertexData* pVertexData);
+		void UpdateIndexBuffer(SIndexData* pIndexData);
 
-		void UpdateNonInstantTextVisibleVertices();
-		void UpdateCaret();
-		void UpdateSelectionBox();
+		void UpdateNonInstantTextVisibleVertices() noexcept;
+		void UpdateCaret() noexcept;
+		void UpdateSelectionBox() noexcept;
 
-		void SetInstantTextGlyph(const size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo);
-		void SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* pPrevInfo);
+		void SetInstantTextGlyph(const size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo) noexcept;
+		void SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* pPrevInfo) noexcept;
 
-		auto GetLineWidth(const WSTRING* pLineText) const->float;
-		auto GetLineStartGlyphIndex(const size_t LineIndex) const->const size_t;
-		auto GetLineEndGlyphIndex(const size_t LineIndex) const->const size_t;
+		auto GetLineWidth(const WSTRING* pLineText) const noexcept->const float;
+		auto GetLineStartGlyphIndex(const size_t LineIndex) const noexcept->const size_t;
+		auto GetLineEndGlyphIndex(const size_t LineIndex) const noexcept->const size_t;
 
 	private:
 		static const DWORD DEFAULT_COLOR_CARET = DEFAULT_COLOR_FONT;

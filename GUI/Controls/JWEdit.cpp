@@ -35,36 +35,30 @@ JWEdit::JWEdit()
 	m_bShouldGetOnlyNumbers = false;
 }
 
-auto JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
 {
-	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
-		return EError::CONTROL_NOT_CREATED;
+	JWControl::Create(Position, Size, pSharedData);
 
 	// Create a JWImageBox for background.
 	if (m_pBackground = new JWImageBox)
 	{
 		m_pBackground->ShouldBeOffsetByMenuBar(false);
 
-		if (JW_FAILED(m_pBackground->Create(Position, Size, pSharedData)))
-			return EError::IMAGE_NOT_CREATED;
-
-		m_pBackground->SetPosition(Position);
-		m_pBackground->SetSize(Size);
+		m_pBackground->Create(Position, Size, pSharedData);
 	}
 	else
 	{
-		return EError::ALLOCATION_FAILURE;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Create non-instant JWText for JWEdit control.
 	if (m_pEditText = new JWText)
 	{
-		if (JW_FAILED(m_pEditText->CreateNonInstantText(m_pSharedData->pWindow, &m_pSharedData->BaseDir, m_pSharedData->pText->GetFontTexturePtr())))
-			return EError::TEXT_NOT_CREATED;
+		m_pEditText->CreateNonInstantText(m_pSharedData->pWindow, &m_pSharedData->BaseDir, m_pSharedData->pText->GetFontTexturePtr());
 	}
 	else
 	{
-		return EError::ALLOCATION_FAILURE;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Set control type.
@@ -76,19 +70,18 @@ auto JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const 
 
 	m_pEditText->SetNonInstantText(L"", m_PaddedPosition, m_PaddedSize);
 
-	return EError::OK;
+	return this;
 }
 
-void JWEdit::Destroy()
+void JWEdit::Destroy() noexcept
 {
 	JWControl::Destroy();
 
 	JW_DESTROY(m_pEditText);
-	
 	JW_DESTROY(m_pBackground);
 }
 
-void JWEdit::Draw()
+void JWEdit::Draw() noexcept
 {
 	JWControl::BeginDrawing();
 
@@ -158,7 +151,7 @@ void JWEdit::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWEdit::SetPosition(const D3DXVECTOR2& Position)->JWControl*
+auto JWEdit::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -169,7 +162,7 @@ auto JWEdit::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 	return this;
 }
 
-auto JWEdit::SetSize(const D3DXVECTOR2& Size)->JWControl*
+auto JWEdit::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 {
 	D3DXVECTOR2 adjusted_size = Size;
 
@@ -185,7 +178,7 @@ auto JWEdit::SetSize(const D3DXVECTOR2& Size)->JWControl*
 	return this;
 }
 
-auto JWEdit::SetText(const WSTRING& Text)->JWControl*
+auto JWEdit::SetText(const WSTRING& Text) noexcept->JWControl*
 {
 	WSTRING new_text = Text;
 
@@ -212,7 +205,7 @@ auto JWEdit::SetText(const WSTRING& Text)->JWControl*
 	return this;
 }
 
-auto JWEdit::SetFontColor(const DWORD Color)->JWControl*
+auto JWEdit::SetFontColor(const DWORD Color) noexcept->JWControl*
 {
 	m_FontColor = Color;
 
@@ -221,21 +214,21 @@ auto JWEdit::SetFontColor(const DWORD Color)->JWControl*
 	return this;
 }
 
-auto JWEdit::SetWatermark(const WSTRING& Text)->JWControl*
+auto JWEdit::SetWatermark(const WSTRING& Text) noexcept->JWControl*
 {
 	m_Watermark = Text;
 
 	return this;
 }
 
-auto JWEdit::SetWatermarkColor(const DWORD Color)->JWControl*
+auto JWEdit::SetWatermarkColor(const DWORD Color) noexcept->JWControl*
 {
 	m_WatermarkColor = Color;
 
 	return this;
 }
 
-void JWEdit::Focus()
+void JWEdit::Focus() noexcept
 {
 	JWControl::Focus();
 
@@ -268,7 +261,7 @@ auto JWEdit::ShouldUseNumberInputsOnly(const bool Value) noexcept->JWControl*
 	return this;
 }
 
-PROTECTED void JWEdit::WindowMouseDown()
+PROTECTED void JWEdit::WindowMouseDown() noexcept
 {
 	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 	
@@ -285,7 +278,7 @@ PROTECTED void JWEdit::WindowMouseDown()
 	}
 }
 
-PROTECTED void JWEdit::WindowMouseMove()
+PROTECTED void JWEdit::WindowMouseMove() noexcept
 {
 	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 
@@ -295,7 +288,7 @@ PROTECTED void JWEdit::WindowMouseMove()
 	}
 }
 
-PROTECTED void JWEdit::WindowKeyDown(const WPARAM VirtualKeyCode)
+PROTECTED void JWEdit::WindowKeyDown(const WPARAM VirtualKeyCode) noexcept
 {
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
 
@@ -396,7 +389,7 @@ PROTECTED void JWEdit::WindowKeyDown(const WPARAM VirtualKeyCode)
 	}
 }
 
-PROTECTED void JWEdit::WindowCharKeyInput(const WPARAM Char)
+PROTECTED void JWEdit::WindowCharKeyInput(const WPARAM Char) noexcept
 {
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
 
@@ -500,7 +493,7 @@ PROTECTED void JWEdit::WindowCharKeyInput(const WPARAM Char)
 	}
 }
 
-PROTECTED void JWEdit::WindowIMEInput(const SGUIIMEInputInfo& IMEInfo)
+PROTECTED void JWEdit::WindowIMEInput(const SGUIIMEInputInfo& IMEInfo) noexcept
 {
 	if (!m_bShouldGetOnlyNumbers)
 	{
@@ -530,7 +523,7 @@ PROTECTED void JWEdit::WindowIMEInput(const SGUIIMEInputInfo& IMEInfo)
 			}
 
 			m_Text = temp_string;
-			m_pEditText->SetNonInstantInnerText(m_Text);
+			m_pEditText->SetNonInstantTextString(m_Text);
 		}
 
 		if (IMEInfo.bIMECompleted)
@@ -545,7 +538,7 @@ PROTECTED void JWEdit::WindowIMEInput(const SGUIIMEInputInfo& IMEInfo)
 	}
 }
 
-PRIVATE void JWEdit::InsertCharacter(wchar_t Char)
+PRIVATE void JWEdit::InsertCharacter(wchar_t Char) noexcept
 {
 	if (!m_bUseMultiline)
 	{
@@ -570,7 +563,7 @@ PRIVATE void JWEdit::InsertCharacter(wchar_t Char)
 	m_CaretShowInterval = 0;
 }
 
-PRIVATE void JWEdit::InsertString(WSTRING String)
+PRIVATE void JWEdit::InsertString(WSTRING String) noexcept
 {
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
 
@@ -603,7 +596,7 @@ PRIVATE void JWEdit::InsertString(WSTRING String)
 	m_CaretShowInterval = 0;
 }
 
-PRIVATE void JWEdit::EraseCharacter(size_t SelPosition)
+PRIVATE void JWEdit::EraseCharacter(size_t SelPosition) noexcept
 {
 	if (!m_Text.length())
 	{
@@ -622,7 +615,7 @@ PRIVATE void JWEdit::EraseCharacter(size_t SelPosition)
 	m_CaretShowInterval = 0;
 }
 
-PRIVATE void JWEdit::EraseSelection()
+PRIVATE void JWEdit::EraseSelection() noexcept
 {
 	size_t sel_start = m_pEditText->GetSelectionStart();
 	size_t sel_end = m_pEditText->GetSelectionEnd();
@@ -636,7 +629,7 @@ PRIVATE void JWEdit::EraseSelection()
 	m_CaretShowInterval = 0;
 }
 
-PRIVATE void JWEdit::CopySelection()
+PRIVATE void JWEdit::CopySelection() noexcept
 {
 	size_t sel_start = m_pEditText->GetSelectionStart();
 	size_t sel_end = m_pEditText->GetSelectionEnd();
@@ -671,11 +664,9 @@ PRIVATE void JWEdit::CopySelection()
 
 		CloseClipboard();
 	}
-	
-	//GlobalFree(h_memory);
 }
 
-PRIVATE void JWEdit::PasteFromClipboard()
+PRIVATE void JWEdit::PasteFromClipboard() noexcept
 {
 	if (OpenClipboard(m_pSharedData->pWindow->GethWnd()))
 	{
@@ -696,7 +687,7 @@ PRIVATE void JWEdit::PasteFromClipboard()
 	}
 }
 
-PRIVATE void JWEdit::UpdatePaddedViewport()
+PRIVATE void JWEdit::UpdatePaddedViewport() noexcept
 {
 	m_PaddedPosition.x = m_Position.x + DEFAULT_EDIT_PADDING;
 	m_PaddedPosition.y = m_Position.y + DEFAULT_EDIT_PADDING;

@@ -37,7 +37,7 @@ JWControl::JWControl()
 	m_bHasFocus = false;
 }
 
-auto JWControl::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWControl::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
 {
 	// Set shared data pointer.
 	m_pSharedData = pSharedData;
@@ -45,19 +45,13 @@ auto JWControl::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, con
 	// Craete line for border
 	if (m_pBorderLine = new JWLine)
 	{
-		if (JW_SUCCEEDED(m_pBorderLine->Create(m_pSharedData->pWindow->GetDevice())))
-		{
-			m_pBorderLine->AddBox(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), DEFAULT_COLOR_BORDER);
-			m_pBorderLine->AddEnd();
-		}
-		else
-		{
-			return EError::LINE_NOT_CREATED;
-		}
+		m_pBorderLine->Create(m_pSharedData->pWindow->GetDevice());
+		m_pBorderLine->AddBox(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), DEFAULT_COLOR_BORDER);
+		m_pBorderLine->AddEnd();
 	}
 	else
 	{
-		return EError::ALLOCATION_FAILURE;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Set control position and size.
@@ -77,10 +71,10 @@ auto JWControl::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, con
 	// Get the original viewport to reset it later
 	m_pSharedData->pWindow->GetDevice()->GetViewport(&m_OriginalViewport);
 
-	return EError::OK;
+	return this;
 }
 
-PROTECTED void JWControl::CalculateControlRect()
+PROTECTED void JWControl::CalculateControlRect() noexcept
 {
 	m_ControlRect.left = static_cast<int>(m_Position.x);
 	m_ControlRect.right = static_cast<int>(m_ControlRect.left + m_Size.x);
@@ -88,21 +82,240 @@ PROTECTED void JWControl::CalculateControlRect()
 	m_ControlRect.bottom = static_cast<int>(m_ControlRect.top + m_Size.y);
 }
 
-void JWControl::Destroy()
+void JWControl::Destroy() noexcept
 {
 	JW_DESTROY(m_pBorderLine);
 }
 
-auto JWControl::OnMouseHover() const->bool
+void JWControl::BeginDrawing() noexcept
+{
+	if (m_bShouldUseViewport)
+	{
+		m_pSharedData->pWindow->GetDevice()->SetViewport(&m_ControlViewport);
+	}
+}
+
+void JWControl::EndDrawing()
+{
+	if (m_bShouldDrawBorder)
+	{
+		m_pBorderLine->Draw();
+	}
+
+	if (m_Text.length())
+	{
+		if (m_ControlType != EControlType::Edit)
+		{
+			m_pSharedData->pText->DrawInstantText(m_Text, m_CalculatedTextPosition, m_HorizontalAlignment, m_FontColor);
+		}
+	}
+
+	if (m_bShouldUseViewport)
+	{
+		m_pSharedData->pWindow->GetDevice()->SetViewport(&m_OriginalViewport);
+	}
+}
+
+auto JWControl::SetText(const WSTRING& Text) noexcept->JWControl*
+{
+	m_Text = Text;
+
+	SetTextAlignment(m_HorizontalAlignment, m_VerticalAlignment);
+
+	return this;
+}
+
+auto JWControl::GetText(WSTRING& OutText) noexcept->JWControl*
+{
+	OutText = m_Text;
+
+	return this;
+}
+
+auto JWControl::SetTextAlignment(const EHorizontalAlignment HorizontalAlignment, const EVerticalAlignment VerticalAlignment) noexcept->JWControl*
+{
+	SetTextHorizontalAlignment(HorizontalAlignment);
+	SetTextVerticalAlignment(VerticalAlignment);
+
+	return this;
+}
+
+auto JWControl::SetTextHorizontalAlignment(const EHorizontalAlignment Alignment) noexcept->JWControl*
+{
+	m_HorizontalAlignment = Alignment;
+
+	switch (m_HorizontalAlignment)
+	{
+	case JWENGINE::EHorizontalAlignment::Left:
+		m_CalculatedTextPosition.x = m_Position.x;
+		break;
+	case JWENGINE::EHorizontalAlignment::Center:
+		m_CalculatedTextPosition.x = m_Position.x + m_Size.x / 2.0f;
+		break;
+	case JWENGINE::EHorizontalAlignment::Right:
+		m_CalculatedTextPosition.x = m_Position.x + m_Size.x;
+		break;
+	default:
+		break;
+	}
+
+	return this;
+}
+
+auto JWControl::SetTextVerticalAlignment(const EVerticalAlignment Alignment) noexcept->JWControl*
+{
+	m_VerticalAlignment = Alignment;
+
+	switch (m_VerticalAlignment)
+	{
+	case JWENGINE::EVerticalAlignment::Top:
+		m_CalculatedTextPosition.y = m_Position.y;
+		break;
+	case JWENGINE::EVerticalAlignment::Middle:
+		m_CalculatedTextPosition.y = m_Position.y + ((m_Size.y - m_pSharedData->pText->GetLineHeight()) / 2.0f);
+		break;
+	case JWENGINE::EVerticalAlignment::Bottom:
+		m_CalculatedTextPosition.y = m_Position.y + m_Size.y - m_pSharedData->pText->GetLineHeight();
+		break;
+	default:
+		break;
+	}
+
+	return this;
+}
+
+auto JWControl::SetFontColor(const DWORD Color) noexcept->JWControl*
+{
+	m_FontColor = Color;
+
+	return this;
+}
+
+auto JWControl::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
+{
+	m_Position = Position;
+
+	if (m_pSharedData->pGUIWindow->HasMenuBar())
+	{
+		if (m_bShouldBeOffsetByMenuBar)
+		{
+			m_Position.y += m_pSharedData->pGUIWindow->GetMenuBarHeight();
+		}
+	}
+
+	// Set the text's default position.
+	m_CalculatedTextPosition = m_Position;
+
+	// Update the text's alignment.
+	SetTextAlignment(m_HorizontalAlignment, m_VerticalAlignment);
+
+	UpdateBorderPositionAndSize();
+
+	CalculateControlRect();
+
+	UpdateViewport();
+
+	return this;
+}
+
+auto JWControl::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+{
+	D3DXVECTOR2 adjusted_size = Size;
+
+	// Limit minimum size.
+	adjusted_size.x = max(adjusted_size.x, 0);
+	adjusted_size.y = max(adjusted_size.y, 0);
+
+	m_Size = adjusted_size;
+
+	// Update the text's alignment.
+	SetTextAlignment(m_HorizontalAlignment, m_VerticalAlignment);
+
+	UpdateBorderPositionAndSize();
+
+	CalculateControlRect();
+
+	UpdateViewport();
+
+	return this;
+}
+
+auto JWControl::SetBorderColor(const DWORD Color) noexcept->JWControl*
+{
+	m_pBorderLine->SetBoxColor(Color);
+
+	return this;
+}
+
+auto JWControl::SetBorderColor(const DWORD ColorA, const DWORD ColorB) noexcept->JWControl*
+{
+	m_pBorderLine->SetBoxColor(ColorA, ColorB);
+
+	return this;
+}
+
+auto JWControl::SetBackgroundColor(const DWORD Color) noexcept->JWControl*
+{
+	m_Color_Normal = Color;
+	m_Color_Hover = Color;
+	m_Color_Pressed = Color;
+
+	return this;
+}
+
+auto JWControl::GetPosition() const noexcept->const D3DXVECTOR2
+{
+	return m_Position;
+}
+
+auto JWControl::GetAbsolutePosition() const noexcept->const D3DXVECTOR2
+{
+	return m_AbsolutePosition;
+}
+
+auto JWControl::GetSize() const noexcept->const D3DXVECTOR2
+{
+	return m_Size;
+}
+
+auto JWControl::GetControlType() const noexcept->const EControlType
+{
+	return m_ControlType;
+}
+
+auto JWControl::GetControlState() const noexcept->const EControlState
+{
+	return m_ControlState;
+}
+
+auto JWControl::SetParentControl(const JWControl* pParentControl) noexcept->JWControl*
+{
+	m_pParentControl = pParentControl;
+
+	return this;
+}
+
+auto JWControl::HasParentControl() noexcept->const bool
+{
+	if (m_pParentControl)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+auto JWControl::OnMouseHover() const noexcept->const bool
 {
 	if (m_ControlState == EControlState::Hover)
 	{
 		return true;
 	}
+
 	return false;
 }
 
-auto JWControl::OnMousePressed() const->bool
+auto JWControl::OnMousePressed() const noexcept->const bool
 {
 	if (m_ControlState == EControlState::Pressed)
 	{
@@ -111,7 +324,7 @@ auto JWControl::OnMousePressed() const->bool
 	return false;
 }
 
-auto JWControl::OnMouseCliked() const->bool
+auto JWControl::OnMouseCliked() const noexcept->const bool
 {
 	if (m_ControlState == EControlState::Clicked)
 	{
@@ -120,7 +333,7 @@ auto JWControl::OnMouseCliked() const->bool
 	return false;
 }
 
-void JWControl::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
+PROTECTED void JWControl::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept
 {
 	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 
@@ -252,14 +465,17 @@ auto JWControl::AttachScrollBar(const JWControl* pScrollBar)->JWControl*
 	if (pScrollBar == nullptr)
 	{
 		// There must be scroll-bar to attach.
+		throw EError::NULLPTR_CONTROL;
 	}
 	else if (this == pScrollBar)
 	{
 		// You can't attach yourself!
+		throw EError::INVALID_POINTER_ASSIGNMENT;
 	}
 	else if (pScrollBar->GetControlType() != EControlType::ScrollBar)
 	{
 		// Only scroll-bars can be attached.
+		throw EError::INVALID_CONTROL_TYPE;
 	}
 	else
 	{
@@ -270,43 +486,14 @@ auto JWControl::AttachScrollBar(const JWControl* pScrollBar)->JWControl*
 	return this;
 }
 
-auto JWControl::DetachScrollBar()->JWControl*
+auto JWControl::DetachScrollBar() noexcept->JWControl*
 {
 	m_pAttachedScrollBar = nullptr;
 
 	return this;
 }
 
-void JWControl::BeginDrawing()
-{
-	if (m_bShouldUseViewport)
-	{
-		m_pSharedData->pWindow->GetDevice()->SetViewport(&m_ControlViewport);
-	}
-}
-
-void JWControl::EndDrawing()
-{
-	if (m_bShouldDrawBorder)
-	{
-		m_pBorderLine->Draw();
-	}
-
-	if (m_Text.length())
-	{
-		if (m_ControlType != EControlType::Edit)
-		{
-			m_pSharedData->pText->DrawInstantText(m_Text, m_CalculatedTextPosition, m_HorizontalAlignment, m_FontColor);
-		}
-	}
-
-	if (m_bShouldUseViewport)
-	{
-		m_pSharedData->pWindow->GetDevice()->SetViewport(&m_OriginalViewport);
-	}
-}
-
-PROTECTED void JWControl::UpdateBorderPositionAndSize()
+PROTECTED void JWControl::UpdateBorderPositionAndSize() noexcept
 {
 	D3DXVECTOR2 border_position = m_Position;
 
@@ -317,7 +504,7 @@ PROTECTED void JWControl::UpdateBorderPositionAndSize()
 	m_pBorderLine->SetBox(border_position, border_size);
 }
 
-PROTECTED void JWControl::UpdateViewport()
+PROTECTED void JWControl::UpdateViewport() noexcept
 {
 	m_ControlViewport = m_OriginalViewport;
 	m_ControlViewport.X = static_cast<DWORD>(m_Position.x);
@@ -326,61 +513,12 @@ PROTECTED void JWControl::UpdateViewport()
 	m_ControlViewport.Height = static_cast<DWORD>(m_Size.y);
 }
 
-auto JWControl::SetPosition(const D3DXVECTOR2& Position)->JWControl*
-{
-	m_Position = Position;
-
-	if (m_pSharedData->pGUIWindow->HasMenuBar())
-	{
-		if (m_bShouldBeOffsetByMenuBar)
-		{
-			m_Position.y += m_pSharedData->pGUIWindow->GetMenuBarHeight();
-		}
-	}
-
-	// Set the text's default position.
-	m_CalculatedTextPosition = m_Position;
-
-	// Update the text's alignment.
-	SetTextAlignment(m_HorizontalAlignment, m_VerticalAlignment);
-
-	UpdateBorderPositionAndSize();
-
-	CalculateControlRect();
-
-	UpdateViewport();
-
-	return this;
-}
-
-auto JWControl::SetSize(const D3DXVECTOR2& Size)->JWControl*
-{
-	D3DXVECTOR2 adjusted_size = Size;
-
-	// Limit minimum size.
-	adjusted_size.x = max(adjusted_size.x, 0);
-	adjusted_size.y = max(adjusted_size.y, 0);
-
-	m_Size = adjusted_size;
-
-	// Update the text's alignment.
-	SetTextAlignment(m_HorizontalAlignment, m_VerticalAlignment);
-
-	UpdateBorderPositionAndSize();
-
-	CalculateControlRect();
-
-	UpdateViewport();
-
-	return this;
-}
-
-void JWControl::SetControlState(const EControlState State)
+void JWControl::SetControlState(const EControlState State) noexcept
 {
 	m_ControlState = State;
 }
 
-void JWControl::SetControlStateColor(const EControlState State, const DWORD Color)
+void JWControl::SetControlStateColor(const EControlState State, const DWORD Color) noexcept
 {
 	switch (State)
 	{
@@ -400,54 +538,14 @@ void JWControl::SetControlStateColor(const EControlState State, const DWORD Colo
 	}
 }
 
-auto JWControl::SetBorderColor(const DWORD Color)->JWControl*
-{
-	m_pBorderLine->SetBoxColor(Color);
-
-	return this;
-}
-
-auto JWControl::SetBorderColor(const DWORD ColorA, const DWORD ColorB)->JWControl*
-{
-	m_pBorderLine->SetBoxColor(ColorA, ColorB);
-
-	return this;
-}
-
-auto JWControl::SetBackgroundColor(const DWORD Color)->JWControl*
-{
-	m_Color_Normal = Color;
-	m_Color_Hover = Color;
-	m_Color_Pressed = Color;
-
-	return this;
-}
-
-auto JWControl::SetParentControl(const JWControl* pParentControl)->JWControl*
-{
-	m_pParentControl = pParentControl;
-
-	return this;
-}
-
-auto JWControl::HasParentControl()->bool
-{
-	if (m_pParentControl)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-void JWControl::Focus()
+void JWControl::Focus() noexcept
 {
 	m_bHasFocus = true;
 
 	m_pBorderLine->SetBoxColor(DEFAULT_COLOR_BORDER_ACTIVE);
 }
 
-void JWControl::KillFocus()
+void JWControl::KillFocus() noexcept
 {
 	m_bHasFocus = false;
 
@@ -456,121 +554,21 @@ void JWControl::KillFocus()
 	m_pBorderLine->SetBoxColor(DEFAULT_COLOR_BORDER);
 }
 
-auto JWControl::SetText(const WSTRING& Text)->JWControl*
-{
-	m_Text = Text;
-
-	SetTextAlignment(m_HorizontalAlignment, m_VerticalAlignment);
-
-	return this;
-}
-
-auto JWControl::GetText(WSTRING& OutText)->JWControl*
-{
-	OutText = m_Text;
-
-	return this;
-}
-
-auto JWControl::SetTextAlignment(const EHorizontalAlignment HorizontalAlignment, const EVerticalAlignment VerticalAlignment)->JWControl*
-{
-	SetTextHorizontalAlignment(HorizontalAlignment);
-	SetTextVerticalAlignment(VerticalAlignment);
-
-	return this;
-}
-
-auto JWControl::SetTextHorizontalAlignment(const EHorizontalAlignment Alignment)->JWControl*
-{
-	m_HorizontalAlignment = Alignment;
-
-	switch (m_HorizontalAlignment)
-	{
-	case JWENGINE::EHorizontalAlignment::Left:
-		m_CalculatedTextPosition.x = m_Position.x;
-		break;
-	case JWENGINE::EHorizontalAlignment::Center:
-		m_CalculatedTextPosition.x = m_Position.x + m_Size.x / 2.0f;
-		break;
-	case JWENGINE::EHorizontalAlignment::Right:
-		m_CalculatedTextPosition.x = m_Position.x + m_Size.x;
-		break;
-	default:
-		break;
-	}
-
-	return this;
-}
-
-auto JWControl::SetTextVerticalAlignment(const EVerticalAlignment Alignment)->JWControl*
-{
-	m_VerticalAlignment = Alignment;
-
-	switch (m_VerticalAlignment)
-	{
-	case JWENGINE::EVerticalAlignment::Top:
-		m_CalculatedTextPosition.y = m_Position.y;
-		break;
-	case JWENGINE::EVerticalAlignment::Middle:
-		m_CalculatedTextPosition.y = m_Position.y + ((m_Size.y - m_pSharedData->pText->GetLineHeight()) / 2.0f);
-		break;
-	case JWENGINE::EVerticalAlignment::Bottom:
-		m_CalculatedTextPosition.y = m_Position.y + m_Size.y - m_pSharedData->pText->GetLineHeight();
-		break;
-	default:
-		break;
-	}
-
-	return this;
-}
-
-auto JWControl::SetFontColor(const DWORD Color)->JWControl*
-{
-	m_FontColor = Color;
-
-	return this;
-}
-
-auto JWControl::GetControlState() const->const EControlState
-{
-	return m_ControlState;
-}
-
-auto JWControl::GetPosition() const->const D3DXVECTOR2
-{
-	return m_Position;
-}
-
-auto JWControl::GetAbsolutePosition() const->const D3DXVECTOR2
-{
-	return m_AbsolutePosition;
-}
-
-auto JWControl::GetSize() const->const D3DXVECTOR2
-{
-	return m_Size;
-}
-
-auto JWControl::GetControlType() const->const EControlType
-{
-	return m_ControlType;
-}
-
-auto JWControl::ShouldDrawBorder(const bool Value)->JWControl*
+auto JWControl::ShouldDrawBorder(const bool Value) noexcept->JWControl*
 {
 	m_bShouldDrawBorder = Value;
 
 	return this;
 }
 
-auto JWControl::ShouldUseViewport(const bool Value)->JWControl*
+auto JWControl::ShouldUseViewport(const bool Value) noexcept->JWControl*
 {
 	m_bShouldUseViewport = Value;
 
 	return this;
 }
 
-auto JWControl::ShouldBeOffsetByMenuBar(const bool Value)->JWControl*
+auto JWControl::ShouldBeOffsetByMenuBar(const bool Value) noexcept->JWControl*
 {
 	m_bShouldBeOffsetByMenuBar = Value;
 

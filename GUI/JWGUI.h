@@ -12,16 +12,16 @@ namespace JWENGINE
 		JWGUI();
 		~JWGUI() {};
 
-		auto Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow)->EError;
-		void Destroy();
+		void Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow);
+		void Destroy() noexcept;
 
 		void AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrGUIWindow);
 
-		void DestroyGUIWindow(const JWGUIWindow* pGUIWindow);
+		void DestroyGUIWindow(const JWGUIWindow* pGUIWindow) noexcept;
 
-		void SetMainLoopFunction(const PF_MAINLOOP pfMainLoop);
+		void SetMainLoopFunction(const PF_MAINLOOP pfMainLoop) noexcept;
 
-		void Run();
+		void Run() noexcept;
 
 	private:
 		friend LRESULT CALLBACK GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);

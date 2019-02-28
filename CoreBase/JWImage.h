@@ -15,8 +15,8 @@ namespace JWENGINE
 		D3DXVECTOR2 PositionOffset;
 		D3DXVECTOR2 Size;
 
-		SBoundingBox() : PositionOffset(D3DXVECTOR2(0, 0)), Size(D3DXVECTOR2(0, 0)) {};
-		SBoundingBox(D3DXVECTOR2 _POSOFFSET, D3DXVECTOR2 _SIZE) : PositionOffset(_POSOFFSET), Size(_SIZE) {};
+		SBoundingBox() : PositionOffset(0, 0), Size(0, 0) {};
+		SBoundingBox(D3DXVECTOR2 _PositionOffset, D3DXVECTOR2 _Size) : PositionOffset(_PositionOffset), Size(_Size) {};
 	};
 
 	class JWImage
@@ -25,49 +25,49 @@ namespace JWENGINE
 		JWImage();
 		virtual ~JWImage() {};
 
-		virtual auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError;
-		virtual void Destroy();
+		virtual void Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir);
+		virtual void Destroy() noexcept;
 
-		virtual void Draw();
-		virtual void DrawBoundingBox();
+		virtual void Draw() noexcept;
+		virtual void DrawBoundingBox() noexcept;
 
-		virtual void FlipHorizontal();
-		virtual void FlipVertical();
+		virtual void FlipHorizontal() noexcept;
+		virtual void FlipVertical() noexcept;
 
-		virtual void SetPosition(const D3DXVECTOR2& Position);
-		virtual void SetPositionCentered(const D3DXVECTOR2& Position);
-		virtual void SetSize(const D3DXVECTOR2& Size);
+		virtual void SetPosition(const D3DXVECTOR2& Position) noexcept;
+		virtual void SetPositionCentered(const D3DXVECTOR2& Position) noexcept;
+		virtual void SetSize(const D3DXVECTOR2& Size) noexcept;
 		virtual void SetTexture(const WSTRING& FileName);
-		virtual void SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo);
-		virtual auto SetColor(const DWORD Color)->JWImage*;
-		virtual auto SetAlpha(const BYTE Alpha)->JWImage*;
-		virtual auto SetXRGB(const DWORD XRGB)->JWImage*;
-		virtual auto SetScale(const D3DXVECTOR2& Scale)->JWImage*;
-		virtual auto SetVisibleRange(const D3DXVECTOR2& Range)->JWImage*;
-		virtual auto SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size, bool bSetSize = true)->JWImage*;
-		virtual auto SetUVRange(const STextureUV UV)->JWImage*;
-		virtual auto SetBoundingBox(const D3DXVECTOR2& ExtraSize)->JWImage*;
-		virtual auto SetBoundingBoxAlpha(const BYTE Alpha)->JWImage*;
-		virtual auto SetBoundingBoxXRGB(const DWORD XRGB)->JWImage*;
+		virtual void SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo) noexcept;
+		virtual auto SetColor(const DWORD Color) noexcept->JWImage*;
+		virtual auto SetAlpha(const BYTE Alpha) noexcept->JWImage*;
+		virtual auto SetXRGB(const DWORD XRGB) noexcept->JWImage*;
+		virtual auto SetScale(const D3DXVECTOR2& Scale) noexcept->JWImage*;
+		virtual auto SetVisibleRange(const D3DXVECTOR2& Range) noexcept->JWImage*;
+		virtual auto SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size, bool bSetSize = true) noexcept->JWImage*;
+		virtual auto SetUVRange(const STextureUV UV) noexcept->JWImage*;
+		virtual auto SetBoundingBox(const D3DXVECTOR2& ExtraSize) noexcept->JWImage*;
+		virtual auto SetBoundingBoxAlpha(const BYTE Alpha) noexcept->JWImage*;
+		virtual auto SetBoundingBoxXRGB(const DWORD XRGB) noexcept->JWImage*;
 
-		virtual auto GetSize() const->const D3DXVECTOR2;
-		virtual auto GetScaledSize() const->const D3DXVECTOR2;
-		virtual auto GetPosition() const->const D3DXVECTOR2;
-		virtual auto GetCenterPosition() const->const D3DXVECTOR2;
-		virtual auto GetBoundingBox() const->const SBoundingBox;
+		virtual auto GetSize() const noexcept->const D3DXVECTOR2&;
+		virtual auto GetScaledSize() const noexcept->const D3DXVECTOR2&;
+		virtual auto GetPosition() const noexcept->const D3DXVECTOR2&;
+		virtual auto GetCenterPosition() const noexcept->const D3DXVECTOR2;
+		virtual auto GetBoundingBox() const noexcept->const SBoundingBox;
 
-		virtual auto IsTextureLoaded() const->const bool;
+		virtual auto IsTextureLoaded() const noexcept->const bool;
 
 	protected:
-		virtual void ClearVertexAndIndexData();
+		virtual void ClearVertexAndIndex() noexcept;
 
 		virtual void CreateVertexBuffer();
 		virtual void CreateIndexBuffer();
 		virtual void UpdateVertexBuffer();
 		virtual void UpdateIndexBuffer();
 
-		virtual void UpdateVertexData();
-		virtual void UpdateVertexData(const STextureUV& UV);
+		virtual void UpdateVertexData() noexcept;
+		virtual void UpdateVertexData(const STextureUV& UV) noexcept;
 
 	protected:
 		static const int VISIBLE_RANGE_NOT_SET = -1;

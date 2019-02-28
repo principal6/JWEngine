@@ -14,25 +14,30 @@ JWEffect::JWEffect()
 	m_pLastInstance = nullptr;
 }	
 
-auto JWEffect::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError
+auto JWEffect::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->JWEffect*
 {
 	if (pJWWindow == nullptr)
-		return EError::NULLPTR_WINDOW;
+	{
+		throw EError::NULLPTR_WINDOW;
+	}
 
 	if (pMap == nullptr)
-		return EError::NULLPTR_MAP;
+	{
+		throw EError::NULLPTR_MAP;
+	}
 
-	EError Result = JWImage::Create(pJWWindow, pBaseDir);
+	JWImage::Create(pJWWindow, pBaseDir);
+
 	m_pMap = pMap;
 
-	JWImage::ClearVertexAndIndexData();
+	JWImage::ClearVertexAndIndex();
 
 	CreateVertexBuffer();
 	CreateIndexBuffer();
 
 	m_BoundingBoxLine.CreateMax(m_pDevice);
 
-	return Result;
+	return this;
 }
 
 void JWEffect::CreateVertexBuffer()
@@ -53,7 +58,7 @@ void JWEffect::CreateIndexBuffer()
 	}
 }
 
-void JWEffect::Destroy()
+void JWEffect::Destroy() noexcept
 {
 	if (m_pFisrtInstance)
 	{
@@ -152,8 +157,8 @@ auto JWEffect::Spawn(CINT EffectTypeID, const D3DXVECTOR2 Pos, const EAnimationD
 void JWEffect::Update()
 {
 	D3DXVECTOR2 MapOffset = m_pMap->GetMapOffset();
-	JWImage::ClearVertexAndIndexData();
-	m_BoundingBoxLine.ClearBuffers();
+	JWImage::ClearVertexAndIndex();
+	m_BoundingBoxLine.ClearVertexAndIndex();
 
 	EffectInstanceData* iterator = m_pFisrtInstance;
 	int iterator_n = 0;
@@ -237,8 +242,7 @@ void JWEffect::Update()
 		}
 	}
 
-	m_BoundingBoxLine.UpdateVertexBuffer();
-	m_BoundingBoxLine.UpdateIndexBuffer();
+	m_BoundingBoxLine.AddEnd();
 
 	JWImage::UpdateVertexBuffer();
 	JWImage::UpdateIndexBuffer();
@@ -253,7 +257,7 @@ void JWEffect::Update()
 	}
 }
 
-void JWEffect::Draw()
+void JWEffect::Draw() noexcept
 {
 	if (m_pFisrtInstance)
 	{
@@ -262,7 +266,7 @@ void JWEffect::Draw()
 	}
 }
 
-void JWEffect::DrawBoundingBox()
+void JWEffect::DrawBoundingBox() noexcept
 {
 	if (m_pFisrtInstance)
 	{
@@ -270,7 +274,7 @@ void JWEffect::DrawBoundingBox()
 	}
 }
 
-void JWEffect::DeleteInstance(EffectInstanceData* pInstance)
+void JWEffect::Unspawn(EffectInstanceData* pInstance)
 {
 	EffectInstanceData* iterator = m_pFisrtInstance;
 	EffectInstanceData* next = nullptr;

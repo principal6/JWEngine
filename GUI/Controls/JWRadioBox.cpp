@@ -13,22 +13,18 @@ JWRadioBox::JWRadioBox()
 	m_bChecked = false;
 }
 
-auto JWRadioBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWRadioBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
 {
-	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
-		return EError::CONTROL_NOT_CREATED;
+	JWControl::Create(Position, Size, pSharedData);
 
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
-			return EError::IMAGE_NOT_CREATED;
-		
-		//m_pBackground->SetColor(D3DCOLOR_XRGB(255, 255, 255));
+		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
 		m_pBackground->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
 	}
 	else
 	{
-		return EError::IMAGE_NOT_CREATED;
+		throw EError::IMAGE_NOT_CREATED;
 	}
 
 	// Set default alignment
@@ -42,18 +38,18 @@ auto JWRadioBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, co
 	// 'D3DXVECTOR2 Size' is not used but 'GUI_BUTTON_SIZE'
 	SetPosition(Position);
 	SetSize(GUI_BUTTON_SIZE);
-
-	return EError::OK;
+	
+	return this;
 }
 
-void JWRadioBox::Destroy()
+void JWRadioBox::Destroy() noexcept
 {
 	JWControl::Destroy();
 
 	JW_DESTROY(m_pBackground);
 }
 
-void JWRadioBox::Draw()
+void JWRadioBox::Draw() noexcept
 {
 	JWControl::BeginDrawing();
 
@@ -86,7 +82,7 @@ void JWRadioBox::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWRadioBox::SetPosition(const D3DXVECTOR2& Position)->JWControl*
+auto JWRadioBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -95,14 +91,14 @@ auto JWRadioBox::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 	return this;
 }
 
-auto JWRadioBox::SetCheckState(const bool Value)->JWControl*
+auto JWRadioBox::SetCheckState(const bool Value) noexcept->JWControl*
 {
 	m_bChecked = Value;
 
 	return this;
 }
 
-auto JWRadioBox::GetCheckState() const->const bool
+auto JWRadioBox::GetCheckState() const noexcept->const bool
 {
 	return m_bChecked;
 }

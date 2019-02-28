@@ -19,7 +19,7 @@ namespace JWENGINE
 		D3DXVECTOR2 ItemSize;
 		D3DXVECTOR2 ImageItemSize;
 
-		SListBoxItemInfo() : ItemPosition(D3DXVECTOR2(0, 0)), ItemSize(D3DXVECTOR2(0, 0)), ImageItemSize(D3DXVECTOR2(0, 0)) {};
+		SListBoxItemInfo() : ItemPosition(0, 0), ItemSize(0, 0), ImageItemSize(0, 0) {};
 	};
 
 	class JWListBox final : public JWControl
@@ -30,41 +30,41 @@ namespace JWENGINE
 		JWListBox();
 		~JWListBox() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError override;
-		void Destroy() override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		void Destroy() noexcept override;
 
-		auto SetMinimumItemHeight(const float Value)->JWControl* override;
-		auto SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo)->JWControl* override;
+		auto SetMinimumItemHeight(const float Value) noexcept->JWControl* override;
+		auto SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo) noexcept->JWControl* override;
 
 		auto AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInAtlas = D3DXVECTOR2(0, 0),
 			const D3DXVECTOR2& SizeInAtlas = D3DXVECTOR2(0, 0))->JWControl* override;
 
-		void Draw() override;
+		void Draw() noexcept override;
 
-		auto SetPosition(const D3DXVECTOR2& Position)->JWControl* override;
-		auto SetSize(const D3DXVECTOR2& Size)->JWControl* override;
-		auto SetBackgroundColor(DWORD Color)->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
+		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
+		auto SetBackgroundColor(DWORD Color) noexcept->JWControl* override;
 
-		auto GetListBoxItemCount() const->const size_t override;
+		auto GetListBoxItemCount() const noexcept->const size_t override;
 
 		// Returns the sum of the height of all the items in the ListBox.
-		auto GetListBoxItemHeight() const->const float override;
+		auto GetListBoxItemHeight() const noexcept->const float override;
 
-		auto GetSelectedItemIndex() const->const TIndex override;
+		auto GetSelectedItemIndex() const noexcept->const TIndex override;
 
-		auto ShouldUseAutomaticScrollBar(const bool Value)->JWControl* override;
-		auto ShouldUseToggleSelection(const bool Value)->JWControl* override;
-		auto ShouldUseImageItem(const bool Value)->JWControl* override;
+		auto ShouldUseAutomaticScrollBar(const bool Value) noexcept->JWControl* override;
+		auto ShouldUseToggleSelection(const bool Value) noexcept->JWControl* override;
+		auto ShouldUseImageItem(const bool Value) noexcept->JWControl* override;
 
 	protected:
 		// Must be overridden.
-		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
+		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
 	private:
-		void UpdateAutomaticScrollBar();
+		void UpdateAutomaticScrollBar() noexcept;
 
-		void SetToggleSelectionColor(JWImageBox* pItemBackground);
-		void SetNonToggleSelectionColor(JWImageBox* pItemBackground);
+		void SetToggleSelectionColor(JWImageBox* pItemBackground) noexcept;
+		void SetNonToggleSelectionColor(JWImageBox* pItemBackground) noexcept;
 
 	private:
 		static const BYTE DEFUALT_ALPHA_BACKGROUND_LISTBOX = 255;

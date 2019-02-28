@@ -11,17 +11,14 @@ JWLabel::JWLabel()
 	m_Color_Pressed = DEFAULT_COLOR_BACKGROUND_LABEL;
 }
 
-auto JWLabel::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWLabel::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
 {
-	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
-		return EError::CONTROL_NOT_CREATED;
+	JWControl::Create(Position, Size, pSharedData);
 
 	// Create image for background
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
-			return EError::IMAGE_NOT_CREATED;
-
+		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
 		m_pBackground->SetPosition(Position);
 		m_pBackground->SetSize(Size);
 		m_pBackground->SetAlpha(DEFUALT_ALPHA_BACKGROUND_LABEL);
@@ -29,7 +26,7 @@ auto JWLabel::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const
 	}
 	else
 	{
-		return EError::ALLOCATION_FAILURE;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Set control type
@@ -39,17 +36,17 @@ auto JWLabel::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const
 	SetPosition(Position);
 	SetSize(Size);
 
-	return EError::OK;
+	return this;
 }
 
-void JWLabel::Destroy()
+void JWLabel::Destroy() noexcept
 {
 	JWControl::Destroy();
 
 	JW_DESTROY(m_pBackground);
 }
 
-void JWLabel::Draw()
+void JWLabel::Draw() noexcept
 {
 	JWControl::BeginDrawing();
 
@@ -75,7 +72,7 @@ void JWLabel::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWLabel::SetPosition(const D3DXVECTOR2& Position)->JWControl*
+auto JWLabel::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -87,7 +84,7 @@ auto JWLabel::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 	return this;
 }
 
-auto JWLabel::SetSize(const D3DXVECTOR2& Size)->JWControl*
+auto JWLabel::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 {
 	JWControl::SetSize(Size);
 

@@ -33,58 +33,49 @@ JWScrollBar::JWScrollBar()
 	m_ScrollableSize = 0;
 }
 
-auto JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
 {
-	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
-		return EError::CONTROL_NOT_CREATED;
+	JWControl::Create(Position, Size, pSharedData);
 
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
-			return EError::IMAGE_NOT_CREATED;
-
+		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
 		m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
 	}
 	else
 	{
-		return EError::IMAGE_NOT_CREATED;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	if (m_pButtonA = new JWImageButton)
 	{
 		m_pButtonA->ShouldBeOffsetByMenuBar(false);
 
-		if (JW_FAILED(m_pButtonA->Create(Position, GUI_BUTTON_SIZE, m_pSharedData)))
-			return EError::IMAGE_BUTTON_NOT_CREATED;
-
+		m_pButtonA->Create(Position, GUI_BUTTON_SIZE, m_pSharedData);
 		m_pButtonA->ShouldDrawBorder(false);
 	}
 	else
 	{
-		return EError::IMAGE_BUTTON_NOT_CREATED;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	if (m_pButtonB = new JWImageButton)
 	{
 		m_pButtonB->ShouldBeOffsetByMenuBar(false);
 
-		if (JW_FAILED(m_pButtonB->Create(Position, GUI_BUTTON_SIZE, m_pSharedData)))
-			return EError::IMAGE_BUTTON_NOT_CREATED;
-
+		m_pButtonB->Create(Position, GUI_BUTTON_SIZE, m_pSharedData);
 		m_pButtonB->ShouldDrawBorder(false);
 	}
 	else
 	{
-		return EError::IMAGE_BUTTON_NOT_CREATED;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	if (m_pScroller = new JWTextButton)
 	{
 		m_pScroller->ShouldBeOffsetByMenuBar(false);
 
-		if (JW_FAILED(m_pScroller->Create(Position, GUI_BUTTON_SIZE, m_pSharedData)))
-			return EError::IMAGE_BUTTON_NOT_CREATED;
-
+		m_pScroller->Create(Position, GUI_BUTTON_SIZE, m_pSharedData);
 		m_pScroller->ShouldDrawBorder(false);
 		m_pScroller->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_WHITE);
 		m_pScroller->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_WHITE);
@@ -92,7 +83,7 @@ auto JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, c
 	}
 	else
 	{
-		return EError::IMAGE_BUTTON_NOT_CREATED;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Set default alignment
@@ -107,10 +98,10 @@ auto JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, c
 	// (Because the direction is decided when MakeScrollBar() is called.)
 	SetPosition(Position);
 
-	return EError::OK;
+	return this;
 }
 
-void JWScrollBar::Destroy()
+void JWScrollBar::Destroy() noexcept
 {
 	JWControl::Destroy();
 
@@ -120,7 +111,7 @@ void JWScrollBar::Destroy()
 	JW_DESTROY(m_pScroller);
 }
 
-auto JWScrollBar::MakeScrollBar(const EScrollBarDirection Direction)->JWControl*
+auto JWScrollBar::MakeScrollBar(const EScrollBarDirection Direction) noexcept->JWControl*
 {
 	m_ScrollBarDirection = Direction;
 
@@ -150,7 +141,7 @@ auto JWScrollBar::MakeScrollBar(const EScrollBarDirection Direction)->JWControl*
 	return this;
 }
 
-PROTECTED void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus)
+PROTECTED void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept
 {
 	JWControl::UpdateControlState(ppControlWithMouse, ppControlWithFocus);
 
@@ -309,7 +300,7 @@ PROTECTED void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, J
 	}
 }
 
-void JWScrollBar::Draw()
+void JWScrollBar::Draw() noexcept
 {
 	JWControl::BeginDrawing();
 
@@ -337,7 +328,7 @@ void JWScrollBar::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWScrollBar::SetPosition(const D3DXVECTOR2& Position)->JWControl*
+auto JWScrollBar::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -348,7 +339,7 @@ auto JWScrollBar::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 	return this;
 }
 
-auto JWScrollBar::SetSize(const D3DXVECTOR2& Size)->JWControl*
+auto JWScrollBar::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 {
 	D3DXVECTOR2 adjusted_size = Size;
 
@@ -376,7 +367,7 @@ auto JWScrollBar::SetSize(const D3DXVECTOR2& Size)->JWControl*
 	return this;
 }
 
-PROTECTED void JWScrollBar::SetControlState(EControlState State)
+PROTECTED void JWScrollBar::SetControlState(EControlState State) noexcept
 {
 	JWControl::SetControlState(State);
 
@@ -393,7 +384,7 @@ PROTECTED void JWScrollBar::SetControlState(EControlState State)
 	}
 }
 
-auto JWScrollBar::SetScrollRange(const size_t VisibleUnitCount, const size_t TotalUnitCount)->JWControl*
+auto JWScrollBar::SetScrollRange(const size_t VisibleUnitCount, const size_t TotalUnitCount) noexcept->JWControl*
 {
 	m_VisibleUnitCount = VisibleUnitCount;
 	m_TotalUnitCount = TotalUnitCount;
@@ -406,7 +397,7 @@ auto JWScrollBar::SetScrollRange(const size_t VisibleUnitCount, const size_t Tot
 	return this;
 }
 
-auto JWScrollBar::SetScrollPosition(const size_t Position)->JWControl*
+auto JWScrollBar::SetScrollPosition(const size_t Position) noexcept->JWControl*
 {
 	size_t adjusted_position = Position;
 
@@ -433,17 +424,17 @@ auto JWScrollBar::SetScrollPosition(const size_t Position)->JWControl*
 	return this;
 }
 
-auto JWScrollBar::GetScrollRange() const->size_t
+auto JWScrollBar::GetScrollRange() const noexcept->const size_t
 {
 	return m_ScrollMax;
 }
 
-auto JWScrollBar::GetScrollPosition() const->size_t
+auto JWScrollBar::GetScrollPosition() const noexcept->const size_t
 {
 	return m_ScrollPosition;
 }
 
-PRIVATE void JWScrollBar::UpdateButtonSize()
+PRIVATE void JWScrollBar::UpdateButtonSize() noexcept
 {
 	D3DXVECTOR2 NewSize = GUI_BUTTON_SIZE;
 	D3DXVECTOR2 APosition = D3DXVECTOR2(0, 0);
@@ -489,7 +480,7 @@ PRIVATE void JWScrollBar::UpdateButtonSize()
 	m_pScroller->SetSize(m_ScrollerSize);
 }
 
-PRIVATE void JWScrollBar::UpdateButtonPosition()
+PRIVATE void JWScrollBar::UpdateButtonPosition() noexcept
 {
 	D3DXVECTOR2 APosition = D3DXVECTOR2(0, 0);
 	D3DXVECTOR2 BPosition = D3DXVECTOR2(0, 0);
@@ -515,7 +506,7 @@ PRIVATE void JWScrollBar::UpdateButtonPosition()
 	m_pScroller->SetPosition(m_Position + m_ScrollerPosition);
 }
 
-PRIVATE void JWScrollBar::MoveScrollerTo(D3DXVECTOR2 Position)
+PRIVATE void JWScrollBar::MoveScrollerTo(D3DXVECTOR2 Position) noexcept
 {
 	switch (m_ScrollBarDirection)
 	{
@@ -538,7 +529,7 @@ PRIVATE void JWScrollBar::MoveScrollerTo(D3DXVECTOR2 Position)
 	m_pScroller->SetPosition(m_Position + m_ScrollerPosition);
 }
 
-PRIVATE auto JWScrollBar::CalculateScrollerDigitalPosition(POINT MousesPosition) const->size_t
+PRIVATE auto JWScrollBar::CalculateScrollerDigitalPosition(POINT MousesPosition) const noexcept->const size_t
 {
 	size_t Result = 0;
 

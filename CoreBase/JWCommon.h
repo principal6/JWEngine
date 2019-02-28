@@ -57,16 +57,11 @@ namespace JWENGINE
 	class JWText;
 	// ***
 
-	#define JW_SUCCEEDED(func) (func == EError::OK)
-	#define JW_FAILED(func) (func != EError::OK)
 	#define JW_DELETE_ARRAY(arr) {if(arr) {delete[] arr; arr = nullptr;}}
 	#define JW_DESTROY(obj) {if(obj) {obj->Destroy(); delete obj; obj = nullptr;}}
 	#define JW_DESTROY_SMART(obj) {if(obj) {obj->Destroy();}}
 	#define JW_RELEASE(obj) {if(obj) {obj->Release(); obj = nullptr;}}
-
-	// [DEBUG] abort() and return nullptr
-	#define ABORT_RETURN_NULLPTR {abort(); return nullptr;}
-
+	
 	using CINT = const int;
 
 	using THandleItem = unsigned long long;
@@ -112,12 +107,9 @@ namespace JWENGINE
 
 	enum class EError
 	{
-		/** No error */
-		OK,
-
 		/** Win32Api, DirectX */
 		WINAPIWINDOW_NOT_CREATED,
-		DIRECTX_NOT_CREATED,
+		DIRECT3D_NOT_CREATED,
 		DEVICE_NOT_CREATED,
 		TEXTURE_NOT_CREATED,
 		VERTEX_BUFFER_NOT_CREATED,
@@ -125,10 +117,14 @@ namespace JWENGINE
 		VERTEX_BUFFER_NOT_LOCKED,
 		INDEX_BUFFER_NOT_LOCKED,
 
+		/** DirectX Input */
+		INPUT_NOT_CREATED,
+		INPUT_DEVICE_NOT_CREATED,
+		INPUT_FUNCTION_FAILED,
+
 		/** Core creation */
 		WINDOW_NOT_CREATED,
 		IMAGE_NOT_CREATED,
-		INPUT_NOT_CREATED,
 		LINE_NOT_CREATED,
 		TEXT_NOT_CREATED,
 		RECTANGLE_NOT_CREATED,
@@ -141,9 +137,6 @@ namespace JWENGINE
 		EFFECTMANAGER_NOT_CREATED,
 		OBJECT_NOT_CREATED,
 
-		/** Map editor creation */
-		TILESELECTOR_NOT_CREATED,
-
 		/** GUI creation */
 		CONTROL_NOT_CREATED,
 		IMAGE_BUTTON_NOT_CREATED,
@@ -152,6 +145,7 @@ namespace JWENGINE
 
 		/** Null pointer */
 		NULLPTR_DEVICE,
+		NULLPTR_HWND,
 		NULLPTR_WINDOW,
 		NULLPTR_WINDOWDATA,
 		NULLPTR_MAP,
@@ -161,18 +155,20 @@ namespace JWENGINE
 		NULLPTR_SCROLLBAR,
 		NULLPTR_VERTEX,
 		NULLPTR_INDEX,
-
-		/** Not enough buffer */
-		BUFFER_NOT_ENOUGH,
-
-		/** Invalid type */
+		NULLPTR_CONTROL,
+		
+		/** Invalid */
 		INVALID_CONTROL_TYPE,
+		INVALID_POINTER_ASSIGNMENT,
 
-		/** Duplicate creation */
+		/** Duplicate task */
 		DUPLICATE_CREATION,
 
 		/** Memory allocation failure */
 		ALLOCATION_FAILURE,
+
+		/** Search failure */
+		FOUND_NOTHING,
 	};
 
 	enum class EHorizontalAlignment

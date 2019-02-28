@@ -28,19 +28,18 @@ JWLife::JWLife()
 	m_bHitGround = true;
 }
 
-auto JWLife::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->EError
+auto JWLife::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->JWLife*
 {
-	if (JW_SUCCEEDED(JWImage::Create(pJWWindow, pBaseDir)))
+	JWImage::Create(pJWWindow, pBaseDir);
+	
+	if ((m_pMap = pMap) == nullptr)
 	{
-		if (nullptr == (m_pMap = pMap))
-			return EError::NULLPTR_MAP;
-
-		SetGlobalPosition(m_GlobalPosition);
-
-		return EError::OK;
+		throw EError::NULLPTR_MAP;
 	}
 
-	return EError::IMAGE_NOT_CREATED;
+	SetGlobalPosition(m_GlobalPosition);
+
+	return this;
 }
 
 auto JWLife::MakeLife(const WSTRING TextureFN, const POINT UnitSize, CINT numCols, CINT numRows, const float Scale)->JWLife*

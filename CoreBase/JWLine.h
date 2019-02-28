@@ -26,35 +26,41 @@ namespace JWENGINE
 	class JWLine final
 	{
 	public:
-		JWLine() {};
+		JWLine();
 		~JWLine() {};
 
-		auto Create(const LPDIRECT3DDEVICE9 pDevice)->EError;
-		auto CreateMax(const LPDIRECT3DDEVICE9 pDevice)->EError;
-		void ClearBuffers();
-		void Destroy();
+		void Create(const LPDIRECT3DDEVICE9 pDevice);
+		void CreateMax(const LPDIRECT3DDEVICE9 pDevice) noexcept;
+		void Destroy() noexcept;
 
-		void AddLine(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Length, const DWORD Color);
-		void AddBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size, const DWORD Color);
-		void AddEnd();
+		// @warning: We must call AddEnd() after finishing adding lines.
+		void AddLine(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Length, const DWORD Color) noexcept;
 
-		void UpdateVertexBuffer();
-		void UpdateIndexBuffer();
+		// @warning: We must call AddEnd() after finishing adding boxes.
+		void AddBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size, const DWORD Color) noexcept;
 
-		void Draw() const;
+		// This function must be called after adding all the lines and boxes.
+		void AddEnd() noexcept;
 
-		void SetLine(const UINT LineIndex, const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size);
-		void SetLineColor(const UINT LineIndex, const DWORD Color);
-		void SetLineColor(const UINT LineIndex, const DWORD ColorA, const DWORD ColorB);
-		void SetBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size);
-		void SetBoxColor(const DWORD Color);
-		void SetBoxColor(const DWORD ColorA, const DWORD ColorB);
-		void SetEntireAlpha(const BYTE Alpha);
-		void SetEntireXRGB(const DWORD Color);
+		void ClearVertexAndIndex() noexcept;
+
+		void Draw() const noexcept;
+
+		void SetLine(const UINT LineIndex, const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size) noexcept;
+		void SetLineColor(const UINT LineIndex, const DWORD Color) noexcept;
+		void SetLineColor(const UINT LineIndex, const DWORD ColorA, const DWORD ColorB) noexcept;
+		void SetBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size) noexcept;
+		void SetBoxColor(const DWORD Color) noexcept;
+		void SetBoxColor(const DWORD ColorA, const DWORD ColorB) noexcept;
+		void SetEntireAlpha(const BYTE Alpha) noexcept;
+		void SetEntireXRGB(const DWORD Color) noexcept;
 
 	private:
 		void CreateVertexBuffer();
 		void CreateIndexBuffer();
+		void UpdateVertexBuffer();
+		void UpdateIndexBuffer();
+
 		void CreateVertexBufferMax();
 		void CreateIndexBufferMax();
 

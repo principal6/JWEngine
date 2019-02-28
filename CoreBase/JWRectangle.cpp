@@ -7,6 +7,7 @@ JWRectangle::JWRectangle()
 {
 	m_pJWWindow = nullptr;
 	m_pDevice = nullptr;
+
 	m_pVertexBuffer = nullptr;
 	m_pIndexBuffer = nullptr;
 
@@ -17,56 +18,47 @@ JWRectangle::JWRectangle()
 	m_BoxCount = 0;
 	m_RectangleColor = DEFAULT_COLOR_RECTANGLE;
 
-	ClearVertexAndIndexData();
+	DeleteVertexAndIndex();
 }
 
-auto JWRectangle::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const UINT MaxNumBox)->EError
+void JWRectangle::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const UINT MaxNumBox)
 {
 	if (pJWWindow == nullptr)
-		return EError::NULLPTR_WINDOW;
+	{
+		throw EError::NULLPTR_WINDOW;
+	}
 
 	m_pJWWindow = pJWWindow;
 	m_pDevice = pJWWindow->GetDevice();
 	m_pBaseDir = pBaseDir;
 
-	// MaxNumBox >= 1
+	// MaxNumBox must be >= 1
 	m_MaxNumBox = MaxNumBox;
 	m_MaxNumBox = max(m_MaxNumBox, 1);
 
-	ClearVertexAndIndexData();
+	DeleteVertexAndIndex();
 
 	CreateVertexBuffer();
 	CreateIndexBuffer();
 	UpdateVertexBuffer();
 	UpdateIndexBuffer();
-
-	return EError::OK;
 }
 
-void JWRectangle::Destroy()
+void JWRectangle::Destroy() noexcept
 {
 	m_pJWWindow = nullptr;
 	m_pDevice = nullptr; // Just set to nullptr cuz it's newed in <JWWindow> class
 
-	ClearVertexAndIndexData();
+	DeleteVertexAndIndex();
 
 	JW_RELEASE(m_pIndexBuffer);
 	JW_RELEASE(m_pVertexBuffer);
 }
 
-PRIVATE void JWRectangle::ClearVertexAndIndexData()
+PRIVATE void JWRectangle::DeleteVertexAndIndex() noexcept
 {
-	if (m_Vertices)
-	{
-		delete[] m_Vertices;
-		m_Vertices = nullptr;
-	}
-
-	if (m_Indices)
-	{
-		delete[] m_Indices;
-		m_Indices = nullptr;
-	}
+	JW_DELETE_ARRAY(m_Vertices);
+	JW_DELETE_ARRAY(m_Indices);
 }
 
 PRIVATE void JWRectangle::CreateVertexBuffer()
@@ -81,10 +73,10 @@ PRIVATE void JWRectangle::CreateVertexBuffer()
 		}
 	}
 
-	int rVertSize = sizeof(SVertexImage) * m_MaxNumBox * 4;
-	if (FAILED(m_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
+	int vertex_size = sizeof(SVertexImage) * m_MaxNumBox * 4;
+	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 	{
-		return;
+		throw EError::VERTEX_BUFFER_NOT_CREATED;
 	}
 }
 
@@ -101,10 +93,10 @@ PRIVATE void JWRectangle::CreateIndexBuffer()
 		}
 	}
 
-	int rIndSize = sizeof(SIndex3) * m_MaxNumBox * 2;
-	if (FAILED(m_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
+	int index_size = sizeof(SIndex3) * m_MaxNumBox * 2;
+	if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 	{
-		return;
+		throw EError::INDEX_BUFFER_NOT_CREATED;
 	}
 }
 
@@ -112,13 +104,13 @@ PRIVATE void JWRectangle::UpdateVertexBuffer()
 {
 	if (m_Vertices)
 	{
-		int rVertSize = sizeof(SVertexImage) * m_MaxNumBox * 4;
+		int vertex_size = sizeof(SVertexImage) * m_MaxNumBox * 4;
 		VOID* pVertices;
-		if (FAILED(m_pVertexBuffer->Lock(0, rVertSize, (void**)&pVertices, 0)))
+		if (FAILED(m_pVertexBuffer->Lock(0, vertex_size, (void**)&pVertices, 0)))
 		{
-			return;
+			throw EError::VERTEX_BUFFER_NOT_LOCKED;
 		}
-		memcpy(pVertices, &m_Vertices[0], rVertSize);
+		memcpy(pVertices, &m_Vertices[0], vertex_size);
 		m_pVertexBuffer->Unlock();
 	}
 }
@@ -127,18 +119,18 @@ PRIVATE void JWRectangle::UpdateIndexBuffer()
 {
 	if (m_Indices)
 	{
-		int rIndSize = sizeof(SIndex3) * m_MaxNumBox * 2;
+		int index_size = sizeof(SIndex3) * m_MaxNumBox * 2;
 		VOID* pIndices;
-		if (FAILED(m_pIndexBuffer->Lock(0, rIndSize, (void **)&pIndices, 0)))
+		if (FAILED(m_pIndexBuffer->Lock(0, index_size, (void **)&pIndices, 0)))
 		{
-			return;
+			throw EError::INDEX_BUFFER_NOT_LOCKED;
 		}
-		memcpy(pIndices, &m_Indices[0], rIndSize);
+		memcpy(pIndices, &m_Indices[0], index_size);
 		m_pIndexBuffer->Unlock();
 	}
 }
 
-void JWRectangle::ClearAllRectangles()
+void JWRectangle::ClearAllRectangles() noexcept
 {
 	m_BoxCount = 0;
 
@@ -150,7 +142,7 @@ void JWRectangle::ClearAllRectangles()
 	UpdateVertexBuffer();
 }
 
-void JWRectangle::AddRectangle(const D3DXVECTOR2& Size, const D3DXVECTOR2& Position)
+void JWRectangle::AddRectangle(const D3DXVECTOR2& Size, const D3DXVECTOR2& Position) noexcept
 {
 	// If box count is max, no adding
 	if (m_BoxCount == m_MaxNumBox)
@@ -166,7 +158,7 @@ void JWRectangle::AddRectangle(const D3DXVECTOR2& Size, const D3DXVECTOR2& Posit
 	UpdateVertexBuffer();
 }
 
-void JWRectangle::Draw()
+void JWRectangle::Draw() const noexcept
 {
 	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
 	m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -181,7 +173,7 @@ void JWRectangle::Draw()
 	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_MaxNumBox * 4, 0, m_MaxNumBox * 2);
 }
 
-void JWRectangle::SetRectangleColor(const DWORD Color)
+void JWRectangle::SetRectangleColor(const DWORD Color) noexcept
 {
 	m_RectangleColor = Color;
 }

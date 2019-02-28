@@ -101,31 +101,29 @@ JWMap::JWMap()
 	m_OffsetZeroY = 0;
 }
 
-auto JWMap::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)->EError
+void JWMap::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)
 {
 	if (pJWWindow == nullptr)
-		return EError::NULLPTR_WINDOW;
+	{
+		throw EError::NULLPTR_WINDOW;
+	}
 
 	m_pJWWindow = pJWWindow;
 	m_pDevice = m_pJWWindow->GetDevice();
 	m_pBaseDir = pBaseDir;
 
 	ClearAllData();
-	m_Vertices.clear();
-	m_Indices.clear();
-
-	return EError::OK;
 }
 
 PRIVATE void JWMap::ClearAllData()
 {
-	JWImage::ClearVertexAndIndexData();
+	JWImage::ClearVertexAndIndex();
 
 	m_VertMove.clear();
 	m_MapData.clear();
 }
 
-void JWMap::Destroy()
+void JWMap::Destroy() noexcept
 {
 	JW_RELEASE(m_pTextureMove);
 	JW_RELEASE(m_pVBMove);
@@ -711,7 +709,7 @@ PRIVATE void JWMap::SetMapFragmentMove(const int MoveID, const int X, const int 
 	}
 }
 
-void JWMap::Draw()
+void JWMap::Draw() noexcept
 {
 	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
 	m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);

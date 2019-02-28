@@ -74,10 +74,10 @@ namespace JWENGINE
 		virtual ~JWControl() {};
 
 		// Create JWControl.
-		virtual auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError;
+		virtual auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*;
 
 		// Destroy JWControl.
-		virtual void Destroy();
+		virtual void Destroy() noexcept;
 
 		/*
 		** Maker functions for sub-classes
@@ -97,7 +97,7 @@ namespace JWENGINE
 		** Drawing functions
 		*/
 		// Set the viewport for this control.
-		virtual void BeginDrawing();
+		virtual void BeginDrawing() noexcept;
 
 		// @warning: This function is defined in sub-classes.
 		virtual void Draw() {};
@@ -110,67 +110,83 @@ namespace JWENGINE
 		/*
 		** Text(font)-related functions
 		*/
-		virtual auto SetText(const WSTRING& Text)->JWControl*;
-		virtual auto GetText(WSTRING& OutText)->JWControl*;
-		virtual auto SetTextAlignment(const EHorizontalAlignment HorizontalAlignment, const EVerticalAlignment VerticalAlignment)->JWControl*;
-		virtual auto SetTextHorizontalAlignment(const EHorizontalAlignment Alignment)->JWControl*;
-		virtual auto SetTextVerticalAlignment(const EVerticalAlignment Alignment)->JWControl*;
-		virtual auto SetFontColor(const DWORD Color)->JWControl*;
+		virtual auto SetText(const WSTRING& Text) noexcept->JWControl*;
+		virtual auto GetText(WSTRING& OutText) noexcept->JWControl*;
+		virtual auto SetTextAlignment(const EHorizontalAlignment HorizontalAlignment, const EVerticalAlignment VerticalAlignment) noexcept->JWControl*;
+		virtual auto SetTextHorizontalAlignment(const EHorizontalAlignment Alignment) noexcept->JWControl*;
+		virtual auto SetTextVerticalAlignment(const EVerticalAlignment Alignment) noexcept->JWControl*;
+		virtual auto SetFontColor(const DWORD Color) noexcept->JWControl*;
 
-		// Setter
-		virtual auto SetPosition(const D3DXVECTOR2& Position)->JWControl*;
-		virtual auto SetSize(const D3DXVECTOR2& Size)->JWControl*;
-		virtual auto SetBorderColor(const DWORD Color)->JWControl*;
-		virtual auto SetBorderColor(const DWORD ColorA, const DWORD ColorB)->JWControl*;
-		virtual auto SetBackgroundColor(const DWORD Color)->JWControl*;
 
-		// Getter
-		virtual auto GetPosition() const->const D3DXVECTOR2;
-		virtual auto GetAbsolutePosition() const->const D3DXVECTOR2;
-		virtual auto GetSize() const->const D3DXVECTOR2;
-		virtual auto GetControlType() const->const EControlType;
-		virtual auto GetControlState() const->const EControlState;
+		/*
+		** Setter functions.
+		*/
+		virtual auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*;
+		virtual auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*;
+		virtual auto SetBorderColor(const DWORD Color) noexcept->JWControl*;
+		virtual auto SetBorderColor(const DWORD ColorA, const DWORD ColorB) noexcept->JWControl*;
+		virtual auto SetBackgroundColor(const DWORD Color) noexcept->JWControl*;
+
+
+		/*
+		** Getter functions.
+		*/
+		virtual auto GetPosition() const noexcept->const D3DXVECTOR2;
+		virtual auto GetAbsolutePosition() const noexcept->const D3DXVECTOR2;
+		virtual auto GetSize() const noexcept->const D3DXVECTOR2;
+		virtual auto GetControlType() const noexcept->const EControlType;
+		virtual auto GetControlState() const noexcept->const EControlState;
+
 
 		/*
 		** Parent Control
 		*/
-		virtual auto SetParentControl(const JWControl* pParentControl)->JWControl*;
-		virtual auto HasParentControl()->bool;
+		virtual auto SetParentControl(const JWControl* pParentControl) noexcept->JWControl*;
+		virtual auto HasParentControl() noexcept->const bool;
+
 
 		/*
 		** Recall event
 		*/
 		// Return true if JWControl's state is Hover.
-		virtual auto OnMouseHover() const->bool;
+		virtual auto OnMouseHover() const noexcept->const bool;
 
 		// Return true if JWControl's state is Pressed.
-		virtual auto OnMousePressed() const->bool;
+		virtual auto OnMousePressed() const noexcept->const bool;
 
 		// Return true if JWControl's state is Clicked.
-		virtual auto OnMouseCliked() const->bool;
+		virtual auto OnMouseCliked() const noexcept->const bool;
 
-		// [JWListBox]
-		// Return THandleItem value of the selected sub-item in the JWListBox.
-		// @warning: calling this function initilaizes the clicked subitem index.
-		virtual auto OnSubItemClick()->THandleItem { return THandleItem_Null; };
-
-
+		
+		/*
+		** ScrollBar attachment
+		*/
 		// Attach a JWScrollBar to this control.
 		// @warning: if pScrollBar is not a pointer to a JWScrollBar, this function won't work.
 		virtual auto AttachScrollBar(const JWControl* pScrollBar)->JWControl*;
 
 		// Detach the formerly attached JWScrollBar.
-		virtual auto DetachScrollBar()->JWControl*;
+		virtual auto DetachScrollBar() noexcept->JWControl*;
+
 
 		/*
 		** Property setter/getter
 		** Property setter functions return 'this' pointer.
 		*/
-		virtual auto ShouldDrawBorder(const bool Value)->JWControl*;
-		virtual auto ShouldUseViewport(const bool Value)->JWControl*;
+		virtual auto ShouldDrawBorder(const bool Value) noexcept->JWControl*;
+		virtual auto ShouldUseViewport(const bool Value) noexcept->JWControl*;
 		
 		// @warning: This function must be called before Create() of the control!
-		virtual auto ShouldBeOffsetByMenuBar(const bool Value)->JWControl*;
+		virtual auto ShouldBeOffsetByMenuBar(const bool Value) noexcept->JWControl*;
+
+
+		/*
+		** Not defined methods (they will be defined in each sub-classes.
+		*/
+		// [JWListBox]
+		// Return THandleItem value of the selected sub-item in the JWListBox.
+		// @warning: calling this function initilaizes the clicked subitem index.
+		virtual auto OnSubItemClick()->THandleItem { return THandleItem_Null; };
 
 		// [JWImageBox]
 		virtual auto SetTextureAtlas(const LPDIRECT3DTEXTURE9 pTextureAtlas, const D3DXIMAGE_INFO* pTextureAtlasInfo)->JWControl* { return this; };
@@ -191,10 +207,10 @@ namespace JWENGINE
 		virtual auto SetScrollPosition(const size_t Position)->JWControl* { return this; };
 
 		// [JWScrollBar]
-		virtual auto GetScrollRange() const->size_t { return 0; };
+		virtual auto GetScrollRange() const->const size_t { return 0; };
 
 		// [JWScrollBar]
-		virtual auto GetScrollPosition() const->size_t { return 0; };
+		virtual auto GetScrollPosition() const->const size_t { return 0; };
 
 		// [JWEdit]
 		virtual auto ShouldUseMultiline(const bool Value)->JWControl* { return this; };
@@ -254,33 +270,33 @@ namespace JWENGINE
 
 	protected:
 		// Calculate RECT of this control.
-		virtual void CalculateControlRect();
+		virtual void CalculateControlRect() noexcept;
 		
 
 		/*
 		** Updater function
 		*/
 		// Update control's state (called in JWGUIWindow - friend class).
-		virtual void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus);
-		virtual void UpdateBorderPositionAndSize();
-		virtual void UpdateViewport();
+		virtual void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept;
+		virtual void UpdateBorderPositionAndSize() noexcept;
+		virtual void UpdateViewport() noexcept;
 
 
 		/*
 		** Setter functions.
 		*/
-		virtual void SetControlState(const EControlState State);
-		virtual void SetControlStateColor(const EControlState State, const DWORD Color);
+		virtual void SetControlState(const EControlState State) noexcept;
+		virtual void SetControlStateColor(const EControlState State, const DWORD Color) noexcept;
 
 
 		/*
 		** Focus-related functions
 		*/
 		// Set focus on this control.
-		virtual void Focus();
+		virtual void Focus() noexcept;
 
 		// Kill the focus of this control.
-		virtual void KillFocus();
+		virtual void KillFocus() noexcept;
 
 		// Event functions called in JWGUIWindow (friend class).
 		virtual void WindowMouseDown() {};

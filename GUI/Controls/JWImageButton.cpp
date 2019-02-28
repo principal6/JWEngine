@@ -27,32 +27,29 @@ JWImageButton::JWImageButton()
 	m_Color_Pressed = DEFAULT_COLOR_NORMAL;
 }
 
-auto JWImageButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError
+auto JWImageButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
 {
-	if (JW_FAILED(JWControl::Create(Position, Size, pSharedData)))
-		return EError::CONTROL_NOT_CREATED;
+	JWControl::Create(Position, Size, pSharedData);
 
 	if (m_pBackground = new JWImage)
 	{
-		if (JW_FAILED(m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
-			return EError::IMAGE_NOT_CREATED;
+		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
 		m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
 		m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 	}
 	else
 	{
-		return EError::IMAGE_NOT_CREATED;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	if (m_pButtonImage = new JWImage)
 	{
-		if (JW_FAILED(m_pButtonImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir)))
-			return EError::IMAGE_NOT_CREATED;
+		m_pButtonImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
 		m_pButtonImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 	}
 	else
 	{
-		return EError::IMAGE_NOT_CREATED;
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Set default alignment
@@ -65,10 +62,10 @@ auto JWImageButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size,
 	SetPosition(Position);
 	SetSize(Size);
 
-	return EError::OK;
+	return this;
 }
 
-void JWImageButton::Destroy()
+void JWImageButton::Destroy() noexcept
 {
 	JWControl::Destroy();
 
@@ -77,7 +74,7 @@ void JWImageButton::Destroy()
 }
 
 auto JWImageButton::MakeImageButton(const WSTRING& TextureAtlasFileName, const D3DXVECTOR2& ButtonSizeInTexture, const D3DXVECTOR2& NormalOffset,
-	const D3DXVECTOR2& HoverOffset, const D3DXVECTOR2& PressedOffset)->JWControl*
+	const D3DXVECTOR2& HoverOffset, const D3DXVECTOR2& PressedOffset) noexcept->JWControl*
 {
 	m_pButtonImage->SetTexture(TextureAtlasFileName);
 
@@ -92,7 +89,7 @@ auto JWImageButton::MakeImageButton(const WSTRING& TextureAtlasFileName, const D
 	return this;
 }
 
-auto JWImageButton::MakeSystemArrowButton(const ESystemArrowDirection Direction)->JWControl*
+auto JWImageButton::MakeSystemArrowButton(const ESystemArrowDirection Direction) noexcept->JWControl*
 {
 	float AtlasYOffset = 0;
 
@@ -127,7 +124,7 @@ auto JWImageButton::MakeSystemArrowButton(const ESystemArrowDirection Direction)
 	return this;
 }
 
-void JWImageButton::Draw()
+void JWImageButton::Draw() noexcept
 {
 	JWControl::BeginDrawing();
 
@@ -167,7 +164,7 @@ void JWImageButton::Draw()
 	JWControl::EndDrawing();
 }
 
-auto JWImageButton::SetPosition(const D3DXVECTOR2& Position)->JWControl*
+auto JWImageButton::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
@@ -184,7 +181,7 @@ auto JWImageButton::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 	return this;
 }
 
-auto JWImageButton::SetSize(const D3DXVECTOR2& Size)->JWControl*
+auto JWImageButton::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 {
 	D3DXVECTOR2 adjusted_size = Size;
 	adjusted_size.x = max(adjusted_size.x, m_ButtonSizeInTexture.x);

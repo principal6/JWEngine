@@ -13,7 +13,7 @@ JWGame::JWGame()
 	m_bDrawBoundingBoxes = false;
 }
 
-auto JWGame::Create(const WSTRING GameName, CINT Width, CINT Height)->EError
+void JWGame::Create(const WSTRING GameName, CINT Width, CINT Height)
 {
 	// Set base directory
 	wchar_t tempDir[MAX_FILE_LEN]{};
@@ -28,64 +28,86 @@ auto JWGame::Create(const WSTRING GameName, CINT Width, CINT Height)->EError
 
 	if (m_Window = MAKE_UNIQUE(JWWindow)())
 	{
-		if (JW_FAILED(m_Window->CreateGameWindow(game_window_data)))
-			return EError::WINDOW_NOT_CREATED;
+		m_Window->CreateGameWindow(game_window_data);
 
 		// Set main window handle
 		m_hMainWnd = m_Window->GethWnd();
+	}
+	else
+	{
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Create input device
 	if (m_Input = MAKE_UNIQUE(JWInput)())
 	{
 		// Pass main window's handle to JWInput
-		if (JW_FAILED(m_Input->Create(m_Window->GethWnd(), m_Window->GethInstance())))
-			return EError::INPUT_NOT_CREATED;
+		m_Input->Create(m_Window->GethWnd(), m_Window->GethInstance());
+	}
+	else
+	{
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Create font object
 	if (m_Text = MAKE_UNIQUE(JWText)())
 	{
-		if (JW_FAILED(m_Text->CreateInstantText(m_Window.get(), &m_BaseDir)))
-			return EError::TEXT_NOT_CREATED;
+		m_Text->CreateInstantText(m_Window.get(), &m_BaseDir);
+	}
+	else
+	{
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Create image object
 	if (m_Background = MAKE_UNIQUE(JWBackground)())
 	{
-		if (JW_FAILED(m_Background->Create(m_Window.get(), &m_BaseDir)))
-			return EError::IMAGE_NOT_CREATED;
+		m_Background->Create(m_Window.get(), &m_BaseDir);
+	}
+	else
+	{
+		throw EError::ALLOCATION_FAILURE;
 	}
 	
 	// Create map object
 	if (m_Map = MAKE_UNIQUE(JWMap)())
 	{
-		if (JW_FAILED(m_Map->Create(m_Window.get(), &m_BaseDir)))
-			return EError::MAP_NOT_CREATED;
+		m_Map->Create(m_Window.get(), &m_BaseDir);
+	}
+	else
+	{
+		throw EError::ALLOCATION_FAILURE;
 	}
 	
 	// Create sprite object
 	if (m_Sprite = MAKE_UNIQUE(JWLife)())
 	{
-		if (JW_FAILED(m_Sprite->Create(m_Window.get(), &m_BaseDir, m_Map.get())))
-			return EError::SPRITE_NOT_CREATED;
+		m_Sprite->Create(m_Window.get(), &m_BaseDir, m_Map.get());
+	}
+	else
+	{
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Create monster manager object
 	if (m_MonsterManager = MAKE_UNIQUE(JWMonsterManager)())
 	{
-		if (JW_FAILED(m_MonsterManager->Create(m_Window.get(), &m_BaseDir, m_Map.get())))
-			return EError::MONSTERMANAGER_NOT_CREATED;
+		m_MonsterManager->Create(m_Window.get(), &m_BaseDir, m_Map.get());
+	}
+	else
+	{
+		throw EError::ALLOCATION_FAILURE;
 	}
 
 	// Create effect manager object
 	if (m_EffectManager = MAKE_UNIQUE(JWEffect)())
 	{
-		if (JW_FAILED(m_EffectManager->Create(m_Window.get(), &m_BaseDir, m_Map.get())))
-			return EError::EFFECTMANAGER_NOT_CREATED;
+		m_EffectManager->Create(m_Window.get(), &m_BaseDir, m_Map.get());
 	}
-
-	return EError::OK;
+	else
+	{
+		throw EError::ALLOCATION_FAILURE;
+	}
 }
 
 void JWGame::SetRenderFunction(const PF_RENDER pfRender)
@@ -107,14 +129,12 @@ void JWGame::ToggleBoundingBox()
 	}
 }
 
-auto JWGame::LoadMap(const WSTRING FileName)->EError
+void JWGame::LoadMap(const WSTRING FileName)
 {
 	if (m_Map)
 	{
 		m_Map->LoadMap(FileName);
-		return EError::OK;
 	}
-	return EError::OBJECT_NOT_CREATED;
 }
 
 void JWGame::Run()

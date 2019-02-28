@@ -20,34 +20,34 @@ namespace JWENGINE
 		JWScrollBar();
 		~JWScrollBar() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->EError override;
-		void Destroy() override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		void Destroy() noexcept override;
 
-		auto MakeScrollBar(const EScrollBarDirection Direction)->JWControl* override;
+		auto MakeScrollBar(const EScrollBarDirection Direction) noexcept->JWControl* override;
 
-		void Draw() override;
+		void Draw() noexcept override;
 
-		auto SetPosition(const D3DXVECTOR2& Position)->JWControl* override;
-		auto SetSize(const D3DXVECTOR2& Size)->JWControl* override;
-		auto SetScrollRange(const size_t VisibleUnitCount, const size_t TotalUnitCount)->JWControl* override;
-		auto SetScrollPosition(const size_t Position)->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
+		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
+		auto SetScrollRange(const size_t VisibleUnitCount, const size_t TotalUnitCount) noexcept->JWControl* override;
+		auto SetScrollPosition(const size_t Position) noexcept->JWControl* override;
 
-		auto GetScrollRange() const->size_t override;
-		auto GetScrollPosition() const->size_t override;
+		auto GetScrollRange() const noexcept->const size_t override;
+		auto GetScrollPosition() const noexcept->const size_t override;
 
 	protected:
 		// Must be overridden.
-		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) override;
+		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
 		// Must be overridden.
-		void SetControlState(EControlState State) override;
+		void SetControlState(EControlState State) noexcept override;
 
 	private:
-		void UpdateButtonSize();
-		void UpdateButtonPosition();
-		void MoveScrollerTo(D3DXVECTOR2 Position);
+		void UpdateButtonSize() noexcept;
+		void UpdateButtonPosition() noexcept;
+		void MoveScrollerTo(D3DXVECTOR2 Position) noexcept;
 
-		auto CalculateScrollerDigitalPosition(POINT MousesPosition) const->size_t;
+		auto CalculateScrollerDigitalPosition(POINT MousesPosition) const noexcept->const size_t;
 
 	private:
 		static const int DEFAULT_SCROLLER_PADDING = 2;

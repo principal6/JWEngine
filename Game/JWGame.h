@@ -22,11 +22,11 @@ namespace JWENGINE
 		JWGame();
 		~JWGame() {};
 
-		auto JWGame::Create(const WSTRING GameName, CINT Width, CINT Height)->EError;
+		void JWGame::Create(const WSTRING GameName, CINT Width, CINT Height);
 		void JWGame::SetRenderFunction(const PF_RENDER pfRender);
 		void JWGame::SetKeyboardFunction(const PF_KEYBOARD pfKeyboard);
 		void JWGame::ToggleBoundingBox();
-		auto JWGame::LoadMap(const WSTRING FileName)->EError;
+		void JWGame::LoadMap(const WSTRING FileName);
 
 		void JWGame::Run();
 		void JWGame::Shutdown();
