@@ -16,6 +16,7 @@
 #include "Controls/JWListBox.h"
 #include "Controls/JWMenuBar.h"
 #include "Controls/JWImageBox.h"
+#include "Controls/JWFrame.h"
 
 namespace JWENGINE
 {
@@ -44,6 +45,10 @@ namespace JWENGINE
 		// Return true if this JWGUIWindow is destroyed.
 		// @warning: when this function returns true, you must call Destroy() method from the outside.
 		auto IsDestroyed() const->const bool;
+
+		auto HasMenuBar() const->const bool;
+
+		auto GetMenuBarHeight() const->const float;
 
 		// Kill all the focus.
 		void KillAllFocus();

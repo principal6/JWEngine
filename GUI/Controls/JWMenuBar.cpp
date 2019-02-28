@@ -15,6 +15,9 @@ JWMenuBar::JWMenuBar()
 	// A menubar must not have border.
 	m_bShouldDrawBorder = false;
 
+	// A menubar must not be offset by menubar.
+	m_bShouldBeOffsetByMenuBar = false;
+
 	m_pNonButtonRegion = nullptr;
 
 	m_pSelectedItem = nullptr;
@@ -41,6 +44,8 @@ auto JWMenuBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, con
 	// Create ImageBox for the non-button region.
 	if (m_pNonButtonRegion = new JWImageBox)
 	{
+		m_pNonButtonRegion->ShouldBeOffsetByMenuBar(false);
+
 		if (JW_FAILED(m_pNonButtonRegion->Create(Position, Size, pSharedData)))
 			return EError::IMAGE_BOX_NOT_CREATED;
 
@@ -51,7 +56,8 @@ auto JWMenuBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, con
 		return EError::ALLOCATION_FAILURE;
 	}
 
-	// Set control's size and position.
+	// Set control's position and size.
+	// @warning: We must use m_Position and m_Size, and not Position nor Size.
 	SetPosition(m_Position);
 	SetSize(m_Size);
 
@@ -95,6 +101,7 @@ auto JWMenuBar::AddMenuBarItem(const WSTRING& Text)->THandleItem
 	item_size.x = static_cast<float>(m_pSharedData->pText->GetFontData()->Info.Size * Text.length())
 		+ static_cast<float>(DEFAULT_MENUBAR_ITEM_PADDING * 2);
 	
+	new_item->ShouldBeOffsetByMenuBar(false);
 	new_item->Create(item_position, item_size, m_pSharedData);
 	new_item->SetText(Text);
 	new_item->SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
@@ -112,6 +119,7 @@ auto JWMenuBar::AddMenuBarItem(const WSTRING& Text)->THandleItem
 	// Calculate sub-item box's position.
 	D3DXVECTOR2 subitembox_position = item_position;
 	subitembox_position.y += static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
+	new_subitem_box->ShouldBeOffsetByMenuBar(false);
 	new_subitem_box->Create(subitembox_position, BLANK_SUBITEMBOX_SIZE, m_pSharedData);
 	new_subitem_box->SetBackgroundColor(DEFAULT_COLOR_LESS_BLACK);
 	new_subitem_box->ShouldUseAutomaticScrollBar(false);

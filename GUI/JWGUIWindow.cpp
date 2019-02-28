@@ -14,6 +14,9 @@ JWGUIWindow::JWGUIWindow()
 
 auto JWGUIWindow::Create(const SWindowCreationData& WindowCreationData)->EError
 {
+	// Set the pointer to this JWGUIWindow.
+	m_SharedData.pGUIWindow = this;
+
 	// Create JWWindow(win32 api window).
 	if (!m_SharedData.pWindow)
 	{
@@ -116,18 +119,12 @@ auto JWGUIWindow::AddControl(const EControlType Type, const D3DXVECTOR2& Positio
 		}
 	}
 
-	// If this GUIWindow has a MenuBar, we need to offset all the other controls' position.
 	if (m_bHasMenuBar)
 	{
 		if (Type == EControlType::MenuBar)
 		{
 			// If JWGUIWindow already has a menubar, you can't add another one.
 			ABORT_RETURN_NULLPTR;
-		}
-		else
-		{
-			// Adjust y position of every other control.
-			adjusted_position.y += m_pMenuBar->GetSize().y;
 		}
 	}
 
@@ -164,6 +161,9 @@ auto JWGUIWindow::AddControl(const EControlType Type, const D3DXVECTOR2& Positio
 		break;
 	case JWENGINE::ImageBox:
 		m_pControls.push_back(new JWImageBox);
+		break;
+	case JWENGINE::Frame:
+		m_pControls.push_back(new JWFrame);
 		break;
 	default:
 		ABORT_RETURN_NULLPTR;
@@ -252,7 +252,13 @@ void JWGUIWindow::Update(const MSG& Message, const SGUIIMEInputInfo& IMEInfo, VE
 			// In order not to do duplicate update.
 			if (m_pControls[iterator_index - 1] != m_pMenuBar)
 			{
-				m_pControls[iterator_index - 1]->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
+				if (!m_pControls[iterator_index - 1]->HasParentControl())
+				{
+					// IF,
+					// the control has parent, it must be updated in the parent control!
+
+					m_pControls[iterator_index - 1]->UpdateControlState(&p_control_with_mouse, &m_pControlWithFocus);
+				}
 			}
 		}
 	}
@@ -338,7 +344,13 @@ void JWGUIWindow::DrawAllControls()
 		{
 			if (iterator != m_pMenuBar)
 			{
-				iterator->Draw();
+				if (!iterator->HasParentControl())
+				{
+					// IF,
+					// the control has parent, it must be drawn in the parent control!
+
+					iterator->Draw();
+				}
 			}
 		}
 	}
@@ -358,6 +370,21 @@ void JWGUIWindow::EndRender()
 auto JWGUIWindow::IsDestroyed() const->const bool
 {
 	return m_bDestroyed;
+}
+
+auto JWGUIWindow::HasMenuBar() const->const bool
+{
+	return m_bHasMenuBar;
+}
+
+auto JWGUIWindow::GetMenuBarHeight() const->const float
+{
+	if (m_pMenuBar)
+	{
+		return m_pMenuBar->GetSize().y;
+	}
+
+	return 0;
 }
 
 void JWGUIWindow::KillAllFocus()

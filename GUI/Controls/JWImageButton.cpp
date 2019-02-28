@@ -61,9 +61,9 @@ auto JWImageButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size,
 	// Set control type
 	m_ControlType = EControlType::ImageButton;
 
-	// Set control's size and position.
-	SetSize(Size);
+	// Set control's position and size.
 	SetPosition(Position);
+	SetSize(Size);
 
 	return EError::OK;
 }

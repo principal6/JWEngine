@@ -55,9 +55,9 @@ auto JWImageBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, co
 	// Set control type
 	m_ControlType = EControlType::ImageBox;
 
-	// Set control's size and position.
-	SetSize(Size);
+	// Set control's position and size.
 	SetPosition(Position);
+	SetSize(Size);
 
 	return EError::OK;
 }

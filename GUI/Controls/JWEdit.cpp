@@ -1,6 +1,7 @@
 #include "JWEdit.h"
 #include "../../CoreBase/JWWindow.h"
 #include "../../CoreBase/JWText.h"
+#include "../JWGUIWindow.h"
 #include "JWImageBox.h"
 
 using namespace JWENGINE;
@@ -42,6 +43,8 @@ auto JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const 
 	// Create a JWImageBox for background.
 	if (m_pBackground = new JWImageBox)
 	{
+		m_pBackground->ShouldBeOffsetByMenuBar(false);
+
 		if (JW_FAILED(m_pBackground->Create(Position, Size, pSharedData)))
 			return EError::IMAGE_NOT_CREATED;
 
@@ -67,7 +70,7 @@ auto JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const 
 	// Set control type.
 	m_ControlType = EControlType::Edit;
 
-	// Set control's size and position.
+	// Set control's position and size.
 	SetPosition(Position);
 	SetSize(Size);
 

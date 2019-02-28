@@ -52,6 +52,8 @@ auto JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, c
 
 	if (m_pButtonA = new JWImageButton)
 	{
+		m_pButtonA->ShouldBeOffsetByMenuBar(false);
+
 		if (JW_FAILED(m_pButtonA->Create(Position, GUI_BUTTON_SIZE, m_pSharedData)))
 			return EError::IMAGE_BUTTON_NOT_CREATED;
 
@@ -64,6 +66,8 @@ auto JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, c
 
 	if (m_pButtonB = new JWImageButton)
 	{
+		m_pButtonB->ShouldBeOffsetByMenuBar(false);
+
 		if (JW_FAILED(m_pButtonB->Create(Position, GUI_BUTTON_SIZE, m_pSharedData)))
 			return EError::IMAGE_BUTTON_NOT_CREATED;
 
@@ -76,6 +80,8 @@ auto JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, c
 
 	if (m_pScroller = new JWTextButton)
 	{
+		m_pScroller->ShouldBeOffsetByMenuBar(false);
+
 		if (JW_FAILED(m_pScroller->Create(Position, GUI_BUTTON_SIZE, m_pSharedData)))
 			return EError::IMAGE_BUTTON_NOT_CREATED;
 
@@ -134,11 +140,12 @@ auto JWScrollBar::MakeScrollBar(const EScrollBarDirection Direction)->JWControl*
 		break;
 	}
 
+	// @warning: SetPosition with m_PositionAbsolute in order not to do a duplicate offset.
+	SetPosition(m_AbsolutePosition);
 	SetSize(m_Size);
-	SetPosition(m_Position);
-
-	UpdateButtonSize();
+	
 	UpdateButtonPosition();
+	UpdateButtonSize();
 
 	return this;
 }

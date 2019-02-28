@@ -57,6 +57,8 @@ auto JWListBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, con
 	// Create ScrollBar
 	if (m_pScrollBar = new JWScrollBar)
 	{
+		m_pScrollBar->ShouldBeOffsetByMenuBar(false);
+
 		if (JW_FAILED(m_pScrollBar->Create(Position, Size, m_pSharedData)))
 			return EError::SCROLLBAR_NOT_CREATED;
 
@@ -67,9 +69,9 @@ auto JWListBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, con
 		return EError::ALLOCATION_FAILURE;
 	}
 
-	// Set control's size and position.
-	SetSize(Size);
+	// Set control's position and size.
 	SetPosition(Position);
+	SetSize(Size);
 
 	return EError::OK;
 }
@@ -155,6 +157,7 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 			item_size.y = image_item_size.y;
 		}
 
+		new_image_item->ShouldBeOffsetByMenuBar(false);
 		new_image_item->Create(item_position, image_item_size, m_pSharedData);
 		new_image_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));
 		new_image_item->SetTextureAtlas(m_pTextureForImageItem, m_pTextureForImageItemInfo);
@@ -169,6 +172,7 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 	** Add item's background (always)
 	*/
 	JWImageBox* new_item_background = new JWImageBox;
+	new_item_background->ShouldBeOffsetByMenuBar(false);
 	new_item_background->Create(item_position, item_size, m_pSharedData);
 	new_item_background->ShouldUseViewport(false);
 	if (m_bShouleUseToggleSelection)
@@ -200,7 +204,7 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 
 	// Calculate text item's size.
 	D3DXVECTOR2 text_item_size = D3DXVECTOR2(item_size.x - SizeInAtlas.x, item_size.y);
-
+	new_text_item->ShouldBeOffsetByMenuBar(false);
 	new_text_item->Create(text_item_position, text_item_size, m_pSharedData);
 	new_text_item->SetText(adjusted_text);
 	new_text_item->SetTextVerticalAlignment(EVerticalAlignment::Middle);

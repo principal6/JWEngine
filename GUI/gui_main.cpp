@@ -19,13 +19,14 @@ THandleItem mb_help_info = THandleItem_Null;
 
 // TODO: THandleItem to structure?? (To safely handle these)
 // Add Frame & VericalDivider & HorizontalDivider
+// Frame - has child controls, which are not updated in GUIWindow but in Frame!!
 
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	
 	SWindowCreationData myWindowData = SWindowCreationData(L"JWGUI Test Window", 0, 100, 800, 600, DEFAULT_COLOR_LESS_BLACK,
-		EWindowStyle::OverlappedWindow | EWindowStyle::ClipChildren);
+		EWindowStyle::OverlappedWindow);
 	myGUI.Create(myWindowData, pMainGUIWindow);
 	
 	pMainGUIWindow->AddControl(EControlType::MenuBar, D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), L"menubar");
@@ -41,6 +42,12 @@ int main()
 	pMainGUIWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(25, 25), D3DXVECTOR2(100, 50), L"textbutton2")
 		->SetText(L"Toggle button")
 		->ShouldUseToggleSelection(true);
+
+	pMainGUIWindow->AddControl(EControlType::Frame, D3DXVECTOR2(0, 0), D3DXVECTOR2(300, 200), L"frame1")
+		->AddChildControl(pMainGUIWindow->GetControlPtr(L"textbutton1"))
+		->AddChildControl(pMainGUIWindow->GetControlPtr(L"textbutton2"))
+		->SetPosition(D3DXVECTOR2(240, 40))
+		->SetSize(D3DXVECTOR2(70, 200));
 
 	pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 0), D3DXVECTOR2(160, 0), L"scrollbar1")
 		->MakeScrollBar(EScrollBarDirection::Horizontal)
@@ -113,6 +120,14 @@ void MainLoop()
 		{
 			ShowDialogueNewMap();
 		}
+		else if (clicked_subitem == mb_file_open)
+		{
+
+		}
+		else if (clicked_subitem == mb_help_info)
+		{
+			MessageBox(nullptr, L"만든이: 김장원 (헤수스 김)", L"JW 엔진", MB_OK);
+		}
 	}
 
 	if (pDialogueNewMap)
@@ -130,7 +145,7 @@ void MainLoop()
 
 void ShowDialogueNewMap()
 {
-	SWindowCreationData myWindowData = SWindowCreationData(L"New map", 100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK, EWindowStyle::Dialogue);
+	SWindowCreationData myWindowData = SWindowCreationData(L"New map", 100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK, EWindowStyle::DlgFrame);
 
 	myGUI.AddGUIWindow(myWindowData, pDialogueNewMap);
 

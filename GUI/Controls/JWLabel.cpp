@@ -35,9 +35,9 @@ auto JWLabel::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const
 	// Set control type
 	m_ControlType = EControlType::Label;
 
-	// Set control's size and position.
-	SetSize(Size);
+	// Set control's position and size.
 	SetPosition(Position);
+	SetSize(Size);
 
 	return EError::OK;
 }
@@ -73,4 +73,28 @@ void JWLabel::Draw()
 	m_pBackground->Draw();
 
 	JWControl::EndDrawing();
+}
+
+auto JWLabel::SetPosition(const D3DXVECTOR2& Position)->JWControl*
+{
+	JWControl::SetPosition(Position);
+
+	if (m_pBackground)
+	{
+		m_pBackground->SetPosition(m_Position);
+	}
+
+	return this;
+}
+
+auto JWLabel::SetSize(const D3DXVECTOR2& Size)->JWControl*
+{
+	JWControl::SetSize(Size);
+
+	if (m_pBackground)
+	{
+		m_pBackground->SetSize(m_Size);
+	}
+
+	return this;
 }

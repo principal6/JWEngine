@@ -1,5 +1,6 @@
 #include "JWCheckBox.h"
 #include "../../CoreBase/JWImage.h"
+#include "../JWGUIWindow.h"
 
 using namespace JWENGINE;
 
@@ -59,9 +60,9 @@ auto JWCheckBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, co
 	// Set control type
 	m_ControlType = EControlType::CheckBox;
 
-	// Set control's size and position.
-	SetSize(Size);
+	// Set control's position and size.
 	SetPosition(Position);
+	SetSize(Size);
 
 	return EError::OK;
 }
@@ -108,7 +109,7 @@ void JWCheckBox::Draw()
 auto JWCheckBox::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 {
 	JWControl::SetPosition(Position);
-
+	
 	m_pBackground->SetPosition(m_Position);
 	m_pCheckImage->SetPosition(m_Position + m_ButtonImageOffset);
 

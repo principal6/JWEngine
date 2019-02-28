@@ -52,6 +52,7 @@ namespace JWENGINE
 {
 	// ***
 	// *** Forward declaration ***
+	class JWGUIWindow;
 	class JWWindow;
 	class JWText;
 	// ***
@@ -343,13 +344,14 @@ namespace JWENGINE
 	// This structure contains data that will be shared in a JWGUIWindow.
 	struct SGUIWindowSharedData
 	{
+		JWGUIWindow* pGUIWindow;
 		JWWindow* pWindow;
 		WSTRING BaseDir;
 		LPDIRECT3DTEXTURE9 Texture_GUI;
 		D3DXIMAGE_INFO Texture_GUI_Info;
 		JWText* pText;
 
-		SGUIWindowSharedData() : pWindow(nullptr), Texture_GUI(nullptr), pText(nullptr) {};
+		SGUIWindowSharedData() : pGUIWindow(nullptr), pWindow(nullptr), Texture_GUI(nullptr), pText(nullptr) {};
 	};
 
 	struct SGUIIMEInputInfo

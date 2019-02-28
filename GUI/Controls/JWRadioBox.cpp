@@ -37,11 +37,11 @@ auto JWRadioBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, co
 	// Set control type
 	m_ControlType = EControlType::RadioBox;
 
-	// Set control's size and position.
+	// Set control's position and size.
 	// @ WARNING:
 	// 'D3DXVECTOR2 Size' is not used but 'GUI_BUTTON_SIZE'
-	SetSize(GUI_BUTTON_SIZE);
 	SetPosition(Position);
+	SetSize(GUI_BUTTON_SIZE);
 
 	return EError::OK;
 }

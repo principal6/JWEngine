@@ -2,6 +2,7 @@
 #include "../../CoreBase/JWWindow.h"
 #include "../../CoreBase/JWText.h"
 #include "../../CoreBase/JWLine.h"
+#include "../JWGUIWindow.h"
 #include "JWScrollBar.h"
 
 using namespace JWENGINE;
@@ -10,6 +11,7 @@ JWControl::JWControl()
 {
 	m_pBorderLine = nullptr;
 	m_pAttachedScrollBar = nullptr;
+	m_pParentControl = nullptr;
 
 	// Set default color for each control state.
 	m_Color_Normal = DEFAULT_COLOR_NORMAL;
@@ -24,12 +26,14 @@ JWControl::JWControl()
 
 	m_ControlRect = { 0, 0, 0, 0 };
 	m_Position = D3DXVECTOR2(0, 0);
+	m_AbsolutePosition = D3DXVECTOR2(0, 0);
 	m_Size = D3DXVECTOR2(0, 0);
 
 	m_FontColor = DEFAULT_COLOR_FONT;
 
 	m_bShouldDrawBorder = false;
 	m_bShouldUseViewport = true;
+	m_bShouldBeOffsetByMenuBar = true;
 	m_bHasFocus = false;
 }
 
@@ -58,6 +62,7 @@ auto JWControl::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, con
 
 	// Set control position and size.
 	m_Position = Position;
+	m_AbsolutePosition = Position;
 	m_Size = Size;
 
 	// Set text's default position.
@@ -325,6 +330,14 @@ auto JWControl::SetPosition(const D3DXVECTOR2& Position)->JWControl*
 {
 	m_Position = Position;
 
+	if (m_pSharedData->pGUIWindow->HasMenuBar())
+	{
+		if (m_bShouldBeOffsetByMenuBar)
+		{
+			m_Position.y += m_pSharedData->pGUIWindow->GetMenuBarHeight();
+		}
+	}
+
 	// Set the text's default position.
 	m_CalculatedTextPosition = m_Position;
 
@@ -408,6 +421,23 @@ auto JWControl::SetBackgroundColor(const DWORD Color)->JWControl*
 	m_Color_Pressed = Color;
 
 	return this;
+}
+
+auto JWControl::SetParentControl(const JWControl* pParentControl)->JWControl*
+{
+	m_pParentControl = pParentControl;
+
+	return this;
+}
+
+auto JWControl::HasParentControl()->bool
+{
+	if (m_pParentControl)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 void JWControl::Focus()
@@ -508,9 +538,12 @@ auto JWControl::GetControlState() const->const EControlState
 
 auto JWControl::GetPosition() const->const D3DXVECTOR2
 {
-	D3DXVECTOR2 Result = m_Position;
+	return m_Position;
+}
 
-	return Result;
+auto JWControl::GetAbsolutePosition() const->const D3DXVECTOR2
+{
+	return m_AbsolutePosition;
 }
 
 auto JWControl::GetSize() const->const D3DXVECTOR2
@@ -533,6 +566,13 @@ auto JWControl::ShouldDrawBorder(const bool Value)->JWControl*
 auto JWControl::ShouldUseViewport(const bool Value)->JWControl*
 {
 	m_bShouldUseViewport = Value;
+
+	return this;
+}
+
+auto JWControl::ShouldBeOffsetByMenuBar(const bool Value)->JWControl*
+{
+	m_bShouldBeOffsetByMenuBar = Value;
 
 	return this;
 }

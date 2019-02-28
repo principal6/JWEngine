@@ -26,6 +26,7 @@ namespace JWENGINE
 		ListBox,
 		MenuBar,
 		ImageBox,
+		Frame,
 	};
 
 	enum EControlState
@@ -64,6 +65,7 @@ namespace JWENGINE
 
 	class JWControl
 	{
+	friend class JWFrame;
 	friend class JWTextButton;
 	friend class JWGUIWindow;
 
@@ -124,9 +126,16 @@ namespace JWENGINE
 
 		// Getter
 		virtual auto GetPosition() const->const D3DXVECTOR2;
+		virtual auto GetAbsolutePosition() const->const D3DXVECTOR2;
 		virtual auto GetSize() const->const D3DXVECTOR2;
 		virtual auto GetControlType() const->const EControlType;
 		virtual auto GetControlState() const->const EControlState;
+
+		/*
+		** Parent Control
+		*/
+		virtual auto SetParentControl(const JWControl* pParentControl)->JWControl*;
+		virtual auto HasParentControl()->bool;
 
 		/*
 		** Recall event
@@ -159,6 +168,9 @@ namespace JWENGINE
 		*/
 		virtual auto ShouldDrawBorder(const bool Value)->JWControl*;
 		virtual auto ShouldUseViewport(const bool Value)->JWControl*;
+		
+		// @warning: This function must be called before Create() of the control!
+		virtual auto ShouldBeOffsetByMenuBar(const bool Value)->JWControl*;
 
 		// [JWImageBox]
 		virtual auto SetTextureAtlas(const LPDIRECT3DTEXTURE9 pTextureAtlas, const D3DXIMAGE_INFO* pTextureAtlasInfo)->JWControl* { return this; };
@@ -237,6 +249,9 @@ namespace JWENGINE
 		// but the handle(THandleItem) of the added subitem.
 		virtual auto AddMenuBarSubItem(const THandleItem hItem, const WSTRING& Text)->THandleItem { return THandleItem_Null; };
 
+		// [JWFrame]
+		virtual auto AddChildControl(JWControl* pChildControl)->JWControl* { return this; };
+
 	protected:
 		// Calculate RECT of this control.
 		virtual void CalculateControlRect();
@@ -256,6 +271,7 @@ namespace JWENGINE
 		*/
 		virtual void SetControlState(const EControlState State);
 		virtual void SetControlStateColor(const EControlState State, const DWORD Color);
+
 
 		/*
 		** Focus-related functions
@@ -282,6 +298,7 @@ namespace JWENGINE
 
 		JWLine* m_pBorderLine;
 		JWScrollBar* m_pAttachedScrollBar;
+		const JWControl* m_pParentControl;
 
 		DWORD m_Color_Normal;
 		DWORD m_Color_Hover;
@@ -291,6 +308,7 @@ namespace JWENGINE
 		EControlState m_ControlState;
 		RECT m_ControlRect;
 		D3DXVECTOR2 m_Position;
+		D3DXVECTOR2 m_AbsolutePosition;
 		D3DXVECTOR2 m_Size;
 
 		DWORD m_FontColor;
@@ -301,6 +319,7 @@ namespace JWENGINE
 
 		bool m_bShouldDrawBorder;
 		bool m_bShouldUseViewport;
+		bool m_bShouldBeOffsetByMenuBar;
 		bool m_bHasFocus;
 	};
 };

@@ -94,6 +94,9 @@
     <ClInclude Include="JWGUI.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="Controls\JWFrame.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWImage.cpp">
@@ -159,6 +162,9 @@
     </ClCompile>
     <ClCompile Include="JWGUI.cpp">
       <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWFrame.cpp">
+      <Filter>GUI\Controls</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
