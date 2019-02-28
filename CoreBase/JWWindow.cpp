@@ -66,7 +66,7 @@ void JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)
 	InitializeDirectX();
 }
 
-PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Caption, CINT X, CINT Y, CINT Width, CINT Height,
+PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Caption, int X, int Y, int Width, int Height,
 	EWindowStyle WindowStyle, DWORD BackColor, WNDPROC Proc, LPCWSTR MenuName, HWND hWndParent)->HWND
 {
 	m_hInstance = GetModuleHandle(nullptr);
@@ -103,7 +103,7 @@ PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Ca
 	return m_hWnd;
 }
 
-PRIVATE void JWWindow::SetWindowData(CINT Width, CINT Height) noexcept
+PRIVATE void JWWindow::SetWindowData(int Width, int Height) noexcept
 {
 	m_WindowData.WindowWidth = Width;
 	m_WindowData.WindowHeight = Height;
@@ -174,12 +174,12 @@ void JWWindow::SetWindowCaption(const WSTRING& Caption) noexcept
 	SetWindowTextW(m_hWnd, Caption.c_str());
 }
 
-void JWWindow::SetBackgroundColor(const D3DCOLOR color) noexcept
+void JWWindow::SetBackgroundColor(D3DCOLOR color) noexcept
 {
 	m_BGColor = color;
 }
 
-void JWWindow::Resize(const RECT Rect) noexcept
+void JWWindow::Resize(const RECT& Rect) noexcept
 {
 	SetWindowData(Rect.right, Rect.bottom);
 	//MoveWindow(m_hWnd, Rect.left, Rect.top, Rect.right - Rect.left, Rect.bottom - Rect.top, false);

@@ -106,7 +106,7 @@ namespace JWENGINE
 		};
 
 		// Get the (const) size of the linked list
-		auto size() const->const size_t
+		auto size() const->size_t
 		{
 			return m_Size;
 		}

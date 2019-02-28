@@ -91,14 +91,14 @@ auto JWRadioBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 	return this;
 }
 
-auto JWRadioBox::SetCheckState(const bool Value) noexcept->JWControl*
+auto JWRadioBox::SetCheckState(bool Value) noexcept->JWControl*
 {
 	m_bChecked = Value;
 
 	return this;
 }
 
-auto JWRadioBox::GetCheckState() const noexcept->const bool
+auto JWRadioBox::GetCheckState() const noexcept->bool
 {
 	return m_bChecked;
 }

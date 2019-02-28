@@ -15,7 +15,7 @@ namespace JWENGINE
 		JWRectangle();
 		virtual ~JWRectangle() {};
 
-		virtual void Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const UINT MaxNumBox = 1);
+		virtual void Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, UINT MaxNumBox = 1);
 		virtual void Destroy() noexcept;
 
 		virtual void ClearAllRectangles() noexcept;
@@ -24,7 +24,7 @@ namespace JWENGINE
 
 		virtual void Draw() const noexcept;
 
-		virtual void SetRectangleColor(const DWORD Color) noexcept;
+		virtual void SetRectangleColor(DWORD Color) noexcept;
 		
 	protected:
 		virtual void DeleteVertexAndIndex() noexcept;

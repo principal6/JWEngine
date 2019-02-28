@@ -42,7 +42,7 @@ auto JWLife::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JW
 	return this;
 }
 
-auto JWLife::MakeLife(const WSTRING TextureFN, const POINT UnitSize, CINT numCols, CINT numRows, const float Scale)->JWLife*
+auto JWLife::MakeLife(const WSTRING& TextureFN, const POINT UnitSize, int numCols, int numRows, float Scale) noexcept->JWLife*
 {
 	JWImage::SetTexture(TextureFN);
 	JWImage::SetScale(D3DXVECTOR2(Scale, Scale));
@@ -54,28 +54,19 @@ auto JWLife::MakeLife(const WSTRING TextureFN, const POINT UnitSize, CINT numCol
 	return this;
 }
 
-PRIVATE void JWLife::SetNumRowsAndCols(const POINT UnitSize, CINT numCols, CINT numRows)
+PRIVATE void JWLife::SetNumRowsAndCols(const POINT UnitSize, int numCols, int numRows) noexcept
 {
 	m_SheetCols = numCols;
 	m_SheetRows = numRows;
 
 	m_UnitSize.x = static_cast<float>(UnitSize.x);
 	m_UnitSize.y = static_cast<float>(UnitSize.y);
-	
-	// Below we calculate automatically the unit's size IAW/ the texture size and cols and rows
-	// but this way, we always adjust the unit size proportional to the texture sheet size,
-	// which is an unnecessary work if we just set absolute unit size like above
-
-	/*
-	m_LifeSize.x = m_Size.x / static_cast<float>(numCols);
-	m_LifeSize.y = m_Size.y / static_cast<float>(numRows);
-	*/
 
 	SetSize(m_UnitSize);
 	SetFrame(0);
 }
 
-auto JWLife::AddAnimation(const SAnimationData Value)->JWLife*
+auto JWLife::AddAnimation(const SAnimationData& Value) noexcept->JWLife*
 {
 	int AnimIDInt = static_cast<int>(Value.AnimID);
 
@@ -87,7 +78,7 @@ auto JWLife::AddAnimation(const SAnimationData Value)->JWLife*
 	return this;
 }
 
-void JWLife::SetAnimation(const EAnimationID AnimID, const bool bForceSet, const bool bShouldRepeat)
+void JWLife::SetAnimation(EAnimationID AnimID, bool bForceSet, bool bShouldRepeat) noexcept
 {
 	// If AnimID is not in the m_AnimData, then exit the function
 	auto iterator_AnimDataMap = m_AnimDataMap.find(static_cast<int>(AnimID));
@@ -162,7 +153,7 @@ void JWLife::SetAnimation(const EAnimationID AnimID, const bool bForceSet, const
 	}
 }
 
-PRIVATE void JWLife::SetFrame(CINT FrameID)
+PROTECTED void JWLife::SetFrame(int FrameID) noexcept
 {
 	if ((m_SheetRows == 0) || (m_SheetCols == 0))
 		return;
@@ -185,7 +176,7 @@ PRIVATE void JWLife::SetFrame(CINT FrameID)
 	}
 }
 
-void JWLife::Animate()
+void JWLife::Animate() noexcept
 {
 	if (m_bAnimated)
 	{
@@ -221,29 +212,29 @@ void JWLife::Animate()
 	SetFrame(m_CurrFrameID);
 }
 
-void JWLife::SetDirection(EAnimationDirection Direction)
+void JWLife::SetDirection(EAnimationDirection Direction) noexcept
 {
 	m_AnimDir = Direction;
 }
 
-auto JWLife::GetDirection() const->const EAnimationDirection
+auto JWLife::GetDirection() const noexcept->EAnimationDirection
 {
 	return m_AnimDir;
 }
 
-void JWLife::CalculateGlobalPositionInverse()
+PROTECTED void JWLife::CalculateGlobalPositionInverse() noexcept
 {
 	m_GlobalPositionInverse = m_GlobalPosition;
 	m_GlobalPositionInverse.y = m_pJWWindow->GetWindowData()->WindowHeight - m_ScaledSize.y - m_GlobalPosition.y;
 }
 
-void JWLife::CalculateGlobalPosition()
+PROTECTED void JWLife::CalculateGlobalPosition() noexcept
 {
 	m_GlobalPosition = m_GlobalPositionInverse;
 	m_GlobalPosition.y = m_pJWWindow->GetWindowData()->WindowHeight - m_ScaledSize.y - m_GlobalPositionInverse.y;
 }
 
-auto JWLife::SetGlobalPosition(const D3DXVECTOR2 Position)->JWLife*
+auto JWLife::SetGlobalPosition(const D3DXVECTOR2& Position) noexcept->JWLife*
 {
 	m_GlobalPosition = Position;
 	CalculateGlobalPositionInverse();
@@ -294,22 +285,22 @@ auto JWLife::GetScaledUnitSize() const->const D3DXVECTOR2
 	return m_ScaledSize;
 }
 
-void JWLife::Accelerate(const D3DXVECTOR2 Accel)
+void JWLife::Accelerate(const D3DXVECTOR2& Accel) noexcept
 {
 	m_Velocity += Accel;
 }
 
-void JWLife::AddVelocity(const D3DXVECTOR2 Vel)
+void JWLife::AddVelocity(const D3DXVECTOR2& Vel) noexcept
 {
 	m_Velocity += Vel;
 }
 
-void JWLife::SetVelocity(const D3DXVECTOR2 Vel)
+void JWLife::SetVelocity(const D3DXVECTOR2& Vel) noexcept
 {
 	m_Velocity = Vel;
 }
 
-void JWLife::MoveWithVelocity()
+void JWLife::MoveWithVelocity() noexcept
 {
 	m_GlobalPosition.x += m_Velocity.x;
 	m_GlobalPosition.y -= m_Velocity.y; // @warning: Y value of GlobalPos is in the opposite direction!
@@ -328,7 +319,7 @@ void JWLife::MoveWithVelocity()
 	SetPosition(m_Position);
 }
 
-void JWLife::MoveConst(const D3DXVECTOR2 dXY)
+void JWLife::MoveConst(const D3DXVECTOR2& dXY) noexcept
 {
 	m_GlobalPosition.x += dXY.x;
 	m_GlobalPosition.y -= dXY.y; // @warning: Y value of GlobalPos is in the opposite direction!
@@ -358,7 +349,7 @@ void JWLife::MoveConst(const D3DXVECTOR2 dXY)
 	SetPosition(m_Position);
 }
 
-void JWLife::Walk(const EAnimationDirection Direction)
+void JWLife::Walk(EAnimationDirection Direction) noexcept
 {
 	D3DXVECTOR2 Velocity;
 	switch (Direction)
@@ -381,7 +372,7 @@ void JWLife::Walk(const EAnimationDirection Direction)
 	MoveConst(tNewVel);
 }
 
-void JWLife::Jump()
+void JWLife::Jump() noexcept
 {
 	if ((m_bHitGround == false) || (m_Velocity.y > 0)) // Currently the sprite is falling down
 		return;
@@ -392,7 +383,7 @@ void JWLife::Jump()
 	SetVelocity(tNewVel);
 }
 
-void JWLife::Gravitate()
+void JWLife::Gravitate() noexcept
 {
 	Accelerate(GRAVITY);
 

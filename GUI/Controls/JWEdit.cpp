@@ -205,7 +205,7 @@ auto JWEdit::SetText(const WSTRING& Text) noexcept->JWControl*
 	return this;
 }
 
-auto JWEdit::SetFontColor(const DWORD Color) noexcept->JWControl*
+auto JWEdit::SetFontColor(DWORD Color) noexcept->JWControl*
 {
 	m_FontColor = Color;
 
@@ -221,7 +221,7 @@ auto JWEdit::SetWatermark(const WSTRING& Text) noexcept->JWControl*
 	return this;
 }
 
-auto JWEdit::SetWatermarkColor(const DWORD Color) noexcept->JWControl*
+auto JWEdit::SetWatermarkColor(DWORD Color) noexcept->JWControl*
 {
 	m_WatermarkColor = Color;
 
@@ -235,7 +235,7 @@ void JWEdit::Focus() noexcept
 	m_CaretShowInterval = 0;
 }
 
-auto JWEdit::ShouldUseMultiline(const bool Value) noexcept->JWControl*
+auto JWEdit::ShouldUseMultiline(bool Value) noexcept->JWControl*
 {
 	m_bUseMultiline = Value;
 
@@ -247,14 +247,14 @@ auto JWEdit::ShouldUseMultiline(const bool Value) noexcept->JWControl*
 	return this;
 }
 
-auto JWEdit::ShouldUseAutomaticLineBreak(const bool Value) noexcept->JWControl*
+auto JWEdit::ShouldUseAutomaticLineBreak(bool Value) noexcept->JWControl*
 {
 	m_pEditText->ShouldUseAutomaticLineBreak(Value);
 
 	return this;
 }
 
-auto JWEdit::ShouldUseNumberInputsOnly(const bool Value) noexcept->JWControl*
+auto JWEdit::ShouldUseNumberInputsOnly(bool Value) noexcept->JWControl*
 {
 	m_bShouldGetOnlyNumbers = Value;
 
@@ -288,7 +288,7 @@ PROTECTED void JWEdit::WindowMouseMove() noexcept
 	}
 }
 
-PROTECTED void JWEdit::WindowKeyDown(const WPARAM VirtualKeyCode) noexcept
+PROTECTED void JWEdit::WindowKeyDown(WPARAM VirtualKeyCode) noexcept
 {
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
 
@@ -389,7 +389,7 @@ PROTECTED void JWEdit::WindowKeyDown(const WPARAM VirtualKeyCode) noexcept
 	}
 }
 
-PROTECTED void JWEdit::WindowCharKeyInput(const WPARAM Char) noexcept
+PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char) noexcept
 {
 	size_t curr_caret_sel_position = m_pEditText->GetCaretSelPosition();
 

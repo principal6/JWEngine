@@ -26,8 +26,8 @@ namespace JWENGINE
 		void Destroy() noexcept;
 		
 		void SetWindowCaption(const WSTRING& Caption) noexcept;
-		void SetBackgroundColor(const D3DCOLOR color) noexcept;
-		void Resize(const RECT Rect) noexcept;
+		void SetBackgroundColor(D3DCOLOR color) noexcept;
+		void Resize(const RECT& Rect) noexcept;
 
 		// 1) Clear()
 		// 2) BeginScene()
@@ -58,9 +58,9 @@ namespace JWENGINE
 	private:
 		friend LRESULT CALLBACK BaseWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
-		auto CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Caption, CINT X, CINT Y, CINT Width, CINT Height,
+		auto CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Caption, int X, int Y, int Width, int Height,
 			EWindowStyle WindowStyle, DWORD BackColor, WNDPROC Proc, LPCWSTR MenuName = nullptr, HWND hWndParent = nullptr)->HWND;
-		void SetWindowData(CINT Width, CINT Height) noexcept;
+		void SetWindowData(int Width, int Height) noexcept;
 		void InitializeDirectX();
 		void SetDirect3DParameters() noexcept;
 		void UpdateRenderRect() noexcept;

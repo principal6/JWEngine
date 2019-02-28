@@ -21,7 +21,7 @@ JWRectangle::JWRectangle()
 	DeleteVertexAndIndex();
 }
 
-void JWRectangle::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const UINT MaxNumBox)
+void JWRectangle::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, UINT MaxNumBox)
 {
 	if (pJWWindow == nullptr)
 	{
@@ -173,7 +173,7 @@ void JWRectangle::Draw() const noexcept
 	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_MaxNumBox * 4, 0, m_MaxNumBox * 2);
 }
 
-void JWRectangle::SetRectangleColor(const DWORD Color) noexcept
+void JWRectangle::SetRectangleColor(DWORD Color) noexcept
 {
 	m_RectangleColor = Color;
 }

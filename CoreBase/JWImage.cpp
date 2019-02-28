@@ -277,7 +277,7 @@ void JWImage::SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO
 	UpdateVertexData();
 }
 
-auto JWImage::SetColor(const DWORD Color) noexcept->JWImage*
+auto JWImage::SetColor(DWORD Color) noexcept->JWImage*
 {
 	if (m_Vertices.size())
 	{
@@ -291,7 +291,7 @@ auto JWImage::SetColor(const DWORD Color) noexcept->JWImage*
 	return this;
 }
 
-auto JWImage::SetAlpha(const BYTE Alpha) noexcept->JWImage*
+auto JWImage::SetAlpha(BYTE Alpha) noexcept->JWImage*
 {
 	if (m_Vertices.size())
 	{
@@ -305,7 +305,7 @@ auto JWImage::SetAlpha(const BYTE Alpha) noexcept->JWImage*
 	return this;
 }
 
-auto JWImage::SetXRGB(const DWORD XRGB) noexcept->JWImage*
+auto JWImage::SetXRGB(DWORD XRGB) noexcept->JWImage*
 {
 	if(m_Vertices.size())
 	{
@@ -365,7 +365,7 @@ auto JWImage::SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Si
 	return this;
 }
 
-auto JWImage::SetUVRange(const STextureUV UV) noexcept->JWImage*
+auto JWImage::SetUVRange(const STextureUV& UV) noexcept->JWImage*
 {
 	if (m_Vertices.size())
 	{
@@ -388,7 +388,7 @@ auto JWImage::SetBoundingBox(const D3DXVECTOR2& ExtraSize) noexcept->JWImage*
 	return this;
 }
 
-auto JWImage::SetBoundingBoxAlpha(const BYTE Alpha) noexcept->JWImage*
+auto JWImage::SetBoundingBoxAlpha(BYTE Alpha) noexcept->JWImage*
 {
 	SetColorAlpha(&m_BoundingBoxColor, Alpha);
 	m_BoundingBoxLine.SetEntireAlpha(Alpha);
@@ -396,7 +396,7 @@ auto JWImage::SetBoundingBoxAlpha(const BYTE Alpha) noexcept->JWImage*
 	return this;
 }
 
-auto JWImage::SetBoundingBoxXRGB(const DWORD XRGB) noexcept->JWImage*
+auto JWImage::SetBoundingBoxXRGB(DWORD XRGB) noexcept->JWImage*
 {
 	SetColorXRGB(&m_BoundingBoxColor, XRGB);
 	m_BoundingBoxLine.SetEntireXRGB(XRGB);
@@ -482,7 +482,7 @@ auto JWImage::GetBoundingBox() const noexcept->const SBoundingBox
 	return Result;
 }
 
-auto JWImage::IsTextureLoaded() const noexcept->const bool
+auto JWImage::IsTextureLoaded() const noexcept->bool
 {
 	if (m_pTexture)
 		return true;

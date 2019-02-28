@@ -62,8 +62,6 @@ namespace JWENGINE
 	#define JW_DESTROY_SMART(obj) {if(obj) {obj->Destroy();}}
 	#define JW_RELEASE(obj) {if(obj) {obj->Release(); obj = nullptr;}}
 	
-	using CINT = const int;
-
 	using THandleItem = unsigned long long;
 	static constexpr THandleItem THandleItem_Null = UINT64_MAX;
 
@@ -414,7 +412,7 @@ namespace JWENGINE
 		*Color = ((*Color >> 24) << 24) | ((XRGB << 8) >> 8);
 	}
 
-	inline auto GetMixedColor(BYTE Alpha, DWORD XRGB)->const DWORD
+	inline auto GetMixedColor(BYTE Alpha, DWORD XRGB)->DWORD
 	{
 		DWORD new_color;
 		

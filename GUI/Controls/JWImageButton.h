@@ -22,7 +22,7 @@ namespace JWENGINE
 
 		auto MakeImageButton(const WSTRING& TextureAtlasFileName, const D3DXVECTOR2& ButtonSizeInTexture, const D3DXVECTOR2& NormalOffset,
 			const D3DXVECTOR2& HoverOffset, const D3DXVECTOR2& PressedOffset) noexcept->JWControl* override;
-		auto MakeSystemArrowButton(const ESystemArrowDirection Direction) noexcept->JWControl* override;
+		auto MakeSystemArrowButton(ESystemArrowDirection Direction) noexcept->JWControl* override;
 
 		void Draw() noexcept override;
 

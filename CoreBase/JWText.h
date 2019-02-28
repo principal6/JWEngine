@@ -78,12 +78,12 @@ namespace JWENGINE
 		void Destroy() noexcept;
 
 		// Call this function when first set the text, or when the JWEdit control is resized or repositioned.
-		void SetNonInstantText(WSTRING Text, const D3DXVECTOR2& Position, const D3DXVECTOR2& AreaSize) noexcept;
+		void SetNonInstantText(const WSTRING& Text, const D3DXVECTOR2& Position, const D3DXVECTOR2& AreaSize) noexcept;
 
 		// @warning: only used for IME input in order to erase temporary IME character input.
-		void SetNonInstantTextString(WSTRING Text) noexcept;
+		void SetNonInstantTextString(const WSTRING& Text) noexcept;
 
-		void SetNonInstantTextColor(const DWORD FontColor) noexcept;
+		void SetNonInstantTextColor(DWORD FontColor) noexcept;
 
 		// Insert a character in non-instant-text at the caret position.
 		void InsertInNonInstantText(const WSTRING& String) noexcept;
@@ -95,7 +95,7 @@ namespace JWENGINE
 		// @warning: instant text must be a single-line text.
 		// If the text is multi-line, it will be clipped.
 		void DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2& Position,
-			const EHorizontalAlignment HorizontalAlignment = EHorizontalAlignment::Left, const DWORD FontColor = DEFAULT_COLOR_FONT) noexcept;
+			EHorizontalAlignment HorizontalAlignment = EHorizontalAlignment::Left, DWORD FontColor = DEFAULT_COLOR_FONT) noexcept;
 
 		void DrawCaret() const noexcept;
 
@@ -106,7 +106,7 @@ namespace JWENGINE
 		auto GetFontTexturePtr() const noexcept->const LPDIRECT3DTEXTURE9;
 
 		// Every line's height is equal to the font's size (ms_FontData.Info.Size).
-		auto GetLineHeight() const noexcept->const float;
+		auto GetLineHeight() const noexcept->float;
 
 		void MoveCaretToLeft() noexcept;
 		void MoveCaretToRight() noexcept;
@@ -114,7 +114,7 @@ namespace JWENGINE
 		void MoveCaretDown() noexcept;
 		void MoveCaretHome() noexcept;
 		void MoveCaretEnd() noexcept;
-		void MoveCaretTo(const size_t SelPosition) noexcept;
+		void MoveCaretTo(size_t SelPosition) noexcept;
 
 		void SelectToLeft() noexcept;
 		void SelectToRight() noexcept;
@@ -122,18 +122,18 @@ namespace JWENGINE
 		void SelectDown() noexcept;
 		void SelectHome() noexcept;
 		void SelectEnd() noexcept;
-		void SelectTo(const size_t SelPosition) noexcept;
+		void SelectTo(size_t SelPosition) noexcept;
 		void SelectAll() noexcept;
 		void ReleaseSelection() noexcept;
 
-		auto GetCaretSelPosition() const noexcept->const size_t;
-		auto GetMousePressedSelPosition(const POINT MousePosition) const noexcept->const size_t;
-		auto GetSelectionStart() const noexcept->const size_t;
-		auto GetSelectionEnd() const noexcept->const size_t;
+		auto GetCaretSelPosition() const noexcept->size_t;
+		auto GetMousePressedSelPosition(const POINT MousePosition) const noexcept->size_t;
+		auto GetSelectionStart() const noexcept->size_t;
+		auto GetSelectionEnd() const noexcept->size_t;
 
-		auto IsTextSelected() const noexcept->const bool;
+		auto IsTextSelected() const noexcept->bool;
 
-		void ShouldUseAutomaticLineBreak(const bool Value) noexcept;
+		void ShouldUseAutomaticLineBreak(bool Value) noexcept;
 
 	private:
 		// @warning: the font texture must be created only once per JWGUIWindow (i.e. per D3D device).
@@ -156,12 +156,12 @@ namespace JWENGINE
 		void UpdateCaret() noexcept;
 		void UpdateSelectionBox() noexcept;
 
-		void SetInstantTextGlyph(const size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo) noexcept;
+		void SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo) noexcept;
 		void SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* pPrevInfo) noexcept;
 
-		auto GetLineWidth(const WSTRING* pLineText) const noexcept->const float;
-		auto GetLineStartGlyphIndex(const size_t LineIndex) const noexcept->const size_t;
-		auto GetLineEndGlyphIndex(const size_t LineIndex) const noexcept->const size_t;
+		auto GetLineWidth(const WSTRING* pLineText) const noexcept->float;
+		auto GetLineStartGlyphIndex(size_t LineIndex) const noexcept->size_t;
+		auto GetLineEndGlyphIndex(size_t LineIndex) const noexcept->size_t;
 
 	private:
 		static const DWORD DEFAULT_COLOR_CARET = DEFAULT_COLOR_FONT;

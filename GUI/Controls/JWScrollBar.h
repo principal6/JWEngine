@@ -23,17 +23,17 @@ namespace JWENGINE
 		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
 		void Destroy() noexcept override;
 
-		auto MakeScrollBar(const EScrollBarDirection Direction) noexcept->JWControl* override;
+		auto MakeScrollBar(EScrollBarDirection Direction) noexcept->JWControl* override;
 
 		void Draw() noexcept override;
 
 		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
 		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
-		auto SetScrollRange(const size_t VisibleUnitCount, const size_t TotalUnitCount) noexcept->JWControl* override;
-		auto SetScrollPosition(const size_t Position) noexcept->JWControl* override;
+		auto SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount) noexcept->JWControl* override;
+		auto SetScrollPosition(size_t Position) noexcept->JWControl* override;
 
-		auto GetScrollRange() const noexcept->const size_t override;
-		auto GetScrollPosition() const noexcept->const size_t override;
+		auto GetScrollRange() const noexcept->size_t override;
+		auto GetScrollPosition() const noexcept->size_t override;
 
 	protected:
 		// Must be overridden.
@@ -45,9 +45,9 @@ namespace JWENGINE
 	private:
 		void UpdateButtonSize() noexcept;
 		void UpdateButtonPosition() noexcept;
-		void MoveScrollerTo(D3DXVECTOR2 Position) noexcept;
+		void MoveScrollerTo(const D3DXVECTOR2& Position) noexcept;
 
-		auto CalculateScrollerDigitalPosition(POINT MousesPosition) const noexcept->const size_t;
+		auto CalculateScrollerDigitalPosition(const POINT& MousesPosition) const noexcept->size_t;
 
 	private:
 		static const int DEFAULT_SCROLLER_PADDING = 2;

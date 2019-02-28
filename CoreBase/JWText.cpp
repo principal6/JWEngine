@@ -329,7 +329,7 @@ PRIVATE void JWText::UpdateIndexBuffer(SIndexData* pIndexData)
 	}
 }
 
-void JWText::SetNonInstantText(WSTRING Text, const D3DXVECTOR2& Position, const D3DXVECTOR2& AreaSize) noexcept
+void JWText::SetNonInstantText(const WSTRING& Text, const D3DXVECTOR2& Position, const D3DXVECTOR2& AreaSize) noexcept
 {
 	m_NonInstantText = Text;
 
@@ -409,12 +409,12 @@ void JWText::SetNonInstantText(WSTRING Text, const D3DXVECTOR2& Position, const 
 	UpdateCaret();
 }
 
-void JWText::SetNonInstantTextString(WSTRING Text) noexcept
+void JWText::SetNonInstantTextString(const WSTRING& Text) noexcept
 {
 	m_NonInstantText = Text;
 }
 
-void JWText::SetNonInstantTextColor(const DWORD FontColor) noexcept
+void JWText::SetNonInstantTextColor(DWORD FontColor) noexcept
 {
 	m_NonInstantTextColor = FontColor;
 
@@ -629,8 +629,7 @@ void JWText::DrawNonInstantText() const noexcept
 	m_pDevice->SetTexture(0, nullptr);
 }
 
-void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2& Position,
-	const EHorizontalAlignment HorizontalAlignment, const DWORD FontColor) noexcept
+void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2& Position, EHorizontalAlignment HorizontalAlignment, DWORD FontColor) noexcept
 {
 	// If SingleLineText is null, we don't need to draw it.
 	if (!SingleLineText.length())
@@ -825,7 +824,7 @@ void JWText::DrawSelectionBox() const noexcept
 	}
 }
 
-PRIVATE void JWText::SetInstantTextGlyph(const size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo) noexcept
+PRIVATE void JWText::SetInstantTextGlyph(size_t Character_index, SGlyphInfo* pCurrInfo, const SGlyphInfo* pPrevInfo) noexcept
 {
 	if (Character_index)
 	{
@@ -922,12 +921,12 @@ auto JWText::GetFontTexturePtr() const noexcept->const LPDIRECT3DTEXTURE9
 	return m_pFontTexture;
 }
 
-auto JWText::GetLineHeight() const noexcept->const float
+auto JWText::GetLineHeight() const noexcept->float
 {
 	return static_cast<float>(ms_FontData.Info.Size);
 }
 
-PRIVATE auto JWText::GetLineWidth(const WSTRING* pLineText) const noexcept->const float
+PRIVATE auto JWText::GetLineWidth(const WSTRING* pLineText) const noexcept->float
 {
 	size_t iterator_character = 0;
 	size_t chars_id = 0;
@@ -959,7 +958,7 @@ void JWText::MoveCaretToRight() noexcept
 	UpdateCaret();
 }
 
-PRIVATE auto JWText::GetLineStartGlyphIndex(const size_t LineIndex) const noexcept->const size_t
+PRIVATE auto JWText::GetLineStartGlyphIndex(size_t LineIndex) const noexcept->size_t
 {
 	size_t result = SIZE_T_INVALID;
 
@@ -971,7 +970,7 @@ PRIVATE auto JWText::GetLineStartGlyphIndex(const size_t LineIndex) const noexce
 	return result;
 }
 
-PRIVATE auto JWText::GetLineEndGlyphIndex(const size_t LineIndex) const noexcept->const size_t
+PRIVATE auto JWText::GetLineEndGlyphIndex(size_t LineIndex) const noexcept->size_t
 {
 	size_t result = 0;
 
@@ -1041,7 +1040,7 @@ void JWText::MoveCaretEnd() noexcept
 	UpdateCaret();
 }
 
-void JWText::MoveCaretTo(const size_t SelPosition) noexcept
+void JWText::MoveCaretTo(size_t SelPosition) noexcept
 {
 	m_CaretSelPosition = SelPosition;
 
@@ -1122,7 +1121,7 @@ void JWText::SelectEnd() noexcept
 	UpdateSelectionBox();
 }
 
-void JWText::SelectTo(const size_t SelPosition) noexcept
+void JWText::SelectTo(size_t SelPosition) noexcept
 {
 	if (m_CapturedSelPosition == SIZE_T_INVALID)
 	{
@@ -1248,12 +1247,12 @@ PRIVATE void JWText::UpdateSelectionBox() noexcept
 	}
 }
 
-auto JWText::GetCaretSelPosition() const noexcept->const size_t
+auto JWText::GetCaretSelPosition() const noexcept->size_t
 {
 	return m_CaretSelPosition;
 }
 
-auto JWText::GetMousePressedSelPosition(const POINT MousePosition) const noexcept->const size_t
+auto JWText::GetMousePressedSelPosition(const POINT MousePosition) const noexcept->size_t
 {
 	size_t result = 0;
 
@@ -1274,22 +1273,22 @@ auto JWText::GetMousePressedSelPosition(const POINT MousePosition) const noexcep
 	return result;
 }
 
-auto JWText::GetSelectionStart() const noexcept->const size_t
+auto JWText::GetSelectionStart() const noexcept->size_t
 {
 	return m_SelectionStart;
 }
 
-auto JWText::GetSelectionEnd() const noexcept->const size_t
+auto JWText::GetSelectionEnd() const noexcept->size_t
 {
 	return m_SelectionEnd;
 }
 
-auto JWText::IsTextSelected() const noexcept->const bool
+auto JWText::IsTextSelected() const noexcept->bool
 {
 	return m_bIsTextSelected;
 }
 
-void JWText::ShouldUseAutomaticLineBreak(const bool Value) noexcept
+void JWText::ShouldUseAutomaticLineBreak(bool Value) noexcept
 {
 	m_bUseAutomaticLineBreak = Value;
 }

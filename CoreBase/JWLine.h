@@ -34,10 +34,10 @@ namespace JWENGINE
 		void Destroy() noexcept;
 
 		// @warning: We must call AddEnd() after finishing adding lines.
-		void AddLine(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Length, const DWORD Color) noexcept;
+		void AddLine(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Length, DWORD Color) noexcept;
 
 		// @warning: We must call AddEnd() after finishing adding boxes.
-		void AddBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size, const DWORD Color) noexcept;
+		void AddBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size, DWORD Color) noexcept;
 
 		// This function must be called after adding all the lines and boxes.
 		void AddEnd() noexcept;
@@ -46,14 +46,14 @@ namespace JWENGINE
 
 		void Draw() const noexcept;
 
-		void SetLine(const UINT LineIndex, const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size) noexcept;
-		void SetLineColor(const UINT LineIndex, const DWORD Color) noexcept;
-		void SetLineColor(const UINT LineIndex, const DWORD ColorA, const DWORD ColorB) noexcept;
+		void SetLine(UINT LineIndex, const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size) noexcept;
+		void SetLineColor(UINT LineIndex, DWORD Color) noexcept;
+		void SetLineColor(UINT LineIndex, DWORD ColorA, DWORD ColorB) noexcept;
 		void SetBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size) noexcept;
-		void SetBoxColor(const DWORD Color) noexcept;
-		void SetBoxColor(const DWORD ColorA, const DWORD ColorB) noexcept;
-		void SetEntireAlpha(const BYTE Alpha) noexcept;
-		void SetEntireXRGB(const DWORD Color) noexcept;
+		void SetBoxColor(DWORD Color) noexcept;
+		void SetBoxColor(DWORD ColorA, DWORD ColorB) noexcept;
+		void SetEntireAlpha(BYTE Alpha) noexcept;
+		void SetEntireXRGB(DWORD Color) noexcept;
 
 	private:
 		void CreateVertexBuffer();

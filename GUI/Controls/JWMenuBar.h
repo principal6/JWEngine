@@ -25,7 +25,7 @@ namespace JWENGINE
 		void Destroy() noexcept override;
 
 		auto AddMenuBarItem(const WSTRING& Text)->THandleItem override;
-		auto AddMenuBarSubItem(const THandleItem hItem, const WSTRING& Text) noexcept->THandleItem override;
+		auto AddMenuBarSubItem(THandleItem hItem, const WSTRING& Text) noexcept->THandleItem override;
 
 		void Draw() noexcept override;
 

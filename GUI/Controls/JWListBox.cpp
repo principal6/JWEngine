@@ -96,7 +96,7 @@ void JWListBox::Destroy() noexcept
 	JW_DESTROY(m_pScrollBar);
 }
 
-auto JWListBox::SetMinimumItemHeight(const float Value) noexcept->JWControl*
+auto JWListBox::SetMinimumItemHeight(float Value) noexcept->JWControl*
 {
 	m_MinimumItemHeight = Value;
 	m_MinimumItemHeight = max(m_MinimumItemHeight, MINIMUM_ITEM_HEIGHT);
@@ -472,12 +472,12 @@ auto JWListBox::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 	return this;
 }
 
-auto JWListBox::GetListBoxItemCount() const noexcept->const size_t
+auto JWListBox::GetListBoxItemCount() const noexcept->size_t
 {
 	return m_ItemInfo.size();
 }
 
-auto JWListBox::GetListBoxItemHeight() const noexcept->const float
+auto JWListBox::GetListBoxItemHeight() const noexcept->float
 {
 	//float item_y_size_sum = DEFAULT_ITEM_PADDING_Y;
 	float item_y_size_sum = 0;
@@ -493,19 +493,19 @@ auto JWListBox::GetListBoxItemHeight() const noexcept->const float
 	return item_y_size_sum;
 }
 
-auto JWListBox::GetSelectedItemIndex() const noexcept->const TIndex
+auto JWListBox::GetSelectedItemIndex() const noexcept->TIndex
 {
 	return m_SelectedItemIndex;
 }
 
-auto JWListBox::ShouldUseAutomaticScrollBar(const bool Value) noexcept->JWControl*
+auto JWListBox::ShouldUseAutomaticScrollBar(bool Value) noexcept->JWControl*
 {
 	m_bShouldUseAutomaticScrollBar = Value;
 
 	return this;
 }
 
-auto JWListBox::ShouldUseToggleSelection(const bool Value) noexcept->JWControl*
+auto JWListBox::ShouldUseToggleSelection(bool Value) noexcept->JWControl*
 {
 	m_bShouleUseToggleSelection = Value;
 
@@ -537,7 +537,7 @@ auto JWListBox::ShouldUseToggleSelection(const bool Value) noexcept->JWControl*
 	return this;
 }
 
-auto JWListBox::ShouldUseImageItem(const bool Value) noexcept->JWControl*
+auto JWListBox::ShouldUseImageItem(bool Value) noexcept->JWControl*
 {
 	m_bUseImageItems = Value;
 

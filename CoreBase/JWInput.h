@@ -19,21 +19,21 @@ namespace JWENGINE
 		void Create(const HWND hWnd, const HINSTANCE hInstance);
 		void Destroy() noexcept;
 
-		auto OnKeyDown(const DWORD DIK_KeyCode) noexcept->const bool;
-		auto OnKeyUp(const DWORD DIK_KeyCode) const noexcept->const bool;
+		auto OnKeyDown(DWORD DIK_KeyCode) noexcept->bool;
+		auto OnKeyUp(DWORD DIK_KeyCode) const noexcept->bool;
 		auto OnMouseMove() noexcept->const DIMOUSESTATE2;
-		auto OnMouseButtonDown(const int button) noexcept->const bool;
-		auto OnMouseButtonUp(const int button) noexcept->const bool;
+		auto OnMouseButtonDown(int button) noexcept->bool;
+		auto OnMouseButtonUp(int button) noexcept->bool;
 
-		auto IsMouseButtonDown(const int button) noexcept->const bool;
-		auto GetKeyState(const DWORD DIK_KeyCode) const noexcept->const bool;
+		auto IsMouseButtonDown(int button) noexcept->bool;
+		auto GetKeyState(DWORD DIK_KeyCode) const noexcept->bool;
 		void GetAllKeyState(bool* Keys) noexcept;
 
 	private:
 		void CreateMouseDevice(DWORD dwFlags);
 		void CreateKeyboardDevice(DWORD dwFlags);
 
-		void CheckMouseButton(const int button) noexcept;
+		void CheckMouseButton(int button) noexcept;
 
 	private:
 		HWND m_hWnd;

@@ -22,9 +22,9 @@ namespace JWENGINE
 
 		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
 		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
-		auto SetCheckState(const bool Value) noexcept->JWControl* override;
+		auto SetCheckState(bool Value) noexcept->JWControl* override;
 
-		auto GetCheckState() const noexcept->const bool override;
+		auto GetCheckState() const noexcept->bool override;
 
 	private:
 		JWImage* m_pBackground;

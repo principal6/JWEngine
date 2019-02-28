@@ -8,7 +8,7 @@ using namespace JWENGINE;
 	JWMonsterType Class
 -----------------------------------------------------------------------------*/
 
-auto JWMonsterType::AddAnimation(const SAnimationData Value)->JWMonsterType*
+auto JWMonsterType::AddAnimation(const SAnimationData& Value) noexcept->JWMonsterType*
 {
 	m_AnimData.push_back(Value);
 
@@ -64,7 +64,7 @@ void JWMonster::Destroy() noexcept
 	JW_DESTROY(m_HPBar);
 }
 
-void JWMonster::SetUIPosition(const D3DXVECTOR2 Position)
+PRIVATE void JWMonster::SetUIPosition(const D3DXVECTOR2& Position) noexcept
 {
 	if ((!m_HPFrame) || (!m_HPBar))
 	{
@@ -80,15 +80,16 @@ void JWMonster::SetUIPosition(const D3DXVECTOR2 Position)
 	m_HPBar->SetPosition(adjusted_position);
 }
 
-void JWMonster::SetMonsterType(const JWMonsterType Type)
+void JWMonster::SetMonsterType(const JWMonsterType Type) noexcept
 {
 	m_Type = Type;
 	m_HPCurr = Type.m_HPMax;
 }
 
-auto JWMonster::SetGlobalPosition(const D3DXVECTOR2 Position)->JWMonster*
+auto JWMonster::SetGlobalPosition(const D3DXVECTOR2& Position) noexcept->JWMonster*
 {
 	m_GlobalPosition = Position;
+
 	JWLife::CalculateGlobalPositionInverse();
 
 	JWLife::SetPosition(m_GlobalPositionInverse);
@@ -98,7 +99,7 @@ auto JWMonster::SetGlobalPosition(const D3DXVECTOR2 Position)->JWMonster*
 	return this;
 }
 
-void JWMonster::UpdateGlobalPosition()
+PRIVATE void JWMonster::UpdateGlobalPosition() noexcept
 {
 	D3DXVECTOR2 MapOffset = m_pMap->GetMapOffset();
 	float MapOffsetZeroY = static_cast<float>(m_pMap->GetMapOffsetZeroY());
@@ -115,7 +116,7 @@ void JWMonster::UpdateGlobalPosition()
 	SetUIPosition(m_GlobalPositionInverse);
 }
 
-void JWMonster::CalculateHP()
+PRIVATE void JWMonster::CalculateHP() noexcept
 {
 	float fPercent = static_cast<float>(JWMonster::m_HPCurr) / static_cast<float>(m_Type.m_HPMax);
 	float tWidth = m_HPBar->GetScaledSize().x;
@@ -123,7 +124,7 @@ void JWMonster::CalculateHP()
 	m_HPBar->SetVisibleRange(D3DXVECTOR2(tWidth * fPercent, m_HPBar->GetScaledSize().y));
 }
 
-void JWMonster::Damage(CINT Damage)
+void JWMonster::Damage(int Damage) noexcept
 {
 	m_HPCurr -= Damage;
 	m_HPCurr = max(m_HPCurr, 0);
@@ -164,7 +165,7 @@ void JWMonsterManager::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir
 	m_pMap = pMap;
 }
 
-void JWMonsterManager::Destroy()
+void JWMonsterManager::Destroy() noexcept
 {
 	m_pJWWindow = nullptr;
 	m_pDevice = nullptr;
@@ -176,14 +177,14 @@ void JWMonsterManager::Destroy()
 	}
 }
 
-auto JWMonsterManager::AddMonsterType(const JWMonsterType NewType)->JWMonsterType*
+auto JWMonsterManager::AddMonsterType(const JWMonsterType& NewType) noexcept->JWMonsterType*
 {
 	m_Types.push_back(NewType);
 
 	return &m_Types[m_Types.size() - 1];
 }
 
-auto JWMonsterManager::Spawn(const WSTRING MonsterName, const D3DXVECTOR2 GlobalPosition)->JWMonster*
+auto JWMonsterManager::Spawn(const WSTRING& MonsterName, const D3DXVECTOR2& GlobalPosition) noexcept->JWMonster*
 {
 	for (JWMonsterType& TypeIterator : m_Types)
 	{
@@ -212,7 +213,7 @@ auto JWMonsterManager::Spawn(const WSTRING MonsterName, const D3DXVECTOR2 Global
 	return nullptr;
 }
 
-void JWMonsterManager::Animate()
+void JWMonsterManager::Animate() noexcept
 {
 	for (JWMonster& InstanceIterator : m_Instances)
 	{
@@ -220,7 +221,7 @@ void JWMonsterManager::Animate()
 	}
 }
 
-void JWMonsterManager::Gravitate()
+void JWMonsterManager::Gravitate() noexcept
 {
 	for (JWMonster& InstanceIterator : m_Instances)
 	{
@@ -228,7 +229,7 @@ void JWMonsterManager::Gravitate()
 	}
 }
 
-void JWMonsterManager::Draw()
+void JWMonsterManager::Draw() noexcept
 {
 	for (JWMonster& InstanceIterator : m_Instances)
 	{
@@ -236,7 +237,7 @@ void JWMonsterManager::Draw()
 	}
 }
 
-void JWMonsterManager::DrawBoundingBox()
+void JWMonsterManager::DrawBoundingBox() noexcept
 {
 	for (JWMonster& InstanceIterator : m_Instances)
 	{
@@ -244,7 +245,7 @@ void JWMonsterManager::DrawBoundingBox()
 	}
 }
 
-auto JWMonsterManager::GetInstancePointer()->VECTOR<JWMonster>*
+auto JWMonsterManager::GetInstancePointer() noexcept->VECTOR<JWMonster>*
 {
 	return &m_Instances;
 }

@@ -85,7 +85,7 @@ PROTECTED void JWGUIWindow::Destroy() noexcept
 	JW_DESTROY(m_SharedData.pWindow);
 }
 
-auto JWGUIWindow::AddControl(const EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName)->JWControl*
+auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName)->JWControl*
 {
 	D3DXVECTOR2 adjusted_position = Position;
 	WSTRING automatic_control_name = ControlName;
@@ -353,17 +353,17 @@ void JWGUIWindow::EndRender() noexcept
 	m_SharedData.pWindow->EndRender();
 }
 
-auto JWGUIWindow::IsDestroyed() const noexcept->const bool
+auto JWGUIWindow::IsDestroyed() const noexcept->bool
 {
 	return m_bDestroyed;
 }
 
-auto JWGUIWindow::HasMenuBar() const noexcept->const bool
+auto JWGUIWindow::HasMenuBar() const noexcept->bool
 {
 	return m_bHasMenuBar;
 }
 
-auto JWGUIWindow::GetMenuBarHeight() const noexcept->const float
+auto JWGUIWindow::GetMenuBarHeight() const noexcept->float
 {
 	if (m_pMenuBar)
 	{

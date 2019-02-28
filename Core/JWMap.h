@@ -49,7 +49,7 @@ namespace JWENGINE
 		int MoveID;
 
 		SMapData() : TileID(0), MoveID(0) {};
-		SMapData(CINT TILEID, CINT MOVEID) : TileID(TILEID), MoveID(MOVEID) {};
+		SMapData(int TILEID, int MOVEID) : TileID(TILEID), MoveID(MOVEID) {};
 	};
 
 	class JWMap final : protected JWImage
@@ -61,54 +61,56 @@ namespace JWENGINE
 		void Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir) override;
 		void Destroy() noexcept override;
 
-		void CreateMap(const SMapInfo* InPtr_Info);
-		void LoadMap(const WSTRING FileName);
-		void SaveMap(const WSTRING FileName);
+		void CreateMap(const SMapInfo* InPtr_Info) noexcept;
+		void LoadMap(const WSTRING& FileName) noexcept;
+		void SaveMap(const WSTRING& FileName) noexcept;
 
 		void Draw() noexcept override;
 
-		void SetMode(const EMapMode Mode);
-		void SetPosition(const D3DXVECTOR2 Offset);
+		void SetMode(EMapMode Mode) noexcept;
+		void SetPosition(const D3DXVECTOR2& Offset) noexcept;
 
 		// Global position for map movement in game (Position's Y value inversed)
-		void SetGlobalPosition(const D3DXVECTOR2 Offset);
+		void SetGlobalPosition(const D3DXVECTOR2& Offset) noexcept;
 
-		auto DoesMapExist() const->const bool;
-		auto GetMode() const->const EMapMode;
-		void GetMapInfo(SMapInfo* OutPtr_Info) const;
-		auto GetMapOffset() const->const D3DXVECTOR2;
-		auto GetMapOffsetZeroY() const->CINT;
-		auto GetVelocityAfterCollision(SBoundingBox BB, D3DXVECTOR2 Velocity) const->const D3DXVECTOR2;
+		auto DoesMapExist() const noexcept->bool;
+		auto GetMode() const noexcept->EMapMode;
+		void GetMapInfo(SMapInfo* OutPtr_Info) const noexcept;
+		auto GetMapOffset() const noexcept->const D3DXVECTOR2;
+		auto GetMapOffsetZeroY() const noexcept->int;
+		auto GetVelocityAfterCollision(SBoundingBox BB, D3DXVECTOR2 Velocity) const noexcept->const D3DXVECTOR2;
 
 	private:
-		static auto ConvertIDtoUV(const int ID, const int TileSize, const D3DXVECTOR2 SheetSize)->STextureUV;
-		static auto ConvertIDToXY(const int ID, const int Cols)->D3DXVECTOR2;
-		static auto ConvertXYToID(const D3DXVECTOR2 XY, const int Cols)->int;
-		static auto ConvertXYToID(const POINT XY, const int Cols)->int;
-		static auto ConvertPositionToXY(const D3DXVECTOR2 Position, const D3DXVECTOR2 Offset,
-			const int TileSize, const bool YRoundUp = false)->D3DXVECTOR2;
+		static auto ConvertIDtoUV(int ID, int TileSize, const D3DXVECTOR2& SheetSize) noexcept->STextureUV;
+		static auto ConvertIDToXY(int ID, int Cols) noexcept->D3DXVECTOR2;
+		static auto ConvertXYToID(const D3DXVECTOR2& XY, int Cols) noexcept->int;
+		static auto ConvertXYToID(const POINT& XY, int Cols) noexcept->int;
+		static auto ConvertPositionToXY(const D3DXVECTOR2& Position, const D3DXVECTOR2& Offset, int TileSize, bool YRoundUp = false) noexcept->D3DXVECTOR2;
 
-		void ClearAllData();
+		void ClearAllData() noexcept;
 
-		void MakeMapBase();
-		void AddMapFragmentTile(const int TileID, const int X, const int Y);
-		void AddMapFragmentMove(const int MoveID, const int X, const int Y);
-		void AddEnd();
-		void SetTileTexture(const WSTRING FileName);
-		void SetMoveTexture(const WSTRING FileName);
-		void ParseLoadedMapData(WSTRING* InOutPtr_WSTRING); // For loading maps
-		void MakeLoadedMap(WSTRING* InOutPtr_WSTRING); // For loading maps
-		void GetMapDataForSave(WSTRING* OutPtr_WSTRING) const; // For saving maps
-		void GetMapDataPartForSave(const int DataID, wchar_t* OutPtr_wchar, const int Size) const; // For saving maps
+		void MakeMapBase() noexcept;
+		void AddMapFragmentTile(int TileID, int X, int Y) noexcept;
+		void AddMapFragmentMove(int MoveID, int X, int Y) noexcept;
+		void AddEnd() noexcept;
+
+		void SetTileTexture(const WSTRING& FileName) noexcept;
+		void SetMoveTexture(const WSTRING& FileName) noexcept;
+
+		void ParseLoadedMapData(WSTRING* InOutPtr_WSTRING) noexcept; // For loading maps
+		void MakeLoadedMap(WSTRING* InOutPtr_WSTRING) noexcept; // For loading maps
+
+		void GetMapDataForSave(WSTRING* OutPtr_WSTRING) const noexcept; // For saving maps
+		void GetMapDataPartForSave(int DataID, wchar_t* OutPtr_wchar, int Size) const noexcept; // For saving maps
 
 		void CreateVertexBufferMove(); // IndexBuffer is not needed because they are the same
 		void UpdateVertexBufferMove();
 
-		auto IsMovableTile(const int MapID, const EMapDirection Direction) const->bool;
-		auto GetMapTileBoundary(const int MapID, const EMapDirection Direction) const->float;
+		auto IsMovableTile(int MapID, EMapDirection Direction) const noexcept->bool;
+		auto GetMapTileBoundary(int MapID, EMapDirection Direction) const noexcept->float;
 
-		void SetMapFragmentTile(const int TileID, const int X, const int Y);
-		void SetMapFragmentMove(const int MoveID, const int X, const int Y);
+		void SetMapFragmentTile(int TileID, int X, int Y) noexcept;
+		void SetMapFragmentMove(int MoveID, int X, int Y) noexcept;
 
 	private:
 		static const int MAX_LINE_LEN;

@@ -111,7 +111,7 @@ void JWScrollBar::Destroy() noexcept
 	JW_DESTROY(m_pScroller);
 }
 
-auto JWScrollBar::MakeScrollBar(const EScrollBarDirection Direction) noexcept->JWControl*
+auto JWScrollBar::MakeScrollBar(EScrollBarDirection Direction) noexcept->JWControl*
 {
 	m_ScrollBarDirection = Direction;
 
@@ -384,7 +384,7 @@ PROTECTED void JWScrollBar::SetControlState(EControlState State) noexcept
 	}
 }
 
-auto JWScrollBar::SetScrollRange(const size_t VisibleUnitCount, const size_t TotalUnitCount) noexcept->JWControl*
+auto JWScrollBar::SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount) noexcept->JWControl*
 {
 	m_VisibleUnitCount = VisibleUnitCount;
 	m_TotalUnitCount = TotalUnitCount;
@@ -397,13 +397,11 @@ auto JWScrollBar::SetScrollRange(const size_t VisibleUnitCount, const size_t Tot
 	return this;
 }
 
-auto JWScrollBar::SetScrollPosition(const size_t Position) noexcept->JWControl*
+auto JWScrollBar::SetScrollPosition(size_t Position) noexcept->JWControl*
 {
-	size_t adjusted_position = Position;
-
-	adjusted_position = min(adjusted_position, m_ScrollMax);
+	Position = min(Position, m_ScrollMax);
 	
-	m_ScrollPosition = adjusted_position;
+	m_ScrollPosition = Position;
 
 	float scroller_position = 0;
 
@@ -424,12 +422,12 @@ auto JWScrollBar::SetScrollPosition(const size_t Position) noexcept->JWControl*
 	return this;
 }
 
-auto JWScrollBar::GetScrollRange() const noexcept->const size_t
+auto JWScrollBar::GetScrollRange() const noexcept->size_t
 {
 	return m_ScrollMax;
 }
 
-auto JWScrollBar::GetScrollPosition() const noexcept->const size_t
+auto JWScrollBar::GetScrollPosition() const noexcept->size_t
 {
 	return m_ScrollPosition;
 }
@@ -506,7 +504,7 @@ PRIVATE void JWScrollBar::UpdateButtonPosition() noexcept
 	m_pScroller->SetPosition(m_Position + m_ScrollerPosition);
 }
 
-PRIVATE void JWScrollBar::MoveScrollerTo(D3DXVECTOR2 Position) noexcept
+PRIVATE void JWScrollBar::MoveScrollerTo(const D3DXVECTOR2& Position) noexcept
 {
 	switch (m_ScrollBarDirection)
 	{
@@ -529,7 +527,7 @@ PRIVATE void JWScrollBar::MoveScrollerTo(D3DXVECTOR2 Position) noexcept
 	m_pScroller->SetPosition(m_Position + m_ScrollerPosition);
 }
 
-PRIVATE auto JWScrollBar::CalculateScrollerDigitalPosition(POINT MousesPosition) const noexcept->const size_t
+PRIVATE auto JWScrollBar::CalculateScrollerDigitalPosition(const POINT& MousesPosition) const noexcept->size_t
 {
 	size_t Result = 0;
 

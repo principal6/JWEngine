@@ -13,7 +13,7 @@ JWGame::JWGame()
 	m_bDrawBoundingBoxes = false;
 }
 
-void JWGame::Create(const WSTRING GameName, CINT Width, CINT Height)
+void JWGame::Create(const WSTRING& GameName, int Width, int Height)
 {
 	// Set base directory
 	wchar_t tempDir[MAX_FILE_LEN]{};
@@ -110,17 +110,17 @@ void JWGame::Create(const WSTRING GameName, CINT Width, CINT Height)
 	}
 }
 
-void JWGame::SetRenderFunction(const PF_RENDER pfRender)
+void JWGame::SetRenderFunction(const PF_RENDER pfRender) noexcept
 {
 	m_pfRender = pfRender;
 }
 
-void JWGame::SetKeyboardFunction(const PF_KEYBOARD pfKeyboard)
+void JWGame::SetKeyboardFunction(const PF_KEYBOARD pfKeyboard) noexcept
 {
 	m_pfKeyboard = pfKeyboard;
 }
 
-void JWGame::ToggleBoundingBox()
+void JWGame::ToggleBoundingBox() noexcept
 {
 	if (m_KeyToggleCount == 0)
 	{
@@ -129,7 +129,7 @@ void JWGame::ToggleBoundingBox()
 	}
 }
 
-void JWGame::LoadMap(const WSTRING FileName)
+void JWGame::LoadMap(const WSTRING& FileName) noexcept
 {
 	if (m_Map)
 	{
@@ -137,7 +137,7 @@ void JWGame::LoadMap(const WSTRING FileName)
 	}
 }
 
-void JWGame::Run()
+void JWGame::Run() noexcept
 {
 	m_TimerStart = GetTickCount64();
 
@@ -157,7 +157,7 @@ void JWGame::Run()
 	Destroy();
 }
 
-void JWGame::Shutdown()
+void JWGame::Shutdown() noexcept
 {
 	if (m_hMainWnd)
 	{
@@ -165,7 +165,20 @@ void JWGame::Shutdown()
 	}
 }
 
-PRIVATE void JWGame::MainLoop()
+PRIVATE void JWGame::Destroy() noexcept
+{
+	JW_DESTROY_SMART(m_Text);
+
+	JW_DESTROY_SMART(m_EffectManager);
+	JW_DESTROY_SMART(m_MonsterManager);
+	JW_DESTROY_SMART(m_Sprite);
+	JW_DESTROY_SMART(m_Map);
+	JW_DESTROY_SMART(m_Background);
+	JW_DESTROY_SMART(m_Input);
+	JW_DESTROY_SMART(m_Window);
+}
+
+PRIVATE void JWGame::MainLoop() noexcept
 {
 	DetectInput();
 
@@ -225,7 +238,7 @@ PRIVATE void JWGame::MainLoop()
 	//Sleep(100);
 }
 
-PRIVATE void JWGame::DetectInput()
+PRIVATE void JWGame::DetectInput() noexcept
 {
 	m_Input->GetAllKeyState(m_Keys);
 
@@ -239,98 +252,85 @@ PRIVATE void JWGame::DetectInput()
 	}
 }
 
-void JWGame::Destroy()
-{
-	JW_DESTROY_SMART(m_Text);
-
-	JW_DESTROY_SMART(m_EffectManager);
-	JW_DESTROY_SMART(m_MonsterManager);
-	JW_DESTROY_SMART(m_Sprite);
-	JW_DESTROY_SMART(m_Map);
-	JW_DESTROY_SMART(m_Background);
-	JW_DESTROY_SMART(m_Input);
-	JW_DESTROY_SMART(m_Window);
-}
-
-void JWGame::SetBackgroundTexture(const WSTRING TextureFN)
+void JWGame::SetBackgroundTexture(const WSTRING& TextureFN) noexcept
 {
 	assert(m_Background);
 	m_Background->SetTexture(TextureFN);
 }
 
-auto JWGame::SpriteCreate(const WSTRING TextureFN, const POINT UnitSize, CINT numCols, CINT numRows, const float Scale)->JWLife*
+auto JWGame::SpriteCreate(const WSTRING& TextureFN, const POINT& UnitSize, int numCols, int numRows, float Scale) noexcept->JWLife*
 {
 	assert(m_Sprite);
 	return m_Sprite->MakeLife(TextureFN, UnitSize, numCols, numRows, Scale);
 }
 
-void JWGame::SpriteWalk(const EAnimationDirection Direction)
+void JWGame::SpriteWalk(EAnimationDirection Direction) noexcept
 {
 	assert(m_Sprite);
 	m_Sprite->Walk(Direction);
 }
 
-void JWGame::SpriteJump()
+void JWGame::SpriteJump() noexcept
 {
 	assert(m_Sprite);
 	m_Sprite->Jump();
 }
 
-void JWGame::SpriteSetAnimation(const EAnimationID AnimationID)
+void JWGame::SpriteSetAnimation(EAnimationID AnimationID) noexcept
 {
 	assert(m_Sprite);
 	m_Sprite->SetAnimation(AnimationID);
 }
 
-auto JWGame::SpawnEffect(CINT EffectID, CINT Damage)->JWEffect*
-{
-	assert(m_EffectManager);
-	return m_EffectManager->Spawn(EffectID, m_Sprite->GetCenterPosition(), m_Sprite->GetDirection(), Damage);
-}
-
-auto JWGame::SpawnMonster(const WSTRING MonsterName, const D3DXVECTOR2 GlobalPosition)->JWMonster*
+auto JWGame::SpawnMonster(const WSTRING& MonsterName, const D3DXVECTOR2& GlobalPosition) noexcept->JWMonster*
 {
 	assert(m_MonsterManager);
 	return m_MonsterManager->Spawn(MonsterName, GlobalPosition);
 }
 
-auto JWGame::GetTextObject()->JWText*
+auto JWGame::SpawnEffect(int EffectID, int Damage) noexcept->JWEffect*
+{
+	assert(m_EffectManager);
+	return m_EffectManager->Spawn(EffectID, m_Sprite->GetCenterPosition(), m_Sprite->GetDirection(), Damage);
+}
+
+auto JWGame::GetTextObject() noexcept->JWText*
 {
 	assert(m_Text);
 	return m_Text.get();
 }
 
-auto JWGame::GetSpriteObject()->JWLife*
+auto JWGame::GetSpriteObject() noexcept->JWLife*
 {
 	assert(m_Sprite);
 	return m_Sprite.get();
 }
 
-auto JWGame::GetMonsterManagerObject()->JWMonsterManager*
+auto JWGame::GetMonsterManagerObject() noexcept->JWMonsterManager*
 {
 	assert(m_MonsterManager);
 	return m_MonsterManager.get();
 }
 
-auto JWGame::GetEffectManagerObject()->JWEffect*
+auto JWGame::GetEffectManagerObject() noexcept->JWEffect*
 {
 	assert(m_EffectManager);
 	return m_EffectManager.get();
 }
 
-void JWGame::DrawBackground()
+void JWGame::DrawBackground() noexcept
 {
 	assert(m_Background);
 	m_Background->Draw();
 }
 
-void JWGame::DrawMap()
+void JWGame::DrawMap() noexcept
 {
 	assert(m_Map);
 	m_Map->Draw();
 }
 
-void JWGame::DrawMonsters()
+void JWGame::DrawMonsters() noexcept
 {
 	assert(m_MonsterManager);
 	m_MonsterManager->Draw();
@@ -338,7 +338,7 @@ void JWGame::DrawMonsters()
 		m_MonsterManager->DrawBoundingBox();
 }
 
-void JWGame::DrawSprite()
+void JWGame::DrawSprite() noexcept
 {
 	assert(m_Sprite);
 	m_Sprite->Draw();
@@ -346,7 +346,7 @@ void JWGame::DrawSprite()
 		m_Sprite->DrawBoundingBox();
 }
 
-void JWGame::DrawEffects()
+void JWGame::DrawEffects() noexcept
 {
 	assert(m_EffectManager);
 	m_EffectManager->Draw();
@@ -354,7 +354,7 @@ void JWGame::DrawEffects()
 		m_EffectManager->DrawBoundingBox();
 }
 
-void JWGame::DrawAllBase()
+void JWGame::DrawAllBase() noexcept
 {
 	DrawBackground();
 	DrawMap();

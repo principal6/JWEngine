@@ -125,14 +125,14 @@ auto JWCheckBox::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 	return this;
 }
 
-auto JWCheckBox::SetCheckState(const bool Value) noexcept->JWControl*
+auto JWCheckBox::SetCheckState(bool Value) noexcept->JWControl*
 {
 	m_bChecked = Value;
 
 	return this;
 }
 
-auto JWCheckBox::GetCheckState() const noexcept->const bool
+auto JWCheckBox::GetCheckState() const noexcept->bool
 {
 	return m_bChecked;
 }

@@ -132,12 +132,12 @@ namespace JWENGINE
 		JWBMFontParser() {};
 		virtual ~JWBMFontParser() {};
 
-		virtual auto Parse(const WSTRING& FileName) noexcept->const bool;
+		virtual auto Parse(const WSTRING& FileName) noexcept->bool;
 		virtual auto GetFontData() const noexcept->const BMFont*;
-		virtual auto GetCharsIDFromCharacter(const wchar_t Character) const noexcept->const size_t;
+		virtual auto GetCharsIDFromCharacter(wchar_t Character) const noexcept->size_t;
 
 	protected:
-		virtual auto ParseComma(const STRING Data, const UINT ID) noexcept->const UINT;
+		virtual auto ParseComma(const STRING& Data, UINT ID) noexcept->UINT;
 
 	protected:
 		static BMFont ms_FontData;

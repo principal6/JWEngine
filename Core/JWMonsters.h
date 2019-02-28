@@ -17,7 +17,7 @@ namespace JWENGINE
 			m_TextureNumRows(TextureNumRows), m_HPMax(HP), m_BoundingBoxExtraSize(BoundingBoxExtraSize){};
 		~JWMonsterType() {};
 
-		auto AddAnimation(const SAnimationData Value)->JWMonsterType*;
+		auto AddAnimation(const SAnimationData& Value) noexcept->JWMonsterType*;
 
 	public:
 		WSTRING m_Name;
@@ -42,16 +42,16 @@ namespace JWENGINE
 		auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->JWMonster* override;
 		void Destroy() noexcept override;
 
-		void SetMonsterType(const JWMonsterType Type);
-		auto SetGlobalPosition(const D3DXVECTOR2 Position)->JWMonster* override;
-		void Damage(CINT Damage);
+		void SetMonsterType(const JWMonsterType Type) noexcept;
+		auto SetGlobalPosition(const D3DXVECTOR2& Position) noexcept->JWMonster* override;
+		void Damage(int Damage) noexcept;
 
 		void Draw() noexcept;
 
 	private:
-		void SetUIPosition(const D3DXVECTOR2 Position);
-		void CalculateHP();
-		void UpdateGlobalPosition();
+		void SetUIPosition(const D3DXVECTOR2& Position) noexcept;
+		void UpdateGlobalPosition() noexcept;
+		void CalculateHP() noexcept;
 
 	private:
 		static const float OFFSET_Y_HPBAR;
@@ -72,17 +72,17 @@ namespace JWENGINE
 		~JWMonsterManager() {};
 
 		void Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap);
-		void Destroy();
+		void Destroy() noexcept;
 
-		auto AddMonsterType(const JWMonsterType NewType)->JWMonsterType*;
-		auto Spawn(const WSTRING MonsterName, const D3DXVECTOR2 GlobalPosition)->JWMonster*;
+		auto AddMonsterType(const JWMonsterType& NewType) noexcept->JWMonsterType*;
+		auto Spawn(const WSTRING& MonsterName, const D3DXVECTOR2& GlobalPosition) noexcept->JWMonster*;
 
-		void Animate();
-		void Gravitate();
-		void Draw();
-		void DrawBoundingBox();
+		void Animate() noexcept;
+		void Gravitate() noexcept;
+		void Draw() noexcept;
+		void DrawBoundingBox() noexcept;
 
-		auto GetInstancePointer()->VECTOR<JWMonster>*;
+		auto GetInstancePointer() noexcept->VECTOR<JWMonster>*;
 
 	private:
 		static LPDIRECT3DDEVICE9 m_pDevice;

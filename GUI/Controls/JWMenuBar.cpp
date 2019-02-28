@@ -142,7 +142,7 @@ auto JWMenuBar::AddMenuBarItem(const WSTRING& Text)->THandleItem
 	return GetTHandleItemOfMenuBarItem(m_pItems.size() - 1);
 }
 
-auto JWMenuBar::AddMenuBarSubItem(const THandleItem hItem, const WSTRING& Text) noexcept->THandleItem
+auto JWMenuBar::AddMenuBarSubItem(THandleItem hItem, const WSTRING& Text) noexcept->THandleItem
 {
 	TIndex item_index = GetTIndexOfMenuBarItem(hItem);
 

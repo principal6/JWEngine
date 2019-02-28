@@ -82,7 +82,7 @@ void JWInput::Destroy() noexcept
 	JW_RELEASE(m_pDirectInput);
 }
 
-auto JWInput::OnKeyDown(const DWORD DIK_KeyCode) noexcept->const bool
+auto JWInput::OnKeyDown(DWORD DIK_KeyCode) noexcept->bool
 {
 	HRESULT hr;
 	if (FAILED(hr = m_pKeyboardDevice->GetDeviceState(sizeof(m_BufferKeyState),
@@ -116,7 +116,7 @@ auto JWInput::OnKeyDown(const DWORD DIK_KeyCode) noexcept->const bool
 	}
 }
 
-auto JWInput::OnKeyUp(const DWORD DIK_KeyCode) const noexcept->const bool
+auto JWInput::OnKeyUp(DWORD DIK_KeyCode) const noexcept->bool
 {
 	return m_KeyUp[DIK_KeyCode];
 }
@@ -142,7 +142,7 @@ auto JWInput::OnMouseMove() noexcept->const DIMOUSESTATE2
 	return Result;
 }
 
-auto JWInput::OnMouseButtonDown(const int button) noexcept->const bool
+auto JWInput::OnMouseButtonDown(int button) noexcept->bool
 {
 	CheckMouseButton(button);
 
@@ -156,7 +156,7 @@ auto JWInput::OnMouseButtonDown(const int button) noexcept->const bool
 	return false;
 }
 
-auto JWInput::OnMouseButtonUp(const int button) noexcept->const bool
+auto JWInput::OnMouseButtonUp(int button) noexcept->bool
 {
 	CheckMouseButton(button);
 
@@ -170,7 +170,7 @@ auto JWInput::OnMouseButtonUp(const int button) noexcept->const bool
 	return false;
 }
 
-PRIVATE void JWInput::CheckMouseButton(const int button) noexcept
+PRIVATE void JWInput::CheckMouseButton(int button) noexcept
 {
 	if (m_MouseState.rgbButtons[button] & 0x80) // 버튼이 눌림
 	{
@@ -196,7 +196,7 @@ PRIVATE void JWInput::CheckMouseButton(const int button) noexcept
 	}
 }
 
-auto JWInput::GetKeyState(const DWORD DIK_KeyCode) const noexcept->const bool
+auto JWInput::GetKeyState(DWORD DIK_KeyCode) const noexcept->bool
 {
 	if (m_BufferKeyState[DIK_KeyCode] & 0x80)
 	{
@@ -231,7 +231,7 @@ void JWInput::GetAllKeyState(bool* Keys) noexcept
 	}
 }
 
-auto JWInput::IsMouseButtonDown(const int button) noexcept->const bool
+auto JWInput::IsMouseButtonDown(int button) noexcept->bool
 {
 	CheckMouseButton(button);
 

@@ -89,7 +89,7 @@ auto JWImageButton::MakeImageButton(const WSTRING& TextureAtlasFileName, const D
 	return this;
 }
 
-auto JWImageButton::MakeSystemArrowButton(const ESystemArrowDirection Direction) noexcept->JWControl*
+auto JWImageButton::MakeSystemArrowButton(ESystemArrowDirection Direction) noexcept->JWControl*
 {
 	float AtlasYOffset = 0;
 

@@ -16,7 +16,7 @@ const wchar_t* JWMap::MOVE_64 = L"move64.png";
 /*-----------------------------------------------------------------------------
 	Static method declaration
 -----------------------------------------------------------------------------*/
-auto JWMap::ConvertIDtoUV(const int ID, const int TileSize, const D3DXVECTOR2 SheetSize)->STextureUV
+auto JWMap::ConvertIDtoUV(int ID, int TileSize, const D3DXVECTOR2& SheetSize) noexcept->STextureUV
 {
 	STextureUV Result;
 	int tTileCols, tTileRows;
@@ -36,7 +36,7 @@ auto JWMap::ConvertIDtoUV(const int ID, const int TileSize, const D3DXVECTOR2 Sh
 	return Result;
 }
 
-auto JWMap::ConvertIDToXY(const int ID, const int Cols)->D3DXVECTOR2
+auto JWMap::ConvertIDToXY(int ID, int Cols) noexcept->D3DXVECTOR2
 {
 	D3DXVECTOR2 Result = D3DXVECTOR2(0, 0);
 
@@ -46,17 +46,17 @@ auto JWMap::ConvertIDToXY(const int ID, const int Cols)->D3DXVECTOR2
 	return Result;
 }
 
-auto JWMap::ConvertXYToID(const D3DXVECTOR2 XY, const int Cols)->int
+auto JWMap::ConvertXYToID(const D3DXVECTOR2& XY, int Cols) noexcept->int
 {
 	return static_cast<int>(XY.x) + (static_cast<int>(XY.y) * Cols);
 }
 
-auto JWMap::ConvertXYToID(const POINT XY, const int Cols)->int
+auto JWMap::ConvertXYToID(const POINT& XY, int Cols) noexcept->int
 {
 	return XY.x + (XY.y * Cols);
 }
 
-auto JWMap::ConvertPositionToXY(const D3DXVECTOR2 Position, const D3DXVECTOR2 Offset, const int TileSize, const bool YRoundUp)->D3DXVECTOR2
+auto JWMap::ConvertPositionToXY(const D3DXVECTOR2& Position, const D3DXVECTOR2& Offset, int TileSize, bool YRoundUp) noexcept->D3DXVECTOR2
 {
 	D3DXVECTOR2 Result;
 
@@ -115,7 +115,7 @@ void JWMap::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)
 	ClearAllData();
 }
 
-PRIVATE void JWMap::ClearAllData()
+PRIVATE void JWMap::ClearAllData() noexcept
 {
 	JWImage::ClearVertexAndIndex();
 
@@ -131,7 +131,7 @@ void JWMap::Destroy() noexcept
 	JWImage::Destroy();
 }
 
-void JWMap::CreateMap(const SMapInfo* InPtr_Info)
+void JWMap::CreateMap(const SMapInfo* InPtr_Info) noexcept
 {
 	m_MapInfo = *InPtr_Info;
 
@@ -149,7 +149,7 @@ void JWMap::CreateMap(const SMapInfo* InPtr_Info)
 	AddEnd();
 }
 
-void JWMap::LoadMap(const WSTRING FileName)
+void JWMap::LoadMap(const WSTRING& FileName) noexcept
 {
 	WSTRING NewFileName;
 	NewFileName = *m_pBaseDir;
@@ -181,7 +181,7 @@ void JWMap::LoadMap(const WSTRING FileName)
 	filein.close();
 }
 
-PRIVATE void JWMap::ParseLoadedMapData(WSTRING* InOutPtr_WSTRING)
+PRIVATE void JWMap::ParseLoadedMapData(WSTRING* InOutPtr_WSTRING) noexcept
 {
 	size_t tempFind = -1;
 	int tempInt = 0;
@@ -225,7 +225,7 @@ PRIVATE void JWMap::ParseLoadedMapData(WSTRING* InOutPtr_WSTRING)
 }
 
 // @warning: this fuction must be called in LoadMap()
-PRIVATE void JWMap::MakeLoadedMap(WSTRING* InOutPtr_WSTRING)
+PRIVATE void JWMap::MakeLoadedMap(WSTRING* InOutPtr_WSTRING) noexcept
 {
 	MakeMapBase();
 
@@ -254,7 +254,7 @@ PRIVATE void JWMap::MakeLoadedMap(WSTRING* InOutPtr_WSTRING)
 	AddEnd();
 }
 
-void JWMap::SaveMap(const WSTRING FileName)
+void JWMap::SaveMap(const WSTRING& FileName) noexcept
 {
 	WOFSTREAM fileout;
 	fileout.open(FileName, WOFSTREAM::out);
@@ -270,7 +270,7 @@ void JWMap::SaveMap(const WSTRING FileName)
 	fileout.close();
 }
 
-PRIVATE void JWMap::GetMapDataForSave(WSTRING *OutPtr_WSTRING) const
+PRIVATE void JWMap::GetMapDataForSave(WSTRING *OutPtr_WSTRING) const noexcept
 {
 	wchar_t tempWC[255] = { 0 };
 	*OutPtr_WSTRING = m_MapInfo.MapName;
@@ -303,7 +303,7 @@ PRIVATE void JWMap::GetMapDataForSave(WSTRING *OutPtr_WSTRING) const
 	}
 }
 
-PRIVATE void JWMap::GetMapDataPartForSave(const int DataID, wchar_t* OutPtr_wchar, const int Size) const
+PRIVATE void JWMap::GetMapDataPartForSave(int DataID, wchar_t* OutPtr_wchar, int Size) const noexcept
 {
 	WSTRING tempStr;
 	wchar_t tempWC[255] = { 0 };
@@ -352,7 +352,7 @@ PRIVATE void JWMap::GetMapDataPartForSave(const int DataID, wchar_t* OutPtr_wcha
 	wcscpy_s(OutPtr_wchar, Size, tempStr.c_str());
 }
 
-PRIVATE void JWMap::SetTileTexture(const WSTRING FileName)
+PRIVATE void JWMap::SetTileTexture(const WSTRING& FileName) noexcept
 {
 	JWImage::SetTexture(FileName);
 
@@ -366,7 +366,7 @@ PRIVATE void JWMap::SetTileTexture(const WSTRING FileName)
 	}
 }
 
-PRIVATE void JWMap::SetMoveTexture(const WSTRING FileName)
+PRIVATE void JWMap::SetMoveTexture(const WSTRING& FileName) noexcept
 {
 	if (m_pTextureMove)
 	{
@@ -395,7 +395,7 @@ PRIVATE void JWMap::SetMoveTexture(const WSTRING FileName)
 // CreateMapBase() is called when a map is created or loaded
 // so if you want to set a generally-used data (e.g. SMapInfo)
 // for the map, do it here.
-PRIVATE void JWMap::MakeMapBase()
+PRIVATE void JWMap::MakeMapBase() noexcept
 {
 	// Clear buffers
 	ClearAllData();
@@ -425,7 +425,7 @@ PRIVATE void JWMap::MakeMapBase()
 	}
 }
 
-PRIVATE void JWMap::AddMapFragmentTile(const int TileID, const int X, const int Y)
+PRIVATE void JWMap::AddMapFragmentTile(int TileID, int X, int Y) noexcept
 {
 	STextureUV tUV = ConvertIDtoUV(TileID, m_MapInfo.TileSize, m_MapInfo.TileSheetSize);
 
@@ -452,7 +452,7 @@ PRIVATE void JWMap::AddMapFragmentTile(const int TileID, const int X, const int 
 	m_Indices.push_back(SIndex3(tVertCount - 4, tVertCount - 1, tVertCount - 2));
 }
 
-PRIVATE void JWMap::AddMapFragmentMove(const int MoveID, const int X, const int Y)
+PRIVATE void JWMap::AddMapFragmentMove(int MoveID, int X, int Y) noexcept
 {
 	// @warning: This function should be called only if MoveSheet is loaded first
 	if (m_MapInfo.MoveSheetSize.x && m_MapInfo.MoveSheetSize.y)
@@ -471,7 +471,7 @@ PRIVATE void JWMap::AddMapFragmentMove(const int MoveID, const int X, const int 
 }
 
 // @warning: AddEnd() is always called after creating any kind of maps
-PRIVATE void JWMap::AddEnd()
+PRIVATE void JWMap::AddEnd() noexcept
 {
 	JWImage::CreateVertexBuffer();
 	JWImage::CreateIndexBuffer();
@@ -492,55 +492,30 @@ PRIVATE void JWMap::AddEnd()
 
 PRIVATE void JWMap::CreateVertexBufferMove()
 {
-	int rVertSize = sizeof(SVertexImage) * static_cast<int>(m_VertMove.size());
-	if (FAILED(m_pDevice->CreateVertexBuffer(rVertSize, 0,
+	int vertex_size = sizeof(SVertexImage) * static_cast<int>(m_VertMove.size());
+	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0,
 		D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVBMove, nullptr)))
 	{
-		return;
+		throw EError::VERTEX_BUFFER_NOT_CREATED;
 	}
 }
 
 PRIVATE void JWMap::UpdateVertexBufferMove()
 {
-	int rVertSize = sizeof(SVertexImage) * static_cast<int>(m_VertMove.size());
-	VOID* pVertices;
-	if (FAILED(m_pVBMove->Lock(0, rVertSize, (void**)&pVertices, 0)))
-		return;
-	memcpy(pVertices, &m_VertMove[0], rVertSize);
-	m_pVBMove->Unlock();
-}
-
-PRIVATE auto JWMap::GetMapTileBoundary(const int MapID, const EMapDirection Dir) const->float
-{
-	float Result = 0;
-
-	D3DXVECTOR2 tMapXY = ConvertIDToXY(MapID, m_MapInfo.MapCols);
-
-	float tX = m_Offset.x + tMapXY.x * m_MapInfo.TileSize;
-	float tY = m_Offset.y + tMapXY.y * m_MapInfo.TileSize;
-
-	switch (Dir)
+	if (m_VertMove.size())
 	{
-	case EMapDirection::Up:
-		Result = tY;
-		break;
-	case EMapDirection::Down:
-		Result = tY + m_MapInfo.TileSize;
-		break;
-	case EMapDirection::Left:
-		Result = tX;
-		break;
-	case EMapDirection::Right:
-		Result = tX + m_MapInfo.TileSize;
-		break;
-	default:
-		break;
+		int vertex_size = sizeof(SVertexImage) * static_cast<int>(m_VertMove.size());
+		VOID* pVertices;
+		if (FAILED(m_pVBMove->Lock(0, vertex_size, (void**)&pVertices, 0)))
+		{
+			throw EError::VERTEX_BUFFER_NOT_LOCKED;
+		}
+		memcpy(pVertices, &m_VertMove[0], vertex_size);
+		m_pVBMove->Unlock();
 	}
-
-	return Result;
 }
 
-PRIVATE auto JWMap::IsMovableTile(const int MapID, const EMapDirection Dir) const->bool
+PRIVATE auto JWMap::IsMovableTile(int MapID, EMapDirection Dir) const noexcept->bool
 {
 	if ((MapID >= (m_MapInfo.MapCols * m_MapInfo.MapRows)) || (MapID < 0))
 		return true;
@@ -573,7 +548,37 @@ PRIVATE auto JWMap::IsMovableTile(const int MapID, const EMapDirection Dir) cons
 	}
 }
 
-void JWMap::SetMode(const EMapMode Mode)
+PRIVATE auto JWMap::GetMapTileBoundary(int MapID, EMapDirection Dir) const noexcept->float
+{
+	float Result = 0;
+
+	D3DXVECTOR2 tMapXY = ConvertIDToXY(MapID, m_MapInfo.MapCols);
+
+	float tX = m_Offset.x + tMapXY.x * m_MapInfo.TileSize;
+	float tY = m_Offset.y + tMapXY.y * m_MapInfo.TileSize;
+
+	switch (Dir)
+	{
+	case EMapDirection::Up:
+		Result = tY;
+		break;
+	case EMapDirection::Down:
+		Result = tY + m_MapInfo.TileSize;
+		break;
+	case EMapDirection::Left:
+		Result = tX;
+		break;
+	case EMapDirection::Right:
+		Result = tX + m_MapInfo.TileSize;
+		break;
+	default:
+		break;
+	}
+
+	return Result;
+}
+
+void JWMap::SetMode(EMapMode Mode) noexcept
 {
 	switch (Mode)
 	{
@@ -591,10 +596,10 @@ void JWMap::SetMode(const EMapMode Mode)
 	}
 
 	// @warning SetMoveTexture() should have been called first
-	//assert(0);
+	//abort();
 }
 
-void JWMap::SetPosition(const D3DXVECTOR2 Offset)
+void JWMap::SetPosition(const D3DXVECTOR2& Offset) noexcept
 {
 	int VertID0 = 0;
 	float tX = 0;
@@ -639,7 +644,7 @@ void JWMap::SetPosition(const D3DXVECTOR2 Offset)
 	}
 }
 
-void JWMap::SetGlobalPosition(const D3DXVECTOR2 Offset)
+void JWMap::SetGlobalPosition(const D3DXVECTOR2& Offset) noexcept
 {
 	float MapH = static_cast<float>(m_MapInfo.MapRows * m_MapInfo.TileSize);
 	float NewOffsetY = m_pJWWindow->GetWindowData()->WindowHeight - MapH + Offset.y;
@@ -647,7 +652,7 @@ void JWMap::SetGlobalPosition(const D3DXVECTOR2 Offset)
 	SetPosition(D3DXVECTOR2(Offset.x, NewOffsetY));
 }
 
-PRIVATE void JWMap::SetMapFragmentTile(const int TileID, const int X, const int Y)
+PRIVATE void JWMap::SetMapFragmentTile(int TileID, int X, int Y) noexcept
 {
 	if ((X < m_MapInfo.MapCols) && (Y < m_MapInfo.MapRows))
 	{
@@ -685,7 +690,7 @@ PRIVATE void JWMap::SetMapFragmentTile(const int TileID, const int X, const int 
 	}
 }
 
-PRIVATE void JWMap::SetMapFragmentMove(const int MoveID, const int X, const int Y)
+PRIVATE void JWMap::SetMapFragmentMove(int MoveID, int X, int Y) noexcept
 {
 	if ((X < m_MapInfo.MapCols) && (Y < m_MapInfo.MapRows))
 	{
@@ -749,32 +754,32 @@ void JWMap::Draw() noexcept
 	m_pDevice->SetTexture(0, nullptr);
 }
 
-auto JWMap::DoesMapExist() const->const bool
+auto JWMap::DoesMapExist() const noexcept->bool
 { 
 	return m_bMapExist;
 };
 
-auto JWMap::GetMode() const->const EMapMode
+auto JWMap::GetMode() const noexcept->EMapMode
 {
 	return m_CurrMapMode;
 }
 
-void JWMap::GetMapInfo(SMapInfo* OutPtr_Info) const
+void JWMap::GetMapInfo(SMapInfo* OutPtr_Info) const noexcept
 {
 	*OutPtr_Info = m_MapInfo;
 }
 
-auto JWMap::GetMapOffset() const->const D3DXVECTOR2
+auto JWMap::GetMapOffset() const noexcept ->const D3DXVECTOR2
 { 
 	return m_Offset;
 }
 
-auto JWMap::GetMapOffsetZeroY() const->CINT
+auto JWMap::GetMapOffsetZeroY() const noexcept->int
 { 
 	return m_OffsetZeroY;
 }
 
-auto JWMap::GetVelocityAfterCollision(SBoundingBox BB, D3DXVECTOR2 Velocity) const->const D3DXVECTOR2
+auto JWMap::GetVelocityAfterCollision(SBoundingBox BB, D3DXVECTOR2 Velocity) const noexcept->const D3DXVECTOR2
 {
 	D3DXVECTOR2 NewVelocity = Velocity;
 

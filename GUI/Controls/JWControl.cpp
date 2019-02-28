@@ -132,7 +132,7 @@ auto JWControl::GetText(WSTRING& OutText) noexcept->JWControl*
 	return this;
 }
 
-auto JWControl::SetTextAlignment(const EHorizontalAlignment HorizontalAlignment, const EVerticalAlignment VerticalAlignment) noexcept->JWControl*
+auto JWControl::SetTextAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment) noexcept->JWControl*
 {
 	SetTextHorizontalAlignment(HorizontalAlignment);
 	SetTextVerticalAlignment(VerticalAlignment);
@@ -140,7 +140,7 @@ auto JWControl::SetTextAlignment(const EHorizontalAlignment HorizontalAlignment,
 	return this;
 }
 
-auto JWControl::SetTextHorizontalAlignment(const EHorizontalAlignment Alignment) noexcept->JWControl*
+auto JWControl::SetTextHorizontalAlignment(EHorizontalAlignment Alignment) noexcept->JWControl*
 {
 	m_HorizontalAlignment = Alignment;
 
@@ -162,7 +162,7 @@ auto JWControl::SetTextHorizontalAlignment(const EHorizontalAlignment Alignment)
 	return this;
 }
 
-auto JWControl::SetTextVerticalAlignment(const EVerticalAlignment Alignment) noexcept->JWControl*
+auto JWControl::SetTextVerticalAlignment(EVerticalAlignment Alignment) noexcept->JWControl*
 {
 	m_VerticalAlignment = Alignment;
 
@@ -184,7 +184,7 @@ auto JWControl::SetTextVerticalAlignment(const EVerticalAlignment Alignment) noe
 	return this;
 }
 
-auto JWControl::SetFontColor(const DWORD Color) noexcept->JWControl*
+auto JWControl::SetFontColor(DWORD Color) noexcept->JWControl*
 {
 	m_FontColor = Color;
 
@@ -240,21 +240,21 @@ auto JWControl::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 	return this;
 }
 
-auto JWControl::SetBorderColor(const DWORD Color) noexcept->JWControl*
+auto JWControl::SetBorderColor(DWORD Color) noexcept->JWControl*
 {
 	m_pBorderLine->SetBoxColor(Color);
 
 	return this;
 }
 
-auto JWControl::SetBorderColor(const DWORD ColorA, const DWORD ColorB) noexcept->JWControl*
+auto JWControl::SetBorderColor(DWORD ColorA, DWORD ColorB) noexcept->JWControl*
 {
 	m_pBorderLine->SetBoxColor(ColorA, ColorB);
 
 	return this;
 }
 
-auto JWControl::SetBackgroundColor(const DWORD Color) noexcept->JWControl*
+auto JWControl::SetBackgroundColor(DWORD Color) noexcept->JWControl*
 {
 	m_Color_Normal = Color;
 	m_Color_Hover = Color;
@@ -278,12 +278,12 @@ auto JWControl::GetSize() const noexcept->const D3DXVECTOR2
 	return m_Size;
 }
 
-auto JWControl::GetControlType() const noexcept->const EControlType
+auto JWControl::GetControlType() const noexcept->EControlType
 {
 	return m_ControlType;
 }
 
-auto JWControl::GetControlState() const noexcept->const EControlState
+auto JWControl::GetControlState() const noexcept->EControlState
 {
 	return m_ControlState;
 }
@@ -295,7 +295,7 @@ auto JWControl::SetParentControl(const JWControl* pParentControl) noexcept->JWCo
 	return this;
 }
 
-auto JWControl::HasParentControl() noexcept->const bool
+auto JWControl::HasParentControl() noexcept->bool
 {
 	if (m_pParentControl)
 	{
@@ -305,7 +305,7 @@ auto JWControl::HasParentControl() noexcept->const bool
 	return false;
 }
 
-auto JWControl::OnMouseHover() const noexcept->const bool
+auto JWControl::OnMouseHover() const noexcept->bool
 {
 	if (m_ControlState == EControlState::Hover)
 	{
@@ -315,7 +315,7 @@ auto JWControl::OnMouseHover() const noexcept->const bool
 	return false;
 }
 
-auto JWControl::OnMousePressed() const noexcept->const bool
+auto JWControl::OnMousePressed() const noexcept->bool
 {
 	if (m_ControlState == EControlState::Pressed)
 	{
@@ -324,7 +324,7 @@ auto JWControl::OnMousePressed() const noexcept->const bool
 	return false;
 }
 
-auto JWControl::OnMouseCliked() const noexcept->const bool
+auto JWControl::OnMouseCliked() const noexcept->bool
 {
 	if (m_ControlState == EControlState::Clicked)
 	{
@@ -513,12 +513,12 @@ PROTECTED void JWControl::UpdateViewport() noexcept
 	m_ControlViewport.Height = static_cast<DWORD>(m_Size.y);
 }
 
-void JWControl::SetControlState(const EControlState State) noexcept
+void JWControl::SetControlState(EControlState State) noexcept
 {
 	m_ControlState = State;
 }
 
-void JWControl::SetControlStateColor(const EControlState State, const DWORD Color) noexcept
+void JWControl::SetControlStateColor(EControlState State, DWORD Color) noexcept
 {
 	switch (State)
 	{
@@ -554,21 +554,21 @@ void JWControl::KillFocus() noexcept
 	m_pBorderLine->SetBoxColor(DEFAULT_COLOR_BORDER);
 }
 
-auto JWControl::ShouldDrawBorder(const bool Value) noexcept->JWControl*
+auto JWControl::ShouldDrawBorder(bool Value) noexcept->JWControl*
 {
 	m_bShouldDrawBorder = Value;
 
 	return this;
 }
 
-auto JWControl::ShouldUseViewport(const bool Value) noexcept->JWControl*
+auto JWControl::ShouldUseViewport(bool Value) noexcept->JWControl*
 {
 	m_bShouldUseViewport = Value;
 
 	return this;
 }
 
-auto JWControl::ShouldBeOffsetByMenuBar(const bool Value) noexcept->JWControl*
+auto JWControl::ShouldBeOffsetByMenuBar(bool Value) noexcept->JWControl*
 {
 	m_bShouldBeOffsetByMenuBar = Value;
 

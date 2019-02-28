@@ -28,13 +28,13 @@ namespace JWENGINE
 		};
 
 		// Get the (const) size of the dynamic array.
-		auto size() const->const size_t
+		auto size() const->size_t
 		{
 			return m_Size;
 		}
 
 		// Get the (const) capacity of the dynamic array.
-		auto capacity() const->const size_t
+		auto capacity() const->size_t
 		{
 			return m_Capacity;
 		}

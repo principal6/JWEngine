@@ -22,43 +22,44 @@ namespace JWENGINE
 		JWGame();
 		~JWGame() {};
 
-		void JWGame::Create(const WSTRING GameName, CINT Width, CINT Height);
-		void JWGame::SetRenderFunction(const PF_RENDER pfRender);
-		void JWGame::SetKeyboardFunction(const PF_KEYBOARD pfKeyboard);
-		void JWGame::ToggleBoundingBox();
-		void JWGame::LoadMap(const WSTRING FileName);
+		void Create(const WSTRING& GameName, int Width, int Height);
+		void SetRenderFunction(const PF_RENDER pfRender) noexcept;
+		void SetKeyboardFunction(const PF_KEYBOARD pfKeyboard) noexcept;
 
-		void JWGame::Run();
-		void JWGame::Shutdown();
+		void ToggleBoundingBox() noexcept;
+		void LoadMap(const WSTRING& FileName) noexcept;
 
-		void JWGame::SetBackgroundTexture(const WSTRING TextureFN);
+		void Run() noexcept;
+		void Shutdown() noexcept;
 
-		auto JWGame::SpriteCreate(const WSTRING TextureFN, const POINT UnitSize, CINT numCols, CINT numRows, const float Scale = 1.0f)->JWLife*;
-		void JWGame::SpriteWalk(const EAnimationDirection Direction);
-		void JWGame::SpriteJump();
-		void JWGame::SpriteSetAnimation(const EAnimationID AnimationID);
+		void SetBackgroundTexture(const WSTRING& TextureFN) noexcept;
 
-		auto JWGame::SpawnMonster(const WSTRING MonsterName, const D3DXVECTOR2 GlobalPosition)->JWMonster*;
-		auto JWGame::SpawnEffect(CINT EffectID, CINT Damage)->JWEffect*;
+		auto SpriteCreate(const WSTRING& TextureFN, const POINT& UnitSize, int numCols, int numRows, float Scale = 1.0f) noexcept->JWLife*;
+		void SpriteWalk(EAnimationDirection Direction) noexcept;
+		void SpriteJump() noexcept;
+		void SpriteSetAnimation(EAnimationID AnimationID) noexcept;
 
-		auto JWGame::GetTextObject()->JWText*;
-		auto JWGame::GetSpriteObject()->JWLife*;
-		auto JWGame::GetMonsterManagerObject()->JWMonsterManager*;
-		auto JWGame::GetEffectManagerObject()->JWEffect*;
+		auto SpawnMonster(const WSTRING& MonsterName, const D3DXVECTOR2& GlobalPosition) noexcept->JWMonster*;
+		auto SpawnEffect(int EffectID, int Damage) noexcept->JWEffect*;
+
+		auto GetTextObject() noexcept->JWText*;
+		auto GetSpriteObject() noexcept->JWLife*;
+		auto GetMonsterManagerObject() noexcept->JWMonsterManager*;
+		auto GetEffectManagerObject() noexcept->JWEffect*;
 
 	private:
-		void JWGame::Destroy();
+		void Destroy() noexcept;
 
-		void JWGame::MainLoop();
-		void JWGame::DetectInput();
+		void MainLoop() noexcept;
+		void DetectInput() noexcept;
 
-		void JWGame::DrawBackground();
-		void JWGame::DrawMap();
-		void JWGame::DrawMonsters();
-		void JWGame::DrawSprite();
-		void JWGame::DrawEffects();
+		void DrawBackground() noexcept;
+		void DrawMap() noexcept;
+		void DrawMonsters() noexcept;
+		void DrawSprite() noexcept;
+		void DrawEffects() noexcept;
 
-		void JWGame::DrawAllBase();
+		void DrawAllBase() noexcept;
 
 	private:
 		static const int ANIM_TICK = 70;

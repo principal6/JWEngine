@@ -35,7 +35,7 @@ namespace JWENGINE
 		void CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo);
 
 		// Add a control instance to this JWGUIWindow.
-		auto AddControl(const EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName = L"")->JWControl*;
+		auto AddControl(EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName = L"")->JWControl*;
 
 		// Get the pointer of the control instance that this JWGUIWindow has.
 		auto GetControlPtr(const WSTRING& ControlName)->JWControl*;
@@ -44,11 +44,11 @@ namespace JWENGINE
 
 		// Return true if this JWGUIWindow is destroyed.
 		// @warning: when this function returns true, you must call Destroy() method from the outside.
-		auto IsDestroyed() const noexcept->const bool;
+		auto IsDestroyed() const noexcept->bool;
 
-		auto HasMenuBar() const noexcept->const bool;
+		auto HasMenuBar() const noexcept->bool;
 
-		auto GetMenuBarHeight() const noexcept->const float;
+		auto GetMenuBarHeight() const noexcept->float;
 
 		// Kill all the focus.
 		void KillAllFocus() noexcept;

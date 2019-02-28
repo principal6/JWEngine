@@ -39,16 +39,16 @@ namespace JWENGINE
 		virtual void SetSize(const D3DXVECTOR2& Size) noexcept;
 		virtual void SetTexture(const WSTRING& FileName);
 		virtual void SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo) noexcept;
-		virtual auto SetColor(const DWORD Color) noexcept->JWImage*;
-		virtual auto SetAlpha(const BYTE Alpha) noexcept->JWImage*;
-		virtual auto SetXRGB(const DWORD XRGB) noexcept->JWImage*;
+		virtual auto SetColor(DWORD Color) noexcept->JWImage*;
+		virtual auto SetAlpha(BYTE Alpha) noexcept->JWImage*;
+		virtual auto SetXRGB(DWORD XRGB) noexcept->JWImage*;
 		virtual auto SetScale(const D3DXVECTOR2& Scale) noexcept->JWImage*;
 		virtual auto SetVisibleRange(const D3DXVECTOR2& Range) noexcept->JWImage*;
 		virtual auto SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size, bool bSetSize = true) noexcept->JWImage*;
-		virtual auto SetUVRange(const STextureUV UV) noexcept->JWImage*;
+		virtual auto SetUVRange(const STextureUV& UV) noexcept->JWImage*;
 		virtual auto SetBoundingBox(const D3DXVECTOR2& ExtraSize) noexcept->JWImage*;
-		virtual auto SetBoundingBoxAlpha(const BYTE Alpha) noexcept->JWImage*;
-		virtual auto SetBoundingBoxXRGB(const DWORD XRGB) noexcept->JWImage*;
+		virtual auto SetBoundingBoxAlpha(BYTE Alpha) noexcept->JWImage*;
+		virtual auto SetBoundingBoxXRGB(DWORD XRGB) noexcept->JWImage*;
 
 		virtual auto GetSize() const noexcept->const D3DXVECTOR2&;
 		virtual auto GetScaledSize() const noexcept->const D3DXVECTOR2&;
@@ -56,7 +56,7 @@ namespace JWENGINE
 		virtual auto GetCenterPosition() const noexcept->const D3DXVECTOR2;
 		virtual auto GetBoundingBox() const noexcept->const SBoundingBox;
 
-		virtual auto IsTextureLoaded() const noexcept->const bool;
+		virtual auto IsTextureLoaded() const noexcept->bool;
 
 	protected:
 		virtual void ClearVertexAndIndex() noexcept;

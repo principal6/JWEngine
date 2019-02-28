@@ -25,22 +25,22 @@ namespace JWENGINE
 		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
 		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
 		auto SetText(const WSTRING& Text) noexcept->JWControl* override;
-		auto SetFontColor(const DWORD Color) noexcept->JWControl* override;
+		auto SetFontColor(DWORD Color) noexcept->JWControl* override;
 		auto SetWatermark(const WSTRING& Text) noexcept->JWControl* override;
-		auto SetWatermarkColor(const DWORD Color) noexcept->JWControl* override;
+		auto SetWatermarkColor(DWORD Color) noexcept->JWControl* override;
 
 		void Focus() noexcept override;
 
-		auto ShouldUseMultiline(const bool Value) noexcept->JWControl* override;
-		auto ShouldUseAutomaticLineBreak(const bool Value) noexcept->JWControl* override;
-		auto ShouldUseNumberInputsOnly(const bool Value) noexcept->JWControl* override;
+		auto ShouldUseMultiline(bool Value) noexcept->JWControl* override;
+		auto ShouldUseAutomaticLineBreak(bool Value) noexcept->JWControl* override;
+		auto ShouldUseNumberInputsOnly(bool Value) noexcept->JWControl* override;
 		
 	protected:
 		// Events called in JWGUIWindow (friend class).
 		void WindowMouseDown() noexcept override;
 		void WindowMouseMove() noexcept override;
-		void WindowKeyDown(const WPARAM VirtualKeyCode) noexcept override;
-		void WindowCharKeyInput(const WPARAM Char) noexcept override;
+		void WindowKeyDown(WPARAM VirtualKeyCode) noexcept override;
+		void WindowCharKeyInput(WPARAM Char) noexcept override;
 		void WindowIMEInput(const SGUIIMEInputInfo& IMEInfo) noexcept override;
 
 	private:
