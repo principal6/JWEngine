@@ -18,8 +18,7 @@ THandleItem mb_file_open = THandleItem_Null;
 THandleItem mb_help_info = THandleItem_Null;
 
 // TODO: THandleItem to structure?? (To safely handle these)
-// Add Frame & VericalDivider & HorizontalDivider
-// Frame - has child controls, which are not updated in GUIWindow but in Frame!!
+// Add FrameConnector(Verical & Horizontal)
 
 int main()
 {
