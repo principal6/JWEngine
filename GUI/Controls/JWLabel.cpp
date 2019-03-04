@@ -11,23 +11,17 @@ JWLabel::JWLabel()
 	m_Color_Pressed = DEFAULT_COLOR_BACKGROUND_LABEL;
 }
 
-auto JWLabel::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
+auto JWLabel::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
 {
-	JWControl::Create(Position, Size, pSharedData);
+	JWControl::Create(Position, Size, SharedData);
 
 	// Create image for background
-	if (m_pBackground = new JWImage)
-	{
-		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
-		m_pBackground->SetPosition(Position);
-		m_pBackground->SetSize(Size);
-		m_pBackground->SetAlpha(DEFUALT_ALPHA_BACKGROUND_LABEL);
-		m_pBackground->SetXRGB(DEFAULT_COLOR_BACKGROUND_LABEL);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pBackground = new JWImage;
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pBackground->SetPosition(Position);
+	m_pBackground->SetSize(Size);
+	m_pBackground->SetAlpha(DEFUALT_ALPHA_BACKGROUND_LABEL);
+	m_pBackground->SetXRGB(DEFAULT_COLOR_BACKGROUND_LABEL);
 
 	// Set control type
 	m_ControlType = EControlType::Label;

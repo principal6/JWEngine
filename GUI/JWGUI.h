@@ -9,7 +9,7 @@ namespace JWENGINE
 	class JWGUI final
 	{
 	public:
-		JWGUI();
+		JWGUI() {};
 		~JWGUI() {};
 
 		void Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow);
@@ -30,13 +30,13 @@ namespace JWENGINE
 		static SGUIIMEInputInfo ms_IMEInfo;
 		static VECTOR<HWND> ms_hWndQuitStack;
 
-		bool m_bIsGUIRunning;
+		bool m_bIsGUIRunning = false;
 
-		MSG m_MSG;
+		MSG m_MSG{};
 
-		PF_MAINLOOP m_pfMainLoop;
+		PF_MAINLOOP m_pfMainLoop = nullptr;
 
-		JWGUIWindow* m_pMainGUIWindow;
+		JWGUIWindow* m_pMainGUIWindow = nullptr;
 		TLinkedList<JWGUIWindow**> m_ppGUIWindows;
 	};
 };

@@ -15,7 +15,7 @@ namespace JWENGINE
 		JWCheckBox();
 		~JWCheckBox() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
 		void Destroy() noexcept override;
 
 		void Draw() noexcept override;
@@ -27,12 +27,12 @@ namespace JWENGINE
 		auto GetCheckState() const noexcept->bool override;
 
 	private:
-		JWImage* m_pBackground;
-		JWImage* m_pCheckImage;
+		JWImage* m_pBackground = nullptr;
+		JWImage* m_pCheckImage = nullptr;
 
-		D3DXVECTOR2 m_ButtonImageOffset;
-		D3DXVECTOR2 m_OffsetInAtlas;
+		D3DXVECTOR2 m_ButtonImageOffset{ 0, 0 };
+		D3DXVECTOR2 m_OffsetInAtlas{ 0, 0 };
 
-		bool m_bChecked;
+		bool m_bChecked = false;
 	};
 };

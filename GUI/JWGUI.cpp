@@ -54,24 +54,12 @@ LRESULT CALLBACK JWENGINE::GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam,
 	return(DefWindowProc(hWnd, Message, wParam, lParam));
 }
 
-JWGUI::JWGUI()
-{
-	m_pMainGUIWindow = nullptr;
-}
-
 void JWGUI::Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow)
 {
-	if (OutPtrMainGUIWindow = new JWGUIWindow)
-	{
-		WindowCreationData.proc = GUIWindowProc;
-		OutPtrMainGUIWindow->Create(WindowCreationData);
-
-		m_ppGUIWindows.push_back(&OutPtrMainGUIWindow);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	OutPtrMainGUIWindow = new JWGUIWindow;
+	WindowCreationData.proc = GUIWindowProc;
+	OutPtrMainGUIWindow->Create(WindowCreationData);
+	m_ppGUIWindows.push_back(&OutPtrMainGUIWindow);
 }
 
 void JWGUI::Destroy() noexcept
@@ -89,11 +77,7 @@ void JWGUI::Destroy() noexcept
 
 void JWGUI::AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrGUIWindow)
 {
-	if ((OutPtrGUIWindow = new JWGUIWindow) == nullptr)
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
-
+	OutPtrGUIWindow = new JWGUIWindow;
 	WindowCreationData.proc = GUIWindowProc;
 	OutPtrGUIWindow->Create(WindowCreationData);
 

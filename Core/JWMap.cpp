@@ -101,16 +101,11 @@ JWMap::JWMap()
 	m_OffsetZeroY = 0;
 }
 
-void JWMap::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)
+void JWMap::Create(const JWWindow& Window, const WSTRING& BaseDir)
 {
-	if (pJWWindow == nullptr)
-	{
-		throw EError::NULLPTR_WINDOW;
-	}
-
-	m_pJWWindow = pJWWindow;
-	m_pDevice = m_pJWWindow->GetDevice();
-	m_pBaseDir = pBaseDir;
+	m_pJWWindow = &Window;
+	m_pDevice = Window.GetDevice();
+	m_pBaseDir = &BaseDir;
 
 	ClearAllData();
 }
@@ -181,51 +176,51 @@ void JWMap::LoadMap(const WSTRING& FileName) noexcept
 	filein.close();
 }
 
-PRIVATE void JWMap::ParseLoadedMapData(WSTRING* InOutPtr_WSTRING) noexcept
+PRIVATE void JWMap::ParseLoadedMapData(WSTRING* InOutPtr_STRING) noexcept
 {
 	size_t tempFind = -1;
 	int tempInt = 0;
-	tempFind = InOutPtr_WSTRING->find_first_of('#');
+	tempFind = InOutPtr_STRING->find_first_of('#');
 	if (tempFind)
 	{
-		m_MapInfo.MapName = InOutPtr_WSTRING->substr(0, tempFind);
-		*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(tempFind + 1);
+		m_MapInfo.MapName = InOutPtr_STRING->substr(0, tempFind);
+		*InOutPtr_STRING = InOutPtr_STRING->substr(tempFind + 1);
 	}
 
-	tempFind = InOutPtr_WSTRING->find_first_of('#');
+	tempFind = InOutPtr_STRING->find_first_of('#');
 	if (tempFind)
 	{
-		tempInt = _wtoi(InOutPtr_WSTRING->substr(0, tempFind).c_str());
+		tempInt = _wtoi(InOutPtr_STRING->substr(0, tempFind).c_str());
 		m_MapInfo.TileSize = tempInt;
-		*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(tempFind + 1);
+		*InOutPtr_STRING = InOutPtr_STRING->substr(tempFind + 1);
 	}
 
-	tempFind = InOutPtr_WSTRING->find_first_of('#');
+	tempFind = InOutPtr_STRING->find_first_of('#');
 	if (tempFind)
 	{
-		tempInt = _wtoi(InOutPtr_WSTRING->substr(0, tempFind).c_str());
+		tempInt = _wtoi(InOutPtr_STRING->substr(0, tempFind).c_str());
 		m_MapInfo.MapCols = tempInt;
-		*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(tempFind + 1);
+		*InOutPtr_STRING = InOutPtr_STRING->substr(tempFind + 1);
 	}
 
-	tempFind = InOutPtr_WSTRING->find_first_of('#');
+	tempFind = InOutPtr_STRING->find_first_of('#');
 	if (tempFind)
 	{
-		tempInt = _wtoi(InOutPtr_WSTRING->substr(0, tempFind).c_str());
+		tempInt = _wtoi(InOutPtr_STRING->substr(0, tempFind).c_str());
 		m_MapInfo.MapRows = tempInt;
-		*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(tempFind + 1);
+		*InOutPtr_STRING = InOutPtr_STRING->substr(tempFind + 1);
 	}
 
-	tempFind = InOutPtr_WSTRING->find_first_of('#');
+	tempFind = InOutPtr_STRING->find_first_of('#');
 	if (tempFind)
 	{
-		m_MapInfo.TileSheetName = InOutPtr_WSTRING->substr(0, tempFind);
-		*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(tempFind + 2);
+		m_MapInfo.TileSheetName = InOutPtr_STRING->substr(0, tempFind);
+		*InOutPtr_STRING = InOutPtr_STRING->substr(tempFind + 2);
 	}
 }
 
 // @warning: this fuction must be called in LoadMap()
-PRIVATE void JWMap::MakeLoadedMap(WSTRING* InOutPtr_WSTRING) noexcept
+PRIVATE void JWMap::MakeLoadedMap(WSTRING* InOutPtr_STRING) noexcept
 {
 	MakeMapBase();
 
@@ -235,22 +230,22 @@ PRIVATE void JWMap::MakeLoadedMap(WSTRING* InOutPtr_WSTRING) noexcept
 	{
 		for (int j = 0; j < m_MapInfo.MapCols; j++)
 		{
-			tTileID = _wtoi(InOutPtr_WSTRING->substr(0, MAX_TILEID_LEN).c_str());
+			tTileID = _wtoi(InOutPtr_STRING->substr(0, MAX_TILEID_LEN).c_str());
 			if (tTileID == 999)
 				tTileID = -1;
 
-			tMoveID = _wtoi(InOutPtr_WSTRING->substr(MAX_TILEID_LEN, MAX_MOVEID_LEN).c_str());
+			tMoveID = _wtoi(InOutPtr_STRING->substr(MAX_TILEID_LEN, MAX_MOVEID_LEN).c_str());
 
 			AddMapFragmentTile(tTileID, j, i);
 			AddMapFragmentMove(tMoveID, j, i);
 			m_MapData.push_back(SMapData(tTileID, tMoveID));
 
-			*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(MAX_TILEID_LEN);
-			*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(MAX_MOVEID_LEN);
+			*InOutPtr_STRING = InOutPtr_STRING->substr(MAX_TILEID_LEN);
+			*InOutPtr_STRING = InOutPtr_STRING->substr(MAX_MOVEID_LEN);
 		}
-		*InOutPtr_WSTRING = InOutPtr_WSTRING->substr(1); // Delete '\n' in the string data
+		*InOutPtr_STRING = InOutPtr_STRING->substr(1); // Delete '\n' in the string data
 	}
-	InOutPtr_WSTRING->clear();
+	InOutPtr_STRING->clear();
 	AddEnd();
 }
 
@@ -270,23 +265,23 @@ void JWMap::SaveMap(const WSTRING& FileName) noexcept
 	fileout.close();
 }
 
-PRIVATE void JWMap::GetMapDataForSave(WSTRING *OutPtr_WSTRING) const noexcept
+PRIVATE void JWMap::GetMapDataForSave(WSTRING *OutPtr_STRING) const noexcept
 {
 	wchar_t tempWC[255] = { 0 };
-	*OutPtr_WSTRING = m_MapInfo.MapName;
-	*OutPtr_WSTRING += L'#';
+	*OutPtr_STRING = m_MapInfo.MapName;
+	*OutPtr_STRING += L'#';
 	_itow_s(m_MapInfo.TileSize, tempWC, 10);
-	*OutPtr_WSTRING += tempWC;
-	*OutPtr_WSTRING += L'#';
+	*OutPtr_STRING += tempWC;
+	*OutPtr_STRING += L'#';
 	_itow_s(m_MapInfo.MapCols, tempWC, 10);
-	*OutPtr_WSTRING += tempWC;
-	*OutPtr_WSTRING += L'#';
+	*OutPtr_STRING += tempWC;
+	*OutPtr_STRING += L'#';
 	_itow_s(m_MapInfo.MapRows, tempWC, 10);
-	*OutPtr_WSTRING += tempWC;
-	*OutPtr_WSTRING += L'#';
-	*OutPtr_WSTRING += m_MapInfo.TileSheetName;
-	*OutPtr_WSTRING += L'#';
-	*OutPtr_WSTRING += L'\n';
+	*OutPtr_STRING += tempWC;
+	*OutPtr_STRING += L'#';
+	*OutPtr_STRING += m_MapInfo.TileSheetName;
+	*OutPtr_STRING += L'#';
+	*OutPtr_STRING += L'\n';
 
 	int tDataID = 0;
 	for (int i = 0; i < m_MapInfo.MapRows; i++)
@@ -295,11 +290,11 @@ PRIVATE void JWMap::GetMapDataForSave(WSTRING *OutPtr_WSTRING) const noexcept
 		{
 			tDataID = j + (i * m_MapInfo.MapCols);
 			GetMapDataPartForSave(tDataID, tempWC, 255);
-			*OutPtr_WSTRING += tempWC;
+			*OutPtr_STRING += tempWC;
 		}
 
 		if (i < m_MapInfo.MapRows) // To avoid '\n' at the end
-			*OutPtr_WSTRING += L'\n';
+			*OutPtr_STRING += L'\n';
 	}
 }
 
@@ -493,10 +488,9 @@ PRIVATE void JWMap::AddEnd() noexcept
 PRIVATE void JWMap::CreateVertexBufferMove()
 {
 	int vertex_size = sizeof(SVertexImage) * static_cast<int>(m_VertMove.size());
-	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0,
-		D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVBMove, nullptr)))
+	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVBMove, nullptr)))
 	{
-		throw EError::VERTEX_BUFFER_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 }
 
@@ -505,13 +499,12 @@ PRIVATE void JWMap::UpdateVertexBufferMove()
 	if (m_VertMove.size())
 	{
 		int vertex_size = sizeof(SVertexImage) * static_cast<int>(m_VertMove.size());
-		VOID* pVertices;
-		if (FAILED(m_pVBMove->Lock(0, vertex_size, (void**)&pVertices, 0)))
+		void* pVertices;
+		if (SUCCEEDED(m_pVBMove->Lock(0, vertex_size, (void**)&pVertices, 0)))
 		{
-			throw EError::VERTEX_BUFFER_NOT_LOCKED;
+			memcpy(pVertices, &m_VertMove[0], vertex_size);
+			m_pVBMove->Unlock();
 		}
-		memcpy(pVertices, &m_VertMove[0], vertex_size);
-		m_pVBMove->Unlock();
 	}
 }
 

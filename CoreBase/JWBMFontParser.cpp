@@ -6,40 +6,6 @@ using namespace JWENGINE;
 // Static member variable declaration
 BMFont JWBMFontParser::ms_FontData;
 
-auto WstringToString(WSTRING Source)->STRING
-{
-	STRING Result;
-
-	char* temp = nullptr;
-	int len = WideCharToMultiByte(CP_ACP, 0, Source.c_str(), -1, temp, 0, nullptr, nullptr);
-
-	temp = new char[len + 1];
-	WideCharToMultiByte(CP_ACP, 0, Source.c_str(), -1, temp, len, nullptr, nullptr);
-
-	Result = temp;
-
-	delete[] temp;
-	temp = nullptr;
-	return Result;
-}
-
-auto StringToWstring(STRING Source)->WSTRING
-{
-	WSTRING Result;
-
-	wchar_t* temp = nullptr;
-	int len = MultiByteToWideChar(CP_ACP, 0, Source.c_str(), -1, temp, 0);
-
-	temp = new wchar_t[len + 1];
-	MultiByteToWideChar(CP_ACP, 0, Source.c_str(), -1, temp, len);
-
-	Result = temp;
-
-	delete[] temp;
-	temp = nullptr;
-	return Result;
-}
-
 auto JWBMFontParser::ParseComma(const STRING& Data, UINT ID) noexcept->UINT
 {
 	UINT Result = 0;
@@ -49,7 +15,7 @@ auto JWBMFontParser::ParseComma(const STRING& Data, UINT ID) noexcept->UINT
 	int Count = 0;
 	size_t FoundPrev = 0;
 	size_t Found = 0;
-	
+
 	while (true)
 	{
 		Found = tempString.find_first_of(',', FoundPrev);
@@ -86,7 +52,7 @@ auto JWBMFontParser::Parse(const WSTRING& FileName) noexcept->bool
 		const XMLElement* tempElement = nullptr;
 		const XMLAttribute* tempAttr = nullptr;
 
-		/** 
+		/**
 		* Parse element <info>
 		*/
 		tempElement = tempElementRoot->FirstChildElement("info");
@@ -109,7 +75,7 @@ auto JWBMFontParser::Parse(const WSTRING& FileName) noexcept->bool
 		tempAttr = tempAttr->Next();
 		ms_FontData.Info.AA = tempAttr->UnsignedValue();
 		tempAttr = tempAttr->Next();
-		
+
 		ms_FontData.Info.Padding.Up = ParseComma(tempAttr->Value(), 0);
 		ms_FontData.Info.Padding.Right = ParseComma(tempAttr->Value(), 1);
 		ms_FontData.Info.Padding.Down = ParseComma(tempAttr->Value(), 2);
@@ -146,13 +112,13 @@ auto JWBMFontParser::Parse(const WSTRING& FileName) noexcept->bool
 		ms_FontData.Common.GreenChnl = tempAttr->IntValue();
 		tempAttr = tempAttr->Next();
 		ms_FontData.Common.BlueChnl = tempAttr->IntValue();
-		
+
 		/**
 		* Parse element <pages>
 		*/
 		tempElement = tempElementRoot->FirstChildElement("pages");
 		tempElement = tempElement->FirstChildElement("page");
-		
+
 		for (UINT i = 0; i < ms_FontData.Common.Pages; i++)
 		{
 			BMFont::BMPage tempPage;
@@ -198,7 +164,7 @@ auto JWBMFontParser::Parse(const WSTRING& FileName) noexcept->bool
 
 			// map Chars
 			ms_FontData.CharMap.insert(std::make_pair(static_cast<wchar_t>(tempChar.ID), ms_FontData.Chars.size() - 1));
-			
+
 			tempElement = tempElement->NextSiblingElement();
 		}
 
@@ -231,7 +197,7 @@ auto JWBMFontParser::Parse(const WSTRING& FileName) noexcept->bool
 				tempElement = tempElement->NextSiblingElement();
 			}
 		}
-		
+
 		// Map all possible characters from 0 to MAX_WCHAR_INDEX
 		wchar_t wchar_t_value = 0;
 		size_t Chars_ID = 0;
@@ -257,7 +223,7 @@ auto JWBMFontParser::Parse(const WSTRING& FileName) noexcept->bool
 		// The parsing ended successfully
 		return true;
 	}
-	
+
 	//@warning: If failed at LoadFile(), the method directly comes here
 	return false;
 }

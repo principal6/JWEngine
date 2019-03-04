@@ -315,7 +315,7 @@ private:
         }
     }
 
-    T*  _mem;
+    T*  _mem = nullptr;
     T   _pool[INITIAL_SIZE];
     int _allocated;		// objects allocated
     int _size;			// number objects in use
@@ -2289,8 +2289,8 @@ private:
         ENTITY_RANGE = 64,
         BUF_SIZE = 200
     };
-    bool _entityFlag[ENTITY_RANGE];
-    bool _restrictedEntityFlag[ENTITY_RANGE];
+	bool _entityFlag[ENTITY_RANGE]{};
+	bool _restrictedEntityFlag[ENTITY_RANGE]{};
 
     DynArray< char, 20 > _buffer;
 

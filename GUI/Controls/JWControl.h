@@ -49,6 +49,7 @@ namespace JWENGINE
 	{
 		Horizontal,
 		Vertical,
+		Invalid,
 	};
 
 	static inline auto Static_IsMouseInRECT(const POINT& Position, const RECT& Rect)->bool
@@ -70,11 +71,11 @@ namespace JWENGINE
 	friend class JWGUIWindow;
 
 	public:
-		JWControl();
+		JWControl() {};
 		virtual ~JWControl() {};
 
 		// Create JWControl.
-		virtual auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*;
+		virtual auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*;
 
 		// Destroy JWControl.
 		virtual void Destroy() noexcept;
@@ -163,7 +164,7 @@ namespace JWENGINE
 		*/
 		// Attach a JWScrollBar to this control.
 		// @warning: if pScrollBar is not a pointer to a JWScrollBar, this function won't work.
-		virtual auto AttachScrollBar(const JWControl* pScrollBar)->JWControl*;
+		virtual auto AttachScrollBar(const JWControl& ScrollBar)->JWControl*;
 
 		// Detach the formerly attached JWScrollBar.
 		virtual auto DetachScrollBar() noexcept->JWControl*;
@@ -266,7 +267,7 @@ namespace JWENGINE
 		virtual auto AddMenuBarSubItem(THandleItem hItem, const WSTRING& Text)->THandleItem { return THandleItem_Null; };
 
 		// [JWFrame]
-		virtual auto AddChildControl(JWControl* pChildControl)->JWControl* { return this; };
+		virtual auto AddChildControl(JWControl& ChildControl)->JWControl* { return this; };
 
 	protected:
 		// Calculate RECT of this control.
@@ -307,35 +308,35 @@ namespace JWENGINE
 		virtual void WindowIMEInput(const SGUIIMEInputInfo& IMEInfo) {};
 
 	protected:
-		const SGUIWindowSharedData* m_pSharedData;
+		const SGUIWindowSharedData* m_pSharedData = nullptr;
 
-		D3DVIEWPORT9 m_OriginalViewport;
-		D3DVIEWPORT9 m_ControlViewport;
+		D3DVIEWPORT9 m_OriginalViewport{};
+		D3DVIEWPORT9 m_ControlViewport{};
 
-		JWLine* m_pBorderLine;
-		JWScrollBar* m_pAttachedScrollBar;
-		const JWControl* m_pParentControl;
+		JWLine* m_pBorderLine = nullptr;
+		JWScrollBar* m_pAttachedScrollBar = nullptr;
+		const JWControl* m_pParentControl = nullptr;
 
-		DWORD m_Color_Normal;
-		DWORD m_Color_Hover;
-		DWORD m_Color_Pressed;
+		DWORD m_Color_Normal = DEFAULT_COLOR_NORMAL;
+		DWORD m_Color_Hover = DEFAULT_COLOR_HOVER;
+		DWORD m_Color_Pressed = DEFAULT_COLOR_PRESSED;
 
-		EControlType m_ControlType;
-		EControlState m_ControlState;
-		RECT m_ControlRect;
-		D3DXVECTOR2 m_Position;
-		D3DXVECTOR2 m_AbsolutePosition;
-		D3DXVECTOR2 m_Size;
+		EControlType m_ControlType = EControlType::NotDefined;
+		EControlState m_ControlState = EControlState::Normal;
+		RECT m_ControlRect{ 0, 0, 0, 0 };
+		D3DXVECTOR2 m_Position{ 0, 0 };
+		D3DXVECTOR2 m_AbsolutePosition{ 0, 0 };
+		D3DXVECTOR2 m_Size{ 0, 0 };
 
-		DWORD m_FontColor;
 		WSTRING m_Text;
-		EHorizontalAlignment m_HorizontalAlignment;
-		EVerticalAlignment m_VerticalAlignment;
-		D3DXVECTOR2 m_CalculatedTextPosition;
+		DWORD m_FontColor = DEFAULT_COLOR_FONT;
+		EHorizontalAlignment m_HorizontalAlignment = EHorizontalAlignment::Left;
+		EVerticalAlignment m_VerticalAlignment = EVerticalAlignment::Top;
+		D3DXVECTOR2 m_CalculatedTextPosition{ 0, 0 };
 
-		bool m_bShouldDrawBorder;
-		bool m_bShouldUseViewport;
-		bool m_bShouldBeOffsetByMenuBar;
-		bool m_bHasFocus;
+		bool m_bShouldDrawBorder = false;
+		bool m_bShouldUseViewport = true;
+		bool m_bShouldBeOffsetByMenuBar = true;
+		bool m_bHasFocus = false;
 	};
 };

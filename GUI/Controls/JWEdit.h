@@ -17,7 +17,7 @@ namespace JWENGINE
 		JWEdit();
 		~JWEdit() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
 		void Destroy() noexcept override;
 
 		void Draw() noexcept override;
@@ -58,24 +58,24 @@ namespace JWENGINE
 		static const unsigned int DEFAULT_EDIT_PADDING = 2;
 		static const size_t DEFAULT_CARET_INTERVAL = 30;
 
-		JWImageBox* m_pBackground;
-		JWText* m_pEditText;
-		DWORD m_FontColor;
+		JWImageBox* m_pBackground = nullptr;
+		JWText* m_pEditText = nullptr;
+		DWORD m_FontColor = DEFAULT_COLOR_FONT;
 
-		WSTRING m_Watermark;
-		DWORD m_WatermarkColor;
+		WSTRING m_Watermark = DEFAULT_EDIT_WATERMARK;
+		DWORD m_WatermarkColor = DEFAULT_COLOR_WATERMARK;
 
-		D3DVIEWPORT9 m_PaddedViewport;
-		D3DXVECTOR2 m_PaddedPosition;
-		D3DXVECTOR2 m_PaddedSize;
+		D3DVIEWPORT9 m_PaddedViewport{};
+		D3DXVECTOR2 m_PaddedPosition{ 0, 0 };
+		D3DXVECTOR2 m_PaddedSize{ 0, 0 };
 
-		size_t m_CaretShowInterval;
+		size_t m_CaretShowInterval = 0;
 
-		bool m_bIMEInput;
-		bool m_bIMECaretCaptured;
-		size_t m_IMECapturedCaret;
+		bool m_bIMEInput = false;
+		bool m_bIMECaretCaptured = false;
+		size_t m_IMECapturedCaret = 0;
 
-		bool m_bUseMultiline;
-		bool m_bShouldGetOnlyNumbers;
+		bool m_bUseMultiline = false;
+		bool m_bShouldGetOnlyNumbers = false;
 	};
 };

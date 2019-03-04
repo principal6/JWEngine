@@ -10,81 +10,31 @@ using namespace JWENGINE;
 const D3DXVECTOR2& JWScrollBar::HORIZONTAL_MINIMUM_SIZE = D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, GUI_BUTTON_SIZE.y);
 const D3DXVECTOR2& JWScrollBar::VERTICAL_MINIMUM_SIZE = D3DXVECTOR2(GUI_BUTTON_SIZE.x, GUI_BUTTON_SIZE.y * 2);
 
-JWScrollBar::JWScrollBar()
+auto JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
 {
-	m_pBackground = nullptr;
-	m_pButtonA = nullptr;
-	m_pButtonB = nullptr;
-	m_pScroller = nullptr;
+	JWControl::Create(Position, Size, SharedData);
 
-	m_ButtonABPressInterval = 0;
-	m_ButtonABPressIntervalTick = 20;
+	m_pBackground = new JWImage;
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
 
-	m_ScrollerSize = D3DXVECTOR2(20, 20);
-	m_ScrollerPosition = D3DXVECTOR2(0, 0);
+	m_pButtonA = new JWImageButton;
+	m_pButtonA->ShouldBeOffsetByMenuBar(false);
+	m_pButtonA->Create(Position, GUI_BUTTON_SIZE, *m_pSharedData);
+	m_pButtonA->ShouldDrawBorder(false);
 
-	m_bScrollerCaptured = false;
+	m_pButtonB = new JWImageButton;
+	m_pButtonB->ShouldBeOffsetByMenuBar(false);
+	m_pButtonB->Create(Position, GUI_BUTTON_SIZE, *m_pSharedData);
+	m_pButtonB->ShouldDrawBorder(false);
 
-	m_ScrollMax = 0;
-	m_VisibleUnitCount = 0;
-	m_TotalUnitCount = 0;
-	m_ScrollPosition = 0;
-	m_CapturedScrollPosition = 0;
-	m_ScrollableSize = 0;
-}
-
-auto JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
-{
-	JWControl::Create(Position, Size, pSharedData);
-
-	if (m_pBackground = new JWImage)
-	{
-		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
-		m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
-
-	if (m_pButtonA = new JWImageButton)
-	{
-		m_pButtonA->ShouldBeOffsetByMenuBar(false);
-
-		m_pButtonA->Create(Position, GUI_BUTTON_SIZE, m_pSharedData);
-		m_pButtonA->ShouldDrawBorder(false);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
-
-	if (m_pButtonB = new JWImageButton)
-	{
-		m_pButtonB->ShouldBeOffsetByMenuBar(false);
-
-		m_pButtonB->Create(Position, GUI_BUTTON_SIZE, m_pSharedData);
-		m_pButtonB->ShouldDrawBorder(false);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
-
-	if (m_pScroller = new JWTextButton)
-	{
-		m_pScroller->ShouldBeOffsetByMenuBar(false);
-
-		m_pScroller->Create(Position, GUI_BUTTON_SIZE, m_pSharedData);
-		m_pScroller->ShouldDrawBorder(false);
-		m_pScroller->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_WHITE);
-		m_pScroller->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_WHITE);
-		m_pScroller->SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_WHITE);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pScroller = new JWTextButton;
+	m_pScroller->ShouldBeOffsetByMenuBar(false);
+	m_pScroller->ShouldDrawBorder(false);
+	m_pScroller->Create(Position, GUI_BUTTON_SIZE, *m_pSharedData);
+	m_pScroller->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_WHITE);
+	m_pScroller->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_WHITE);
+	m_pScroller->SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_WHITE);
 
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
@@ -544,7 +494,8 @@ PRIVATE auto JWScrollBar::CalculateScrollerDigitalPosition(const POINT& MousesPo
 		break;
 	}
 
-	Result = static_cast<size_t>(ratio * (m_ScrollMax + 1));
+	float temp = ratio * static_cast<float>(m_ScrollMax + 1);
+	Result = static_cast<size_t>(temp);
 
 	return Result;
 }

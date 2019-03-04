@@ -39,7 +39,7 @@ namespace JWENGINE
 		JWMonster();
 		~JWMonster() {};
 
-		auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->JWMonster* override;
+		auto Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)->JWMonster* override;
 		void Destroy() noexcept override;
 
 		void SetMonsterType(const JWMonsterType Type) noexcept;
@@ -71,7 +71,7 @@ namespace JWENGINE
 		JWMonsterManager() {};
 		~JWMonsterManager() {};
 
-		void Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap);
+		void Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map);
 		void Destroy() noexcept;
 
 		auto AddMonsterType(const JWMonsterType& NewType) noexcept->JWMonsterType*;

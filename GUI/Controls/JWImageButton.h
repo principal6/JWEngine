@@ -17,7 +17,7 @@ namespace JWENGINE
 		JWImageButton();
 		~JWImageButton() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
 		void Destroy() noexcept override;
 
 		auto MakeImageButton(const WSTRING& TextureAtlasFileName, const D3DXVECTOR2& ButtonSizeInTexture, const D3DXVECTOR2& NormalOffset,
@@ -30,16 +30,16 @@ namespace JWENGINE
 		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
 
 	private:
-		JWImage* m_pBackground;
-		JWImage* m_pButtonImage;
+		JWImage* m_pBackground = nullptr;
+		JWImage* m_pButtonImage = nullptr;
 
-		D3DXVECTOR2 m_ButtonImagePositionOffset;
-		bool m_bHorzFlip;
-		bool m_bVertFlip;
+		D3DXVECTOR2 m_ButtonImagePositionOffset{ 0, 0 };
+		bool m_bHorzFlip = false;
+		bool m_bVertFlip = false;
 
-		D3DXVECTOR2 m_ButtonSizeInTexture;
-		D3DXVECTOR2 m_NormalOffset;
-		D3DXVECTOR2 m_HoverOffset;
-		D3DXVECTOR2 m_PressedOffset;
+		D3DXVECTOR2 m_ButtonSizeInTexture{ 0, 0 };
+		D3DXVECTOR2 m_NormalOffset{ 0, 0 };
+		D3DXVECTOR2 m_HoverOffset{ 0, 0 };
+		D3DXVECTOR2 m_PressedOffset{ 0, 0 };
 	};
 };

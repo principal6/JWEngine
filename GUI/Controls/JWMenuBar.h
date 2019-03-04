@@ -21,7 +21,7 @@ namespace JWENGINE
 		JWMenuBar();
 		~JWMenuBar() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
 		void Destroy() noexcept override;
 
 		auto AddMenuBarItem(const WSTRING& Text)->THandleItem override;
@@ -58,14 +58,14 @@ namespace JWENGINE
 		static const THandleItem MENU_ITEM_THANDLE_STRIDE = 100;
 
 		// MenuBar's non-button region.
-		JWImageBox* m_pNonButtonRegion;
+		JWImageBox* m_pNonButtonRegion = nullptr;
 
 		TLinkedList<MenuItem*> m_pItems;
 		TLinkedList<MenuSubItemBox*> m_pSubItemBoxes;
 
-		MenuItem* m_pSelectedItem;
-		MenuSubItemBox* m_pSelectedSubItemBox;
-		TIndex m_SelectedItemIndex;
-		THandleItem m_hSelectedSubItem;		
+		MenuItem* m_pSelectedItem = nullptr;
+		MenuSubItemBox* m_pSelectedSubItemBox = nullptr;
+		TIndex m_SelectedItemIndex = TIndex_NotSpecified;
+		THandleItem m_hSelectedSubItem = THandleItem_Null;
 	};
 };

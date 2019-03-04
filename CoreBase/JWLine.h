@@ -6,10 +6,13 @@ namespace JWENGINE
 {
 	struct SVertexLine
 	{
-		FLOAT x, y, z, rhw;
-		DWORD color;
+		FLOAT x = 0;
+		FLOAT y = 0;
+		FLOAT z = 0;
+		FLOAT rhw = 0;
+		DWORD color = 0xFFFFFFFF;
 
-		SVertexLine() : x(0), y(0), z(0), rhw(1), color(0xffffffff) {};
+		SVertexLine() {};
 		SVertexLine(float _x, float _y, DWORD _color) : x(_x), y(_y), z(0), rhw(1), color(_color) {};
 		SVertexLine(float _x, float _y, float _z, float _rhw, DWORD _color) :
 			x(_x), y(_y), z(_z), rhw(_rhw), color(_color) {};
@@ -17,16 +20,17 @@ namespace JWENGINE
 
 	struct SIndex2
 	{
-		WORD _0, _1;
+		WORD _0 = 0;
+		WORD _1 = 0;
 
-		SIndex2() : _0(0), _1(0) {};
+		SIndex2() {};
 		SIndex2(int ID0, int ID1) : _0(ID0), _1(ID1) {};
 	};
 
 	class JWLine final
 	{
 	public:
-		JWLine();
+		JWLine() {};
 		~JWLine() {};
 
 		void Create(const LPDIRECT3DDEVICE9 pDevice);
@@ -46,9 +50,9 @@ namespace JWENGINE
 
 		void Draw() const noexcept;
 
-		void SetLine(UINT LineIndex, const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size) noexcept;
-		void SetLineColor(UINT LineIndex, DWORD Color) noexcept;
-		void SetLineColor(UINT LineIndex, DWORD ColorA, DWORD ColorB) noexcept;
+		void SetLine(size_t LineIndex, const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size) noexcept;
+		void SetLineColor(size_t LineIndex, DWORD Color) noexcept;
+		void SetLineColor(size_t LineIndex, DWORD ColorA, DWORD ColorB) noexcept;
 		void SetBox(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size) noexcept;
 		void SetBoxColor(DWORD Color) noexcept;
 		void SetBoxColor(DWORD ColorA, DWORD ColorB) noexcept;
@@ -65,10 +69,10 @@ namespace JWENGINE
 		void CreateIndexBufferMax();
 
 	private:
-		LPDIRECT3DDEVICE9 m_pDevice;
+		LPDIRECT3DDEVICE9 m_pDevice = nullptr;
 
-		LPDIRECT3DVERTEXBUFFER9 m_pVB;
-		LPDIRECT3DINDEXBUFFER9 m_pIB;
+		LPDIRECT3DVERTEXBUFFER9 m_pVB = nullptr;
+		LPDIRECT3DINDEXBUFFER9 m_pIB = nullptr;
 
 		VECTOR<SVertexLine> m_Vertices;
 		VECTOR<SIndex2> m_Indices;

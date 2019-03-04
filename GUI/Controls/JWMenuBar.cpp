@@ -17,17 +17,11 @@ JWMenuBar::JWMenuBar()
 
 	// A menubar must not be offset by menubar.
 	m_bShouldBeOffsetByMenuBar = false;
-
-	m_pNonButtonRegion = nullptr;
-
-	m_pSelectedItem = nullptr;
-	m_SelectedItemIndex = TIndex_NotSpecified;
-	m_pSelectedSubItemBox = nullptr;
 }
 
-auto JWMenuBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
+auto JWMenuBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
 {
-	JWControl::Create(Position, Size, pSharedData);
+	JWControl::Create(Position, Size, SharedData);
 
 	// MenuBar's position must be fixed!
 	m_Position.x = 0;
@@ -41,17 +35,10 @@ auto JWMenuBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, con
 	m_ControlType = EControlType::MenuBar;
 
 	// Create ImageBox for the non-button region.
-	if (m_pNonButtonRegion = new JWImageBox)
-	{
-		m_pNonButtonRegion->ShouldBeOffsetByMenuBar(false);
-
-		m_pNonButtonRegion->Create(Position, Size, pSharedData);
-		m_pNonButtonRegion->SetBackgroundColor(DEFAULT_COLOR_BACKGROUND_MENUBAR);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pNonButtonRegion = new JWImageBox;
+	m_pNonButtonRegion->ShouldBeOffsetByMenuBar(false);
+	m_pNonButtonRegion->Create(Position, Size, SharedData);
+	m_pNonButtonRegion->SetBackgroundColor(DEFAULT_COLOR_BACKGROUND_MENUBAR);
 
 	// Set control's position and size.
 	// @warning: We must use m_Position and m_Size, and not Position nor Size.
@@ -84,10 +71,6 @@ auto JWMenuBar::AddMenuBarItem(const WSTRING& Text)->THandleItem
 {
 	// Create item.
 	MenuItem* new_item = new MenuItem;
-	if (!new_item)
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
 
 	// Calculate item's position.
 	D3DXVECTOR2 item_position = m_Position;
@@ -103,7 +86,7 @@ auto JWMenuBar::AddMenuBarItem(const WSTRING& Text)->THandleItem
 		+ static_cast<float>(DEFAULT_MENUBAR_ITEM_PADDING * 2);
 	
 	new_item->ShouldBeOffsetByMenuBar(false);
-	new_item->Create(item_position, item_size, m_pSharedData);
+	new_item->Create(item_position, item_size, *m_pSharedData);
 	new_item->SetText(Text);
 	new_item->SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 	new_item->ShouldDrawBorder(false);
@@ -116,16 +99,12 @@ auto JWMenuBar::AddMenuBarItem(const WSTRING& Text)->THandleItem
 
 	// Create sub-item box.
 	MenuSubItemBox* new_subitem_box = new MenuSubItemBox;
-	if (!new_subitem_box)
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
 
 	// Calculate sub-item box's position.
 	D3DXVECTOR2 subitembox_position = item_position;
 	subitembox_position.y += static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
 	new_subitem_box->ShouldBeOffsetByMenuBar(false);
-	new_subitem_box->Create(subitembox_position, BLANK_SUBITEMBOX_SIZE, m_pSharedData);
+	new_subitem_box->Create(subitembox_position, BLANK_SUBITEMBOX_SIZE, *m_pSharedData);
 	new_subitem_box->SetBackgroundColor(DEFAULT_COLOR_LESS_BLACK);
 	new_subitem_box->ShouldUseAutomaticScrollBar(false);
 	new_subitem_box->ShouldUseToggleSelection(false);

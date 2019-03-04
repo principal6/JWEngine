@@ -16,20 +16,20 @@ namespace JWENGINE
 
 	struct SVertexData
 	{
-		LPDIRECT3DVERTEXBUFFER9 pBuffer;
-		SVertexImage* Vertices;
-		UINT VertexSize;
+		LPDIRECT3DVERTEXBUFFER9 pBuffer = nullptr;
+		SVertexImage* Vertices = nullptr;
+		UINT VertexSize = 0;
 
-		SVertexData() : pBuffer(nullptr), Vertices(nullptr), VertexSize(0) {};
+		SVertexData() {};
 	};
 
 	struct SIndexData
 	{
-		LPDIRECT3DINDEXBUFFER9 pBuffer;
-		SIndex3* Indices;
-		UINT IndexSize;
+		LPDIRECT3DINDEXBUFFER9 pBuffer = nullptr;
+		SIndex3* Indices = nullptr;
+		UINT IndexSize = 0;
 
-		SIndexData() : pBuffer(nullptr), Indices(nullptr), IndexSize(0) {};
+		SIndexData() {};
 	};
 
 	struct SGlyphInfo
@@ -60,19 +60,19 @@ namespace JWENGINE
 	class JWText final : public JWBMFontParser
 	{
 	public:
-		JWText();
+		JWText() {};
 		~JWText() {};
 
 		// TODO: add SetWatermark(), SetWatermarkColor()
 
 		// Create instant-text JWText.
 		// A 'JWGUIWindow' must have one instant-text JWText for its controls.
-		void CreateInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir);
+		void CreateInstantText(const JWWindow& Window, const WSTRING& BaseDir);
 
 		// Create non-instant-text JWText.
 		// A 'JWEdit' control must call this function when it's being created.
 		// To fill in the third paramater(pFontTexture), call GetFontTexturePtr() of the JWGUIWindow-shared JWText object.
-		void CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const LPDIRECT3DTEXTURE9 pFontTexture);
+		void CreateNonInstantText(const JWWindow& Window, const WSTRING& BaseDir, const LPDIRECT3DTEXTURE9 pFontTexture);
 
 		// Destroy JWText object, no matter it's instant or non-instant.
 		void Destroy() noexcept;
@@ -172,49 +172,49 @@ namespace JWENGINE
 		static constexpr unsigned int MAX_INSTANT_TEXT_VERTEX_SIZE = MAX_INSTANT_TEXT_LENGTH * 4;
 		static constexpr unsigned int MAX_INSTANT_TEXT_INDEX_SIZE = MAX_INSTANT_TEXT_LENGTH * 2;
 
-		bool m_bIsInstantText;
-		bool m_bUseAutomaticLineBreak;
+		bool m_bIsInstantText = true;
+		bool m_bUseAutomaticLineBreak = false;
 
-		const JWWindow* m_pJWWindow;
-		const WSTRING* m_pBaseDir;
+		const JWWindow* m_pJWWindow = nullptr;
+		const WSTRING* m_pBaseDir = nullptr;
 
 		// There must be one device per each window (Texture must be created on each device).
-		LPDIRECT3DDEVICE9 m_pDevice;
+		LPDIRECT3DDEVICE9 m_pDevice = nullptr;
 
 		// Font texture, which must be shared in all JWText objects to save memory space.
-		LPDIRECT3DTEXTURE9 m_pFontTexture;
+		LPDIRECT3DTEXTURE9 m_pFontTexture = nullptr;
 
 		/*
 		** Member variables for instant-text.
 		*/
-		SVertexData m_InstantVertexData;
-		SIndexData m_InstantIndexData;
+		SVertexData m_InstantVertexData{};
+		SIndexData m_InstantIndexData{};
 
 		/*
 		** Member variables for non-instant text.
 		*/
-		SVertexData m_NonInstantVertexData;
-		SIndexData m_NonInstantIndexData;
+		SVertexData m_NonInstantVertexData{};
+		SIndexData m_NonInstantIndexData{};
 		
 		WSTRING m_NonInstantText;
 		VECTOR<SGlyphInfo> m_NonInstantTextGlyphInfo;
 		VECTOR<SLineInfo> m_NonInstantTextLineInfo;
-		DWORD m_NonInstantTextColor;
+		DWORD m_NonInstantTextColor = DEFAULT_COLOR_FONT;
 
-		D3DXVECTOR2 m_ConstraintPosition;
-		D3DXVECTOR2 m_ConstraintSize;
+		D3DXVECTOR2 m_ConstraintPosition{ 0, 0 };
+		D3DXVECTOR2 m_ConstraintSize{ 0, 0 };
 
-		JWLine* m_pCaretLine;
-		D3DXVECTOR2 m_CaretPosition;
-		D3DXVECTOR2 m_CaretSize;
-		size_t m_CaretSelPosition;
+		JWLine* m_pCaretLine = nullptr;
+		D3DXVECTOR2 m_CaretPosition{ 0, 0 };
+		D3DXVECTOR2 m_CaretSize{ 0, 0 };
+		size_t m_CaretSelPosition = 0;
 
-		JWRectangle* m_pSelectionBox;
-		size_t m_CapturedSelPosition;
-		size_t m_SelectionStart;
-		size_t m_SelectionEnd;
-		bool m_bIsTextSelected;
+		JWRectangle* m_pSelectionBox = nullptr;
+		size_t m_CapturedSelPosition = SIZE_T_INVALID;
+		size_t m_SelectionStart = 0;
+		size_t m_SelectionEnd = 0;
+		bool m_bIsTextSelected = false;
 
-		D3DXVECTOR2 m_NonInstantTextOffset;
+		D3DXVECTOR2 m_NonInstantTextOffset{ 0, 0 };
 	};
 };

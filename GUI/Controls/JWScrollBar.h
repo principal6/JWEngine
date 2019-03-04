@@ -17,10 +17,10 @@ namespace JWENGINE
 	friend class JWListBox;
 
 	public:
-		JWScrollBar();
+		JWScrollBar() {};
 		~JWScrollBar() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
 		void Destroy() noexcept override;
 
 		auto MakeScrollBar(EScrollBarDirection Direction) noexcept->JWControl* override;
@@ -52,32 +52,33 @@ namespace JWENGINE
 	private:
 		static const int DEFAULT_SCROLLER_PADDING = 2;
 		static const int DEFAULT_PAGE_STRIDE = 1;
+		static const int DEFAULT_AB_PRESS_TICK = 20;
 		static const int BUTTON_INTERVAL_UPPER_LIMIT = 100;
 		static const D3DXVECTOR2& HORIZONTAL_MINIMUM_SIZE;
 		static const D3DXVECTOR2& VERTICAL_MINIMUM_SIZE;
 
-		JWImage* m_pBackground;
-		JWImageButton* m_pButtonA;
-		JWImageButton* m_pButtonB;
-		JWTextButton* m_pScroller;
+		JWImage* m_pBackground = nullptr;
+		JWImageButton* m_pButtonA = nullptr;
+		JWImageButton* m_pButtonB = nullptr;
+		JWTextButton* m_pScroller = nullptr;
 
-		size_t m_ButtonABPressInterval;
-		size_t m_ButtonABPressIntervalTick;
+		size_t m_ButtonABPressInterval = 0;
+		size_t m_ButtonABPressIntervalTick = DEFAULT_AB_PRESS_TICK;
 
-		EScrollBarDirection m_ScrollBarDirection;
-		D3DXVECTOR2 m_ScrollerSize;
+		EScrollBarDirection m_ScrollBarDirection = EScrollBarDirection::Invalid;
+		D3DXVECTOR2 m_ScrollerSize{ GUI_BUTTON_SIZE.x, GUI_BUTTON_SIZE.y };
 
 		// m_ScrollerPosition range = [GUI_BUTTON_SIZE, m_ScrollableRest]
-		D3DXVECTOR2 m_ScrollerPosition;
-		bool m_bScrollerCaptured;
+		D3DXVECTOR2 m_ScrollerPosition{ 0, 0 };
+		bool m_bScrollerCaptured = false;
 
 		// Scroll range = [0, ScrollMax]
-		size_t m_ScrollMax;
-		size_t m_VisibleUnitCount;
-		size_t m_TotalUnitCount;
-		size_t m_ScrollPosition;
-		size_t m_CapturedScrollPosition;
-		float m_ScrollableSize;
-		float m_ScrollableRest;
+		size_t m_ScrollMax = 0;
+		size_t m_VisibleUnitCount = 0;
+		size_t m_TotalUnitCount = 0;
+		size_t m_ScrollPosition = 0;
+		size_t m_CapturedScrollPosition = 0;
+		float m_ScrollableSize = 0;
+		float m_ScrollableRest = 0;
 	};
 };

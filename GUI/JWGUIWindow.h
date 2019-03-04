@@ -28,7 +28,7 @@ namespace JWENGINE
 	friend class JWGUI;
 
 	public:
-		JWGUIWindow();
+		JWGUIWindow() {};
 		~JWGUIWindow() {};
 
 		// Create a texture that will be used in this particular JWGUIWindow.
@@ -38,7 +38,7 @@ namespace JWENGINE
 		auto AddControl(EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName = L"")->JWControl*;
 
 		// Get the pointer of the control instance that this JWGUIWindow has.
-		auto GetControlPtr(const WSTRING& ControlName)->JWControl*;
+		auto GetControl(const WSTRING& ControlName)->JWControl&;
 
 		auto GetSharedDataPtr() const noexcept->const SGUIWindowSharedData*;
 
@@ -80,15 +80,15 @@ namespace JWENGINE
 
 	private:
 		SGUIWindowSharedData m_SharedData;
-		MSG m_MSG;
+		MSG m_MSG{};
 
-		JWControl* m_pMenuBar;
-		bool m_bHasMenuBar;
+		JWControl* m_pMenuBar = nullptr;
+		bool m_bHasMenuBar = false;
 
 		std::map<WSTRING, size_t> m_ControlsMap;
 		TDynamicArray<JWControl*> m_pControls;
-		JWControl* m_pControlWithFocus;
+		JWControl* m_pControlWithFocus = nullptr;
 
-		bool m_bDestroyed;
+		bool m_bDestroyed = false;
 	};
 };

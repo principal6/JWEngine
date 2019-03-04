@@ -2,20 +2,9 @@
 
 using namespace JWENGINE;
 
-JWLine::JWLine()
-{
-	m_pDevice = nullptr;
-
-	m_pVB = nullptr;
-	m_pIB = nullptr;
-}
-
 void JWLine::Create(const LPDIRECT3DDEVICE9 pDevice)
 {
-	if (nullptr == (m_pDevice = pDevice))
-	{
-		throw EError::NULLPTR_DEVICE;
-	}
+	m_pDevice = pDevice;
 }
 
 void JWLine::CreateMax(const LPDIRECT3DDEVICE9 pDevice) noexcept
@@ -33,7 +22,7 @@ PRIVATE void JWLine::CreateVertexBufferMax()
 	int vertex_size = sizeof(SVertexLine) * MAX_UNIT_COUNT * 8;
 	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
 	{
-		throw EError::VERTEX_BUFFER_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 }
 
@@ -44,7 +33,7 @@ PRIVATE void JWLine::CreateIndexBufferMax()
 	int index_size = sizeof(SIndex2) * MAX_UNIT_COUNT * 4;
 	if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
 	{
-		throw EError::INDEX_BUFFER_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 }
 
@@ -88,7 +77,7 @@ PRIVATE void JWLine::CreateVertexBuffer()
 		int vertex_size = sizeof(SVertexLine) * static_cast<int>(m_Vertices.size());
 		if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
 		{
-			throw EError::VERTEX_BUFFER_NOT_CREATED;
+			THROW_CREATION_FAILED;
 		}
 	}
 }
@@ -100,7 +89,7 @@ PRIVATE void JWLine::CreateIndexBuffer()
 		int index_size = sizeof(SIndex2) * static_cast<int>(m_Indices.size());
 		if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
 		{
-			throw EError::INDEX_BUFFER_NOT_CREATED;
+			THROW_CREATION_FAILED;
 		}
 	}
 }
@@ -116,13 +105,12 @@ PRIVATE void JWLine::UpdateVertexBuffer()
 	if (m_Vertices.size())
 	{
 		int vertex_size = sizeof(SVertexLine) * static_cast<int>(m_Vertices.size());
-		VOID* pVertices;
-		if (FAILED(m_pVB->Lock(0, vertex_size, (void**)&pVertices, 0)))
+		void* pVertices;
+		if (SUCCEEDED(m_pVB->Lock(0, vertex_size, (void**)&pVertices, 0)))
 		{
-			throw EError::VERTEX_BUFFER_NOT_LOCKED;
+			memcpy(pVertices, &m_Vertices[0], vertex_size);
+			m_pVB->Unlock();
 		}
-		memcpy(pVertices, &m_Vertices[0], vertex_size);
-		m_pVB->Unlock();
 	}
 }
 
@@ -131,13 +119,12 @@ PRIVATE void JWLine::UpdateIndexBuffer()
 	if (m_Indices.size())
 	{
 		int index_size = sizeof(SIndex2) * static_cast<int>(m_Indices.size());
-		VOID* pIndices;
-		if (FAILED(m_pIB->Lock(0, index_size, (void **)&pIndices, 0)))
+		void* pIndices;
+		if (SUCCEEDED(m_pIB->Lock(0, index_size, (void **)&pIndices, 0)))
 		{
-			throw EError::INDEX_BUFFER_NOT_LOCKED;
+			memcpy(pIndices, &m_Indices[0], index_size);
+			m_pIB->Unlock();
 		}
-		memcpy(pIndices, &m_Indices[0], index_size);
-		m_pIB->Unlock();
 	}
 }
 
@@ -152,9 +139,9 @@ void JWLine::Draw() const noexcept
 	m_pDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 0, 0, static_cast<int>(m_Vertices.size()), 0, static_cast<int>(m_Indices.size()));
 }
 
-void JWLine::SetLine(UINT LineIndex, const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size) noexcept
+void JWLine::SetLine(size_t LineIndex, const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Size) noexcept
 {
-	if (LineIndex * 2 <= static_cast<UINT>(m_Vertices.size()))
+	if (LineIndex * 2 <= m_Vertices.size())
 	{
 		m_Vertices[LineIndex * 2].x = StartPosition.x;
 		m_Vertices[LineIndex * 2].y = StartPosition.y;
@@ -166,9 +153,9 @@ void JWLine::SetLine(UINT LineIndex, const D3DXVECTOR2& StartPosition, const D3D
 	}
 }
 
-void JWLine::SetLineColor(UINT LineIndex, DWORD Color) noexcept
+void JWLine::SetLineColor(size_t LineIndex, DWORD Color) noexcept
 {
-	if (LineIndex * 2 <= static_cast<UINT>(m_Vertices.size()))
+	if (LineIndex * 2 <= m_Vertices.size())
 	{
 		m_Vertices[LineIndex * 2].color = Color;
 
@@ -178,9 +165,9 @@ void JWLine::SetLineColor(UINT LineIndex, DWORD Color) noexcept
 	}
 }
 
-void JWLine::SetLineColor(UINT LineIndex, DWORD ColorA, DWORD ColorB) noexcept
+void JWLine::SetLineColor(size_t LineIndex, DWORD ColorA, DWORD ColorB) noexcept
 {
-	if (LineIndex * 2 <= static_cast<UINT>(m_Vertices.size()))
+	if (LineIndex * 2 <= m_Vertices.size())
 	{
 		m_Vertices[LineIndex * 2].color = ColorA;
 

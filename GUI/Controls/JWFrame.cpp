@@ -4,26 +4,14 @@
 
 using namespace JWENGINE;
 
-JWFrame::JWFrame()
+auto JWFrame::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
 {
-	m_pBackground = nullptr;
-}
-
-auto JWFrame::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
-{
-	JWControl::Create(Position, Size, pSharedData);
+	JWControl::Create(Position, Size, SharedData);
 	
 	// Create a JWImageBox for background.
-	if (m_pBackground = new JWImageBox)
-	{
-		m_pBackground->ShouldBeOffsetByMenuBar(false);
-
-		m_pBackground->Create(Position, Size, pSharedData);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pBackground = new JWImageBox;
+	m_pBackground->ShouldBeOffsetByMenuBar(false);
+	m_pBackground->Create(Position, Size, SharedData);
 
 	// Set control type.
 	m_ControlType = EControlType::Frame;
@@ -42,13 +30,13 @@ void JWFrame::Destroy() noexcept
 	JW_DESTROY(m_pBackground);
 }
 
-auto JWFrame::AddChildControl(JWControl* pChildControl) noexcept->JWControl*
+auto JWFrame::AddChildControl(JWControl& ChildControl) noexcept->JWControl*
 {
 	if (m_pChildControls.size())
 	{
 		for (auto iterator : m_pChildControls)
 		{
-			if (iterator == pChildControl)
+			if (iterator == &ChildControl)
 			{
 				// This control is already adopted!!
 				return this;
@@ -56,11 +44,11 @@ auto JWFrame::AddChildControl(JWControl* pChildControl) noexcept->JWControl*
 		}
 	}
 
-	pChildControl->ShouldBeOffsetByMenuBar(false);
-	pChildControl->ShouldUseViewport(false);
-	pChildControl->SetParentControl(this);
+	ChildControl.ShouldBeOffsetByMenuBar(false);
+	ChildControl.ShouldUseViewport(false);
+	ChildControl.SetParentControl(this);
 
-	m_pChildControls.push_back(pChildControl);
+	m_pChildControls.push_back(&ChildControl);
 
 	return this;
 }

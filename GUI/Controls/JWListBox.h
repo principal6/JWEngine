@@ -30,7 +30,7 @@ namespace JWENGINE
 		JWListBox();
 		~JWListBox() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
 		void Destroy() noexcept override;
 
 		auto SetMinimumItemHeight(float Value) noexcept->JWControl* override;
@@ -74,25 +74,25 @@ namespace JWENGINE
 		static const float DEFAULT_ITEM_PADDING_X;
 		static const float DEFAULT_ITEM_PADDING_Y;
 
-		LPDIRECT3DTEXTURE9 m_pTextureForImageItem;
-		const D3DXIMAGE_INFO* m_pTextureForImageItemInfo;
+		LPDIRECT3DTEXTURE9 m_pTextureForImageItem = nullptr;
+		const D3DXIMAGE_INFO* m_pTextureForImageItemInfo = nullptr;
 
 		TLinkedList<JWImageBox*> m_pItemBackground;
 		TLinkedList<JWLabel*> m_pTextItems;
 		TLinkedList<JWImageBox*> m_pImageItems;
 		TLinkedList<SListBoxItemInfo> m_ItemInfo;
 
-		JWImage* m_pBackground;
-		JWScrollBar* m_pScrollBar;
+		JWImage* m_pBackground = nullptr;
+		JWScrollBar* m_pScrollBar = nullptr;
 
 		// Property settings
-		bool m_bHasScrollBar;
-		bool m_bShouldUseAutomaticScrollBar;
-		bool m_bShouleUseToggleSelection;
-		bool m_bUseImageItems;
+		bool m_bHasScrollBar = false;
+		bool m_bShouldUseAutomaticScrollBar = true;
+		bool m_bShouleUseToggleSelection = true; //???
+		bool m_bUseImageItems = false;
 
-		TIndex m_SelectedItemIndex;
-		float m_ItemOffsetY;
-		float m_MinimumItemHeight;
+		TIndex m_SelectedItemIndex = TIndex_NotSpecified;
+		float m_ItemOffsetY = 0;
+		float m_MinimumItemHeight = DEFAULT_ITEM_HEIGHT;
 	};
 };

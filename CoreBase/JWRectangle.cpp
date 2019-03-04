@@ -21,16 +21,11 @@ JWRectangle::JWRectangle()
 	DeleteVertexAndIndex();
 }
 
-void JWRectangle::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, UINT MaxNumBox)
+void JWRectangle::Create(const JWWindow& Window, const WSTRING& BaseDir, UINT MaxNumBox)
 {
-	if (pJWWindow == nullptr)
-	{
-		throw EError::NULLPTR_WINDOW;
-	}
-
-	m_pJWWindow = pJWWindow;
-	m_pDevice = pJWWindow->GetDevice();
-	m_pBaseDir = pBaseDir;
+	m_pJWWindow = &Window;
+	m_pDevice = Window.GetDevice();
+	m_BaseDir = BaseDir;
 
 	// MaxNumBox must be >= 1
 	m_MaxNumBox = MaxNumBox;
@@ -76,7 +71,7 @@ PRIVATE void JWRectangle::CreateVertexBuffer()
 	int vertex_size = sizeof(SVertexImage) * m_MaxNumBox * 4;
 	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 	{
-		throw EError::VERTEX_BUFFER_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 }
 
@@ -96,7 +91,7 @@ PRIVATE void JWRectangle::CreateIndexBuffer()
 	int index_size = sizeof(SIndex3) * m_MaxNumBox * 2;
 	if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 	{
-		throw EError::INDEX_BUFFER_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 }
 
@@ -105,13 +100,12 @@ PRIVATE void JWRectangle::UpdateVertexBuffer()
 	if (m_Vertices)
 	{
 		int vertex_size = sizeof(SVertexImage) * m_MaxNumBox * 4;
-		VOID* pVertices;
-		if (FAILED(m_pVertexBuffer->Lock(0, vertex_size, (void**)&pVertices, 0)))
+		void* pVertices;
+		if (SUCCEEDED(m_pVertexBuffer->Lock(0, vertex_size, (void**)&pVertices, 0)))
 		{
-			throw EError::VERTEX_BUFFER_NOT_LOCKED;
+			memcpy(pVertices, &m_Vertices[0], vertex_size);
+			m_pVertexBuffer->Unlock();
 		}
-		memcpy(pVertices, &m_Vertices[0], vertex_size);
-		m_pVertexBuffer->Unlock();
 	}
 }
 
@@ -120,13 +114,12 @@ PRIVATE void JWRectangle::UpdateIndexBuffer()
 	if (m_Indices)
 	{
 		int index_size = sizeof(SIndex3) * m_MaxNumBox * 2;
-		VOID* pIndices;
-		if (FAILED(m_pIndexBuffer->Lock(0, index_size, (void **)&pIndices, 0)))
+		void* pIndices;
+		if (SUCCEEDED(m_pIndexBuffer->Lock(0, index_size, (void **)&pIndices, 0)))
 		{
-			throw EError::INDEX_BUFFER_NOT_LOCKED;
+			memcpy(pIndices, &m_Indices[0], index_size);
+			m_pIndexBuffer->Unlock();
 		}
-		memcpy(pIndices, &m_Indices[0], index_size);
-		m_pIndexBuffer->Unlock();
 	}
 }
 

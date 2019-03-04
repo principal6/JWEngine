@@ -9,48 +9,24 @@ JWImageButton::JWImageButton()
 	// An image button would normally have its border.
 	m_bShouldDrawBorder = true;
 
-	m_pBackground = nullptr;
-	m_pButtonImage = nullptr;
-
-	m_ButtonImagePositionOffset = D3DXVECTOR2(0, 0);
-	m_bHorzFlip = false;
-	m_bVertFlip = false;
-
-	m_ButtonSizeInTexture = D3DXVECTOR2(0, 0);
-	m_NormalOffset = D3DXVECTOR2(0, 0);
-	m_HoverOffset = D3DXVECTOR2(0, 0);
-	m_PressedOffset = D3DXVECTOR2(0, 0);
-
 	// Set default color for every control state.
 	m_Color_Normal = DEFAULT_COLOR_NORMAL;
 	m_Color_Hover = DEFAULT_COLOR_NORMAL;
 	m_Color_Pressed = DEFAULT_COLOR_NORMAL;
 }
 
-auto JWImageButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
+auto JWImageButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
 {
-	JWControl::Create(Position, Size, pSharedData);
+	JWControl::Create(Position, Size, SharedData);
 
-	if (m_pBackground = new JWImage)
-	{
-		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
-		m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
-		m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pBackground = new JWImage;
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
+	m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 
-	if (m_pButtonImage = new JWImage)
-	{
-		m_pButtonImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
-		m_pButtonImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pButtonImage = new JWImage;
+	m_pButtonImage->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pButtonImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);

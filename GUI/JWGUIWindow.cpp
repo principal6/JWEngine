@@ -2,16 +2,6 @@
 
 using namespace JWENGINE;
 
-JWGUIWindow::JWGUIWindow()
-{
-	m_pMenuBar = nullptr;
-	m_bHasMenuBar = false;
-
-	m_pControlWithFocus = nullptr;
-
-	m_bDestroyed = false;
-}
-
 PROTECTED void JWGUIWindow::Create(const SWindowCreationData& WindowCreationData)
 {
 	// Set the pointer to this JWGUIWindow.
@@ -20,14 +10,8 @@ PROTECTED void JWGUIWindow::Create(const SWindowCreationData& WindowCreationData
 	// Create JWWindow(win32 api window).
 	if (!m_SharedData.pWindow)
 	{
-		if (m_SharedData.pWindow = new JWWindow)
-		{
-			m_SharedData.pWindow->CreateGUIWindow(WindowCreationData);
-		}
-		else
-		{
-			throw EError::ALLOCATION_FAILURE;
-		}
+		m_SharedData.pWindow = new JWWindow;
+		m_SharedData.pWindow->CreateGUIWindow(WindowCreationData);
 	}
 
 	// Set base directory
@@ -44,14 +28,8 @@ PROTECTED void JWGUIWindow::Create(const SWindowCreationData& WindowCreationData
 	CreateTexture(GUI_TEXTURE_FILENAME, &m_SharedData.Texture_GUI, &m_SharedData.Texture_GUI_Info);
 
 	// Create JWFont object that will be shared in every control.
-	if (m_SharedData.pText = new JWText)
-	{
-		m_SharedData.pText->CreateInstantText(m_SharedData.pWindow, &m_SharedData.BaseDir);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_SharedData.pText = new JWText;
+	m_SharedData.pText->CreateInstantText(*m_SharedData.pWindow, m_SharedData.BaseDir);
 }
 
 void JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo)
@@ -61,10 +39,10 @@ void JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppT
 	texture_filename += ASSET_DIR;
 	texture_filename += Filename;
 
-	if (FAILED(D3DXCreateTextureFromFileEx(m_SharedData.pWindow->GetDevice(), texture_filename.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
+	if (FAILED(D3DXCreateTextureFromFileExW(m_SharedData.pWindow->GetDevice(), texture_filename.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
 		D3DX_DEFAULT, D3DX_DEFAULT, 0, pInfo, nullptr, ppTexture)))
 	{
-		throw EError::TEXTURE_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 }
 
@@ -104,7 +82,7 @@ auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, con
 		if (already_exist != m_ControlsMap.end())
 		{
 			// This control name already exists in the controls map.
-			throw EError::DUPLICATE_CREATION;
+			THROW_NAME_COLLISION(automatic_control_name.c_str());
 		}
 	}
 
@@ -113,7 +91,7 @@ auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, con
 		if (Type == EControlType::MenuBar)
 		{
 			// If JWGUIWindow already has a menubar, you can't add another one.
-			throw EError::DUPLICATE_CREATION;
+			THROW_DUPLICATE_CREATION;
 		}
 	}
 
@@ -155,17 +133,17 @@ auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, con
 		m_pControls.push_back(new JWFrame);
 		break;
 	default:
-		throw EError::INVALID_CONTROL_TYPE;
+		break;
 	}
 
-	m_pControls[m_pControls.size() - 1]->Create(adjusted_position, Size, &m_SharedData);
+	m_pControls[m_pControls.size() - 1]->Create(adjusted_position, Size, m_SharedData);
 
 	m_ControlsMap.insert(MAKE_PAIR(automatic_control_name, m_pControls.size() - 1));
 
 	return m_pControls[m_pControls.size() - 1];
 }
 
-auto JWGUIWindow::GetControlPtr(const WSTRING& ControlName)->JWControl*
+auto JWGUIWindow::GetControl(const WSTRING& ControlName)->JWControl&
 {
 	if (m_ControlsMap.size())
 	{
@@ -173,14 +151,14 @@ auto JWGUIWindow::GetControlPtr(const WSTRING& ControlName)->JWControl*
 
 		if (found_control != m_ControlsMap.end())
 		{
-			return m_pControls[found_control->second];
+			return *m_pControls[found_control->second];
 		}
 		else
 		{
-			throw EError::FOUND_NOTHING;
+			THROW_NOT_FOUND;
 		}
 	}
-	throw EError::FOUND_NOTHING;
+	THROW_NOT_FOUND;
 }
 
 auto JWGUIWindow::GetSharedDataPtr() const noexcept->const SGUIWindowSharedData*

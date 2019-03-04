@@ -27,7 +27,7 @@ void JWInput::Create(const HWND hWnd, const HINSTANCE hInstance)
 	if (FAILED(DirectInput8Create(hInstance, DIRECTINPUT_VERSION,
 		IID_IDirectInput8, (void **)&m_pDirectInput, nullptr)))
 	{
-		throw EError::INPUT_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 
 	CreateMouseDevice(DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
@@ -37,31 +37,31 @@ void JWInput::Create(const HWND hWnd, const HINSTANCE hInstance)
 PRIVATE void JWInput::CreateMouseDevice(DWORD dwFlags)
 {
 	if (FAILED(m_pDirectInput->CreateDevice(GUID_SysMouse, &m_pMouseDevice, nullptr)))
-		throw EError::INPUT_DEVICE_NOT_CREATED;
-
+		THROW_CREATION_FAILED;
+	
 	if (FAILED(m_pMouseDevice->SetDataFormat(&c_dfDIMouse2)))
-		throw EError::INPUT_FUNCTION_FAILED;
+		THROW_DXINPUT_FAILED;
 
 	if (FAILED(m_pMouseDevice->SetCooperativeLevel(m_hWnd, dwFlags)))
-		throw EError::INPUT_FUNCTION_FAILED;
+		THROW_DXINPUT_FAILED;
 
 	if (FAILED(m_pMouseDevice->Acquire()))
-		throw EError::INPUT_FUNCTION_FAILED;
+		THROW_DXINPUT_FAILED;
 }
 
 PRIVATE void JWInput::CreateKeyboardDevice(DWORD dwFlags)
 {
 	if (FAILED(m_pDirectInput->CreateDevice(GUID_SysKeyboard, &m_pKeyboardDevice, nullptr)))
-		throw EError::INPUT_DEVICE_NOT_CREATED;
+		THROW_CREATION_FAILED;
 
 	if (FAILED(m_pKeyboardDevice->SetDataFormat(&c_dfDIKeyboard)))
-		throw EError::INPUT_FUNCTION_FAILED;
+		THROW_DXINPUT_FAILED;
 
 	if (FAILED(m_pKeyboardDevice->SetCooperativeLevel(m_hWnd, dwFlags)))
-		throw EError::INPUT_FUNCTION_FAILED;
+		THROW_DXINPUT_FAILED;
 
 	if (FAILED(m_pKeyboardDevice->Acquire()))
-		throw EError::INPUT_FUNCTION_FAILED;
+		THROW_DXINPUT_FAILED;
 }
 
 void JWInput::Destroy() noexcept

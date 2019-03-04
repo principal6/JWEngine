@@ -5,27 +5,17 @@ using namespace JWENGINE;
 
 JWRadioBox::JWRadioBox()
 {
-	// RadioBox never has border
+	// A RadioBox never has a border.
 	m_bShouldDrawBorder = false;
-
-	m_pBackground = nullptr;
-
-	m_bChecked = false;
 }
 
-auto JWRadioBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
+auto JWRadioBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
 {
-	JWControl::Create(Position, Size, pSharedData);
+	JWControl::Create(Position, Size, SharedData);
 
-	if (m_pBackground = new JWImage)
-	{
-		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
-		m_pBackground->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
-	}
-	else
-	{
-		throw EError::IMAGE_NOT_CREATED;
-	}
+	m_pBackground = new JWImage;
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pBackground->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
 
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);

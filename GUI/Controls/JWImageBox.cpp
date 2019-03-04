@@ -8,37 +8,21 @@ JWImageBox::JWImageBox()
 	// An imagebox normally doesn't have border.
 	m_bShouldDrawBorder = false;
 
-	m_pImage = nullptr;
-
-	m_OffsetInAtlas = D3DXVECTOR2(0, 0);
-
 	// Set default color for every control state.
 	m_Color_Normal = DEFAULT_COLOR_NORMAL;
 	m_Color_Hover = DEFAULT_COLOR_NORMAL;
 	m_Color_Pressed = DEFAULT_COLOR_NORMAL;
 }
 
-auto JWImageBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
+auto JWImageBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
 {
-	JWControl::Create(Position, Size, pSharedData);
+	JWControl::Create(Position, Size, SharedData);
 	
-	if (m_pBackground = new JWImage)
-	{
-		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pBackground = new JWImage;
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
 
-	if (m_pImage = new JWImage)
-	{
-		m_pImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pImage = new JWImage;
+	m_pImage->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
 
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);

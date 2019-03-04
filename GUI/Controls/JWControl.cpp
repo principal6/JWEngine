@@ -7,52 +7,16 @@
 
 using namespace JWENGINE;
 
-JWControl::JWControl()
-{
-	m_pBorderLine = nullptr;
-	m_pAttachedScrollBar = nullptr;
-	m_pParentControl = nullptr;
-
-	// Set default color for each control state.
-	m_Color_Normal = DEFAULT_COLOR_NORMAL;
-	m_Color_Hover = DEFAULT_COLOR_HOVER;
-	m_Color_Pressed = DEFAULT_COLOR_PRESSED;
-
-	// Control type is decided when sub-class calls Create().
-	m_ControlType = EControlType::NotDefined;
-
-	// Default control state is Normal.
-	m_ControlState = EControlState::Normal;
-
-	m_ControlRect = { 0, 0, 0, 0 };
-	m_Position = D3DXVECTOR2(0, 0);
-	m_AbsolutePosition = D3DXVECTOR2(0, 0);
-	m_Size = D3DXVECTOR2(0, 0);
-
-	m_FontColor = DEFAULT_COLOR_FONT;
-
-	m_bShouldDrawBorder = false;
-	m_bShouldUseViewport = true;
-	m_bShouldBeOffsetByMenuBar = true;
-	m_bHasFocus = false;
-}
-
-auto JWControl::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
+auto JWControl::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
 {
 	// Set shared data pointer.
-	m_pSharedData = pSharedData;
+	m_pSharedData = &SharedData;
 
 	// Craete line for border
-	if (m_pBorderLine = new JWLine)
-	{
-		m_pBorderLine->Create(m_pSharedData->pWindow->GetDevice());
-		m_pBorderLine->AddBox(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), DEFAULT_COLOR_BORDER);
-		m_pBorderLine->AddEnd();
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pBorderLine = new JWLine;
+	m_pBorderLine->Create(m_pSharedData->pWindow->GetDevice());
+	m_pBorderLine->AddBox(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), DEFAULT_COLOR_BORDER);
+	m_pBorderLine->AddEnd();
 
 	// Set control position and size.
 	m_Position = Position;
@@ -460,26 +424,21 @@ PROTECTED void JWControl::UpdateControlState(JWControl** ppControlWithMouse, JWC
 	}
 }
 
-auto JWControl::AttachScrollBar(const JWControl* pScrollBar)->JWControl*
+auto JWControl::AttachScrollBar(const JWControl& ScrollBar)->JWControl*
 {
-	if (pScrollBar == nullptr)
-	{
-		// There must be scroll-bar to attach.
-		throw EError::NULLPTR_CONTROL;
-	}
-	else if (this == pScrollBar)
+	if (this == &ScrollBar)
 	{
 		// You can't attach yourself!
-		throw EError::INVALID_POINTER_ASSIGNMENT;
+		return this;
 	}
-	else if (pScrollBar->GetControlType() != EControlType::ScrollBar)
+	else if (ScrollBar.GetControlType() != EControlType::ScrollBar)
 	{
 		// Only scroll-bars can be attached.
-		throw EError::INVALID_CONTROL_TYPE;
+		return this;
 	}
 	else
 	{
-		JWControl* p_scrollbar_control = const_cast<JWControl*>(pScrollBar);
+		JWControl* p_scrollbar_control = const_cast<JWControl*>(&ScrollBar);
 		m_pAttachedScrollBar = static_cast<JWScrollBar*>(p_scrollbar_control);
 	}
 

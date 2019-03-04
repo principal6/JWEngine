@@ -4,42 +4,13 @@
 using namespace JWENGINE;
 
 // Static member variable declaration
-const DWORD JWImage::DEF_BOUNDINGBOX_COLOR = D3DCOLOR_ARGB(255, 0, 150, 50);
+const DWORD JWImage::DEFAULT_BOUNDINGBOX_COLOR = D3DCOLOR_ARGB(255, 0, 150, 50);
 
-JWImage::JWImage()
+void JWImage::Create(const JWWindow& Window, const WSTRING& BaseDir)
 {
-	m_pDevice = nullptr;
-	m_pVertexBuffer = nullptr;
-	m_pIndexBuffer = nullptr;
-	m_pTexture = nullptr;
-
-	ClearVertexAndIndex();
-
-	m_Size = D3DXVECTOR2(0, 0);
-	m_ScaledSize = D3DXVECTOR2(0, 0);
-	m_VisibleRange = D3DXVECTOR2(VISIBLE_RANGE_NOT_SET, VISIBLE_RANGE_NOT_SET);
-	m_AtlasSize = D3DXVECTOR2(0, 0);
-	m_OffsetInAtlas = D3DXVECTOR2(0, 0);
-
-	m_Position = D3DXVECTOR2(0, 0);
-	m_Scale = D3DXVECTOR2(1.0f, 1.0f);
-
-	m_BoundingBoxExtraSize = D3DXVECTOR2(0, 0);
-	m_BoundingBoxColor = DEF_BOUNDINGBOX_COLOR;
-
-	m_bUseStaticTexture = false;
-}
-
-void JWImage::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir)
-{
-	if (pJWWindow == nullptr)
-	{
-		throw EError::NULLPTR_WINDOW;
-	}
-
-	m_pJWWindow = pJWWindow;
-	m_pDevice = pJWWindow->GetDevice();
-	m_pBaseDir = pBaseDir;
+	m_pJWWindow = &Window;
+	m_pDevice = Window.GetDevice();
+	m_pBaseDir = &BaseDir;
 
 	ClearVertexAndIndex();
 
@@ -87,7 +58,7 @@ PROTECTED void JWImage::CreateVertexBuffer()
 	int vertex_size = sizeof(SVertexImage) * static_cast<int>(m_Vertices.size());
 	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 	{
-		throw EError::VERTEX_BUFFER_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 }
 
@@ -102,7 +73,7 @@ PROTECTED void JWImage::CreateIndexBuffer()
 	int index_size = sizeof(SIndex3) * static_cast<int>(m_Indices.size());
 	if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 	{
-		throw EError::INDEX_BUFFER_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 }
 
@@ -111,13 +82,12 @@ PROTECTED void JWImage::UpdateVertexBuffer()
 	if (m_Vertices.size())
 	{
 		int vertex_size = sizeof(SVertexImage) * static_cast<int>(m_Vertices.size());
-		VOID* pVertices;
-		if (FAILED(m_pVertexBuffer->Lock(0, vertex_size, (void**)&pVertices, 0)))
+		void* pVertices = nullptr;
+		if (SUCCEEDED(m_pVertexBuffer->Lock(0, vertex_size, (void**)&pVertices, 0)))
 		{
-			throw EError::VERTEX_BUFFER_NOT_LOCKED;
+			memcpy(pVertices, &m_Vertices[0], vertex_size);
+			m_pVertexBuffer->Unlock();
 		}
-		memcpy(pVertices, &m_Vertices[0], vertex_size);
-		m_pVertexBuffer->Unlock();
 	}
 }
 
@@ -126,13 +96,12 @@ PROTECTED void JWImage::UpdateIndexBuffer()
 	if (m_Indices.size())
 	{
 		int index_size = sizeof(SIndex3) * static_cast<int>(m_Indices.size());
-		VOID* pIndices;
-		if (FAILED(m_pIndexBuffer->Lock(0, index_size, (void **)&pIndices, 0)))
+		void* pIndices = nullptr;
+		if (SUCCEEDED(m_pIndexBuffer->Lock(0, index_size, (void **)&pIndices, 0)))
 		{
-			throw EError::INDEX_BUFFER_NOT_LOCKED;
+			memcpy(pIndices, &m_Indices[0], index_size);
+			m_pIndexBuffer->Unlock();
 		}
-		memcpy(pIndices, &m_Indices[0], index_size);
-		m_pIndexBuffer->Unlock();
 	}
 }
 
@@ -232,10 +201,10 @@ void JWImage::SetTexture(const WSTRING& FileName)
 	NewFileName += FileName;
 
 	D3DXIMAGE_INFO tImageInfo;
-	if (FAILED(D3DXCreateTextureFromFileEx(m_pDevice, NewFileName.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
+	if (FAILED(D3DXCreateTextureFromFileExW(m_pDevice, NewFileName.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
 		D3DX_DEFAULT, D3DX_DEFAULT, 0, &tImageInfo, nullptr, &m_pTexture)))
 	{
-		throw EError::TEXTURE_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 
 	m_Size.x = static_cast<float>(tImageInfo.Width);

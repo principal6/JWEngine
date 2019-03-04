@@ -17,7 +17,7 @@ namespace JWENGINE
 		JWLabel();
 		~JWLabel() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
 		void Destroy() noexcept override;
 
 		void Draw() noexcept override;
@@ -29,6 +29,6 @@ namespace JWENGINE
 		static const BYTE DEFUALT_ALPHA_BACKGROUND_LABEL = 255;
 		static const DWORD DEFAULT_COLOR_BACKGROUND_LABEL = DEFAULT_COLOR_ALMOST_BLACK;
 
-		JWImage* m_pBackground;
+		JWImage* m_pBackground = nullptr;
 	};
 };

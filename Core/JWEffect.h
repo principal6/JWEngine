@@ -88,7 +88,7 @@ namespace JWENGINE
 		JWEffect();
 		~JWEffect() {};
 
-		auto Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->JWEffect*;
+		auto Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)->JWEffect*;
 		void Destroy() noexcept override;
 
 		auto SetTextureAtlas(const WSTRING& FileName, int numCols, int numRows)->JWEffect*;

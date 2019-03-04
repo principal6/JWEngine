@@ -53,9 +53,10 @@ int main()
 
 		g_MyGame.Run();
 	}
-	catch (const EError& error)
+	catch (const std::exception& e)
 	{
-		std::cout << "[ERROR] ERROR CODE (" << static_cast<int>(error) << ")" << std::endl;
+		std::cout << e.what() << std::endl;
+
 		abort();
 	}
 

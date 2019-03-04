@@ -18,7 +18,7 @@ namespace JWENGINE
 		JWTextButton();
 		~JWTextButton() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
 		void Destroy() noexcept override;
 
 		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
@@ -33,9 +33,9 @@ namespace JWENGINE
 		void KillFocus() noexcept override;
 
 	private:
-		JWImage* m_pBackground;
+		JWImage* m_pBackground = nullptr;
 
-		bool m_bShouleUseToggleSelection;
-		bool m_bToggleState;
+		bool m_bShouleUseToggleSelection = false;
+		bool m_bToggleState = false;
 	};
 };

@@ -103,72 +103,6 @@ namespace JWENGINE
 
 	static const wchar_t DEFAULT_EDIT_WATERMARK[] = L"JWEdit Control";
 
-	enum class EError
-	{
-		/** Win32Api, DirectX */
-		WINAPIWINDOW_NOT_CREATED,
-		DIRECT3D_NOT_CREATED,
-		DEVICE_NOT_CREATED,
-		TEXTURE_NOT_CREATED,
-		VERTEX_BUFFER_NOT_CREATED,
-		INDEX_BUFFER_NOT_CREATED,
-		VERTEX_BUFFER_NOT_LOCKED,
-		INDEX_BUFFER_NOT_LOCKED,
-
-		/** DirectX Input */
-		INPUT_NOT_CREATED,
-		INPUT_DEVICE_NOT_CREATED,
-		INPUT_FUNCTION_FAILED,
-
-		/** Core creation */
-		WINDOW_NOT_CREATED,
-		IMAGE_NOT_CREATED,
-		LINE_NOT_CREATED,
-		TEXT_NOT_CREATED,
-		RECTANGLE_NOT_CREATED,
-
-		/** Game creation */
-		LIFE_NOT_CREATED,
-		MAP_NOT_CREATED,
-		SPRITE_NOT_CREATED,
-		MONSTERMANAGER_NOT_CREATED,
-		EFFECTMANAGER_NOT_CREATED,
-		OBJECT_NOT_CREATED,
-
-		/** GUI creation */
-		CONTROL_NOT_CREATED,
-		IMAGE_BUTTON_NOT_CREATED,
-		IMAGE_BOX_NOT_CREATED,
-		SCROLLBAR_NOT_CREATED,
-
-		/** Null pointer */
-		NULLPTR_DEVICE,
-		NULLPTR_HWND,
-		NULLPTR_WINDOW,
-		NULLPTR_WINDOWDATA,
-		NULLPTR_MAP,
-		NULLPTR_MAP_INFO,
-		NULLPTR_IMAGE,
-		NULLPTR_FONT,
-		NULLPTR_SCROLLBAR,
-		NULLPTR_VERTEX,
-		NULLPTR_INDEX,
-		NULLPTR_CONTROL,
-		
-		/** Invalid */
-		INVALID_CONTROL_TYPE,
-		INVALID_POINTER_ASSIGNMENT,
-
-		/** Duplicate task */
-		DUPLICATE_CREATION,
-
-		/** Memory allocation failure */
-		ALLOCATION_FAILURE,
-
-		/** Search failure */
-		FOUND_NOTHING,
-	};
-
 	enum class EHorizontalAlignment
 	{
 		Left,
@@ -206,36 +140,34 @@ namespace JWENGINE
 	struct SWindowInputState
 	{
 		// True while the left button is pressed.
-		bool MouseLeftPressed;
+		bool MouseLeftPressed = false;
 
 		// True only when the left button is pressed for the first time.
-		bool MouseLeftFirstPressed;
+		bool MouseLeftFirstPressed = false;
 
-		bool MouseLeftReleased;
-		bool MouseRightPressed;
-		bool MouseRightReleased;
-		bool ControlPressed;
-		bool AltPressed;
-		bool ShiftPressed;
-		POINT MousePosition;
-		POINT MouseDownPosition;
-		POINT MouseMovedPosition;
-		int MouseWheeled;
+		bool MouseLeftReleased = false;
+		bool MouseRightPressed = false;
+		bool MouseRightReleased = false;
+		bool ControlPressed = false;
+		bool AltPressed = false;
+		bool ShiftPressed = false;
+		POINT MousePosition{};
+		POINT MouseDownPosition{};
+		POINT MouseMovedPosition{};
+		int MouseWheeled = 0;
 
-		SWindowInputState() : MouseLeftPressed(false), MouseLeftFirstPressed(false), MouseLeftReleased(false),
-			MouseRightPressed(false), MouseRightReleased(false),
-			ControlPressed(false), AltPressed(false), ShiftPressed(false),
-			MousePosition({ 0, 0 }), MouseDownPosition({ 0, 0 }), MouseMovedPosition({ 0, 0 }), MouseWheeled(0) {};
+		SWindowInputState() {};
 	};
 
 	struct SAnimationData
 	{
-		EAnimationID AnimID;
-		int FrameS, FrameE;
-		bool bForceCycle;
-		bool bSetStartFrameEverytime;
+		EAnimationID AnimID = EAnimationID::Idle;
+		int FrameS = 0;
+		int FrameE = 0;
+		bool bForceCycle = false;
+		bool bSetStartFrameEverytime = false;
 
-		SAnimationData() : FrameS(0), FrameE(0) {};
+		SAnimationData() {};
 		SAnimationData(EAnimationID _AnimID, int StartFrame, int EndFrame, bool ForceCycle = false,
 			bool SetStartFrameEverytime = false) :
 			AnimID(_AnimID), FrameS(StartFrame), FrameE(EndFrame), bForceCycle(ForceCycle),
@@ -244,12 +176,15 @@ namespace JWENGINE
 
 	struct SVertexImage
 	{
-		FLOAT x, y, z, rhw;
-		DWORD color;
-		FLOAT u, v;
+		FLOAT x = 0;
+		FLOAT y = 0;
+		FLOAT z = 0;
+		FLOAT rhw = 0;
+		DWORD color = 0xFFFFFFFF;
+		FLOAT u = 0;
+		FLOAT v = 0;
 
-		SVertexImage() :
-			x(0), y(0), z(0), rhw(1), color(0xFFFFFFFF), u(0), v(0) {};
+		SVertexImage() {};
 		SVertexImage(float _x, float _y, float _u, float _v) :
 			x(_x), y(_y), z(0), rhw(1), color(0xFFFFFFFF), u(_u), v(_v) {};
 		SVertexImage(float _x, float _y, DWORD _color) :
@@ -262,25 +197,23 @@ namespace JWENGINE
 
 	struct SIndex3
 	{
-		WORD _0, _1, _2;
+		WORD _0 = 0;
+		WORD _1 = 0;
+		WORD _2 = 0;
 
-		SIndex3() :
-			_0(0), _1(0), _2(0) {};
-		SIndex3(int ID0, int ID1, int ID2) :
-			_0(ID0), _1(ID1), _2(ID2) {};
-		SIndex3(size_t ID0, size_t ID1, size_t ID2)
-		{
-			_0 = static_cast<WORD>(ID0);
-			_1 = static_cast<WORD>(ID1);
-			_2 = static_cast<WORD>(ID2);
-		}
+		SIndex3() {};
+		SIndex3(int ID0, int ID1, int ID2) : _0(ID0), _1(ID1), _2(ID2) {};
+		SIndex3(size_t ID0, size_t ID1, size_t ID2) : _0(static_cast<WORD>(ID0)), _1(static_cast<WORD>(ID1)), _2(static_cast<WORD>(ID2)) {};
 	};
 
 	struct STextureUV
 	{
-		float u1, u2, v1, v2;
+		float u1 = 0;
+		float u2 = 0;
+		float v1 = 0;
+		float v2 = 0;
 
-		STextureUV() : u1(0), u2(0), v1(0), v2(0) {};
+		STextureUV() {};
 		STextureUV(float U1, float U2, float V1, float V2) : u1(U1), u2(U2), v1(V1), v2(V2) {};
 	};
 
@@ -317,48 +250,38 @@ namespace JWENGINE
 	struct SWindowCreationData
 	{
 		WSTRING caption;
-		int x;
-		int y;
-		unsigned int width;
-		unsigned int height;
-		DWORD color_background;
-		WNDPROC proc;
-		EWindowStyle window_style;
-		HWND parent_hwnd;
+		int x = 0;
+		int y = 0;
+		unsigned int width = 0;
+		unsigned int height = 0;
+		DWORD color_background = 0xFFFFFFFF;
+		WNDPROC proc = nullptr;
+		EWindowStyle window_style = EWindowStyle::OverlappedWindow;
 		
-		SWindowCreationData() : x(0), y(0), width(300), height(200), color_background(D3DCOLOR_XRGB(0, 0, 0)),
-			proc(nullptr), window_style(EWindowStyle::OverlappedWindow), parent_hwnd(nullptr) {};
-
+		SWindowCreationData() : width(300), height(200) {};
 		SWindowCreationData(WSTRING _caption, int _x, int _y, unsigned int _width, unsigned int _height, DWORD _color_background,
-			EWindowStyle _window_style = EWindowStyle::OverlappedWindow, HWND _parent_hwnd = nullptr) :
+			EWindowStyle _window_style = EWindowStyle::OverlappedWindow) :
 			caption(_caption), x(_x), y(_y), width(_width), height(_height), color_background(_color_background),
-			proc(nullptr), window_style(_window_style), parent_hwnd(_parent_hwnd) {};
+			proc(nullptr), window_style(_window_style) {};
 	};
 
 	// This structure contains data that will be shared in a JWGUIWindow.
 	struct SGUIWindowSharedData
 	{
-		JWGUIWindow* pGUIWindow;
-		JWWindow* pWindow;
+		JWGUIWindow* pGUIWindow = nullptr;
+		JWWindow* pWindow = nullptr;
+		JWText* pText = nullptr;
 		WSTRING BaseDir;
-		LPDIRECT3DTEXTURE9 Texture_GUI;
-		D3DXIMAGE_INFO Texture_GUI_Info;
-		JWText* pText;
-
-		SGUIWindowSharedData() : pGUIWindow(nullptr), pWindow(nullptr), Texture_GUI(nullptr), pText(nullptr) {};
+		LPDIRECT3DTEXTURE9 Texture_GUI = nullptr;
+		D3DXIMAGE_INFO Texture_GUI_Info{};
 	};
 
 	struct SGUIIMEInputInfo
 	{
-		TCHAR IMEWritingChar[MAX_FILE_LEN];
-		TCHAR IMECompletedChar[MAX_FILE_LEN];
-		bool bIMEWriting;
-		bool bIMECompleted;
-
-		SGUIIMEInputInfo()
-		{
-			clear();
-		};
+		TCHAR IMEWritingChar[MAX_FILE_LEN]{};
+		TCHAR IMECompletedChar[MAX_FILE_LEN]{};
+		bool bIMEWriting = false;
+		bool bIMECompleted = false;
 
 		void clear()
 		{
@@ -475,4 +398,140 @@ namespace JWENGINE
 			var += value;
 		}
 	}
+
+	static auto WstringToString(WSTRING Source)->STRING
+	{
+		STRING Result;
+
+		char* temp = nullptr;
+		size_t len = static_cast<size_t>(WideCharToMultiByte(CP_ACP, 0, Source.c_str(), -1, temp, 0, nullptr, nullptr));
+
+		temp = new char[len + 1];
+		WideCharToMultiByte(CP_ACP, 0, Source.c_str(), -1, temp, static_cast<int>(len), nullptr, nullptr);
+
+		Result = temp;
+
+		delete[] temp;
+		temp = nullptr;
+		return Result;
+	}
+
+	static auto StringToWstring(STRING Source)->WSTRING
+	{
+		WSTRING Result;
+
+		wchar_t* temp = nullptr;
+		size_t len = static_cast<size_t>(MultiByteToWideChar(CP_ACP, 0, Source.c_str(), -1, temp, 0));
+
+		temp = new wchar_t[len + 1];
+		MultiByteToWideChar(CP_ACP, 0, Source.c_str(), -1, temp, static_cast<int>(len));
+
+		Result = temp;
+
+		delete[] temp;
+		temp = nullptr;
+		return Result;
+	}
+
+	/** EXCEPTION HANDLERS */
+	class exception_base : public std::exception
+	{
+	public:
+		exception_base(const char* function_name, const std::type_info& type_id) noexcept
+		{
+			m_error_content = "[EXCEPTION] ";
+			m_error_content += "this=";
+			m_error_content += type_id.name();
+			m_error_content += " \'";
+			m_error_content += function_name;
+			m_error_content += "()\' <";
+		}
+
+		auto what() const->const char* override
+		{
+			return m_error_content.c_str();
+		}
+
+	protected:
+		std::string m_error_content;
+	};
+
+	class creation_failed : public exception_base
+	{
+	public:
+		creation_failed(const char* function_name, const std::type_info& type_id) noexcept : exception_base(function_name, type_id)
+		{
+			m_error_content += "creation failed>";
+		}
+	};
+
+	class duplicate_creation : public exception_base
+	{
+	public:
+		duplicate_creation(const char* function_name, const std::type_info& type_id) noexcept : exception_base(function_name, type_id)
+		{
+			m_error_content += "duplicate creation>";
+		}
+	};
+
+	class name_collision : public exception_base
+	{
+	public:
+		name_collision(const char* function_name, const std::type_info& type_id, const wchar_t* name) noexcept : exception_base(function_name, type_id)
+		{
+			m_error_content += "name already exists> ";
+
+			m_name = L"\'";
+			m_name += name;
+			m_name += L"\'";
+
+			m_error_content += WstringToString(m_name);
+		}
+
+	private:
+		std::wstring m_name;
+	};
+
+	class nullptr_assigned : public exception_base
+	{
+	public:
+		nullptr_assigned(const char* function_name, const std::type_info& type_id) noexcept : exception_base(function_name, type_id)
+		{
+			m_error_content += "null pointer assigned>";
+		}
+	};
+
+	class nullptr_accessed : public exception_base
+	{
+	public:
+		nullptr_accessed(const char* function_name, const std::type_info& type_id) noexcept : exception_base(function_name, type_id)
+		{
+			m_error_content += "null pointer accessed>";
+		}
+	};
+
+	class not_found : public exception_base
+	{
+	public:
+		not_found(const char* function_name, const std::type_info& type_id) noexcept : exception_base(function_name, type_id)
+		{
+			m_error_content += "not found>";
+		}
+	};
+
+	class dxinput_failed : public exception_base
+	{
+	public:
+		dxinput_failed(const char* function_name, const std::type_info& type_id) noexcept : exception_base(function_name, type_id)
+		{
+			m_error_content += "directx input failed>";
+		}
+	};
+
+	#define THROW_CREATION_FAILED throw creation_failed(__func__, typeid(this))
+	#define THROW_DUPLICATE_CREATION throw duplicate_creation(__func__, typeid(this))
+	#define THROW_NULLPTR_ACCESSED throw nullptr_accessed(__func__, typeid(this))
+	#define THROW_NOT_FOUND throw not_found(__func__, typeid(this))
+	#define THROW_DXINPUT_FAILED throw dxinput_failed(__func__, typeid(this))
+	#define THROW_NAME_COLLISION(wchar_name) throw name_collision(__func__, typeid(this), wchar_name)
 };

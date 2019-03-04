@@ -29,31 +29,19 @@ JWMonster::JWMonster()
 	m_HPBar = nullptr;
 }
 
-auto JWMonster::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->JWMonster*
+auto JWMonster::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)->JWMonster*
 {
-	JWLife::Create(pJWWindow, pBaseDir, pMap);
+	JWLife::Create(Window, BaseDir, Map);
 
-	if (m_HPFrame = new JWImage)
-	{
-		m_HPFrame->Create(pJWWindow, pBaseDir);
-		m_HPFrame->SetTexture(L"gamegui.png");
-		m_HPFrame->SetAtlasUV(D3DXVECTOR2(0, 0), D3DXVECTOR2(47, 10));
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_HPFrame = new JWImage;
+	m_HPFrame->Create(Window, BaseDir);
+	m_HPFrame->SetTexture(L"gamegui.png");
+	m_HPFrame->SetAtlasUV(D3DXVECTOR2(0, 0), D3DXVECTOR2(47, 10));
 
-	if (m_HPBar = new JWImage)
-	{
-		m_HPBar->Create(pJWWindow, pBaseDir);
-		m_HPBar->SetTexture(L"gamegui.png");
-		m_HPBar->SetAtlasUV(D3DXVECTOR2(0, 10), D3DXVECTOR2(47, 10));
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_HPBar = new JWImage;
+	m_HPBar->Create(Window, BaseDir);
+	m_HPBar->SetTexture(L"gamegui.png");
+	m_HPBar->SetAtlasUV(D3DXVECTOR2(0, 10), D3DXVECTOR2(47, 10));
 
 	return this;
 }
@@ -147,22 +135,12 @@ void JWMonster::Draw() noexcept
 // Static member variable declaration
 LPDIRECT3DDEVICE9 JWMonsterManager::m_pDevice;
 
-void JWMonsterManager::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)
+void JWMonsterManager::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)
 {
-	if (pJWWindow == nullptr)
-	{
-		throw EError::NULLPTR_WINDOW;
-	}
-	
-	if (pMap == nullptr)
-	{
-		throw EError::NULLPTR_MAP;
-	}
-	
-	m_pJWWindow = pJWWindow;
-	m_pDevice = pJWWindow->GetDevice();
-	m_pBaseDir = pBaseDir;
-	m_pMap = pMap;
+	m_pJWWindow = &Window;
+	m_pDevice = Window.GetDevice();
+	m_pBaseDir = &BaseDir;
+	m_pMap = &Map;
 }
 
 void JWMonsterManager::Destroy() noexcept
@@ -191,7 +169,7 @@ auto JWMonsterManager::Spawn(const WSTRING& MonsterName, const D3DXVECTOR2& Glob
 		if (TypeIterator.m_Name == MonsterName)
 		{
 			JWMonster Temp;
-			Temp.Create(m_pJWWindow, m_pBaseDir, m_pMap);
+			Temp.Create(*m_pJWWindow, *m_pBaseDir, *m_pMap);
 			Temp.SetMonsterType(TypeIterator);
 			Temp.MakeLife(TypeIterator.m_TextureFileName, TypeIterator.m_UnitSize, TypeIterator.m_TextureNumCols,
 				TypeIterator.m_TextureNumRows, 1.0f);

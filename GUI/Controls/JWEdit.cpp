@@ -8,58 +8,27 @@ using namespace JWENGINE;
 
 JWEdit::JWEdit()
 {
+	// An edit has normally its border.
 	m_bShouldDrawBorder = true;
-
-	m_pBackground = nullptr;
-	m_pEditText = nullptr;
-
-	m_FontColor = DEFAULT_COLOR_FONT;
-
-	m_Watermark = DEFAULT_EDIT_WATERMARK;
-	m_WatermarkColor = DEFAULT_COLOR_WATERMARK;
 
 	// Set default color for every control state.
 	m_Color_Normal = DEFAULT_COLOR_BACKGROUND_EDIT;
 	m_Color_Hover = DEFAULT_COLOR_BACKGROUND_EDIT;
 	m_Color_Pressed = DEFAULT_COLOR_BACKGROUND_EDIT;
-
-	m_PaddedPosition = D3DXVECTOR2(0, 0);
-	m_PaddedSize = D3DXVECTOR2(0, 0);
-
-	m_CaretShowInterval = 0;
-
-	m_bIMEInput = false;
-	m_bIMECaretCaptured = false;
-
-	m_bUseMultiline = false;
-	m_bShouldGetOnlyNumbers = false;
 }
 
-auto JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
+auto JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
 {
-	JWControl::Create(Position, Size, pSharedData);
+	JWControl::Create(Position, Size, SharedData);
 
 	// Create a JWImageBox for background.
-	if (m_pBackground = new JWImageBox)
-	{
-		m_pBackground->ShouldBeOffsetByMenuBar(false);
-
-		m_pBackground->Create(Position, Size, pSharedData);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pBackground = new JWImageBox;
+	m_pBackground->ShouldBeOffsetByMenuBar(false);
+	m_pBackground->Create(Position, Size, SharedData);
 
 	// Create non-instant JWText for JWEdit control.
-	if (m_pEditText = new JWText)
-	{
-		m_pEditText->CreateNonInstantText(m_pSharedData->pWindow, &m_pSharedData->BaseDir, m_pSharedData->pText->GetFontTexturePtr());
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pEditText = new JWText;
+	m_pEditText->CreateNonInstantText(*m_pSharedData->pWindow, m_pSharedData->BaseDir, m_pSharedData->pText->GetFontTexturePtr());
 
 	// Set control type.
 	m_ControlType = EControlType::Edit;
@@ -477,12 +446,12 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char) noexcept
 			{
 				if ((Char >= 48) && (Char <= 57))
 				{
-					InsertCharacter(static_cast<wchar_t>(Char));
+					InsertCharacter(static_cast<char>(Char));
 				}
 			}
 			else
 			{
-				InsertCharacter(static_cast<wchar_t>(Char));
+				InsertCharacter(static_cast<char>(Char));
 			}
 			
 		}
@@ -511,7 +480,7 @@ PROTECTED void JWEdit::WindowIMEInput(const SGUIIMEInputInfo& IMEInfo) noexcept
 
 				m_pEditText->MoveCaretTo(m_IMECapturedCaret);
 
-				InsertCharacter(static_cast<wchar_t>(IMEInfo.IMEWritingChar[0]));
+				InsertCharacter(static_cast<char>(IMEInfo.IMEWritingChar[0]));
 			}
 			else
 			{
@@ -530,7 +499,7 @@ PROTECTED void JWEdit::WindowIMEInput(const SGUIIMEInputInfo& IMEInfo) noexcept
 		{
 			m_pEditText->MoveCaretToLeft();
 
-			InsertCharacter(static_cast<wchar_t>(IMEInfo.IMECompletedChar[0]));
+			InsertCharacter(static_cast<char>(IMEInfo.IMECompletedChar[0]));
 
 			m_bIMEInput = true;
 			m_bIMECaretCaptured = false;
@@ -651,10 +620,16 @@ PRIVATE void JWEdit::CopySelection() noexcept
 	
 	HGLOBAL h_memory = GlobalAlloc(GMEM_MOVEABLE, (copied_length + 1) * sizeof(TCHAR));
 
-	LPTSTR lptstrCopy = (LPTSTR)(GlobalLock(h_memory));
-		memcpy(lptstrCopy, &string_with_return.c_str()[0], copied_length * sizeof(TCHAR));
-		lptstrCopy[copied_length] = (TCHAR)0;
-	GlobalUnlock(h_memory);
+	if (h_memory)
+	{
+		LPTSTR lptstrCopy = (LPTSTR)(GlobalLock(h_memory));
+		if (lptstrCopy)
+		{
+			memcpy(lptstrCopy, &string_with_return.c_str()[0], copied_length * sizeof(TCHAR));
+			lptstrCopy[copied_length] = (TCHAR)0;
+		}
+		GlobalUnlock(h_memory);
+	}
 
 	if (OpenClipboard(m_pSharedData->pWindow->GethWnd()))
 	{
@@ -671,11 +646,11 @@ PRIVATE void JWEdit::PasteFromClipboard() noexcept
 	if (OpenClipboard(m_pSharedData->pWindow->GethWnd()))
 	{
 		HGLOBAL h_global = nullptr;
-		LPTSTR string = nullptr;
+		wchar_t* string = nullptr;
 
 		if (h_global = GetClipboardData(CF_UNICODETEXT))
 		{
-			if (string = (LPTSTR)GlobalLock(h_global))
+			if (string = (wchar_t*)GlobalLock(h_global))
 			{
 				GlobalUnlock(h_global);
 

@@ -38,7 +38,9 @@ namespace JWENGINE
 		// 3) Check if the device is lost, and if it is, reset it.
 		void EndRender() noexcept;
 
+		// This function does not return nullptr!
 		auto GetDevice() const noexcept->const LPDIRECT3DDEVICE9;
+
 		auto GethWnd() const noexcept->const HWND;
 		auto GethInstance() const noexcept->const HINSTANCE;
 		auto GetWindowData() const noexcept->const SWindowData*;
@@ -78,8 +80,8 @@ namespace JWENGINE
 		D3DPRESENT_PARAMETERS m_D3DPP;
 		D3DCOLOR m_BGColor;
 
-		OPENFILENAME m_OFN;
-		TCHAR m_FileName[MAX_FILE_LEN];
-		TCHAR m_FileTitle[MAX_FILE_LEN];
+		OPENFILENAMEW m_OFN;
+		wchar_t m_FileName[MAX_FILE_LEN];
+		wchar_t m_FileTitle[MAX_FILE_LEN];
 	};
 };

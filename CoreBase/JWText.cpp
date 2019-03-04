@@ -8,49 +8,16 @@ using namespace JWENGINE;
 // Static const
 const float JWText::DEFAULT_SIDE_CONSTRAINT_STRIDE = 20.0f;
 
-JWText::JWText()
-{
-	m_bIsInstantText = true;
-	m_bUseAutomaticLineBreak = false;
-
-	m_pJWWindow = nullptr;
-	m_pBaseDir = nullptr;
-	m_pDevice = nullptr;
-	m_pFontTexture = nullptr;
-
-	m_NonInstantTextColor = DEFAULT_COLOR_FONT;
-
-	m_ConstraintPosition = D3DXVECTOR2(0, 0);
-	m_ConstraintSize = D3DXVECTOR2(0, 0);
-
-	m_pCaretLine = nullptr;
-	m_CaretPosition = D3DXVECTOR2(0, 0);
-	m_CaretSize = D3DXVECTOR2(0, 0);
-	m_CaretSelPosition = 0;
-
-	m_pSelectionBox = nullptr;
-	m_CapturedSelPosition = SIZE_T_INVALID;
-	m_SelectionStart = 0;
-	m_SelectionEnd = 0;
-	m_bIsTextSelected = false;
-
-	m_NonInstantTextOffset = D3DXVECTOR2(0, 0);
-}
-
-void JWText::CreateInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir)
+void JWText::CreateInstantText(const JWWindow& Window, const WSTRING& BaseDir)
 {
 	if (m_pFontTexture)
 	{
-		throw EError::DUPLICATE_CREATION;
+		THROW_DUPLICATE_CREATION;
 	}
 
-	if ((m_pJWWindow = pJWWindow) == nullptr)
-	{
-		throw EError::NULLPTR_WINDOW;
-	}
-
-	m_pBaseDir = pBaseDir;
-	m_pDevice = pJWWindow->GetDevice();
+	m_pJWWindow = &Window;
+	m_pDevice = Window.GetDevice();
+	m_pBaseDir = &BaseDir;
 
 	// Create font texture.
 	CreateFontTexture(DEFAULT_FONT);
@@ -61,51 +28,33 @@ void JWText::CreateInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDi
 	m_bIsInstantText = true;
 }
 
-void JWText::CreateNonInstantText(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const LPDIRECT3DTEXTURE9 pFontTexture)
+void JWText::CreateNonInstantText(const JWWindow& Window, const WSTRING& BaseDir, const LPDIRECT3DTEXTURE9 pFontTexture)
 {
 	if (m_pFontTexture)
 	{
-		throw EError::DUPLICATE_CREATION;
+		THROW_DUPLICATE_CREATION;
 	}
 
-	if ((m_pJWWindow = pJWWindow) == nullptr)
-	{
-		throw EError::NULLPTR_WINDOW;
-	}
-
-	m_pBaseDir = pBaseDir;
-	m_pDevice = pJWWindow->GetDevice();
+	m_pJWWindow = &Window;
+	m_pDevice = Window.GetDevice();
+	m_pBaseDir = &BaseDir;
 
 	// Set font texture.
 	m_pFontTexture = pFontTexture;
 
 	CreateNonInstantTextBuffers();
 
-	if (m_pCaretLine = new JWLine)
-	{
-		m_pCaretLine->Create(m_pDevice);
-
-		m_CaretSize.y = static_cast<float>(ms_FontData.Info.Size);
-		m_pCaretLine->AddLine(m_CaretPosition, m_CaretSize, DEFAULT_COLOR_CARET);
-		m_pCaretLine->AddEnd();
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pCaretLine = new JWLine;
+	m_pCaretLine->Create(m_pDevice);
+	m_CaretSize.y = static_cast<float>(ms_FontData.Info.Size);
+	m_pCaretLine->AddLine(m_CaretPosition, m_CaretSize, DEFAULT_COLOR_CARET);
+	m_pCaretLine->AddEnd();
 
 	// Create a JWRectangle for selection box.
-	if (m_pSelectionBox = new JWRectangle)
-	{
-		UINT max_box_num = static_cast<UINT>((m_pJWWindow->GetWindowData()->ScreenSize.y / GetLineHeight()) + 1);
-
-		m_pSelectionBox->Create(m_pJWWindow, m_pBaseDir, max_box_num);
-		m_pSelectionBox->SetRectangleColor(DEFAULT_COLOR_SELECTION);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pSelectionBox = new JWRectangle;
+	UINT max_box_num = static_cast<UINT>((m_pJWWindow->GetWindowData()->ScreenSize.y / GetLineHeight()) + 1);
+	m_pSelectionBox->Create(*m_pJWWindow, *m_pBaseDir, max_box_num);
+	m_pSelectionBox->SetRectangleColor(DEFAULT_COLOR_SELECTION);
 
 	// This is a non-instant-text JWText.
 	m_bIsInstantText = false;
@@ -144,7 +93,7 @@ PRIVATE void JWText::CreateFontTexture(const WSTRING& FileName_FNT)
 {
 	if (m_pFontTexture)
 	{
-		throw EError::DUPLICATE_CREATION;
+		THROW_DUPLICATE_CREATION;
 	}
 
 	// Set file name to Parse FNT file.
@@ -173,14 +122,14 @@ PRIVATE void JWText::CreateFontTexture(const WSTRING& FileName_FNT)
 	// Craete texture without color key
 	if (FAILED(D3DXCreateTextureFromFileExW(m_pDevice, new_file_name.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
 		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &m_pFontTexture)))
-		throw EError::TEXTURE_NOT_CREATED;
+		THROW_CREATION_FAILED;
 }
 
 PRIVATE void JWText::CreateInstantTextBuffers()
 {
 	if (m_InstantVertexData.pBuffer)
 	{
-		throw EError::DUPLICATE_CREATION;
+		THROW_DUPLICATE_CREATION;
 	}
 
 	// Set maximum size
@@ -222,7 +171,7 @@ PRIVATE void JWText::CreateNonInstantTextBuffers()
 {
 	if (m_NonInstantVertexData.pBuffer)
 	{
-		throw EError::DUPLICATE_CREATION;
+		THROW_DUPLICATE_CREATION;
 	}
 
 	UINT ScreenWidth = m_pJWWindow->GetWindowData()->ScreenSize.x;
@@ -277,7 +226,7 @@ PRIVATE void JWText::CreateVertexBuffer(SVertexData* pVertexData)
 	int vertex_size_in_byte = sizeof(SVertexImage) * pVertexData->VertexSize;
 	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size_in_byte, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &pVertexData->pBuffer, nullptr)))
 	{
-		throw EError::VERTEX_BUFFER_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 }
 
@@ -286,7 +235,7 @@ PRIVATE void JWText::CreateIndexBuffer(SIndexData* pIndexData)
 	int index_size_in_byte = sizeof(SIndex3) * pIndexData->IndexSize;
 	if (FAILED(m_pDevice->CreateIndexBuffer(index_size_in_byte, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &pIndexData->pBuffer, nullptr)))
 	{
-		throw EError::INDEX_BUFFER_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 }
 
@@ -295,18 +244,16 @@ PRIVATE void JWText::UpdateVertexBuffer(SVertexData* pVertexData)
 	if (pVertexData->Vertices)
 	{
 		int temp_vertex_size = sizeof(SVertexImage) * pVertexData->VertexSize;
-		VOID* pVertices;
-		if (FAILED(pVertexData->pBuffer->Lock(0, temp_vertex_size, (void**)&pVertices, 0)))
+		void* pVertices;
+		if (SUCCEEDED(pVertexData->pBuffer->Lock(0, temp_vertex_size, (void**)&pVertices, 0)))
 		{
-			throw EError::VERTEX_BUFFER_NOT_LOCKED;
+			memcpy(pVertices, &pVertexData->Vertices[0], temp_vertex_size);
+			pVertexData->pBuffer->Unlock();
 		}
-		memcpy(pVertices, &pVertexData->Vertices[0], temp_vertex_size);
-		pVertexData->pBuffer->Unlock();
-		
 	}
 	else
 	{
-		throw EError::NULLPTR_VERTEX;
+		THROW_NULLPTR_ACCESSED;
 	}
 }
 
@@ -315,17 +262,16 @@ PRIVATE void JWText::UpdateIndexBuffer(SIndexData* pIndexData)
 	if (pIndexData->Indices)
 	{
 		int temp_index_size = sizeof(SIndex3) * pIndexData->IndexSize;
-		VOID* pIndices;
-		if (FAILED(pIndexData->pBuffer->Lock(0, temp_index_size, (void **)&pIndices, 0)))
+		void* pIndices;
+		if (SUCCEEDED(pIndexData->pBuffer->Lock(0, temp_index_size, (void **)&pIndices, 0)))
 		{
-			throw EError::INDEX_BUFFER_NOT_LOCKED;
+			memcpy(pIndices, &pIndexData->Indices[0], temp_index_size);
+			pIndexData->pBuffer->Unlock();
 		}
-		memcpy(pIndices, &pIndexData->Indices[0], temp_index_size);
-		pIndexData->pBuffer->Unlock();
 	}
 	else
 	{
-		throw EError::NULLPTR_INDEX;
+		THROW_NULLPTR_ACCESSED;
 	}
 }
 

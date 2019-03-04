@@ -12,13 +12,13 @@ namespace JWENGINE
 	class JWFrame final : public JWControl
 	{
 	public:
-		JWFrame();
+		JWFrame() {};
 		~JWFrame() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
 		void Destroy() noexcept override;
 
-		auto AddChildControl(JWControl* pChildControl) noexcept->JWControl* override;
+		auto AddChildControl(JWControl& ChildControl) noexcept->JWControl* override;
 
 		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
@@ -30,7 +30,7 @@ namespace JWENGINE
 	protected:
 
 	private:
-		JWImageBox* m_pBackground;
+		JWImageBox* m_pBackground = nullptr;
 
 		VECTOR<JWControl*> m_pChildControls;
 	};

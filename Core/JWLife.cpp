@@ -28,14 +28,11 @@ JWLife::JWLife()
 	m_bHitGround = true;
 }
 
-auto JWLife::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->JWLife*
+auto JWLife::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)->JWLife*
 {
-	JWImage::Create(pJWWindow, pBaseDir);
+	JWImage::Create(Window, BaseDir);
 	
-	if ((m_pMap = pMap) == nullptr)
-	{
-		throw EError::NULLPTR_MAP;
-	}
+	m_pMap = &Map;
 
 	SetGlobalPosition(m_GlobalPosition);
 

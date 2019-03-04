@@ -35,15 +35,10 @@ void JWWindow::CreateGameWindow(const SWindowCreationData& WindowCreationData)
 	// Set DirectX clear color
 	m_BGColor = WindowCreationData.color_background;
 
-	if (CreateWINAPIWindow(L"Game", WindowCreationData.caption.c_str(),
+	CreateWINAPIWindow(L"Game", WindowCreationData.caption.c_str(),
 		WindowCreationData.x, WindowCreationData.y,
 		WindowCreationData.width, WindowCreationData.height,
-		EWindowStyle::OverlappedWindow,
-		m_BGColor,
-		BaseWindowProc) == nullptr)
-	{
-		throw EError::WINAPIWINDOW_NOT_CREATED;
-	}
+		EWindowStyle::OverlappedWindow, m_BGColor, BaseWindowProc);
 
 	InitializeDirectX();
 }
@@ -53,15 +48,10 @@ void JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)
 	// Set DirectX clear color
 	m_BGColor = WindowCreationData.color_background;
 
-	if (CreateWINAPIWindow(L"GUI", WindowCreationData.caption.c_str(),
+	CreateWINAPIWindow(L"GUI", WindowCreationData.caption.c_str(),
 		WindowCreationData.x, WindowCreationData.y,
 		WindowCreationData.width, WindowCreationData.height,
-		WindowCreationData.window_style,
-		WindowCreationData.color_background,
-		WindowCreationData.proc, nullptr, WindowCreationData.parent_hwnd) == nullptr)
-	{
-		throw EError::WINAPIWINDOW_NOT_CREATED;
-	}
+		WindowCreationData.window_style, WindowCreationData.color_background, WindowCreationData.proc);
 
 	InitializeDirectX();
 }
@@ -74,7 +64,7 @@ PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Ca
 	// Set window data
 	SetWindowData(Width, Height);
 
-	WNDCLASS r_WndClass;
+	WNDCLASSW r_WndClass;
 	r_WndClass.cbClsExtra = 0;
 	r_WndClass.cbWndExtra = 0;
 	r_WndClass.hbrBackground = 0; //CreateSolidBrush(RGB(GetColorR(BackColor), GetColorG(BackColor), GetColorB(BackColor)));
@@ -85,20 +75,20 @@ PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Ca
 	r_WndClass.lpszClassName = Name;
 	r_WndClass.lpszMenuName = MenuName;
 	r_WndClass.style = CS_HREDRAW | CS_VREDRAW; //CS_DBLCLKS
-	RegisterClass(&r_WndClass);
+	RegisterClassW(&r_WndClass);
 
 	m_Rect = { X, Y, X + Width, Y + Height };
 	AdjustWindowRect(&m_Rect, (DWORD)WindowStyle, false);
 
-	if ((m_hWnd = CreateWindow(Name, Caption, (DWORD)WindowStyle, m_Rect.left, m_Rect.top,
+	if ((m_hWnd = CreateWindowW(Name, Caption, (DWORD)WindowStyle, m_Rect.left, m_Rect.top,
 		m_Rect.right - m_Rect.left, m_Rect.bottom - m_Rect.top, hWndParent, (HMENU)nullptr, m_hInstance, nullptr)) == nullptr)
 	{
-		throw EError::NULLPTR_HWND;
+		THROW_CREATION_FAILED;
 	}
 
 	ShowWindow(m_hWnd, SW_SHOW);
 
-	UnregisterClass(Name, m_hInstance);
+	UnregisterClassW(Name, m_hInstance);
 	
 	return m_hWnd;
 }
@@ -113,9 +103,9 @@ PRIVATE void JWWindow::SetWindowData(int Width, int Height) noexcept
 
 PRIVATE void JWWindow::InitializeDirectX()
 {
-	if (nullptr == (m_pD3D = Direct3DCreate9(D3D_SDK_VERSION)))
+	if ((m_pD3D = Direct3DCreate9(D3D_SDK_VERSION)) == nullptr)
 	{
-		throw EError::DIRECT3D_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 
 	SetDirect3DParameters();
@@ -123,7 +113,7 @@ PRIVATE void JWWindow::InitializeDirectX()
 	if (FAILED(m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd,
 		D3DCREATE_HARDWARE_VERTEXPROCESSING, &m_D3DPP, &m_pDevice)))
 	{
-		throw EError::DEVICE_NOT_CREATED;
+		THROW_CREATION_FAILED;
 	}
 }
 
@@ -199,7 +189,11 @@ void JWWindow::EndRender() noexcept
 
 	if (FAILED(m_pDevice->Present(&m_RenderRect, &m_RenderRect, nullptr, nullptr)))
 	{
-		m_pDevice->Reset(&m_D3DPP);
+		HRESULT hr = 0;
+		do
+		{
+			hr = m_pDevice->Reset(&m_D3DPP);
+		} while (FAILED(hr));
 	}
 
 }
@@ -338,7 +332,7 @@ auto JWWindow::OpenFileDlg(LPCWSTR Filter) noexcept->BOOL
 
 	m_OFN.lpstrFilter = Filter;
 
-	return GetOpenFileName(&m_OFN);
+	return GetOpenFileNameW(&m_OFN);
 }
 
 auto JWWindow::SaveFileDlg(LPCWSTR Filter) noexcept->BOOL
@@ -347,7 +341,7 @@ auto JWWindow::SaveFileDlg(LPCWSTR Filter) noexcept->BOOL
 
 	m_OFN.lpstrFilter = Filter;
 
-	return GetSaveFileName(&m_OFN);
+	return GetSaveFileNameW(&m_OFN);
 }
 
 auto JWWindow::GetDlgFileName() const noexcept->const WSTRING

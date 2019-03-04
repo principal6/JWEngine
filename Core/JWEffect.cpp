@@ -14,21 +14,11 @@ JWEffect::JWEffect()
 	m_pLastInstance = nullptr;
 }	
 
-auto JWEffect::Create(const JWWindow* pJWWindow, const WSTRING* pBaseDir, const JWMap* pMap)->JWEffect*
+auto JWEffect::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)->JWEffect*
 {
-	if (pJWWindow == nullptr)
-	{
-		throw EError::NULLPTR_WINDOW;
-	}
+	JWImage::Create(Window, BaseDir);
 
-	if (pMap == nullptr)
-	{
-		throw EError::NULLPTR_MAP;
-	}
-
-	JWImage::Create(pJWWindow, pBaseDir);
-
-	m_pMap = pMap;
+	m_pMap = &Map;
 
 	JWImage::ClearVertexAndIndex();
 

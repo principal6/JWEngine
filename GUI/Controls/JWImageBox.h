@@ -20,7 +20,7 @@ namespace JWENGINE
 		JWImageBox();
 		~JWImageBox() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl* override;
+		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
 		void Destroy() noexcept override;
 
 		void Draw() noexcept override;
@@ -32,11 +32,9 @@ namespace JWENGINE
 		auto SetBackgroundColor(DWORD Color) noexcept->JWControl* override;
 
 	private:
-		DWORD m_ColorBackground;
+		JWImage* m_pBackground = nullptr;
+		JWImage* m_pImage = nullptr;
 
-		JWImage* m_pBackground;
-		JWImage* m_pImage;
-
-		D3DXVECTOR2 m_OffsetInAtlas;
+		D3DXVECTOR2 m_OffsetInAtlas{ 0, 0 };
 	};
 };

@@ -17,52 +17,28 @@ JWListBox::JWListBox()
 {
 	// A listbox must have border.
 	m_bShouldDrawBorder = true;
-
-	m_bHasScrollBar = false;
-	m_bShouldUseAutomaticScrollBar = true;
-	m_bShouleUseToggleSelection = true;
-	m_bUseImageItems = false;
-
-	m_SelectedItemIndex = TIndex_NotSpecified;
-
-	m_pTextureForImageItem = nullptr;
-
-	m_MinimumItemHeight = DEFAULT_ITEM_HEIGHT;
 }
 
-auto JWListBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
+auto JWListBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
 {
-	JWControl::Create(Position, Size, pSharedData);
+	JWControl::Create(Position, Size, SharedData);
 
 	// Set control type
 	m_ControlType = EControlType::ListBox;
 
 	// Create image for background
-	if (m_pBackground = new JWImage)
-	{
-		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
-		m_pBackground->SetPosition(Position);
-		m_pBackground->SetSize(Size);
-		m_pBackground->SetAlpha(DEFUALT_ALPHA_BACKGROUND_LISTBOX);
-		m_pBackground->SetXRGB(DEFAULT_COLOR_BACKGROUND_LISTBOX);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pBackground = new JWImage;
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pBackground->SetPosition(Position);
+	m_pBackground->SetSize(Size);
+	m_pBackground->SetAlpha(DEFUALT_ALPHA_BACKGROUND_LISTBOX);
+	m_pBackground->SetXRGB(DEFAULT_COLOR_BACKGROUND_LISTBOX);
 
 	// Create ScrollBar
-	if (m_pScrollBar = new JWScrollBar)
-	{
-		m_pScrollBar->ShouldBeOffsetByMenuBar(false);
-
-		m_pScrollBar->Create(Position, Size, m_pSharedData);
-		m_pScrollBar->MakeScrollBar(EScrollBarDirection::Vertical);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pScrollBar = new JWScrollBar;
+	m_pScrollBar->ShouldBeOffsetByMenuBar(false);
+	m_pScrollBar->Create(Position, Size, *m_pSharedData);
+	m_pScrollBar->MakeScrollBar(EScrollBarDirection::Vertical);
 
 	// Set control's position and size.
 	SetPosition(Position);
@@ -142,10 +118,6 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 	if (m_bUseImageItems)
 	{
 		JWImageBox* new_image_item = new JWImageBox;
-		if (!new_image_item)
-		{
-			throw EError::ALLOCATION_FAILURE;
-		}
 
 		// Calculate image item's size.
 		D3DXVECTOR2 image_item_size = item_size;
@@ -157,7 +129,7 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 		}
 
 		new_image_item->ShouldBeOffsetByMenuBar(false);
-		new_image_item->Create(item_position, image_item_size, m_pSharedData);
+		new_image_item->Create(item_position, image_item_size, *m_pSharedData);
 		new_image_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));
 		new_image_item->SetTextureAtlas(m_pTextureForImageItem, m_pTextureForImageItemInfo);
 		new_image_item->SetAtlasUV(OffsetInAtlas, SizeInAtlas);
@@ -171,13 +143,8 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 	** Add item's background (always)
 	*/
 	JWImageBox* new_item_background = new JWImageBox;
-	if (!new_item_background)
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
-
 	new_item_background->ShouldBeOffsetByMenuBar(false);
-	new_item_background->Create(item_position, item_size, m_pSharedData);
+	new_item_background->Create(item_position, item_size, *m_pSharedData);
 	new_item_background->ShouldUseViewport(false);
 	if (m_bShouleUseToggleSelection)
 	{
@@ -198,10 +165,6 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 	** Add text item (always).
 	*/
 	JWLabel* new_text_item = new JWLabel;
-	if (!new_text_item)
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
 
 	// Insert space at the head of the text
 	// in order to enhance legibility.
@@ -213,7 +176,7 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 	// Calculate text item's size.
 	D3DXVECTOR2 text_item_size = D3DXVECTOR2(item_size.x - SizeInAtlas.x, item_size.y);
 	new_text_item->ShouldBeOffsetByMenuBar(false);
-	new_text_item->Create(text_item_position, text_item_size, m_pSharedData);
+	new_text_item->Create(text_item_position, text_item_size, *m_pSharedData);
 	new_text_item->SetText(adjusted_text);
 	new_text_item->SetTextVerticalAlignment(EVerticalAlignment::Middle);
 	new_text_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));

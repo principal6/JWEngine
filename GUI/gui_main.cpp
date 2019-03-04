@@ -26,16 +26,15 @@ int main()
 
 	try
 	{
-		SWindowCreationData myWindowData = SWindowCreationData(L"JWGUI Test Window", 0, 100, 800, 600, DEFAULT_COLOR_LESS_BLACK,
-			EWindowStyle::OverlappedWindow);
+		SWindowCreationData myWindowData = SWindowCreationData(L"JWGUI Test", 0, 100, 800, 600, DEFAULT_COLOR_LESS_BLACK, EWindowStyle::OverlappedWindow);
 		myGUI.Create(myWindowData, pMainGUIWindow);
 
 		pMainGUIWindow->AddControl(EControlType::MenuBar, D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), L"menubar");
-		THandleItem mb_file = pMainGUIWindow->GetControlPtr(L"menubar")->AddMenuBarItem(L"파일");
-		mb_file_new = pMainGUIWindow->GetControlPtr(L"menubar")->AddMenuBarSubItem(mb_file, L"새로 만들기");
-		mb_file_open = pMainGUIWindow->GetControlPtr(L"menubar")->AddMenuBarSubItem(mb_file, L"열기");
-		THandleItem mb_help = pMainGUIWindow->GetControlPtr(L"menubar")->AddMenuBarItem(L"도움말");
-		mb_help_info = pMainGUIWindow->GetControlPtr(L"menubar")->AddMenuBarSubItem(mb_help, L"정보");
+		THandleItem mb_file = pMainGUIWindow->GetControl(L"menubar").AddMenuBarItem(L"파일");
+		mb_file_new = pMainGUIWindow->GetControl(L"menubar").AddMenuBarSubItem(mb_file, L"새로 만들기");
+		mb_file_open = pMainGUIWindow->GetControl(L"menubar").AddMenuBarSubItem(mb_file, L"열기");
+		THandleItem mb_help = pMainGUIWindow->GetControl(L"menubar").AddMenuBarItem(L"도움말");
+		mb_help_info = pMainGUIWindow->GetControl(L"menubar").AddMenuBarSubItem(mb_help, L"정보");
 
 		pMainGUIWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"textbutton1")
 			->SetText(L"Normal button");
@@ -45,8 +44,8 @@ int main()
 			->ShouldUseToggleSelection(true);
 
 		pMainGUIWindow->AddControl(EControlType::Frame, D3DXVECTOR2(0, 0), D3DXVECTOR2(300, 200), L"frame1")
-			->AddChildControl(pMainGUIWindow->GetControlPtr(L"textbutton1"))
-			->AddChildControl(pMainGUIWindow->GetControlPtr(L"textbutton2"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"textbutton1"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"textbutton2"))
 			->SetPosition(D3DXVECTOR2(240, 40))
 			->SetSize(D3DXVECTOR2(70, 200));
 
@@ -64,7 +63,7 @@ int main()
 			->SetText(L"레이블입니다!")
 			->SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle)
 			->SetBackgroundColor(D3DCOLOR_ARGB(100, 0, 255, 255))
-			->AttachScrollBar(pMainGUIWindow->GetControlPtr(L"scrollbar2"));
+			->AttachScrollBar(pMainGUIWindow->GetControl(L"scrollbar2"));
 
 		pMainGUIWindow->AddControl(EControlType::ImageButton, D3DXVECTOR2(120, 0), D3DXVECTOR2(100, 50))
 			->MakeSystemArrowButton(ESystemArrowDirection::Left);
@@ -91,26 +90,27 @@ int main()
 			->AddListBoxItem(L"6. Привет")
 			->AddListBoxItem(L"7. ...");
 
-		pMainGUIWindow->AddControl(EControlType::ImageBox, D3DXVECTOR2(600, 100), D3DXVECTOR2(140, 90), L"")
+		pMainGUIWindow->AddControl(EControlType::ImageBox, D3DXVECTOR2(600, 100), D3DXVECTOR2(140, 90))
 			->SetTextureAtlas(test_texture, &test_texture_info)
 			->SetAtlasUV(D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32))
 			->SetSize(D3DXVECTOR2(100, 20));
 
-		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 140), D3DXVECTOR2(280, 200), L"")
+		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 140), D3DXVECTOR2(280, 200))
 			->ShouldUseMultiline(true)
 			->SetText(L"This is JWEdit-control.\nTest it!\nThird line it is!\nAnd forth this is.")
 			->SetWatermark(L"Edit 1");
 
-		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 360), D3DXVECTOR2(180, 60), L"")
+		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 360), D3DXVECTOR2(180, 60))
 			->SetWatermark(L"Edit 2");
 
 		myGUI.SetMainLoopFunction(MainLoop);
 
 		myGUI.Run();
 	}
-	catch (const EError& error)
+	catch (const std::exception& e)
 	{
-		std::cout << "[ERROR] ERROR CODE (" << static_cast<int>(error) << ")" << std::endl;
+		std::cout << e.what() << std::endl;
+		
 		abort();
 	}
 	
@@ -121,7 +121,7 @@ void MainLoop()
 {
 	THandleItem clicked_subitem = THandleItem_Null;
 
-	if ((clicked_subitem = pMainGUIWindow->GetControlPtr(L"menubar")->OnSubItemClick()) != THandleItem_Null)
+	if ((clicked_subitem = pMainGUIWindow->GetControl(L"menubar").OnSubItemClick()) != THandleItem_Null)
 	{
 		if ((clicked_subitem == mb_file_new) && (!pDialogueNewMap))
 		{
@@ -133,16 +133,16 @@ void MainLoop()
 		}
 		else if (clicked_subitem == mb_help_info)
 		{
-			MessageBox(nullptr, L"만든이: 김장원 (헤수스 김)", L"JW 엔진", MB_OK);
+			MessageBoxA(nullptr, "만든이: 김장원 (헤수스 김)", "JW 엔진", MB_OK);
 		}
 	}
 
 	if (pDialogueNewMap)
 	{
-		if (pDialogueNewMap->GetControlPtr(L"btn_close")->OnMouseCliked())
+		if (pDialogueNewMap->GetControl(L"btn_close").OnMouseCliked())
 		{
 			WSTRING text;
-			pDialogueNewMap->GetControlPtr(L"edit_name")->GetText(text);
+			pDialogueNewMap->GetControl(L"edit_name").GetText(text);
 			std::wcout << text.c_str() << std::endl;
 			
 			myGUI.DestroyGUIWindow(pDialogueNewMap);

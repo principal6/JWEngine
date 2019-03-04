@@ -8,42 +8,22 @@ JWCheckBox::JWCheckBox()
 {
 	// A checkbox has always its border.
 	m_bShouldDrawBorder = true;
-
-	m_pBackground = nullptr;
-	m_pCheckImage = nullptr;
-
-	m_ButtonImageOffset = D3DXVECTOR2(0, 0);
-	m_OffsetInAtlas = D3DXVECTOR2(0, 0);
-
-	m_bChecked = false;
 }
 
-auto JWCheckBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
+auto JWCheckBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
 {
-	JWControl::Create(Position, Size, pSharedData);
+	JWControl::Create(Position, Size, SharedData);
 
-	if (m_pBackground = new JWImage)
-	{
-		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
-		m_pBackground->SetColor(DEFAULT_COLOR_ALMOST_WHITE);
-		m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pBackground = new JWImage;
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pBackground->SetColor(DEFAULT_COLOR_ALMOST_WHITE);
+	m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 
-	if (m_pCheckImage = new JWImage)
-	{
-		m_pCheckImage->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
-		m_pCheckImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
-		m_pCheckImage->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
-		m_pCheckImage->SetAtlasUV(D3DXVECTOR2(0, GUI_BUTTON_SIZE.y * 2), GUI_BUTTON_SIZE);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pCheckImage = new JWImage;
+	m_pCheckImage->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pCheckImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
+	m_pCheckImage->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
+	m_pCheckImage->SetAtlasUV(D3DXVECTOR2(0, GUI_BUTTON_SIZE.y * 2), GUI_BUTTON_SIZE);
 
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);

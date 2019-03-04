@@ -8,28 +8,18 @@ JWTextButton::JWTextButton()
 {
 	// A text button would normally have its border.
 	m_bShouldDrawBorder = true;
-
-	m_pBackground = nullptr;
-
-	m_bShouleUseToggleSelection = false;
 }
 
-auto JWTextButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData* pSharedData)->JWControl*
+auto JWTextButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
 {
-	JWControl::Create(Position, Size, pSharedData);
+	JWControl::Create(Position, Size, SharedData);
 	
-	if (m_pBackground = new JWImage)
-	{
-		m_pBackground->Create(m_pSharedData->pWindow, &m_pSharedData->BaseDir);
-		m_pBackground->SetPosition(m_Position);
-		m_pBackground->SetSize(m_Size);
-		m_pBackground->SetXRGB(m_Color_Normal);
-		m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
-	}
-	else
-	{
-		throw EError::ALLOCATION_FAILURE;
-	}
+	m_pBackground = new JWImage;
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pBackground->SetPosition(m_Position);
+	m_pBackground->SetSize(m_Size);
+	m_pBackground->SetXRGB(m_Color_Normal);
+	m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
