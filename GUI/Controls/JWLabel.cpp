@@ -3,41 +3,29 @@
 
 using namespace JWENGINE;
 
-JWLabel::JWLabel()
-{
-	// Set default color for every control state.
-	m_Color_Normal = DEFAULT_COLOR_BACKGROUND_LABEL;
-	m_Color_Hover = DEFAULT_COLOR_BACKGROUND_LABEL;
-	m_Color_Pressed = DEFAULT_COLOR_BACKGROUND_LABEL;
-}
-
-auto JWLabel::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
+void JWLabel::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
 	JWControl::Create(Position, Size, SharedData);
-
-	// Create image for background
-	m_pBackground = new JWImage;
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pBackground->SetPosition(Position);
-	m_pBackground->SetSize(Size);
-	m_pBackground->SetAlpha(DEFUALT_ALPHA_BACKGROUND_LABEL);
-	m_pBackground->SetXRGB(DEFAULT_COLOR_BACKGROUND_LABEL);
 
 	// Set control type
 	m_ControlType = EControlType::Label;
 
+	// Set default color for every control state.
+	m_Color_Normal = DEFAULT_COLOR_BACKGROUND_LABEL;
+	m_Color_Hover = DEFAULT_COLOR_BACKGROUND_LABEL;
+	m_Color_Pressed = DEFAULT_COLOR_BACKGROUND_LABEL;
+
+	// Create image for background
+	m_pBackground = MAKE_UNIQUE(JWImage)();
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pBackground->SetPosition(m_Position);
+	m_pBackground->SetSize(m_Size);
+	m_pBackground->SetAlpha(DEFUALT_ALPHA_BACKGROUND_LABEL);
+	m_pBackground->SetXRGB(DEFAULT_COLOR_BACKGROUND_LABEL);
+
 	// Set control's position and size.
 	SetPosition(Position);
 	SetSize(Size);
-
-	return this;
-}
-
-void JWLabel::Destroy() noexcept
-{
-	JWControl::Destroy();
-
-	JW_DESTROY(m_pBackground);
 }
 
 void JWLabel::Draw() noexcept

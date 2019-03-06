@@ -8,70 +8,42 @@
 using namespace JWENGINE;
 
 // Static const
-const D3DXVECTOR2& JWMenuBar::BLANK_SUBITEMBOX_SIZE = D3DXVECTOR2(100.0f, 60.0f);
+const D3DXVECTOR2& JWMenuBar::BLANK_SUBITEMBOX_SIZE{ 100.0f, 60.0f };
 
-JWMenuBar::JWMenuBar()
+void JWMenuBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
+	JWControl::Create(Position, Size, SharedData);
+
+	// Set control type
+	m_ControlType = EControlType::MenuBar;
+
 	// A menubar must not have border.
 	m_bShouldDrawBorder = false;
 
 	// A menubar must not be offset by menubar.
 	m_bShouldBeOffsetByMenuBar = false;
-}
-
-auto JWMenuBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
-{
-	JWControl::Create(Position, Size, SharedData);
 
 	// MenuBar's position must be fixed!
-	m_Position.x = 0;
-	m_Position.y = 0;
+	m_Position = { 0, 0 };
 
 	// MenuBar's size must be fixed!
 	m_Size.x = static_cast<float>(m_pSharedData->pWindow->GetWindowData()->ScreenSize.x);
 	m_Size.y = static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
 
-	// Set control type
-	m_ControlType = EControlType::MenuBar;
-
 	// Create ImageBox for the non-button region.
-	m_pNonButtonRegion = new JWImageBox;
-	m_pNonButtonRegion->ShouldBeOffsetByMenuBar(false);
+	m_pNonButtonRegion = MAKE_UNIQUE(JWImageBox)();
 	m_pNonButtonRegion->Create(Position, Size, SharedData);
+	m_pNonButtonRegion->ShouldBeOffsetByMenuBar(false);
 	m_pNonButtonRegion->SetBackgroundColor(DEFAULT_COLOR_BACKGROUND_MENUBAR);
 
 	// Set control's position and size.
 	// @warning: We must use m_Position and m_Size, and not Position nor Size.
 	SetPosition(m_Position);
 	SetSize(m_Size);
-
-	return this;
-}
-
-void JWMenuBar::Destroy() noexcept
-{
-	JWControl::Destroy();
-
-	if (m_pItems.size())
-	{
-		for (size_t iterator = 0; iterator < m_pItems.size(); iterator++)
-		{
-			JW_DESTROY(m_pItems[iterator]);
-			JW_DESTROY(m_pSubItemBoxes[iterator]);
-		}
-
-		m_pItems.clear();
-		m_pSubItemBoxes.clear();
-	}
-
-	JW_DESTROY(m_pNonButtonRegion);
 }
 
 auto JWMenuBar::AddMenuBarItem(const WSTRING& Text)->THandleItem
 {
-	// Create item.
-	MenuItem* new_item = new MenuItem;
-
 	// Calculate item's position.
 	D3DXVECTOR2 item_position = m_Position;
 	if (m_pItems.size())
@@ -84,33 +56,37 @@ auto JWMenuBar::AddMenuBarItem(const WSTRING& Text)->THandleItem
 	D3DXVECTOR2 item_size = m_Size;
 	item_size.x = static_cast<float>(m_pSharedData->pText->GetFontData()->Info.Size * Text.length())
 		+ static_cast<float>(DEFAULT_MENUBAR_ITEM_PADDING * 2);
-	
-	new_item->ShouldBeOffsetByMenuBar(false);
-	new_item->Create(item_position, item_size, *m_pSharedData);
-	new_item->SetText(Text);
-	new_item->SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
-	new_item->ShouldDrawBorder(false);
-	new_item->ShouldUseToggleSelection(true);
-	new_item->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_BACKGROUND_MENUBAR);
-	new_item->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_HOVER);
-	new_item->SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_ALMOST_BLACK);
 
-	m_pItems.push_back(new_item);
+	// Create item.
+	m_pItems.push_back(MAKE_UNIQUE_AND_MOVE(MenuItem)());
+	auto* p_new_item = m_pItems[m_pItems.size() - 1].get();
 
-	// Create sub-item box.
-	MenuSubItemBox* new_subitem_box = new MenuSubItemBox;
+	p_new_item->Create(item_position, item_size, *m_pSharedData);
+	p_new_item->ShouldBeOffsetByMenuBar(false);
+	p_new_item->ShouldDrawBorder(false);
+	p_new_item->ShouldUseToggleSelection(true);
+	p_new_item->SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+	p_new_item->SetText(Text);
+	p_new_item->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_BACKGROUND_MENUBAR);
+	p_new_item->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_HOVER);
+	p_new_item->SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_ALMOST_BLACK);
+
 
 	// Calculate sub-item box's position.
 	D3DXVECTOR2 subitembox_position = item_position;
 	subitembox_position.y += static_cast<float>(DEFAULT_MENUBAR_HEIGHT);
-	new_subitem_box->ShouldBeOffsetByMenuBar(false);
-	new_subitem_box->Create(subitembox_position, BLANK_SUBITEMBOX_SIZE, *m_pSharedData);
-	new_subitem_box->SetBackgroundColor(DEFAULT_COLOR_LESS_BLACK);
-	new_subitem_box->ShouldUseAutomaticScrollBar(false);
-	new_subitem_box->ShouldUseToggleSelection(false);
-	new_subitem_box->ShouldDrawBorder(false);
 
-	m_pSubItemBoxes.push_back(new_subitem_box);
+	// Create sub-item box.
+	m_pSubItemBoxes.push_back(MAKE_UNIQUE_AND_MOVE(MenuSubItemBox)());
+	auto* p_new_subitem_box = m_pSubItemBoxes[m_pSubItemBoxes.size() - 1].get();
+
+	p_new_subitem_box->Create(subitembox_position, BLANK_SUBITEMBOX_SIZE, *m_pSharedData);
+	p_new_subitem_box->ShouldBeOffsetByMenuBar(false);
+	p_new_subitem_box->ShouldUseAutomaticScrollBar(false);
+	p_new_subitem_box->ShouldUseToggleSelection(false);
+	p_new_subitem_box->ShouldDrawBorder(false);
+	p_new_subitem_box->SetBackgroundColor(DEFAULT_COLOR_LESS_BLACK);
+
 
 	// Calculate background's position.
 	D3DXVECTOR2 background_position = item_position + item_size;
@@ -188,7 +164,7 @@ PROTECTED void JWMenuBar::UpdateControlState(JWControl** ppControlWithMouse, JWC
 		}
 		else
 		{
-			if (m_pItems[iterator] == m_pSelectedItem)
+			if (m_pItems[iterator].get() == m_pSelectedItem)
 			{
 				UnselectMenuBarItem();
 			}
@@ -260,14 +236,14 @@ PRIVATE void JWMenuBar::SelectMenuBarItem(TIndex ItemIndex) noexcept
 		// there is a previously selected item,
 		// unselect it.
 
-		if (m_pSelectedItem != m_pItems[ItemIndex])
+		if (m_pSelectedItem != m_pItems[ItemIndex].get())
 		{
 			m_pSelectedItem->SetControlState(EControlState::Normal);
 		}
 	}
 
-	m_pSelectedItem = m_pItems[ItemIndex];
-	m_pSelectedSubItemBox = m_pSubItemBoxes[ItemIndex];
+	m_pSelectedItem = m_pItems[ItemIndex].get();
+	m_pSelectedSubItemBox = m_pSubItemBoxes[ItemIndex].get();
 
 	m_SelectedItemIndex = ItemIndex;
 
@@ -286,5 +262,5 @@ PRIVATE void JWMenuBar::UnselectMenuBarItem() noexcept
 	m_pSelectedItem = nullptr;
 	m_pSelectedSubItemBox = nullptr;
 
-	m_SelectedItemIndex = TIndex_NotSpecified;
+	m_SelectedItemIndex = TIndex_Invalid;
 }

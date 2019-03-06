@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../CoreType/TDynamicArray.h"
 #include "../CoreBase/JWImage.h"
 #include "../CoreBase/JWLine.h"
 #include "../CoreBase/JWWindow.h"
@@ -37,8 +36,11 @@ namespace JWENGINE
 		// Add a control instance to this JWGUIWindow.
 		auto AddControl(EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName = L"")->JWControl*;
 
-		// Get the pointer of the control instance that this JWGUIWindow has.
+		// Get the reference of the control instance that this JWGUIWindow has.
 		auto GetControl(const WSTRING& ControlName)->JWControl&;
+
+		// Get the pointer of the control instance that this JWGUIWindow has.
+		auto GetControlPointer(const WSTRING& ControlName)->JWControl*;
 
 		auto GetSharedDataPtr() const noexcept->const SGUIWindowSharedData*;
 
@@ -85,10 +87,11 @@ namespace JWENGINE
 		JWControl* m_pMenuBar = nullptr;
 		bool m_bHasMenuBar = false;
 
-		std::map<WSTRING, size_t> m_ControlsMap;
-		TDynamicArray<JWControl*> m_pControls;
 		JWControl* m_pControlWithFocus = nullptr;
 
+		std::map<WSTRING, size_t> m_ControlsMap;
+		VECTOR<UNIQUE_PTR<JWControl>> m_pControls;
+		
 		bool m_bDestroyed = false;
 	};
 };

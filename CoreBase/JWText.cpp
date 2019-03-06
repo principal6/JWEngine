@@ -824,7 +824,6 @@ PRIVATE void JWText::SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* p
 	pCurrInfo->height = static_cast<float>(ms_FontData.Chars[pCurrInfo->chars_id].Height);
 
 	pCurrInfo->line_index = pPrevInfo->line_index;
-	pCurrInfo->top = pPrevInfo->top;
 	pCurrInfo->glyph_index_in_line = pPrevInfo->glyph_index_in_line + 1;
 
 	if (pCurrInfo->glyph_index_in_line)
@@ -839,8 +838,9 @@ PRIVATE void JWText::SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* p
 		pCurrInfo->line_index++;
 
 		pCurrInfo->glyph_index_in_line = 0;
+
 		pCurrInfo->left = m_ConstraintPosition.x;
-		pCurrInfo->top += GetLineHeight();
+		pCurrInfo->top = pPrevInfo->top + GetLineHeight();
 	}
 
 	// Check automatic line break.
@@ -851,8 +851,9 @@ PRIVATE void JWText::SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* p
 			pCurrInfo->line_index++;
 
 			pCurrInfo->glyph_index_in_line = 0;
+
 			pCurrInfo->left = m_ConstraintPosition.x;
-			pCurrInfo->top += GetLineHeight();
+			pCurrInfo->top = pPrevInfo->top + GetLineHeight();
 		}
 	}
 

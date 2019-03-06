@@ -43,18 +43,12 @@ int main()
 			->SetText(L"Toggle button")
 			->ShouldUseToggleSelection(true);
 
-		pMainGUIWindow->AddControl(EControlType::Frame, D3DXVECTOR2(0, 0), D3DXVECTOR2(300, 200), L"frame1")
-			->AddChildControl(pMainGUIWindow->GetControl(L"textbutton1"))
-			->AddChildControl(pMainGUIWindow->GetControl(L"textbutton2"))
-			->SetPosition(D3DXVECTOR2(240, 40))
-			->SetSize(D3DXVECTOR2(70, 200));
-
-		pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(340, 0), D3DXVECTOR2(160, 0), L"scrollbar1")
+		pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(240, 0), D3DXVECTOR2(160, 0), L"scrollbar1")
 			->MakeScrollBar(EScrollBarDirection::Horizontal)
 			->SetScrollRange(2, 5)
 			->SetScrollPosition(0);
 
-		pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(320, 100), D3DXVECTOR2(0, 200), L"scrollbar2")
+		pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(320, 200), D3DXVECTOR2(0, 240), L"scrollbar2")
 			->MakeScrollBar(EScrollBarDirection::Vertical)
 			->SetScrollRange(10, 30)
 			->SetScrollPosition(0);
@@ -65,14 +59,35 @@ int main()
 			->SetBackgroundColor(D3DCOLOR_ARGB(100, 0, 255, 255))
 			->AttachScrollBar(pMainGUIWindow->GetControl(L"scrollbar2"));
 
-		pMainGUIWindow->AddControl(EControlType::ImageButton, D3DXVECTOR2(120, 0), D3DXVECTOR2(100, 50))
+		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 200), D3DXVECTOR2(240, 200), L"edit1")
+			->ShouldUseMultiline(true)
+			->SetText(L"This is JWEdit-control.\nTest it!\nThird line it is!\nAnd forth this is.")
+			->SetWatermark(L"Edit 1");
+
+		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 400), D3DXVECTOR2(180, 60), L"edit2")
+			->SetWatermark(L"Edit 2");
+
+		pMainGUIWindow->AddControl(EControlType::Frame, D3DXVECTOR2(50, 0), D3DXVECTOR2(360, 500), L"frame1")
+			->AddChildControl(pMainGUIWindow->GetControl(L"textbutton1"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"textbutton2"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"scrollbar1"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"scrollbar2"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"label1"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"edit1"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"edit2"))
+			->SetBackgroundColor(D3DCOLOR_ARGB(255, 60, 180, 60))
+			->SetBorderColor(D3DCOLOR_ARGB(255, 0, 0, 0));
+
+		pMainGUIWindow->GetControlPointer(L"edit1")->SetPosition(D3DXVECTOR2(50, 50));
+
+		pMainGUIWindow->AddControl(EControlType::ImageButton, D3DXVECTOR2(420, 0), D3DXVECTOR2(20, 20))
 			->MakeSystemArrowButton(ESystemArrowDirection::Left);
 
-		pMainGUIWindow->AddControl(EControlType::CheckBox, D3DXVECTOR2(250, 0), D3DXVECTOR2(50, 50));
+		pMainGUIWindow->AddControl(EControlType::CheckBox, D3DXVECTOR2(420, 30), D3DXVECTOR2(30, 30));
 
-		pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 0), D3DXVECTOR2(0, 0));
+		pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(420, 70), D3DXVECTOR2(0, 0));
 
-		pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(320, 20), D3DXVECTOR2(0, 0));
+		pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(420, 90), D3DXVECTOR2(0, 0));
 
 		LPDIRECT3DTEXTURE9 test_texture;
 		D3DXIMAGE_INFO test_texture_info;
@@ -94,15 +109,7 @@ int main()
 			->SetTextureAtlas(test_texture, &test_texture_info)
 			->SetAtlasUV(D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32))
 			->SetSize(D3DXVECTOR2(100, 20));
-
-		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 140), D3DXVECTOR2(280, 200))
-			->ShouldUseMultiline(true)
-			->SetText(L"This is JWEdit-control.\nTest it!\nThird line it is!\nAnd forth this is.")
-			->SetWatermark(L"Edit 1");
-
-		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 360), D3DXVECTOR2(180, 60))
-			->SetWatermark(L"Edit 2");
-
+		
 		myGUI.SetMainLoopFunction(MainLoop);
 
 		myGUI.Run();

@@ -6,8 +6,18 @@
 
 using namespace JWENGINE;
 
-JWEdit::JWEdit()
+JWEdit::~JWEdit()
 {
+	m_pEditText->Destroy();
+}
+
+void JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
+{
+	JWControl::Create(Position, Size, SharedData);
+
+	// Set control type.
+	m_ControlType = EControlType::Edit;
+
 	// An edit has normally its border.
 	m_bShouldDrawBorder = true;
 
@@ -15,39 +25,21 @@ JWEdit::JWEdit()
 	m_Color_Normal = DEFAULT_COLOR_BACKGROUND_EDIT;
 	m_Color_Hover = DEFAULT_COLOR_BACKGROUND_EDIT;
 	m_Color_Pressed = DEFAULT_COLOR_BACKGROUND_EDIT;
-}
-
-auto JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
-{
-	JWControl::Create(Position, Size, SharedData);
 
 	// Create a JWImageBox for background.
-	m_pBackground = new JWImageBox;
+	m_pBackground = MAKE_UNIQUE(JWImageBox)();
+	m_pBackground->Create(m_Position, m_Size, SharedData);
 	m_pBackground->ShouldBeOffsetByMenuBar(false);
-	m_pBackground->Create(Position, Size, SharedData);
+	m_pBackground->SetParentControl(this);
 
 	// Create non-instant JWText for JWEdit control.
-	m_pEditText = new JWText;
+	m_pEditText = MAKE_UNIQUE(JWText)();
 	m_pEditText->CreateNonInstantText(*m_pSharedData->pWindow, m_pSharedData->BaseDir, m_pSharedData->pText->GetFontTexturePtr());
-
-	// Set control type.
-	m_ControlType = EControlType::Edit;
+	m_pEditText->SetNonInstantText(L"", m_PaddedPosition, m_PaddedSize);
 
 	// Set control's position and size.
 	SetPosition(Position);
 	SetSize(Size);
-
-	m_pEditText->SetNonInstantText(L"", m_PaddedPosition, m_PaddedSize);
-
-	return this;
-}
-
-void JWEdit::Destroy() noexcept
-{
-	JWControl::Destroy();
-
-	JW_DESTROY(m_pEditText);
-	JW_DESTROY(m_pBackground);
 }
 
 void JWEdit::Draw() noexcept
@@ -128,6 +120,8 @@ auto JWEdit::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 
 	UpdatePaddedViewport();
 
+	SetText(m_Text);
+
 	return this;
 }
 
@@ -143,6 +137,8 @@ auto JWEdit::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 	m_pBackground->SetSize(m_Size);
 
 	UpdatePaddedViewport();
+
+	SetText(m_Text);
 
 	return this;
 }
@@ -230,11 +226,22 @@ auto JWEdit::ShouldUseNumberInputsOnly(bool Value) noexcept->JWControl*
 	return this;
 }
 
+PROTECTED void JWEdit::UpdateViewport() noexcept
+{
+	JWControl::UpdateViewport();
+
+	UpdatePaddedViewport();
+
+	m_pBackground->UpdateViewport();
+}
+
 PROTECTED void JWEdit::WindowMouseDown() noexcept
 {
 	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 	
-	if (Static_IsMouseInRECT(p_input_state->MouseDownPosition, m_ControlRect))
+	bool b_mouse_in_rect = Static_IsMouseInViewPort(p_input_state->MousePosition, m_ControlViewport);
+
+	if (b_mouse_in_rect)
 	{
 		if (p_input_state->ShiftPressed)
 		{
@@ -446,12 +453,12 @@ PROTECTED void JWEdit::WindowCharKeyInput(WPARAM Char) noexcept
 			{
 				if ((Char >= 48) && (Char <= 57))
 				{
-					InsertCharacter(static_cast<char>(Char));
+					InsertCharacter(static_cast<wchar_t>(Char));
 				}
 			}
 			else
 			{
-				InsertCharacter(static_cast<char>(Char));
+				InsertCharacter(static_cast<wchar_t>(Char));
 			}
 			
 		}
@@ -480,7 +487,7 @@ PROTECTED void JWEdit::WindowIMEInput(const SGUIIMEInputInfo& IMEInfo) noexcept
 
 				m_pEditText->MoveCaretTo(m_IMECapturedCaret);
 
-				InsertCharacter(static_cast<char>(IMEInfo.IMEWritingChar[0]));
+				InsertCharacter(static_cast<wchar_t>(IMEInfo.IMEWritingChar[0]));
 			}
 			else
 			{
@@ -499,7 +506,7 @@ PROTECTED void JWEdit::WindowIMEInput(const SGUIIMEInputInfo& IMEInfo) noexcept
 		{
 			m_pEditText->MoveCaretToLeft();
 
-			InsertCharacter(static_cast<char>(IMEInfo.IMECompletedChar[0]));
+			InsertCharacter(static_cast<wchar_t>(IMEInfo.IMECompletedChar[0]));
 
 			m_bIMEInput = true;
 			m_bIMECaretCaptured = false;
@@ -675,4 +682,6 @@ PRIVATE void JWEdit::UpdatePaddedViewport() noexcept
 	m_PaddedViewport.Y = static_cast<DWORD>(m_PaddedPosition.y);
 	m_PaddedViewport.Width = static_cast<DWORD>(m_PaddedSize.x);
 	m_PaddedViewport.Height = static_cast<DWORD>(m_PaddedSize.y);
+
+	UpdateChildViewport(m_PaddedViewport);
 }

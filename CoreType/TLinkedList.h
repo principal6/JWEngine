@@ -14,17 +14,16 @@ namespace JWENGINE
 	struct SLinkedListNode
 	{
 		// Pointer to the previous node.
-		SLinkedListNode<T>* ptr_prev;
+		SLinkedListNode<T>* ptr_prev{ nullptr };
 
 		// Pointer to the next node.
-		SLinkedListNode<T>* ptr_next;
+		SLinkedListNode<T>* ptr_next{ nullptr };
 
 		// Variable that holds data.
-		T data;
+		T data{};
 
 		// ctor() #1: Default ctor()
-		// which sets ptr_prev and ptr_next to nullptr.
-		SLinkedListNode() : ptr_prev(nullptr), ptr_next(nullptr) {};
+		SLinkedListNode() {};
 
 		// ctor() #2: ctor() that has parameters,
 		// which will set ptr_prev and ptr_next using the parameters' value.
@@ -36,7 +35,7 @@ namespace JWENGINE
 	class TLinkedListIterator
 	{
 	public:
-		TLinkedListIterator() : m_pCurrent(nullptr) {};
+		TLinkedListIterator() {};
 		TLinkedListIterator(SLinkedListNode<T>* Value) : m_pCurrent(Value) {};
 		~TLinkedListIterator() {};
 
@@ -78,7 +77,7 @@ namespace JWENGINE
 		}
 
 	private:
-		SLinkedListNode<T>* m_pCurrent;
+		SLinkedListNode<T>* m_pCurrent{ nullptr };
 	};
 
 	// Our (double) linked list class using template.
@@ -137,7 +136,7 @@ namespace JWENGINE
 		// Insert a node in the linked list at a given index.
 		// If the index value is not specified,
 		// it is automatically set to the last item's index.
-		void insert(T value, size_t index = SIZE_T_MAX)
+		void insert(T& value, size_t index = SIZE_T_MAX)
 		{
 			if (m_pHead)
 			{
@@ -418,9 +417,9 @@ namespace JWENGINE
 
 	private:
 		// Pointer to the head of the linked list.
-		SLinkedListNode<T>* m_pHead;
+		SLinkedListNode<T>* m_pHead{ nullptr };
 
 		// Variable that holds the size of the linked list.
-		size_t m_Size;
+		size_t m_Size{ 0 };
 	};
 };

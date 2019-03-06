@@ -4,20 +4,13 @@
 
 namespace JWENGINE
 {
-	// ***
-	// *** Forward declaration ***
-	class JWImage;
-	// ***
-
 	class JWCheckBox final : public JWControl
 	{
 	public:
-		JWCheckBox();
+		JWCheckBox() {};
 		~JWCheckBox() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
-		void Destroy() noexcept override;
-
+		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 		void Draw() noexcept override;
 
 		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
@@ -27,12 +20,12 @@ namespace JWENGINE
 		auto GetCheckState() const noexcept->bool override;
 
 	private:
-		JWImage* m_pBackground = nullptr;
-		JWImage* m_pCheckImage = nullptr;
+		UNIQUE_PTR<JWImage> m_pBackground{};
+		UNIQUE_PTR<JWImage> m_pCheckImage{};
 
 		D3DXVECTOR2 m_ButtonImageOffset{ 0, 0 };
 		D3DXVECTOR2 m_OffsetInAtlas{ 0, 0 };
 
-		bool m_bChecked = false;
+		bool m_bChecked{ false };
 	};
 };

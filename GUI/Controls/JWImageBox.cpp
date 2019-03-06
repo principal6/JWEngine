@@ -3,46 +3,30 @@
 
 using namespace JWENGINE;
 
-JWImageBox::JWImageBox()
+void JWImageBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
-	// An imagebox normally doesn't have border.
-	m_bShouldDrawBorder = false;
+	JWControl::Create(Position, Size, SharedData);
+
+	// Set control type
+	m_ControlType = EControlType::ImageBox;
 
 	// Set default color for every control state.
 	m_Color_Normal = DEFAULT_COLOR_NORMAL;
 	m_Color_Hover = DEFAULT_COLOR_NORMAL;
 	m_Color_Pressed = DEFAULT_COLOR_NORMAL;
-}
-
-auto JWImageBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
-{
-	JWControl::Create(Position, Size, SharedData);
-	
-	m_pBackground = new JWImage;
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-
-	m_pImage = new JWImage;
-	m_pImage->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
 
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
-	// Set control type
-	m_ControlType = EControlType::ImageBox;
+	m_pBackground = MAKE_UNIQUE(JWImage)();
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+
+	m_pImage = MAKE_UNIQUE(JWImage)();
+	m_pImage->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
 
 	// Set control's position and size.
 	SetPosition(Position);
 	SetSize(Size);
-
-	return this;
-}
-
-void JWImageBox::Destroy() noexcept
-{
-	JWControl::Destroy();
-
-	JW_DESTROY(m_pBackground);
-	JW_DESTROY(m_pImage);
 }
 
 void JWImageBox::Draw() noexcept

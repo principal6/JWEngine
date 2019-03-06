@@ -4,22 +4,16 @@
 
 namespace JWENGINE
 {
-	// ***
-	// *** Forward declaration ***
-	class JWImage;
-	// ***
-
 	class JWTextButton final : public JWControl
 	{
 	friend class JWMenuBar;
 	friend class JWScrollBar;
 
 	public:
-		JWTextButton();
+		JWTextButton() {};
 		~JWTextButton() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
-		void Destroy() noexcept override;
+		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 
 		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
@@ -33,9 +27,9 @@ namespace JWENGINE
 		void KillFocus() noexcept override;
 
 	private:
-		JWImage* m_pBackground = nullptr;
+		UNIQUE_PTR<JWImage> m_pBackground{};
 
-		bool m_bShouleUseToggleSelection = false;
-		bool m_bToggleState = false;
+		bool m_bShouleUseToggleSelection{ false };
+		bool m_bToggleState{ false };
 	};
 };

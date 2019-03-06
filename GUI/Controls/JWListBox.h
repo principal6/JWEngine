@@ -1,25 +1,17 @@
 #pragma once
 
 #include "JWControl.h"
-#include "../../CoreType/TLinkedList.h"
+#include "JWImageBox.h"
+#include "JWLabel.h"
+#include "JWScrollBar.h"
 
 namespace JWENGINE
 {
-	// ***
-	// *** Forward declaration ***
-	class JWLabel;
-	class JWImage;
-	class JWImageBox;
-	class JWScrollBar;
-	// ***
-
 	struct SListBoxItemInfo
 	{
-		D3DXVECTOR2 ItemPosition;
-		D3DXVECTOR2 ItemSize;
-		D3DXVECTOR2 ImageItemSize;
-
-		SListBoxItemInfo() : ItemPosition(0, 0), ItemSize(0, 0), ImageItemSize(0, 0) {};
+		D3DXVECTOR2 ItemPosition{};
+		D3DXVECTOR2 ItemSize{};
+		D3DXVECTOR2 ImageItemSize{};
 	};
 
 	class JWListBox final : public JWControl
@@ -27,11 +19,10 @@ namespace JWENGINE
 	friend class JWMenuBar;
 
 	public:
-		JWListBox();
+		JWListBox() {};
 		~JWListBox() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
-		void Destroy() noexcept override;
+		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 
 		auto SetMinimumItemHeight(float Value) noexcept->JWControl* override;
 		auto SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo) noexcept->JWControl* override;
@@ -58,6 +49,9 @@ namespace JWENGINE
 
 	protected:
 		// Must be overridden.
+		void UpdateViewport() noexcept;
+
+		// Must be overridden.
 		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
 	private:
@@ -67,32 +61,31 @@ namespace JWENGINE
 		void SetNonToggleSelectionColor(JWImageBox* pItemBackground) noexcept;
 
 	private:
-		static const BYTE DEFUALT_ALPHA_BACKGROUND_LISTBOX = 255;
-		static const DWORD DEFAULT_COLOR_BACKGROUND_LISTBOX = DEFAULT_COLOR_NORMAL;
+		static const DWORD DEFAULT_COLOR_BACKGROUND_LISTBOX{ DEFAULT_COLOR_NORMAL };
 		static const float MINIMUM_ITEM_HEIGHT;
 		static const float DEFAULT_ITEM_HEIGHT;
 		static const float DEFAULT_ITEM_PADDING_X;
 		static const float DEFAULT_ITEM_PADDING_Y;
 
-		LPDIRECT3DTEXTURE9 m_pTextureForImageItem = nullptr;
-		const D3DXIMAGE_INFO* m_pTextureForImageItemInfo = nullptr;
+		LPDIRECT3DTEXTURE9 m_pTextureForImageItem{ nullptr };
+		const D3DXIMAGE_INFO* m_pTextureForImageItemInfo{ nullptr };
 
-		TLinkedList<JWImageBox*> m_pItemBackground;
-		TLinkedList<JWLabel*> m_pTextItems;
-		TLinkedList<JWImageBox*> m_pImageItems;
-		TLinkedList<SListBoxItemInfo> m_ItemInfo;
+		VECTOR<UNIQUE_PTR<JWImageBox>> m_pItemBackground;
+		VECTOR<UNIQUE_PTR<JWImageBox>> m_pImageItems;
+		VECTOR<UNIQUE_PTR<JWLabel>> m_pTextItems;
+		VECTOR<SListBoxItemInfo> m_ItemInfo;
 
-		JWImage* m_pBackground = nullptr;
-		JWScrollBar* m_pScrollBar = nullptr;
+		UNIQUE_PTR<JWImageBox> m_pBackground;
+		UNIQUE_PTR<JWScrollBar> m_pScrollBar;
 
 		// Property settings
-		bool m_bHasScrollBar = false;
-		bool m_bShouldUseAutomaticScrollBar = true;
-		bool m_bShouleUseToggleSelection = true; //???
-		bool m_bUseImageItems = false;
+		bool m_bHasScrollBar{ false };
+		bool m_bShouldUseAutomaticScrollBar{ true };
+		bool m_bShouleUseToggleSelection{ true };
+		bool m_bUseImageItems{ false };
 
-		TIndex m_SelectedItemIndex = TIndex_NotSpecified;
-		float m_ItemOffsetY = 0;
-		float m_MinimumItemHeight = DEFAULT_ITEM_HEIGHT;
+		TIndex m_SelectedItemIndex{ TIndex_Invalid };
+		float m_ItemOffsetY{ 0 };
+		float m_MinimumItemHeight{ DEFAULT_ITEM_HEIGHT };
 	};
 };

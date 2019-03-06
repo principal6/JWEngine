@@ -1,33 +1,25 @@
 #include "JWFrame.h"
-#include "JWImageBox.h"
+#include "../../CoreBase/JWImage.h"
 #include "../../CoreBase/JWWindow.h"
 
 using namespace JWENGINE;
 
-auto JWFrame::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
+void JWFrame::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
 	JWControl::Create(Position, Size, SharedData);
-	
-	// Create a JWImageBox for background.
-	m_pBackground = new JWImageBox;
-	m_pBackground->ShouldBeOffsetByMenuBar(false);
-	m_pBackground->Create(Position, Size, SharedData);
 
 	// Set control type.
 	m_ControlType = EControlType::Frame;
 
-	// Set control's size and position.
+	// Create a JWImageBox for background.
+	m_pBackground = MAKE_UNIQUE(JWImage)();
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pBackground->SetPosition(m_Position);
+	m_pBackground->SetSize(m_Size);
+
+	// Set control's position and size.
 	SetPosition(Position);
 	SetSize(Size);
-
-	return this;
-}
-
-void JWFrame::Destroy() noexcept
-{
-	JWControl::Destroy();
-
-	JW_DESTROY(m_pBackground);
 }
 
 auto JWFrame::AddChildControl(JWControl& ChildControl) noexcept->JWControl*
@@ -45,19 +37,37 @@ auto JWFrame::AddChildControl(JWControl& ChildControl) noexcept->JWControl*
 	}
 
 	ChildControl.ShouldBeOffsetByMenuBar(false);
-	ChildControl.ShouldUseViewport(false);
+	ChildControl.ShouldBeOffsetByParent(true);
 	ChildControl.SetParentControl(this);
+
+	ChildControl.SetPosition(ChildControl.GetAbsolutePosition());
+
+	// This is required to clip child control's viewport IAW/ the parent(JWFrame) control's viewport.
+	ChildControl.UpdateViewport();
 
 	m_pChildControls.push_back(&ChildControl);
 
 	return this;
 }
 
-void JWFrame::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept
+PROTECTED void JWFrame::UpdateViewport() noexcept
+{
+	JWControl::UpdateViewport();
+
+	if (m_pChildControls.size())
+	{
+		for (size_t iterator_index = m_pChildControls.size(); iterator_index > 0; iterator_index--)
+		{
+			m_pChildControls[iterator_index - 1]->UpdateViewport();
+		}
+	}
+}
+
+PROTECTED void JWFrame::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept
 {
 	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 
-	bool b_mouse_in_rect = Static_IsMouseInRECT(p_input_state->MousePosition, m_ControlRect);
+	bool b_mouse_in_rect = Static_IsMouseInViewPort(p_input_state->MousePosition, m_ControlViewport);
 
 	if (b_mouse_in_rect)
 	{
@@ -80,15 +90,15 @@ void JWFrame::Draw() noexcept
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
-		m_pBackground->SetBackgroundColor(m_Color_Normal);
+		m_pBackground->SetColor(m_Color_Normal);
 		break;
 	case JWENGINE::Hover:
 		// [DEBUG]
-		//m_pBackground->SetBackgroundColor(m_Color_Hover);
+		//m_pBackground->SetColor(m_Color_Hover);
 		break;
 	case JWENGINE::Pressed:
 		// [DEBUG]
-		//m_pBackground->SetBackgroundColor(m_Color_Pressed);
+		//m_pBackground->SetColor(m_Color_Pressed);
 		break;
 	case JWENGINE::Clicked:
 		break;
@@ -102,7 +112,6 @@ void JWFrame::Draw() noexcept
 	{
 		for (auto iterator : m_pChildControls)
 		{
-			JWControl::BeginDrawing();
 			iterator->Draw();
 		}
 	}
@@ -114,19 +123,6 @@ auto JWFrame::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
-	if (m_pChildControls.size())
-	{
-		for (auto iterator : m_pChildControls)
-		{
-			D3DXVECTOR2 child_offset_position = iterator->GetAbsolutePosition();
-
-			child_offset_position.x += m_Position.x;
-			child_offset_position.y += m_Position.y;
-
-			iterator->SetPosition(child_offset_position);
-		}
-	}
-
 	m_pBackground->SetPosition(m_Position);
 
 	return this;
@@ -135,6 +131,14 @@ auto JWFrame::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 auto JWFrame::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 {
 	JWControl::SetSize(Size);
+
+	if (m_pChildControls.size())
+	{
+		for (auto iterator : m_pChildControls)
+		{
+			iterator->UpdateViewport();
+		}
+	}
 
 	m_pBackground->SetSize(m_Size);
 

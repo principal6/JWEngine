@@ -4,23 +4,15 @@
 
 namespace JWENGINE
 {
-	// ***
-	// *** Forward declaration ***
-	class JWImageBox;
-	// ***
-
 	class JWFrame final : public JWControl
 	{
 	public:
 		JWFrame() {};
 		~JWFrame() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
-		void Destroy() noexcept override;
+		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 
 		auto AddChildControl(JWControl& ChildControl) noexcept->JWControl* override;
-
-		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
 		void Draw() noexcept override;
 
@@ -28,9 +20,13 @@ namespace JWENGINE
 		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
 
 	protected:
+		// Must be overridden.
+		void UpdateViewport() noexcept;
+
+		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
 	private:
-		JWImageBox* m_pBackground = nullptr;
+		UNIQUE_PTR<JWImage> m_pBackground{};
 
 		VECTOR<JWControl*> m_pChildControls;
 	};

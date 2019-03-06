@@ -49,9 +49,6 @@
     <ClInclude Include="..\CoreType\TLinkedList.h">
       <Filter>CoreType</Filter>
     </ClInclude>
-    <ClInclude Include="..\CoreType\TDynamicArray.h">
-      <Filter>CoreType</Filter>
-    </ClInclude>
     <ClInclude Include="JWGUIWindow.h">
       <Filter>GUI</Filter>
     </ClInclude>

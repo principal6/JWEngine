@@ -1,64 +1,53 @@
 #include "JWScrollBar.h"
 #include "../../CoreBase/JWImage.h"
 #include "../../CoreBase/JWWindow.h"
-#include "JWTextButton.h"
-#include "JWImageButton.h"
 
 using namespace JWENGINE;
 
 // Static const
-const D3DXVECTOR2& JWScrollBar::HORIZONTAL_MINIMUM_SIZE = D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, GUI_BUTTON_SIZE.y);
-const D3DXVECTOR2& JWScrollBar::VERTICAL_MINIMUM_SIZE = D3DXVECTOR2(GUI_BUTTON_SIZE.x, GUI_BUTTON_SIZE.y * 2);
+const D3DXVECTOR2& JWScrollBar::HORIZONTAL_MINIMUM_SIZE{ GUI_BUTTON_SIZE.x * 2, GUI_BUTTON_SIZE.y };
+const D3DXVECTOR2& JWScrollBar::VERTICAL_MINIMUM_SIZE{ GUI_BUTTON_SIZE.x, GUI_BUTTON_SIZE.y * 2 };
 
-auto JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
+void JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
 	JWControl::Create(Position, Size, SharedData);
 
-	m_pBackground = new JWImage;
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
-
-	m_pButtonA = new JWImageButton;
-	m_pButtonA->ShouldBeOffsetByMenuBar(false);
-	m_pButtonA->Create(Position, GUI_BUTTON_SIZE, *m_pSharedData);
-	m_pButtonA->ShouldDrawBorder(false);
-
-	m_pButtonB = new JWImageButton;
-	m_pButtonB->ShouldBeOffsetByMenuBar(false);
-	m_pButtonB->Create(Position, GUI_BUTTON_SIZE, *m_pSharedData);
-	m_pButtonB->ShouldDrawBorder(false);
-
-	m_pScroller = new JWTextButton;
-	m_pScroller->ShouldBeOffsetByMenuBar(false);
-	m_pScroller->ShouldDrawBorder(false);
-	m_pScroller->Create(Position, GUI_BUTTON_SIZE, *m_pSharedData);
-	m_pScroller->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_WHITE);
-	m_pScroller->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_WHITE);
-	m_pScroller->SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_WHITE);
+	// Set control type
+	m_ControlType = EControlType::ScrollBar;
 
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
-	// Set control type
-	m_ControlType = EControlType::ScrollBar;
+	m_pBackground = MAKE_UNIQUE(JWImage)();
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
+
+	m_pButtonA = MAKE_UNIQUE(JWImageButton)();
+	m_pButtonA->Create(m_Position, GUI_BUTTON_SIZE, SharedData);
+	m_pButtonA->ShouldBeOffsetByMenuBar(false);
+	m_pButtonA->ShouldDrawBorder(false);
+	m_pButtonA->SetParentControl(this);
+
+	m_pButtonB = MAKE_UNIQUE(JWImageButton)();
+	m_pButtonB->Create(m_Position, GUI_BUTTON_SIZE, SharedData);
+	m_pButtonB->ShouldBeOffsetByMenuBar(false);
+	m_pButtonB->ShouldDrawBorder(false);
+	m_pButtonB->SetParentControl(this);
+
+	m_pScroller = MAKE_UNIQUE(JWImageButton)();
+	m_pScroller->Create(m_Position, GUI_BUTTON_SIZE, SharedData);
+	m_pScroller->ShouldBeOffsetByMenuBar(false);
+	m_pScroller->ShouldDrawBorder(false);
+	m_pScroller->SetParentControl(this);
+	m_pScroller->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_WHITE);
+	m_pScroller->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_WHITE);
+	m_pScroller->SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_WHITE);
 
 	// Set control's position.
 	// SetSize() must be called in MakeScrollBar()
 	// in order to adjust the size according to the ScrollBar's direction.
 	// (Because the direction is decided when MakeScrollBar() is called.)
 	SetPosition(Position);
-
-	return this;
-}
-
-void JWScrollBar::Destroy() noexcept
-{
-	JWControl::Destroy();
-
-	JW_DESTROY(m_pBackground);
-	JW_DESTROY(m_pButtonA);
-	JW_DESTROY(m_pButtonB);
-	JW_DESTROY(m_pScroller);
 }
 
 auto JWScrollBar::MakeScrollBar(EScrollBarDirection Direction) noexcept->JWControl*
@@ -89,6 +78,15 @@ auto JWScrollBar::MakeScrollBar(EScrollBarDirection Direction) noexcept->JWContr
 	UpdateButtonSize();
 
 	return this;
+}
+
+PROTECTED void JWScrollBar::UpdateViewport() noexcept
+{
+	JWControl::UpdateViewport();
+
+	m_pButtonA->UpdateViewport();
+	m_pButtonB->UpdateViewport();
+	m_pScroller->UpdateViewport();
 }
 
 PROTECTED void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept
@@ -384,14 +382,14 @@ auto JWScrollBar::GetScrollPosition() const noexcept->size_t
 
 PRIVATE void JWScrollBar::UpdateButtonSize() noexcept
 {
-	D3DXVECTOR2 NewSize = GUI_BUTTON_SIZE;
+	D3DXVECTOR2 ABSize = GUI_BUTTON_SIZE;
 	D3DXVECTOR2 APosition = D3DXVECTOR2(0, 0);
 	D3DXVECTOR2 BPosition = D3DXVECTOR2(0, 0);
 
 	switch (m_ScrollBarDirection)
 	{
 	case JWENGINE::EScrollBarDirection::Horizontal:
-		NewSize.y = m_Size.y;
+		ABSize.y = m_Size.y;
 
 		// Update scrollable size
 		m_ScrollableSize = m_Size.x - GUI_BUTTON_SIZE.x * 2;
@@ -406,7 +404,7 @@ PRIVATE void JWScrollBar::UpdateButtonSize() noexcept
 		m_ScrollableRest = m_ScrollableSize - m_ScrollerSize.x;
 		break;
 	case JWENGINE::EScrollBarDirection::Vertical:
-		NewSize.x = m_Size.x;
+		ABSize.x = m_Size.x;
 
 		m_ScrollableSize = m_Size.y - GUI_BUTTON_SIZE.y * 2;
 
@@ -423,8 +421,8 @@ PRIVATE void JWScrollBar::UpdateButtonSize() noexcept
 		break;
 	}
 
-	m_pButtonA->SetSize(NewSize);
-	m_pButtonB->SetSize(NewSize);
+	m_pButtonA->SetSize(ABSize);
+	m_pButtonB->SetSize(ABSize);
 	m_pScroller->SetSize(m_ScrollerSize);
 }
 

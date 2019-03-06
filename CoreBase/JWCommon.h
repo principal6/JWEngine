@@ -6,6 +6,7 @@
 #include <d3dx9.h>
 #include <cassert>
 #include <vector>
+#include <list>
 #include <memory>
 #include <map>
 #include <crtdbg.h>
@@ -26,6 +27,9 @@
 	template <typename T>
 	using VECTOR = std::vector<T>;
 
+	template <typename T>
+	using LIST = std::list<T>;
+	
 	template <typename KeyType, typename ValueType>
 	using MAP = std::map<KeyType, ValueType>;
 
@@ -38,6 +42,8 @@
 	#define MAKE_UNIQUE(T) std::make_unique<T>
 	#define MAKE_SHARED(T) std::make_shared<T>
 	#define MAKE_PAIR(Key, Value) std::make_pair(Key, Value)
+	#define MOVE(T) std::move(T)
+	#define MAKE_UNIQUE_AND_MOVE(T) MOVE(MAKE_UNIQUE(T))
 
 #endif
 
@@ -66,7 +72,7 @@ namespace JWENGINE
 	static constexpr THandleItem THandleItem_Null = UINT64_MAX;
 
 	using TIndex = size_t;
-	static const size_t TIndex_NotSpecified = static_cast<size_t>(-1);
+	static const size_t TIndex_Invalid = static_cast<size_t>(-1);
 	static const size_t SIZE_T_INVALID = static_cast<size_t>(-1);
 
 	static constexpr int MAX_FILE_LEN = 260;

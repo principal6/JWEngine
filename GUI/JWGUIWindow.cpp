@@ -48,16 +48,6 @@ void JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppT
 
 PROTECTED void JWGUIWindow::Destroy() noexcept
 {
-	if (m_pControls.size())
-	{
-		for (JWControl* iterator : m_pControls)
-		{
-			JW_DESTROY(iterator);
-		}
-
-		m_pControls.clear();
-	}
-	
 	JW_DESTROY(m_SharedData.pText);
 	JW_RELEASE(m_SharedData.Texture_GUI);
 	JW_DESTROY(m_SharedData.pWindow);
@@ -98,39 +88,39 @@ auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, con
 	switch (Type)
 	{
 	case JWENGINE::TextButton:
-		m_pControls.push_back(new JWTextButton);
+		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWTextButton)());
 		break;
 	case JWENGINE::ImageButton:
-		m_pControls.push_back(new JWImageButton);
+		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWImageButton)());
 		break;
 	case JWENGINE::Label:
-		m_pControls.push_back(new JWLabel);
+		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWLabel)());
 		break;
 	case JWENGINE::Edit:
-		m_pControls.push_back(new JWEdit);
+		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWEdit)());
 		break;
 	case JWENGINE::CheckBox:
-		m_pControls.push_back(new JWCheckBox);
+		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWCheckBox)());
 		break;
 	case JWENGINE::RadioBox:
-		m_pControls.push_back(new JWRadioBox);
+		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWRadioBox)());
 		break;
 	case JWENGINE::ScrollBar:
-		m_pControls.push_back(new JWScrollBar);
+		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWScrollBar)());
 		break;
 	case JWENGINE::ListBox:
-		m_pControls.push_back(new JWListBox);
+		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWListBox)());
 		break;
 	case JWENGINE::MenuBar:
-		m_pControls.push_back(new JWMenuBar);
+		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWMenuBar)());
 		m_bHasMenuBar = true;
-		m_pMenuBar = m_pControls[m_pControls.size() - 1];
+		m_pMenuBar = m_pControls[m_pControls.size() - 1].get();
 		break;
 	case JWENGINE::ImageBox:
-		m_pControls.push_back(new JWImageBox);
+		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWImageBox)());
 		break;
 	case JWENGINE::Frame:
-		m_pControls.push_back(new JWFrame);
+		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWFrame)());
 		break;
 	default:
 		break;
@@ -140,7 +130,7 @@ auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, con
 
 	m_ControlsMap.insert(MAKE_PAIR(automatic_control_name, m_pControls.size() - 1));
 
-	return m_pControls[m_pControls.size() - 1];
+	return m_pControls[m_pControls.size() - 1].get();
 }
 
 auto JWGUIWindow::GetControl(const WSTRING& ControlName)->JWControl&
@@ -152,6 +142,24 @@ auto JWGUIWindow::GetControl(const WSTRING& ControlName)->JWControl&
 		if (found_control != m_ControlsMap.end())
 		{
 			return *m_pControls[found_control->second];
+		}
+		else
+		{
+			THROW_NOT_FOUND;
+		}
+	}
+	THROW_NOT_FOUND;
+}
+
+auto JWGUIWindow::GetControlPointer(const WSTRING& ControlName)->JWControl*
+{
+	if (m_ControlsMap.size())
+	{
+		auto found_control = m_ControlsMap.find(ControlName);
+
+		if (found_control != m_ControlsMap.end())
+		{
+			return m_pControls[found_control->second].get();
 		}
 		else
 		{
@@ -214,7 +222,7 @@ PROTECTED void JWGUIWindow::Update(const MSG& Message, const SGUIIMEInputInfo& I
 		for (size_t iterator_index = m_pControls.size(); iterator_index > 0; iterator_index--)
 		{
 			// In order not to do duplicate update.
-			if (m_pControls[iterator_index - 1] != m_pMenuBar)
+			if (m_pControls[iterator_index - 1].get() != m_pMenuBar)
 			{
 				if (!m_pControls[iterator_index - 1]->HasParentControl())
 				{
@@ -235,7 +243,7 @@ PROTECTED void JWGUIWindow::Update(const MSG& Message, const SGUIIMEInputInfo& I
 
 		if (m_pControlWithFocus->GetControlType() == EControlType::RadioBox)
 		{
-			for (JWControl* iterator : m_pControls)
+			for (auto& iterator : m_pControls)
 			{
 				if (iterator->GetControlType() == EControlType::RadioBox)
 				{
@@ -285,9 +293,9 @@ PRIVATE void JWGUIWindow::SetFocusOnControl(JWControl* pFocusedControl) noexcept
 	{
 		pFocusedControl->Focus();
 
-		for (JWControl* iterator : m_pControls)
+		for (auto& iterator : m_pControls)
 		{
-			if (iterator != pFocusedControl)
+			if (iterator.get() != pFocusedControl)
 			{
 				iterator->KillFocus();
 			}
@@ -304,9 +312,9 @@ void JWGUIWindow::DrawAllControls() noexcept
 {
 	if (m_pControls.size())
 	{
-		for (JWControl* iterator : m_pControls)
+		for (auto& iterator : m_pControls)
 		{
-			if (iterator != m_pMenuBar)
+			if (iterator.get() != m_pMenuBar)
 			{
 				if (!iterator->HasParentControl())
 				{
@@ -357,7 +365,7 @@ void JWGUIWindow::KillAllFocus() noexcept
 
 	if (m_pControls.size())
 	{
-		for (JWControl* iterator : m_pControls)
+		for (auto& iterator : m_pControls)
 		{
 			iterator->KillFocus();
 		}

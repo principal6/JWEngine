@@ -4,41 +4,26 @@
 
 using namespace JWENGINE;
 
-JWTextButton::JWTextButton()
-{
-	// A text button would normally have its border.
-	m_bShouldDrawBorder = true;
-}
-
-auto JWTextButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
+void JWTextButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
 	JWControl::Create(Position, Size, SharedData);
-	
-	m_pBackground = new JWImage;
+
+	// Set control type
+	m_ControlType = EControlType::TextButton;
+
+	// Set default alignment
+	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+
+	m_pBackground = MAKE_UNIQUE(JWImage)();
 	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
 	m_pBackground->SetPosition(m_Position);
 	m_pBackground->SetSize(m_Size);
 	m_pBackground->SetXRGB(m_Color_Normal);
 	m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 
-	// Set default alignment
-	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
-
-	// Set control type
-	m_ControlType = EControlType::TextButton;
-
 	// Set control's position and size.
 	SetPosition(Position);
 	SetSize(Size);
-
-	return this;
-}
-
-void JWTextButton::Destroy() noexcept
-{
-	JWControl::Destroy();
-
-	JW_DESTROY(m_pBackground);
 }
 
 void JWTextButton::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept
@@ -47,8 +32,8 @@ void JWTextButton::UpdateControlState(JWControl** ppControlWithMouse, JWControl*
 	{
 		const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 
-		bool b_mouse_in_rect = Static_IsMouseInRECT(p_input_state->MousePosition, m_ControlRect);
-		bool b_mouse_down_in_rect = Static_IsMouseInRECT(p_input_state->MouseDownPosition, m_ControlRect);
+		bool b_mouse_in_rect = Static_IsMouseInViewPort(p_input_state->MousePosition, m_ControlViewport);
+		bool b_mouse_down_in_rect = Static_IsMouseInViewPort(p_input_state->MouseDownPosition, m_ControlViewport);
 
 		if (ppControlWithMouse)
 		{

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "JWGUIWindow.h"
+#include "../CoreType/TLinkedList.h"
 
 namespace JWENGINE
 {

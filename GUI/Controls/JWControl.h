@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../CoreBase/JWCommon.h"
+#include "../../CoreBase/JWImage.h"
 
 namespace JWENGINE
 {
@@ -15,7 +16,8 @@ namespace JWENGINE
 
 	enum EControlType
 	{
-		NotDefined,
+		Invalid,
+
 		TextButton,
 		ImageButton,
 		Label,
@@ -64,6 +66,18 @@ namespace JWENGINE
 		return false;
 	}
 
+	static inline auto Static_IsMouseInViewPort(const POINT& Position, const D3DVIEWPORT9& ViewPort)->bool
+	{
+		if ((Position.x >= static_cast<long>(ViewPort.X)) && (Position.x <= static_cast<long>(ViewPort.Width + ViewPort.X)))
+		{
+			if ((Position.y >= static_cast<long>(ViewPort.Y)) && (Position.y <= static_cast<long>(ViewPort.Height + ViewPort.Y)))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	class JWControl
 	{
 	friend class JWFrame;
@@ -74,11 +88,7 @@ namespace JWENGINE
 		JWControl() {};
 		virtual ~JWControl() {};
 
-		// Create JWControl.
-		virtual auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*;
-
-		// Destroy JWControl.
-		virtual void Destroy() noexcept;
+		virtual void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData);
 
 		/*
 		** Maker functions for sub-classes
@@ -142,7 +152,7 @@ namespace JWENGINE
 		/*
 		** Parent Control
 		*/
-		virtual auto SetParentControl(const JWControl* pParentControl) noexcept->JWControl*;
+		virtual auto SetParentControl(JWControl* pParentControl) noexcept->JWControl*;
 		virtual auto HasParentControl() noexcept->bool;
 
 
@@ -175,10 +185,14 @@ namespace JWENGINE
 		** Property setter functions return 'this' pointer.
 		*/
 		virtual auto ShouldDrawBorder(bool Value) noexcept->JWControl*;
+
+		// @warning: this function is used only for debugging purpose.
+		// do not use this to implement a new functionality of the control.
 		virtual auto ShouldUseViewport(bool Value) noexcept->JWControl*;
 		
-		// @warning: This function must be called before Create() of the control!
 		virtual auto ShouldBeOffsetByMenuBar(bool Value) noexcept->JWControl*;
+
+		virtual auto ShouldBeOffsetByParent(bool Value) noexcept->JWControl*;
 
 
 		/*
@@ -254,7 +268,7 @@ namespace JWENGINE
 		virtual auto GetListBoxItemHeight() const->float { return 0; };
 
 		// [JWListBox]
-		virtual auto GetSelectedItemIndex() const->TIndex { return TIndex_NotSpecified; };
+		virtual auto GetSelectedItemIndex() const->TIndex { return TIndex_Invalid; };
 
 		// [JWMenuBar]
 		// @warning: this functions doesn't return 'this' pointer,
@@ -280,8 +294,11 @@ namespace JWENGINE
 		// Update control's state (called in JWGUIWindow - friend class).
 		virtual void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept;
 		virtual void UpdateBorderPositionAndSize() noexcept;
-		virtual void UpdateViewport() noexcept;
 
+		// UpdateViewport() must be overriden when the control has child controls.
+		// JWMenuBar is an exception to this rule.
+		virtual void UpdateViewport() noexcept;
+		virtual void UpdateChildViewport(D3DVIEWPORT9& Viewport);
 
 		/*
 		** Setter functions.
@@ -308,35 +325,40 @@ namespace JWENGINE
 		virtual void WindowIMEInput(const SGUIIMEInputInfo& IMEInfo) {};
 
 	protected:
-		const SGUIWindowSharedData* m_pSharedData = nullptr;
+		const SGUIWindowSharedData* m_pSharedData;
 
-		D3DVIEWPORT9 m_OriginalViewport{};
-		D3DVIEWPORT9 m_ControlViewport{};
+		// Owning pointer
+		UNIQUE_PTR<JWLine> m_pBorderLine{};
 
-		JWLine* m_pBorderLine = nullptr;
-		JWScrollBar* m_pAttachedScrollBar = nullptr;
-		const JWControl* m_pParentControl = nullptr;
+		// Observing pointer
+		JWScrollBar* m_pAttachedScrollBar{ nullptr };
+		JWControl* m_pParentControl{ nullptr };
 
-		DWORD m_Color_Normal = DEFAULT_COLOR_NORMAL;
-		DWORD m_Color_Hover = DEFAULT_COLOR_HOVER;
-		DWORD m_Color_Pressed = DEFAULT_COLOR_PRESSED;
-
-		EControlType m_ControlType = EControlType::NotDefined;
-		EControlState m_ControlState = EControlState::Normal;
+		EControlType m_ControlType{ EControlType::Invalid };
+		EControlState m_ControlState{ EControlState::Normal };
 		RECT m_ControlRect{ 0, 0, 0, 0 };
 		D3DXVECTOR2 m_Position{ 0, 0 };
 		D3DXVECTOR2 m_AbsolutePosition{ 0, 0 };
 		D3DXVECTOR2 m_Size{ 0, 0 };
 
-		WSTRING m_Text;
-		DWORD m_FontColor = DEFAULT_COLOR_FONT;
-		EHorizontalAlignment m_HorizontalAlignment = EHorizontalAlignment::Left;
-		EVerticalAlignment m_VerticalAlignment = EVerticalAlignment::Top;
+		D3DVIEWPORT9 m_OriginalViewport{};
+		D3DVIEWPORT9 m_ControlViewport{};
+
+		DWORD m_Color_Normal{ DEFAULT_COLOR_NORMAL };
+		DWORD m_Color_Hover{ DEFAULT_COLOR_HOVER };
+		DWORD m_Color_Pressed{ DEFAULT_COLOR_PRESSED };
+
+		WSTRING m_Text{};
+		DWORD m_FontColor{ DEFAULT_COLOR_FONT };
+		EHorizontalAlignment m_HorizontalAlignment{ EHorizontalAlignment::Left };
+		EVerticalAlignment m_VerticalAlignment{ EVerticalAlignment::Top };
 		D3DXVECTOR2 m_CalculatedTextPosition{ 0, 0 };
 
-		bool m_bShouldDrawBorder = false;
-		bool m_bShouldUseViewport = true;
-		bool m_bShouldBeOffsetByMenuBar = true;
-		bool m_bHasFocus = false;
+		bool m_bShouldDrawBorder{ false };
+		bool m_bShouldUseViewport{ true };
+		bool m_bShouldBeOffsetByMenuBar{ true };
+		bool m_bShouldBeOffsetByParent{ false };
+		bool m_bHasFocus{ false };
+		bool m_bBorderColorSet{ false };
 	};
 };

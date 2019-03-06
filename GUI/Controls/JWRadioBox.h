@@ -4,19 +4,13 @@
 
 namespace JWENGINE
 {
-	// ***
-	// *** Forward declaration ***
-	class JWImage;
-	// ***
-
 	class JWRadioBox final : public JWControl
 	{
 	public:
-		JWRadioBox();
+		JWRadioBox() {};
 		~JWRadioBox() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
-		void Destroy() noexcept override;
+		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 
 		void Draw() noexcept override;
 
@@ -26,8 +20,8 @@ namespace JWENGINE
 		auto GetCheckState() const noexcept->bool override;
 
 	private:
-		JWImage* m_pBackground = nullptr;
+		UNIQUE_PTR<JWImage> m_pBackground{};
 
-		bool m_bChecked = false;
+		bool m_bChecked{ false };
 	};
 };

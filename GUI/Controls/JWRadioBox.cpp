@@ -3,40 +3,27 @@
 
 using namespace JWENGINE;
 
-JWRadioBox::JWRadioBox()
-{
-	// A RadioBox never has a border.
-	m_bShouldDrawBorder = false;
-}
-
-auto JWRadioBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
+void JWRadioBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
 	JWControl::Create(Position, Size, SharedData);
-
-	m_pBackground = new JWImage;
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pBackground->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
-
-	// Set default alignment
-	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
 	// Set control type
 	m_ControlType = EControlType::RadioBox;
 
+	// A RadioBox never has a border.
+	m_bShouldDrawBorder = false;
+
+	// Set default alignment
+	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+
+	m_pBackground = MAKE_UNIQUE(JWImage)();
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pBackground->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
+
 	// Set control's position and size.
-	// @ WARNING:
-	// 'D3DXVECTOR2 Size' is not used but 'GUI_BUTTON_SIZE'
+	// @warning: 'D3DXVECTOR2 Size' is not used, but 'GUI_BUTTON_SIZE'.
 	SetPosition(Position);
 	SetSize(GUI_BUTTON_SIZE);
-	
-	return this;
-}
-
-void JWRadioBox::Destroy() noexcept
-{
-	JWControl::Destroy();
-
-	JW_DESTROY(m_pBackground);
 }
 
 void JWRadioBox::Draw() noexcept

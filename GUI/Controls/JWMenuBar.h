@@ -1,7 +1,6 @@
 #pragma once
 
 #include "JWControl.h"
-#include "../../CoreType/TLinkedList.h"
 
 namespace JWENGINE
 {
@@ -18,11 +17,10 @@ namespace JWENGINE
 	class JWMenuBar final : public JWControl
 	{
 	public:
-		JWMenuBar();
+		JWMenuBar() {};
 		~JWMenuBar() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
-		void Destroy() noexcept override;
+		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 
 		auto AddMenuBarItem(const WSTRING& Text)->THandleItem override;
 		auto AddMenuBarSubItem(THandleItem hItem, const WSTRING& Text) noexcept->THandleItem override;
@@ -47,25 +45,25 @@ namespace JWENGINE
 		void UnselectMenuBarItem() noexcept;
 
 	private:
-		static const BYTE DEFUALT_ALPHA_BACKGROUND_MENUBAR = 255;
-		static const DWORD DEFAULT_COLOR_BACKGROUND_MENUBAR = DEFAULT_COLOR_NORMAL;
-		static const int DEFAULT_MENUBAR_HEIGHT = 24;
-		static const int DEFAULT_MENUBAR_ITEM_PADDING = 10;
+		static const BYTE DEFUALT_ALPHA_BACKGROUND_MENUBAR{ 255 };
+		static const DWORD DEFAULT_COLOR_BACKGROUND_MENUBAR{ DEFAULT_COLOR_NORMAL };
+		static const int DEFAULT_MENUBAR_HEIGHT{ 24 };
+		static const int DEFAULT_MENUBAR_ITEM_PADDING{ 10 };
 		static const D3DXVECTOR2& BLANK_SUBITEMBOX_SIZE;
-		static const THandleItem MENU_ITEM_THANDLE_BASE = 10000;
+		static const THandleItem MENU_ITEM_THANDLE_BASE{ 10000 };
 
 		// This means that the total count of sub items of each item should be less than 100.
-		static const THandleItem MENU_ITEM_THANDLE_STRIDE = 100;
+		static const THandleItem MENU_ITEM_THANDLE_STRIDE{ 100 };
 
 		// MenuBar's non-button region.
-		JWImageBox* m_pNonButtonRegion = nullptr;
+		UNIQUE_PTR<JWImageBox> m_pNonButtonRegion{};
 
-		TLinkedList<MenuItem*> m_pItems;
-		TLinkedList<MenuSubItemBox*> m_pSubItemBoxes;
+		VECTOR<UNIQUE_PTR<MenuItem>> m_pItems;
+		VECTOR<UNIQUE_PTR<MenuSubItemBox>> m_pSubItemBoxes;
 
-		MenuItem* m_pSelectedItem = nullptr;
-		MenuSubItemBox* m_pSelectedSubItemBox = nullptr;
-		TIndex m_SelectedItemIndex = TIndex_NotSpecified;
-		THandleItem m_hSelectedSubItem = THandleItem_Null;
+		MenuItem* m_pSelectedItem{ nullptr };
+		MenuSubItemBox* m_pSelectedSubItemBox{ nullptr };
+		TIndex m_SelectedItemIndex{ TIndex_Invalid };
+		THandleItem m_hSelectedSubItem{ THandleItem_Null };
 	};
 };

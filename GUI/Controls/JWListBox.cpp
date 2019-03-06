@@ -1,75 +1,41 @@
 #include "JWListBox.h"
 #include "../../CoreBase/JWImage.h"
 #include "../../CoreBase/JWWindow.h"
-#include "JWLabel.h"
-#include "JWScrollBar.h"
-#include "JWImageBox.h"
 
 using namespace JWENGINE;
 
 // Static const
-const float JWListBox::MINIMUM_ITEM_HEIGHT = 16.0f;
-const float JWListBox::DEFAULT_ITEM_HEIGHT = 22.0f;
-const float JWListBox::DEFAULT_ITEM_PADDING_X = 1.0f;
-const float JWListBox::DEFAULT_ITEM_PADDING_Y = 1.0f;
+const float JWListBox::MINIMUM_ITEM_HEIGHT{ 16.0f };
+const float JWListBox::DEFAULT_ITEM_HEIGHT{ 22.0f };
+const float JWListBox::DEFAULT_ITEM_PADDING_X{ 1.0f };
+const float JWListBox::DEFAULT_ITEM_PADDING_Y{ 1.0f };
 
-JWListBox::JWListBox()
-{
-	// A listbox must have border.
-	m_bShouldDrawBorder = true;
-}
-
-auto JWListBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
+void JWListBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
 	JWControl::Create(Position, Size, SharedData);
 
 	// Set control type
 	m_ControlType = EControlType::ListBox;
 
+	// A listbox must have border.
+	m_bShouldDrawBorder = true;
+
 	// Create image for background
-	m_pBackground = new JWImage;
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pBackground->SetPosition(Position);
-	m_pBackground->SetSize(Size);
-	m_pBackground->SetAlpha(DEFUALT_ALPHA_BACKGROUND_LISTBOX);
-	m_pBackground->SetXRGB(DEFAULT_COLOR_BACKGROUND_LISTBOX);
+	m_pBackground = MAKE_UNIQUE(JWImageBox)();
+	m_pBackground->Create(m_Position, m_Size, SharedData);
+	m_pBackground->ShouldBeOffsetByMenuBar(false);
+	m_pBackground->SetParentControl(this);
+	m_pBackground->SetBackgroundColor(DEFAULT_COLOR_BACKGROUND_LISTBOX);
 
 	// Create ScrollBar
-	m_pScrollBar = new JWScrollBar;
-	m_pScrollBar->ShouldBeOffsetByMenuBar(false);
-	m_pScrollBar->Create(Position, Size, *m_pSharedData);
+	m_pScrollBar = MAKE_UNIQUE(JWScrollBar)();
+	m_pScrollBar->Create(m_Position, m_Size, SharedData);
 	m_pScrollBar->MakeScrollBar(EScrollBarDirection::Vertical);
+	m_pScrollBar->ShouldBeOffsetByMenuBar(false);
 
 	// Set control's position and size.
 	SetPosition(Position);
 	SetSize(Size);
-
-	return this;
-}
-
-void JWListBox::Destroy() noexcept
-{
-	JWControl::Destroy();
-
-	if (m_pImageItems.size())
-	{
-		for (size_t iterator = 0; iterator < m_pImageItems.size(); iterator++)
-		{
-			JW_DESTROY(m_pImageItems[iterator]);
-		}
-	}
-
-	if (m_ItemInfo.size())
-	{
-		for (size_t iterator = 0; iterator < m_ItemInfo.size(); iterator++)
-		{
-			JW_DESTROY(m_pItemBackground[iterator]);
-			JW_DESTROY(m_pTextItems[iterator]);
-		}
-	}
-
-	JW_DESTROY(m_pBackground);
-	JW_DESTROY(m_pScrollBar);
 }
 
 auto JWListBox::SetMinimumItemHeight(float Value) noexcept->JWControl*
@@ -109,7 +75,6 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 	// Calculate item's default size.
 	D3DXVECTOR2 item_size = D3DXVECTOR2(0, 0);
 	item_size.x = m_Size.x;
-	//item_size.x = m_Size.x - DEFAULT_ITEM_PADDING_X * 2;
 	item_size.y = m_MinimumItemHeight;
 
 	/*
@@ -117,72 +82,71 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 	*/
 	if (m_bUseImageItems)
 	{
-		JWImageBox* new_image_item = new JWImageBox;
-
 		// Calculate image item's size.
 		D3DXVECTOR2 image_item_size = item_size;
 		image_item_size.y = SizeInAtlas.y;
-		if (image_item_size.y > item_size.y)
-		{
-			// Adjust item's height when image item's height exceeds it.
-			item_size.y = image_item_size.y;
-		}
 
-		new_image_item->ShouldBeOffsetByMenuBar(false);
-		new_image_item->Create(item_position, image_item_size, *m_pSharedData);
-		new_image_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));
-		new_image_item->SetTextureAtlas(m_pTextureForImageItem, m_pTextureForImageItemInfo);
-		new_image_item->SetAtlasUV(OffsetInAtlas, SizeInAtlas);
-		new_image_item->ShouldUseViewport(false);
+		// Adjust item's height when image item's height exceeds it.
+		item_size.y = max(item_size.y, image_item_size.y);
 
-		m_pImageItems.push_back(new_image_item);
+		m_pImageItems.push_back(MAKE_UNIQUE_AND_MOVE(JWImageBox)());
+		auto p_new_image_item = m_pImageItems[m_pImageItems.size() - 1].get();
+		
+		p_new_image_item->Create(item_position, image_item_size, *m_pSharedData);
+		p_new_image_item->ShouldBeOffsetByMenuBar(false);
+		p_new_image_item->SetParentControl(this);
+		p_new_image_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));
+		p_new_image_item->SetTextureAtlas(m_pTextureForImageItem, m_pTextureForImageItemInfo);
+		p_new_image_item->SetAtlasUV(OffsetInAtlas, SizeInAtlas);
 	}
 
 
 	/*
 	** Add item's background (always)
 	*/
-	JWImageBox* new_item_background = new JWImageBox;
-	new_item_background->ShouldBeOffsetByMenuBar(false);
-	new_item_background->Create(item_position, item_size, *m_pSharedData);
-	new_item_background->ShouldUseViewport(false);
+	m_pItemBackground.push_back(MAKE_UNIQUE_AND_MOVE(JWImageBox)());
+	auto* p_new_item_background = m_pItemBackground[m_pItemBackground.size() - 1].get();
+
+	p_new_item_background->Create(item_position, item_size, *m_pSharedData);
+	p_new_item_background->ShouldBeOffsetByMenuBar(false);
+	p_new_item_background->SetParentControl(this);
 	if (m_bShouleUseToggleSelection)
 	{
 		// IF,
 		// this ListBox uses toggle selection.
-		SetToggleSelectionColor(new_item_background);
+		SetToggleSelectionColor(p_new_item_background);
 	}
 	else
 	{
 		// IF,
 		// this ListBox doesn't use toggle selection.
-		SetNonToggleSelectionColor(new_item_background);
+		SetNonToggleSelectionColor(p_new_item_background);
 	}
-	m_pItemBackground.push_back(new_item_background);
+	
 
 
 	/*
 	** Add text item (always).
 	*/
-	JWLabel* new_text_item = new JWLabel;
-
-	// Insert space at the head of the text
-	// in order to enhance legibility.
-	WSTRING adjusted_text = L" " + Text;
-
 	// Calculate text item's position.
 	D3DXVECTOR2 text_item_position = D3DXVECTOR2(item_position.x + SizeInAtlas.x, item_position.y);
 
 	// Calculate text item's size.
 	D3DXVECTOR2 text_item_size = D3DXVECTOR2(item_size.x - SizeInAtlas.x, item_size.y);
-	new_text_item->ShouldBeOffsetByMenuBar(false);
-	new_text_item->Create(text_item_position, text_item_size, *m_pSharedData);
-	new_text_item->SetText(adjusted_text);
-	new_text_item->SetTextVerticalAlignment(EVerticalAlignment::Middle);
-	new_text_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));
-	new_text_item->ShouldUseViewport(false);
 
-	m_pTextItems.push_back(new_text_item);
+	m_pTextItems.push_back(MAKE_UNIQUE_AND_MOVE(JWLabel)());
+	auto* p_new_text_item = m_pTextItems[m_pTextItems.size() - 1].get();
+
+	// Insert space at the head of the text
+	// in order to enhance legibility.
+	WSTRING adjusted_text = L" " + Text;
+	
+	p_new_text_item->Create(text_item_position, text_item_size, *m_pSharedData);
+	p_new_text_item->ShouldBeOffsetByMenuBar(false);
+	p_new_text_item->SetParentControl(this);
+	p_new_text_item->SetText(adjusted_text);
+	p_new_text_item->SetTextVerticalAlignment(EVerticalAlignment::Middle);
+	p_new_text_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));
 
 
 	/*
@@ -202,6 +166,8 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 	{
 		UpdateAutomaticScrollBar();
 	}
+
+	UpdateViewport();
 
 	return this;
 }
@@ -242,7 +208,39 @@ PRIVATE void JWListBox::UpdateAutomaticScrollBar() noexcept
 		D3DXVECTOR2 scrollbar_position = m_Position;
 		scrollbar_position.x += m_Size.x;
 		scrollbar_position.x -= m_pScrollBar->GetSize().x;
+
 		m_pScrollBar->SetPosition(scrollbar_position);
+	}
+}
+
+PROTECTED void JWListBox::UpdateViewport() noexcept
+{
+	JWControl::UpdateViewport();
+
+	if (m_ItemInfo.size())
+	{
+		for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
+		{
+			m_pItemBackground[iterator]->UpdateViewport();
+		}
+
+		if (m_bUseImageItems)
+		{
+			for (size_t iterator = 0; iterator < m_pImageItems.size(); iterator++)
+			{
+				m_pImageItems[iterator]->UpdateViewport();
+			}
+		}
+
+		for (size_t iterator = 0; iterator < m_pTextItems.size(); iterator++)
+		{
+			m_pTextItems[iterator]->UpdateViewport();
+		}
+	}
+
+	if (m_bHasScrollBar)
+	{
+		m_pScrollBar->UpdateViewport();
 	}
 }
 
@@ -251,6 +249,8 @@ PROTECTED void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWC
 	JWControl::UpdateControlState(ppControlWithMouse, ppControlWithFocus);
 
 	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
+
+	bool b_mouse_in_rect = Static_IsMouseInViewPort(p_input_state->MousePosition, m_ControlViewport);
 
 	m_pScrollBar->UpdateControlState(nullptr, nullptr);
 
@@ -268,7 +268,7 @@ PROTECTED void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWC
 		// IF,
 		// this ListBox has ScrollBar,
 
-		if (Static_IsMouseInRECT(p_input_state->MousePosition, m_ControlRect))
+		if (b_mouse_in_rect)
 		{
 			// We must use mouse wheel scroll,
 			// only when the mouse is over the control.
@@ -302,7 +302,7 @@ PROTECTED void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWC
 			// but if it doesn't use toggle selction,
 			// we must initialize m_SelectedItemIndex every time.
 
-			m_SelectedItemIndex = TIndex_NotSpecified;
+			m_SelectedItemIndex = TIndex_Invalid;
 		}
 
 		if (m_ItemInfo.size())
@@ -311,10 +311,13 @@ PROTECTED void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWC
 			{
 				m_pItemBackground[iterator]->UpdateControlState(nullptr, nullptr);
 
-				if (m_pItemBackground[iterator]->GetControlState() == EControlState::Clicked)
+				if (b_mouse_in_rect)
 				{
-					// Save the selected item's index.
-					m_SelectedItemIndex = iterator;
+					if (m_pItemBackground[iterator]->GetControlState() == EControlState::Clicked)
+					{
+						// Save the selected item's index.
+						m_SelectedItemIndex = iterator;
+					}
 				}
 			}
 		}
@@ -325,7 +328,6 @@ PROTECTED void JWListBox::UpdateControlState(JWControl** ppControlWithMouse, JWC
 		// the ListBox is being scrolled,
 		// scroll items.
 
-		//m_ItemOffsetY = m_Position.y + DEFAULT_ITEM_PADDING_Y - m_ItemInfo[m_pScrollBar->GetScrollPosition()].ItemPosition.y;
 		m_ItemOffsetY = m_Position.y - m_ItemInfo[m_pScrollBar->GetScrollPosition()].ItemPosition.y;
 		
 		D3DXVECTOR2 item_position = D3DXVECTOR2(0, 0);
@@ -412,7 +414,7 @@ auto JWListBox::SetBackgroundColor(DWORD Color) noexcept->JWControl*
 {
 	JWControl::SetBackgroundColor(Color);
 
-	m_pBackground->SetColor(Color);
+	m_pBackground->SetBackgroundColor(Color);
 
 	return this;
 }
@@ -480,7 +482,7 @@ auto JWListBox::ShouldUseToggleSelection(bool Value) noexcept->JWControl*
 		{
 			for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
 			{
-				SetToggleSelectionColor(m_pItemBackground[iterator]);
+				SetToggleSelectionColor(m_pItemBackground[iterator].get());
 			}
 		}
 	}
@@ -492,7 +494,7 @@ auto JWListBox::ShouldUseToggleSelection(bool Value) noexcept->JWControl*
 		{
 			for (size_t iterator = 0; iterator < m_pItemBackground.size(); iterator++)
 			{
-				SetNonToggleSelectionColor(m_pItemBackground[iterator]);
+				SetNonToggleSelectionColor(m_pItemBackground[iterator].get());
 			}
 		}
 	}

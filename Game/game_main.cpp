@@ -65,10 +65,10 @@ int main()
 
 void Render()
 {
-	g_MyGame.GetTextObject()->DrawInstantText(L"화살표 키: 이동, 점프", D3DXVECTOR2(0, 0));
-	g_MyGame.GetTextObject()->DrawInstantText(L"Ctrl: 물리 공격", D3DXVECTOR2(0, 12.0f));
-	g_MyGame.GetTextObject()->DrawInstantText(L"Alt: 마법 공격", D3DXVECTOR2(0, 24.0f));
-	g_MyGame.GetTextObject()->DrawInstantText(L"B: 바운딩 박스 토글", D3DXVECTOR2(0, 36.0f));
+	g_MyGame.GetTextObject()->DrawInstantText(L"화살표 키: 이동, 점프", D3DXVECTOR2(0, 0), EHorizontalAlignment::Left, D3DCOLOR_XRGB(0, 80, 0));
+	g_MyGame.GetTextObject()->DrawInstantText(L"Ctrl: 물리 공격", D3DXVECTOR2(0, 12.0f), EHorizontalAlignment::Left, D3DCOLOR_XRGB(0, 80, 0));
+	g_MyGame.GetTextObject()->DrawInstantText(L"Alt: 마법 공격", D3DXVECTOR2(0, 24.0f), EHorizontalAlignment::Left, D3DCOLOR_XRGB(0, 80, 0));
+	g_MyGame.GetTextObject()->DrawInstantText(L"B: 바운딩 박스 토글", D3DXVECTOR2(0, 36.0f), EHorizontalAlignment::Left, D3DCOLOR_XRGB(0, 80, 0));
 }
 
 void Keyboard(DWORD Key)

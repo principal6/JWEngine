@@ -4,12 +4,6 @@
 
 namespace JWENGINE
 {
-	// ***
-	// *** Forward declaration ***
-	class JWImage;
-	//class JWListBox;
-	// ***
-
 	class JWImageBox final : public JWControl
 	{
 	friend class JWEdit;
@@ -17,11 +11,10 @@ namespace JWENGINE
 	friend class JWMenuBar;
 
 	public:
-		JWImageBox();
+		JWImageBox() {};
 		~JWImageBox() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
-		void Destroy() noexcept override;
+		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 
 		void Draw() noexcept override;
 
@@ -32,8 +25,8 @@ namespace JWENGINE
 		auto SetBackgroundColor(DWORD Color) noexcept->JWControl* override;
 
 	private:
-		JWImage* m_pBackground = nullptr;
-		JWImage* m_pImage = nullptr;
+		UNIQUE_PTR<JWImage> m_pBackground{};
+		UNIQUE_PTR<JWImage> m_pImage{};
 
 		D3DXVECTOR2 m_OffsetInAtlas{ 0, 0 };
 	};

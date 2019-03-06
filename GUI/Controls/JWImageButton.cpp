@@ -4,49 +4,33 @@
 
 using namespace JWENGINE;
 
-JWImageButton::JWImageButton()
+void JWImageButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
-	// An image button would normally have its border.
-	m_bShouldDrawBorder = true;
+	JWControl::Create(Position, Size, SharedData);
+
+	// Set control type
+	m_ControlType = EControlType::ImageButton;
 
 	// Set default color for every control state.
 	m_Color_Normal = DEFAULT_COLOR_NORMAL;
 	m_Color_Hover = DEFAULT_COLOR_NORMAL;
 	m_Color_Pressed = DEFAULT_COLOR_NORMAL;
-}
-
-auto JWImageButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
-{
-	JWControl::Create(Position, Size, SharedData);
-
-	m_pBackground = new JWImage;
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
-	m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
-
-	m_pButtonImage = new JWImage;
-	m_pButtonImage->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pButtonImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
-	// Set control type
-	m_ControlType = EControlType::ImageButton;
+	m_pBackground = MAKE_UNIQUE(JWImage)();
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
+	m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
+
+	m_pButtonImage = MAKE_UNIQUE(JWImage)();
+	m_pButtonImage->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_pButtonImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 
 	// Set control's position and size.
 	SetPosition(Position);
 	SetSize(Size);
-
-	return this;
-}
-
-void JWImageButton::Destroy() noexcept
-{
-	JWControl::Destroy();
-
-	JW_DESTROY(m_pBackground);
-	JW_DESTROY(m_pButtonImage);
 }
 
 auto JWImageButton::MakeImageButton(const WSTRING& TextureAtlasFileName, const D3DXVECTOR2& ButtonSizeInTexture, const D3DXVECTOR2& NormalOffset,

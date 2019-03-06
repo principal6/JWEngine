@@ -7,24 +7,28 @@
 
 using namespace JWENGINE;
 
-auto JWControl::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
+PROTECTED void JWControl::CalculateControlRect() noexcept
 {
-	// Set shared data pointer.
+	m_ControlRect.left = static_cast<int>(m_Position.x);
+	m_ControlRect.right = static_cast<int>(m_ControlRect.left + m_Size.x);
+	m_ControlRect.top = static_cast<int>(m_Position.y);
+	m_ControlRect.bottom = static_cast<int>(m_ControlRect.top + m_Size.y);
+}
+
+void JWControl::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)
+{
+	m_Position = Position;
+	m_AbsolutePosition = Position;
+	m_CalculatedTextPosition = Position;
+	m_Size = Size;
+
 	m_pSharedData = &SharedData;
 
 	// Craete line for border
-	m_pBorderLine = new JWLine;
+	m_pBorderLine = MAKE_UNIQUE(JWLine)();
 	m_pBorderLine->Create(m_pSharedData->pWindow->GetDevice());
 	m_pBorderLine->AddBox(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), DEFAULT_COLOR_BORDER);
 	m_pBorderLine->AddEnd();
-
-	// Set control position and size.
-	m_Position = Position;
-	m_AbsolutePosition = Position;
-	m_Size = Size;
-
-	// Set text's default position.
-	m_CalculatedTextPosition = m_Position;
 
 	// Update border position and size.
 	UpdateBorderPositionAndSize();
@@ -34,21 +38,6 @@ auto JWControl::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, con
 
 	// Get the original viewport to reset it later
 	m_pSharedData->pWindow->GetDevice()->GetViewport(&m_OriginalViewport);
-
-	return this;
-}
-
-PROTECTED void JWControl::CalculateControlRect() noexcept
-{
-	m_ControlRect.left = static_cast<int>(m_Position.x);
-	m_ControlRect.right = static_cast<int>(m_ControlRect.left + m_Size.x);
-	m_ControlRect.top = static_cast<int>(m_Position.y);
-	m_ControlRect.bottom = static_cast<int>(m_ControlRect.top + m_Size.y);
-}
-
-void JWControl::Destroy() noexcept
-{
-	JW_DESTROY(m_pBorderLine);
 }
 
 void JWControl::BeginDrawing() noexcept
@@ -157,13 +146,27 @@ auto JWControl::SetFontColor(DWORD Color) noexcept->JWControl*
 
 auto JWControl::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
-	m_Position = Position;
+	m_AbsolutePosition = Position;
 
-	if (m_pSharedData->pGUIWindow->HasMenuBar())
+	m_Position = m_AbsolutePosition;
+
+	if (m_pParentControl)
 	{
-		if (m_bShouldBeOffsetByMenuBar)
+		// If parent control position is offset, menubar height is included!
+
+		if (m_bShouldBeOffsetByParent)
 		{
-			m_Position.y += m_pSharedData->pGUIWindow->GetMenuBarHeight();
+			m_Position += m_pParentControl->GetPosition();
+		}
+	}
+	else
+	{
+		if (m_pSharedData->pGUIWindow->HasMenuBar())
+		{
+			if (m_bShouldBeOffsetByMenuBar)
+			{
+				m_Position.y += m_pSharedData->pGUIWindow->GetMenuBarHeight();
+			}
 		}
 	}
 
@@ -207,6 +210,10 @@ auto JWControl::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 auto JWControl::SetBorderColor(DWORD Color) noexcept->JWControl*
 {
 	m_pBorderLine->SetBoxColor(Color);
+	
+	ShouldDrawBorder(true);
+
+	m_bBorderColorSet = true;
 
 	return this;
 }
@@ -214,6 +221,8 @@ auto JWControl::SetBorderColor(DWORD Color) noexcept->JWControl*
 auto JWControl::SetBorderColor(DWORD ColorA, DWORD ColorB) noexcept->JWControl*
 {
 	m_pBorderLine->SetBoxColor(ColorA, ColorB);
+
+	m_bBorderColorSet = true;
 
 	return this;
 }
@@ -252,7 +261,7 @@ auto JWControl::GetControlState() const noexcept->EControlState
 	return m_ControlState;
 }
 
-auto JWControl::SetParentControl(const JWControl* pParentControl) noexcept->JWControl*
+auto JWControl::SetParentControl(JWControl* pParentControl) noexcept->JWControl*
 {
 	m_pParentControl = pParentControl;
 
@@ -301,8 +310,8 @@ PROTECTED void JWControl::UpdateControlState(JWControl** ppControlWithMouse, JWC
 {
 	const SWindowInputState* p_input_state = m_pSharedData->pWindow->GetWindowInputStatePtr();
 
-	bool b_mouse_in_rect = Static_IsMouseInRECT(p_input_state->MousePosition, m_ControlRect);
-	bool b_mouse_down_in_rect = Static_IsMouseInRECT(p_input_state->MouseDownPosition, m_ControlRect);
+	bool b_mouse_in_rect = Static_IsMouseInViewPort(p_input_state->MousePosition, m_ControlViewport);
+	bool b_mouse_down_in_rect = Static_IsMouseInViewPort(p_input_state->MouseDownPosition, m_ControlViewport);
 
 	if (ppControlWithMouse)
 	{
@@ -466,10 +475,46 @@ PROTECTED void JWControl::UpdateBorderPositionAndSize() noexcept
 PROTECTED void JWControl::UpdateViewport() noexcept
 {
 	m_ControlViewport = m_OriginalViewport;
-	m_ControlViewport.X = static_cast<DWORD>(m_Position.x);
-	m_ControlViewport.Y = static_cast<DWORD>(m_Position.y);
-	m_ControlViewport.Width = static_cast<DWORD>(m_Size.x);
-	m_ControlViewport.Height = static_cast<DWORD>(m_Size.y);
+	
+	float negative_offset_x = 0;
+	float negative_offset_y = 0;
+	if (m_Position.x < 0)
+	{
+		negative_offset_x = m_Position.x;
+	}
+	if (m_Position.y < 0)
+	{
+		negative_offset_y = m_Position.y;
+	}
+
+	m_ControlViewport.X = static_cast<DWORD>(max(m_Position.x, 0));
+	m_ControlViewport.Y = static_cast<DWORD>(max(m_Position.y, 0));
+
+	m_ControlViewport.Width = static_cast<DWORD>(m_Size.x + negative_offset_x);
+	m_ControlViewport.Height = static_cast<DWORD>(m_Size.y + negative_offset_y);
+
+	if (m_pParentControl)
+	{
+		m_pParentControl->UpdateChildViewport(m_ControlViewport);
+	}
+}
+
+PROTECTED void JWControl::UpdateChildViewport(D3DVIEWPORT9& Viewport)
+{
+	Viewport.X = max(Viewport.X, m_ControlViewport.X);
+	Viewport.Y = max(Viewport.Y, m_ControlViewport.Y);
+
+	auto bottom = Viewport.Y + Viewport.Height;
+	auto right = Viewport.X + Viewport.Width;
+
+	auto bottom_cmp = m_ControlViewport.Y + m_ControlViewport.Height;
+	auto right_cmp = m_ControlViewport.X + m_ControlViewport.Width;
+
+	right = min(right, right_cmp);
+	bottom = min(bottom, bottom_cmp);
+
+	Viewport.Width = right - Viewport.X;
+	Viewport.Height = bottom - Viewport.Y;
 }
 
 void JWControl::SetControlState(EControlState State) noexcept
@@ -501,7 +546,10 @@ void JWControl::Focus() noexcept
 {
 	m_bHasFocus = true;
 
-	m_pBorderLine->SetBoxColor(DEFAULT_COLOR_BORDER_ACTIVE);
+	if (!m_bBorderColorSet)
+	{
+		m_pBorderLine->SetBoxColor(DEFAULT_COLOR_BORDER_ACTIVE);
+	}
 }
 
 void JWControl::KillFocus() noexcept
@@ -510,7 +558,10 @@ void JWControl::KillFocus() noexcept
 
 	m_ControlState = EControlState::Normal;
 
-	m_pBorderLine->SetBoxColor(DEFAULT_COLOR_BORDER);
+	if (!m_bBorderColorSet)
+	{
+		m_pBorderLine->SetBoxColor(DEFAULT_COLOR_BORDER);
+	}
 }
 
 auto JWControl::ShouldDrawBorder(bool Value) noexcept->JWControl*
@@ -530,6 +581,19 @@ auto JWControl::ShouldUseViewport(bool Value) noexcept->JWControl*
 auto JWControl::ShouldBeOffsetByMenuBar(bool Value) noexcept->JWControl*
 {
 	m_bShouldBeOffsetByMenuBar = Value;
+
+	SetPosition(m_AbsolutePosition);
+	SetSize(m_Size);
+
+	return this;
+}
+
+auto JWControl::ShouldBeOffsetByParent(bool Value) noexcept->JWControl*
+{
+	m_bShouldBeOffsetByParent = Value;
+
+	SetPosition(m_AbsolutePosition);
+	SetSize(m_Size);
 
 	return this;
 }

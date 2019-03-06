@@ -4,21 +4,15 @@
 
 namespace JWENGINE
 {
-	// ***
-	// *** Forward declaration ***
-	class JWImage;
-	// ***
-
 	class JWLabel final : public JWControl
 	{
 	friend class JWListBox;
 
 	public:
-		JWLabel();
+		JWLabel() {};
 		~JWLabel() {};
 
-		auto Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl* override;
-		void Destroy() noexcept override;
+		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 
 		void Draw() noexcept override;
 
@@ -26,9 +20,9 @@ namespace JWENGINE
 		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
 
 	private:
-		static const BYTE DEFUALT_ALPHA_BACKGROUND_LABEL = 255;
-		static const DWORD DEFAULT_COLOR_BACKGROUND_LABEL = DEFAULT_COLOR_ALMOST_BLACK;
+		static const BYTE DEFUALT_ALPHA_BACKGROUND_LABEL{ 255 };
+		static const DWORD DEFAULT_COLOR_BACKGROUND_LABEL{ DEFAULT_COLOR_ALMOST_BLACK };
 
-		JWImage* m_pBackground = nullptr;
+		UNIQUE_PTR<JWImage> m_pBackground{};
 	};
 };

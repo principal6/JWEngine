@@ -132,7 +132,6 @@
     <ClInclude Include="..\CoreBase\JWRectangle.h" />
     <ClInclude Include="..\CoreBase\JWText.h" />
     <ClInclude Include="..\CoreBase\JWWindow.h" />
-    <ClInclude Include="..\CoreType\TDynamicArray.h" />
     <ClInclude Include="..\CoreType\TLinkedList.h" />
     <ClInclude Include="..\Dependency\tinyxml2.h" />
     <ClInclude Include="Controls\JWCheckBox.h" />

@@ -4,46 +4,33 @@
 
 using namespace JWENGINE;
 
-JWCheckBox::JWCheckBox()
-{
-	// A checkbox has always its border.
-	m_bShouldDrawBorder = true;
-}
-
-auto JWCheckBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData)->JWControl*
+void JWCheckBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
 	JWControl::Create(Position, Size, SharedData);
 
-	m_pBackground = new JWImage;
+	// Set control type
+	m_ControlType = EControlType::CheckBox;
+
+	// A checkbox has always its border.
+	m_bShouldDrawBorder = true;
+
+	// Set default alignment
+	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
+
+	m_pBackground = MAKE_UNIQUE(JWImage)();
 	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
 	m_pBackground->SetColor(DEFAULT_COLOR_ALMOST_WHITE);
 	m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 
-	m_pCheckImage = new JWImage;
+	m_pCheckImage = MAKE_UNIQUE(JWImage)();
 	m_pCheckImage->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
 	m_pCheckImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 	m_pCheckImage->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
 	m_pCheckImage->SetAtlasUV(D3DXVECTOR2(0, GUI_BUTTON_SIZE.y * 2), GUI_BUTTON_SIZE);
 
-	// Set default alignment
-	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
-
-	// Set control type
-	m_ControlType = EControlType::CheckBox;
-
 	// Set control's position and size.
 	SetPosition(Position);
 	SetSize(Size);
-
-	return this;
-}
-
-void JWCheckBox::Destroy() noexcept
-{
-	JWControl::Destroy();
-
-	JW_DESTROY(m_pBackground);
-	JW_DESTROY(m_pCheckImage);
 }
 
 void JWCheckBox::Draw() noexcept
