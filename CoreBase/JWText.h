@@ -1,6 +1,7 @@
 #pragma once
 
 #include "JWBMFontParser.h"
+#include "JWRectangle.h"
 
 namespace JWENGINE
 {
@@ -8,52 +9,46 @@ namespace JWENGINE
 	// *** Forward declaration ***
 	class JWWindow;
 	class JWLine;
-	class JWRectangle;
-
+	
 	struct SVertexImage;
 	struct SIndex3;
 	// ***
 
 	struct SVertexData
 	{
-		LPDIRECT3DVERTEXBUFFER9 pBuffer = nullptr;
-		SVertexImage* Vertices = nullptr;
-		UINT VertexSize = 0;
-
-		SVertexData() {};
+		LPDIRECT3DVERTEXBUFFER9 pBuffer{ nullptr };
+		SVertexImage* Vertices{ nullptr };
+		UINT VertexSize{};
 	};
 
 	struct SIndexData
 	{
-		LPDIRECT3DINDEXBUFFER9 pBuffer = nullptr;
-		SIndex3* Indices = nullptr;
-		UINT IndexSize = 0;
-
-		SIndexData() {};
+		LPDIRECT3DINDEXBUFFER9 pBuffer{ nullptr };
+		SIndex3* Indices{ nullptr };
+		UINT IndexSize{};
 	};
 
 	struct SGlyphInfo
 	{
-		size_t chars_id;
-		float left;
-		float top;
-		float drawing_top;
-		float width;
-		float height;
-		size_t line_index;
-		size_t glyph_index_in_line;
+		size_t chars_id{ 1 };
+		float left{};
+		float top{};
+		float drawing_top{};
+		float width{};
+		float height{};
+		size_t line_index{};
+		size_t glyph_index_in_line{ SIZE_T_INVALID };
 
-		SGlyphInfo() : chars_id(1), left(0), top(0), drawing_top(0), width(0), height(0), line_index(0), glyph_index_in_line(SIZE_T_INVALID) {};
-		SGlyphInfo(float _left, float _top) : chars_id(0), left(_left), top(_top), drawing_top(0), width(0), height(0),
-			line_index(0), glyph_index_in_line(0) {};
+		SGlyphInfo() {};
+		SGlyphInfo(float _left, float _top) : left(_left), top(_top) {};
 	};
 
 	struct SLineInfo
 	{
-		size_t start_glyph_index;
-		size_t end_glyph_index;
+		size_t start_glyph_index{};
+		size_t end_glyph_index{};
 
-		SLineInfo() : start_glyph_index(0), end_glyph_index(0) {};
+		SLineInfo() {};
 		SLineInfo(size_t start, size_t end) : start_glyph_index(start), end_glyph_index(end) {};
 	};
 
@@ -61,7 +56,7 @@ namespace JWENGINE
 	{
 	public:
 		JWText() {};
-		~JWText() {};
+		~JWText();
 
 		// TODO: add SetWatermark(), SetWatermarkColor()
 
@@ -73,9 +68,6 @@ namespace JWENGINE
 		// A 'JWEdit' control must call this function when it's being created.
 		// To fill in the third paramater(pFontTexture), call GetFontTexturePtr() of the JWGUIWindow-shared JWText object.
 		void CreateNonInstantText(const JWWindow& Window, const WSTRING& BaseDir, const LPDIRECT3DTEXTURE9 pFontTexture);
-
-		// Destroy JWText object, no matter it's instant or non-instant.
-		void Destroy() noexcept;
 
 		// Call this function when first set the text, or when the JWEdit control is resized or repositioned.
 		void SetNonInstantText(const WSTRING& Text, const D3DXVECTOR2& Position, const D3DXVECTOR2& AreaSize) noexcept;
@@ -164,25 +156,25 @@ namespace JWENGINE
 		auto GetLineEndGlyphIndex(size_t LineIndex) const noexcept->size_t;
 
 	private:
-		static const DWORD DEFAULT_COLOR_CARET = DEFAULT_COLOR_FONT;
-		static const DWORD DEFAULT_COLOR_BOX = D3DCOLOR_ARGB(0, 180, 180, 180);
-		static const DWORD DEFAULT_COLOR_SELECTION = D3DCOLOR_ARGB(100, 255, 0, 255);
-		static const float DEFAULT_SIDE_CONSTRAINT_STRIDE;
-		static constexpr unsigned int MAX_INSTANT_TEXT_LENGTH = 256;
-		static constexpr unsigned int MAX_INSTANT_TEXT_VERTEX_SIZE = MAX_INSTANT_TEXT_LENGTH * 4;
-		static constexpr unsigned int MAX_INSTANT_TEXT_INDEX_SIZE = MAX_INSTANT_TEXT_LENGTH * 2;
+		static constexpr DWORD DEFAULT_COLOR_CARET{ DEFAULT_COLOR_FONT };
+		static constexpr DWORD DEFAULT_COLOR_BOX{ D3DCOLOR_ARGB(0, 180, 180, 180) };
+		static constexpr DWORD DEFAULT_COLOR_SELECTION{ D3DCOLOR_ARGB(100, 255, 0, 255) };
+		static constexpr float DEFAULT_SIDE_CONSTRAINT_STRIDE{ 20.0f };
+		static constexpr unsigned int MAX_INSTANT_TEXT_LENGTH{ 256 };
+		static constexpr unsigned int MAX_INSTANT_TEXT_VERTEX_SIZE{ MAX_INSTANT_TEXT_LENGTH * 4 };
+		static constexpr unsigned int MAX_INSTANT_TEXT_INDEX_SIZE{ MAX_INSTANT_TEXT_LENGTH * 2 };
 
-		bool m_bIsInstantText = true;
-		bool m_bUseAutomaticLineBreak = false;
+		bool m_bIsInstantText{ true };
+		bool m_bUseAutomaticLineBreak{ false };
 
-		const JWWindow* m_pJWWindow = nullptr;
-		const WSTRING* m_pBaseDir = nullptr;
+		const JWWindow* m_pJWWindow{ nullptr };
+		const WSTRING* m_pBaseDir{ nullptr };
 
 		// There must be one device per each window (Texture must be created on each device).
-		LPDIRECT3DDEVICE9 m_pDevice = nullptr;
+		LPDIRECT3DDEVICE9 m_pDevice{ nullptr };
 
 		// Font texture, which must be shared in all JWText objects to save memory space.
-		LPDIRECT3DTEXTURE9 m_pFontTexture = nullptr;
+		LPDIRECT3DTEXTURE9 m_pFontTexture{ nullptr };
 
 		/*
 		** Member variables for instant-text.
@@ -199,22 +191,22 @@ namespace JWENGINE
 		WSTRING m_NonInstantText;
 		VECTOR<SGlyphInfo> m_NonInstantTextGlyphInfo;
 		VECTOR<SLineInfo> m_NonInstantTextLineInfo;
-		DWORD m_NonInstantTextColor = DEFAULT_COLOR_FONT;
+		DWORD m_NonInstantTextColor{ DEFAULT_COLOR_FONT };
 
-		D3DXVECTOR2 m_ConstraintPosition{ 0, 0 };
-		D3DXVECTOR2 m_ConstraintSize{ 0, 0 };
+		D3DXVECTOR2 m_ConstraintPosition{};
+		D3DXVECTOR2 m_ConstraintSize{};
 
-		JWLine* m_pCaretLine = nullptr;
-		D3DXVECTOR2 m_CaretPosition{ 0, 0 };
-		D3DXVECTOR2 m_CaretSize{ 0, 0 };
-		size_t m_CaretSelPosition = 0;
+		UNIQUE_PTR<JWLine> m_pCaretLine;
+		D3DXVECTOR2 m_CaretPosition{};
+		D3DXVECTOR2 m_CaretSize{};
+		size_t m_CaretSelPosition{};
 
-		JWRectangle* m_pSelectionBox = nullptr;
-		size_t m_CapturedSelPosition = SIZE_T_INVALID;
-		size_t m_SelectionStart = 0;
-		size_t m_SelectionEnd = 0;
-		bool m_bIsTextSelected = false;
+		UNIQUE_PTR<JWRectangle> m_pSelectionBox;
+		size_t m_CapturedSelPosition{ SIZE_T_INVALID };
+		size_t m_SelectionStart{};
+		size_t m_SelectionEnd{};
+		bool m_bIsTextSelected{ false };
 
-		D3DXVECTOR2 m_NonInstantTextOffset{ 0, 0 };
+		D3DXVECTOR2 m_NonInstantTextOffset{};
 	};
 };

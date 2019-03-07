@@ -9,7 +9,7 @@ namespace JWENGINE
 {
 	struct SListBoxItemInfo
 	{
-		D3DXVECTOR2 ItemPosition{};
+		D3DXVECTOR2 ItemPositionOffset{};
 		D3DXVECTOR2 ItemSize{};
 		D3DXVECTOR2 ImageItemSize{};
 	};
@@ -57,15 +57,19 @@ namespace JWENGINE
 	private:
 		void UpdateAutomaticScrollBar() noexcept;
 
+		void UpdateScrollBarPositionAndSize();
+
+		void UpdateItemsPosition();
+
 		void SetToggleSelectionColor(JWImageBox* pItemBackground) noexcept;
 		void SetNonToggleSelectionColor(JWImageBox* pItemBackground) noexcept;
 
 	private:
-		static const DWORD DEFAULT_COLOR_BACKGROUND_LISTBOX{ DEFAULT_COLOR_NORMAL };
-		static const float MINIMUM_ITEM_HEIGHT;
-		static const float DEFAULT_ITEM_HEIGHT;
-		static const float DEFAULT_ITEM_PADDING_X;
-		static const float DEFAULT_ITEM_PADDING_Y;
+		static constexpr DWORD DEFAULT_COLOR_BACKGROUND_LISTBOX{ DEFAULT_COLOR_NORMAL };
+		static constexpr float MINIMUM_ITEM_HEIGHT{ 16.0f };
+		static constexpr float DEFAULT_ITEM_HEIGHT{ 22.0f };
+		static constexpr float DEFAULT_ITEM_PADDING_X{ 1.0f };
+		static constexpr float DEFAULT_ITEM_PADDING_Y{ 1.0f };
 
 		LPDIRECT3DTEXTURE9 m_pTextureForImageItem{ nullptr };
 		const D3DXIMAGE_INFO* m_pTextureForImageItemInfo{ nullptr };
@@ -85,7 +89,6 @@ namespace JWENGINE
 		bool m_bUseImageItems{ false };
 
 		TIndex m_SelectedItemIndex{ TIndex_Invalid };
-		float m_ItemOffsetY{ 0 };
 		float m_MinimumItemHeight{ DEFAULT_ITEM_HEIGHT };
 	};
 };

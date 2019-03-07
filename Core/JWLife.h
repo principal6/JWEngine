@@ -13,7 +13,7 @@ namespace JWENGINE
 	class JWLife : public JWImage
 	{
 	public:
-		JWLife();
+		JWLife() {};
 		virtual ~JWLife() {};
 
 		virtual auto JWLife::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)->JWLife*;
@@ -57,28 +57,28 @@ namespace JWENGINE
 		static const D3DXVECTOR2 GRAVITY;
 		static const float STRIDE;
 
-		const JWMap* m_pMap;
-		D3DXVECTOR2 m_GlobalPosition;
-		D3DXVECTOR2 m_GlobalPositionInverse;
-		D3DXVECTOR2 m_Velocity;
-		bool m_bHitGround;
+		const JWMap* m_pMap{ nullptr };
+		D3DXVECTOR2 m_GlobalPosition{};
+		D3DXVECTOR2 m_GlobalPositionInverse{};
+		D3DXVECTOR2 m_Velocity{};
+		bool m_bHitGround{ true };
 
-		D3DXVECTOR2 m_UnitSize;
+		D3DXVECTOR2 m_UnitSize{};
 
 	private:
 		virtual void JWLife::SetNumRowsAndCols(const POINT UnitSize, int numCols, int numRows) noexcept;
 
 	private:
-		int m_SheetRows;
-		int m_SheetCols;
+		int m_SheetRows{ 0 };
+		int m_SheetCols{ 0 };
 
-		EAnimationDirection m_AnimDir;
-		EAnimationID m_CurrAnimID;
-		size_t m_CurrAnimDataIndex;
-		int m_CurrFrameID;
+		EAnimationDirection m_AnimDir{ EAnimationDirection::Right };
+		EAnimationID m_CurrAnimID{ EAnimationID::Idle };
+		size_t m_CurrAnimDataIndex{ 0 };
+		int m_CurrFrameID{ 0 };
 		VECTOR<SAnimationData> m_AnimData;
 		std::map<int, size_t> m_AnimDataMap;
-		bool m_bAnimated;
-		bool m_bShouldRepeatAnimation;
+		bool m_bAnimated{ false };
+		bool m_bShouldRepeatAnimation{ false };
 	};
 };

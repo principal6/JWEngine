@@ -14,12 +14,11 @@ void JWTextButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, 
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
-	m_pBackground = MAKE_UNIQUE(JWImage)();
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pBackground->SetPosition(m_Position);
-	m_pBackground->SetSize(m_Size);
-	m_pBackground->SetXRGB(m_Color_Normal);
-	m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
+	m_Background.Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_Background.SetPosition(m_Position);
+	m_Background.SetSize(m_Size);
+	m_Background.SetXRGB(m_Color_Normal);
+	m_Background.SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 
 	// Set control's position and size.
 	SetPosition(Position);
@@ -115,13 +114,13 @@ void JWTextButton::Draw() noexcept
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
-		m_pBackground->SetXRGB(m_Color_Normal);
+		m_Background.SetXRGB(m_Color_Normal);
 		break;
 	case JWENGINE::Hover:
-		m_pBackground->SetXRGB(m_Color_Hover);
+		m_Background.SetXRGB(m_Color_Hover);
 		break;
 	case JWENGINE::Pressed:
-		m_pBackground->SetXRGB(m_Color_Pressed);
+		m_Background.SetXRGB(m_Color_Pressed);
 		break;
 	case JWENGINE::Clicked:
 		break;
@@ -129,7 +128,7 @@ void JWTextButton::Draw() noexcept
 		break;
 	}
 
-	m_pBackground->Draw();
+	m_Background.Draw();
 
 	JWControl::EndDrawing();
 }
@@ -138,10 +137,7 @@ auto JWTextButton::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
-	if (m_pBackground)
-	{
-		m_pBackground->SetPosition(m_Position);
-	}
+	m_Background.SetPosition(m_Position);
 
 	return this;
 }
@@ -150,10 +146,7 @@ auto JWTextButton::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 {
 	JWControl::SetSize(Size);
 
-	if (m_pBackground)
-	{
-		m_pBackground->SetSize(m_Size);
-	}
+	m_Background.SetSize(m_Size);
 
 	return this;
 }

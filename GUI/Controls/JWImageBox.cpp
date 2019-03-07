@@ -18,11 +18,8 @@ void JWImageBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, co
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
-	m_pBackground = MAKE_UNIQUE(JWImage)();
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-
-	m_pImage = MAKE_UNIQUE(JWImage)();
-	m_pImage->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_Background.Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_Image.Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
 
 	// Set control's position and size.
 	SetPosition(Position);
@@ -36,13 +33,13 @@ void JWImageBox::Draw() noexcept
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
-		m_pBackground->SetColor(m_Color_Normal);
+		m_Background.SetColor(m_Color_Normal);
 		break;
 	case JWENGINE::Hover:
-		m_pBackground->SetColor(m_Color_Hover);
+		m_Background.SetColor(m_Color_Hover);
 		break;
 	case JWENGINE::Pressed:
-		m_pBackground->SetColor(m_Color_Pressed);
+		m_Background.SetColor(m_Color_Pressed);
 		break;
 	case JWENGINE::Clicked:
 		break;
@@ -51,10 +48,10 @@ void JWImageBox::Draw() noexcept
 	}
 
 	// Draw background
-	m_pBackground->Draw();
+	m_Background.Draw();
 
 	// Draw image
-	m_pImage->Draw();
+	m_Image.Draw();
 
 	JWControl::EndDrawing();
 }
@@ -63,8 +60,8 @@ auto JWImageBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
-	m_pBackground->SetPosition(m_Position);
-	m_pImage->SetPosition(m_Position);
+	m_Background.SetPosition(m_Position);
+	m_Image.SetPosition(m_Position);
 
 	return this;
 }
@@ -73,24 +70,24 @@ auto JWImageBox::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 {
 	JWControl::SetSize(Size);
 
-	m_pBackground->SetSize(m_Size);
+	m_Background.SetSize(m_Size);
 
 	//TODO: size decision ways need to be added (Straight / Stretched / Ratio-width / Ratio-height)
-	//m_pImage->SetSize(m_Size);
+	//m_Image.SetSize(m_Size);
 
 	return this;
 }
 
 auto JWImageBox::SetTextureAtlas(const LPDIRECT3DTEXTURE9 pTextureAtlas, const D3DXIMAGE_INFO* pTextureAtlasInfo) noexcept->JWControl*
 {
-	m_pImage->SetTexture(pTextureAtlas, pTextureAtlasInfo);
+	m_Image.SetTexture(pTextureAtlas, pTextureAtlasInfo);
 
 	return this;
 }
 
 auto JWImageBox::SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size) noexcept->JWControl*
 {
-	m_pImage->SetAtlasUV(OffsetInAtlas, Size);
+	m_Image.SetAtlasUV(OffsetInAtlas, Size);
 
 	return this;
 }
@@ -99,7 +96,7 @@ auto JWImageBox::SetBackgroundColor(DWORD Color) noexcept->JWControl*
 {
 	JWControl::SetBackgroundColor(Color);
 
-	m_pBackground->SetColor(Color);
+	m_Background.SetColor(Color);
 
 	return this;
 }

@@ -18,16 +18,16 @@ LRESULT CALLBACK JWENGINE::BaseWindowProc(HWND hWnd, UINT Message, WPARAM wParam
 	return(DefWindowProc(hWnd, Message, wParam, lParam));
 }
 
-JWWindow::JWWindow()
+JWWindow::~JWWindow()
 {
-	m_hInstance = nullptr;
-	m_hWnd = nullptr;
-	m_pD3D = nullptr;
-	m_pDevice = nullptr;
-	m_BGColor = D3DCOLOR_XRGB(0, 0, 0);
+	if (m_hWnd)
+	{
+		DestroyWindow(m_hWnd);
+		m_hWnd = nullptr;
+	}
 
-	memset(m_FileName, 0, MAX_FILE_LEN);
-	memset(m_FileTitle, 0, MAX_FILE_LEN);
+	JW_RELEASE(m_pDevice);
+	JW_RELEASE(m_pD3D);
 }
 
 void JWWindow::CreateGameWindow(const SWindowCreationData& WindowCreationData)
@@ -145,18 +145,6 @@ PRIVATE void JWWindow::UpdateRenderRect() noexcept
 
 	//m_RenderRect.bottom = m_WindowData.WindowHeight;
 	m_RenderRect.bottom = m_WindowData.ScreenSize.y;
-}
-
-void JWWindow::Destroy() noexcept
-{
-	if (m_hWnd)
-	{
-		DestroyWindow(m_hWnd);
-		m_hWnd = nullptr;
-	}
-
-	JW_RELEASE(m_pDevice);
-	JW_RELEASE(m_pD3D);
 }
 
 void JWWindow::SetWindowCaption(const WSTRING& Caption) noexcept

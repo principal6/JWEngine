@@ -5,8 +5,31 @@
 
 using namespace JWENGINE;
 
-// Static const
-const float JWText::DEFAULT_SIDE_CONSTRAINT_STRIDE = 20.0f;
+JWText::~JWText()
+{
+	m_pDevice = nullptr;
+
+	if (m_bIsInstantText)
+	{
+		JW_RELEASE(m_pFontTexture);
+	}
+	else
+	{
+		m_pFontTexture = nullptr;
+	}
+
+	JW_RELEASE(m_InstantVertexData.pBuffer);
+	JW_DELETE_ARRAY(m_InstantVertexData.Vertices);
+
+	JW_RELEASE(m_InstantIndexData.pBuffer);
+	JW_DELETE_ARRAY(m_InstantIndexData.Indices);
+
+	JW_RELEASE(m_NonInstantVertexData.pBuffer);
+	JW_DELETE_ARRAY(m_NonInstantVertexData.Vertices);
+
+	JW_RELEASE(m_NonInstantIndexData.pBuffer);
+	JW_DELETE_ARRAY(m_NonInstantIndexData.Indices);
+}
 
 void JWText::CreateInstantText(const JWWindow& Window, const WSTRING& BaseDir)
 {
@@ -44,49 +67,20 @@ void JWText::CreateNonInstantText(const JWWindow& Window, const WSTRING& BaseDir
 
 	CreateNonInstantTextBuffers();
 
-	m_pCaretLine = new JWLine;
+	m_pCaretLine = MAKE_UNIQUE(JWLine)();
 	m_pCaretLine->Create(m_pDevice);
 	m_CaretSize.y = static_cast<float>(ms_FontData.Info.Size);
 	m_pCaretLine->AddLine(m_CaretPosition, m_CaretSize, DEFAULT_COLOR_CARET);
 	m_pCaretLine->AddEnd();
 
 	// Create a JWRectangle for selection box.
-	m_pSelectionBox = new JWRectangle;
+	m_pSelectionBox = MAKE_UNIQUE(JWRectangle)();
 	UINT max_box_num = static_cast<UINT>((m_pJWWindow->GetWindowData()->ScreenSize.y / GetLineHeight()) + 1);
 	m_pSelectionBox->Create(*m_pJWWindow, *m_pBaseDir, max_box_num);
 	m_pSelectionBox->SetRectangleColor(DEFAULT_COLOR_SELECTION);
 
 	// This is a non-instant-text JWText.
 	m_bIsInstantText = false;
-}
-
-void JWText::Destroy() noexcept
-{
-	m_pDevice = nullptr;
-
-	if (m_bIsInstantText)
-	{
-		JW_RELEASE(m_pFontTexture);
-	}
-	else
-	{
-		m_pFontTexture = nullptr;
-
-		JW_DESTROY(m_pCaretLine);
-		JW_DESTROY(m_pSelectionBox);
-	}
-
-	JW_RELEASE(m_InstantVertexData.pBuffer);
-	JW_DELETE_ARRAY(m_InstantVertexData.Vertices);
-
-	JW_RELEASE(m_InstantIndexData.pBuffer);
-	JW_DELETE_ARRAY(m_InstantIndexData.Indices);
-
-	JW_RELEASE(m_NonInstantVertexData.pBuffer);
-	JW_DELETE_ARRAY(m_NonInstantVertexData.Vertices);
-
-	JW_RELEASE(m_NonInstantIndexData.pBuffer);
-	JW_DELETE_ARRAY(m_NonInstantIndexData.Indices);
 }
 
 PRIVATE void JWText::CreateFontTexture(const WSTRING& FileName_FNT)
@@ -1116,8 +1110,8 @@ PRIVATE void JWText::UpdateSelectionBox() noexcept
 		size_t line_start = m_NonInstantTextGlyphInfo[sel_start].line_index;
 		size_t line_end = m_NonInstantTextGlyphInfo[sel_end].line_index;
 
-		D3DXVECTOR2 selection_position = D3DXVECTOR2(0, 0);
-		D3DXVECTOR2 selection_size = D3DXVECTOR2(0, 0);
+		D3DXVECTOR2 selection_position{ 0, 0 };
+		D3DXVECTOR2 selection_size{ 0, 0 };
 		selection_size.y = GetLineHeight();
 
 		m_pSelectionBox->ClearAllRectangles();

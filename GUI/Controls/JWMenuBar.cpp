@@ -8,7 +8,7 @@
 using namespace JWENGINE;
 
 // Static const
-const D3DXVECTOR2& JWMenuBar::BLANK_SUBITEMBOX_SIZE{ 100.0f, 60.0f };
+const D3DXVECTOR2 JWMenuBar::BLANK_SUBITEMBOX_SIZE{ 100.0f, 60.0f };
 
 void JWMenuBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {

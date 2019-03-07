@@ -68,8 +68,7 @@ void JWGUI::Destroy() noexcept
 	{
 		for (JWGUIWindow** iterator : m_ppGUIWindows)
 		{
-			JW_DESTROY((*iterator));
-
+			JW_DELETE(*iterator);
 			iterator = nullptr;
 		}
 	}
@@ -90,11 +89,11 @@ void JWGUI::DestroyGUIWindow(const JWGUIWindow* pGUIWindow) noexcept
 	{
 		size_t iterator_window_index = 0;
 
-		for (JWGUIWindow** iterator : m_ppGUIWindows)
+		for (auto& iterator : m_ppGUIWindows)
 		{
 			if ((*iterator) == pGUIWindow)
 			{
-				JW_DESTROY((*iterator));
+				JW_DELETE(*iterator);
 				iterator = nullptr;
 				break;
 			}
@@ -205,7 +204,7 @@ void JWGUI::Run() noexcept
 				iterator_index = 0;
 				for (JWGUIWindow** iterator : m_ppGUIWindows)
 				{
-					JW_DESTROY((*m_ppGUIWindows[iterator_index]));
+					JW_DELETE(*m_ppGUIWindows[iterator_index]);
 					m_ppGUIWindows[iterator_index] = nullptr;
 
 					iterator_index++;
@@ -215,7 +214,7 @@ void JWGUI::Run() noexcept
 			}
 			else
 			{
-				JW_DESTROY((*m_ppGUIWindows[destroyed_gui_window_index]));
+				JW_DELETE(*m_ppGUIWindows[destroyed_gui_window_index]);
 				m_ppGUIWindows[destroyed_gui_window_index] = nullptr;
 
 				m_ppGUIWindows.erase(destroyed_gui_window_index);

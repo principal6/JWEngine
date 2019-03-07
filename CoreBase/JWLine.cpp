@@ -2,6 +2,14 @@
 
 using namespace JWENGINE;
 
+JWLine::~JWLine()
+{
+	m_pDevice = nullptr; // Just set to nullptr, becuase it's newed in <JWWindow> class
+
+	JW_RELEASE(m_pIndexBuffer);
+	JW_RELEASE(m_pVertexBuffer);
+}
+
 void JWLine::Create(const LPDIRECT3DDEVICE9 pDevice)
 {
 	m_pDevice = pDevice;
@@ -17,10 +25,10 @@ void JWLine::CreateMax(const LPDIRECT3DDEVICE9 pDevice) noexcept
 
 PRIVATE void JWLine::CreateVertexBufferMax()
 {
-	JW_RELEASE(m_pVB);
+	JW_RELEASE(m_pVertexBuffer);
 
 	int vertex_size = sizeof(SVertexLine) * MAX_UNIT_COUNT * 8;
-	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
+	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 	{
 		THROW_CREATION_FAILED;
 	}
@@ -28,21 +36,13 @@ PRIVATE void JWLine::CreateVertexBufferMax()
 
 PRIVATE void JWLine::CreateIndexBufferMax()
 {
-	JW_RELEASE(m_pIB);
+	JW_RELEASE(m_pIndexBuffer);
 
 	int index_size = sizeof(SIndex2) * MAX_UNIT_COUNT * 4;
-	if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
+	if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 	{
 		THROW_CREATION_FAILED;
 	}
-}
-
-void JWLine::Destroy() noexcept
-{
-	m_pDevice = nullptr; // Just set to nullptr, becuase it's newed in <JWWindow> class
-
-	JW_RELEASE(m_pIB);
-	JW_RELEASE(m_pVB);
 }
 
 void JWLine::AddLine(const D3DXVECTOR2& StartPosition, const D3DXVECTOR2& Length, DWORD Color) noexcept
@@ -72,10 +72,10 @@ void JWLine::AddEnd() noexcept
 
 PRIVATE void JWLine::CreateVertexBuffer()
 {
-	if (!m_pVB)
+	if (!m_pVertexBuffer)
 	{
 		int vertex_size = sizeof(SVertexLine) * static_cast<int>(m_Vertices.size());
-		if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVB, nullptr)))
+		if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 		{
 			THROW_CREATION_FAILED;
 		}
@@ -84,10 +84,10 @@ PRIVATE void JWLine::CreateVertexBuffer()
 
 PRIVATE void JWLine::CreateIndexBuffer()
 {
-	if (!m_pIB)
+	if (!m_pIndexBuffer)
 	{
 		int index_size = sizeof(SIndex2) * static_cast<int>(m_Indices.size());
-		if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIB, nullptr)))
+		if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 		{
 			THROW_CREATION_FAILED;
 		}
@@ -106,10 +106,10 @@ PRIVATE void JWLine::UpdateVertexBuffer()
 	{
 		int vertex_size = sizeof(SVertexLine) * static_cast<int>(m_Vertices.size());
 		void* pVertices;
-		if (SUCCEEDED(m_pVB->Lock(0, vertex_size, (void**)&pVertices, 0)))
+		if (SUCCEEDED(m_pVertexBuffer->Lock(0, vertex_size, (void**)&pVertices, 0)))
 		{
 			memcpy(pVertices, &m_Vertices[0], vertex_size);
-			m_pVB->Unlock();
+			m_pVertexBuffer->Unlock();
 		}
 	}
 }
@@ -120,10 +120,10 @@ PRIVATE void JWLine::UpdateIndexBuffer()
 	{
 		int index_size = sizeof(SIndex2) * static_cast<int>(m_Indices.size());
 		void* pIndices;
-		if (SUCCEEDED(m_pIB->Lock(0, index_size, (void **)&pIndices, 0)))
+		if (SUCCEEDED(m_pIndexBuffer->Lock(0, index_size, (void **)&pIndices, 0)))
 		{
 			memcpy(pIndices, &m_Indices[0], index_size);
-			m_pIB->Unlock();
+			m_pIndexBuffer->Unlock();
 		}
 	}
 }
@@ -133,9 +133,9 @@ void JWLine::Draw() const noexcept
 	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 	m_pDevice->SetTexture(0, nullptr);
 
-	m_pDevice->SetStreamSource(0, m_pVB, 0, sizeof(SVertexLine));
+	m_pDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(SVertexLine));
 	m_pDevice->SetFVF(D3DFVF_LINE);
-	m_pDevice->SetIndices(m_pIB);
+	m_pDevice->SetIndices(m_pIndexBuffer);
 	m_pDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 0, 0, static_cast<int>(m_Vertices.size()), 0, static_cast<int>(m_Indices.size()));
 }
 

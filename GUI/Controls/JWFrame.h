@@ -26,7 +26,7 @@ namespace JWENGINE
 		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
 	private:
-		UNIQUE_PTR<JWImage> m_pBackground{};
+		JWImage m_Background;
 
 		VECTOR<JWControl*> m_pChildControls;
 	};

@@ -63,6 +63,7 @@ namespace JWENGINE
 	class JWText;
 	// ***
 
+	#define JW_DELETE(T) {if(T) {delete T; T = nullptr;}}
 	#define JW_DELETE_ARRAY(arr) {if(arr) {delete[] arr; arr = nullptr;}}
 	#define JW_DESTROY(obj) {if(obj) {obj->Destroy(); delete obj; obj = nullptr;}}
 	#define JW_DESTROY_SMART(obj) {if(obj) {obj->Destroy();}}
@@ -83,7 +84,7 @@ namespace JWENGINE
 	static constexpr int MAX_UNIT_COUNT = 100;
 
 	static const wchar_t GUI_TEXTURE_FILENAME[] = L"jwgui_button.png";
-	static const D3DXVECTOR2& GUI_BUTTON_SIZE = D3DXVECTOR2(15.0f, 15.0f);
+	static const D3DXVECTOR2& GUI_BUTTON_SIZE{ 15.0f, 15.0f };
 
 	const wchar_t ASSET_DIR[] = L"\\Asset\\";
 	const wchar_t DEFAULT_FONT[] = L"dotumche12all.fnt";

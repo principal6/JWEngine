@@ -16,17 +16,16 @@ namespace JWENGINE
 		D3DXVECTOR2 Size{ 0, 0 };
 
 		SBoundingBox() {};
-		SBoundingBox(D3DXVECTOR2 _PositionOffset, D3DXVECTOR2 _Size) : PositionOffset(_PositionOffset), Size(_Size) {};
+		SBoundingBox(D3DXVECTOR2& _PositionOffset, D3DXVECTOR2& _Size) : PositionOffset(_PositionOffset), Size(_Size) {};
 	};
 
 	class JWImage
 	{
 	public:
 		JWImage() {};
-		virtual ~JWImage() {};
+		virtual ~JWImage();
 
 		virtual void Create(const JWWindow& Window, const WSTRING& BaseDir);
-		virtual void Destroy() noexcept;
 
 		virtual void Draw() noexcept;
 		virtual void DrawBoundingBox() noexcept;
@@ -70,35 +69,35 @@ namespace JWENGINE
 		virtual void UpdateVertexData(const STextureUV& UV) noexcept;
 
 	protected:
-		static const int VISIBLE_RANGE_NOT_SET = -1;
-		static const DWORD DEFAULT_BOUNDINGBOX_COLOR;
+		static constexpr int VISIBLE_RANGE_NOT_SET{ -1 };
+		static constexpr DWORD DEFAULT_BOUNDINGBOX_COLOR{ D3DCOLOR_ARGB(255, 0, 150, 50) };
 
-		const JWWindow* m_pJWWindow = nullptr;
-		const WSTRING* m_pBaseDir = nullptr;
+		const JWWindow* m_pJWWindow{ nullptr };
+		const WSTRING* m_pBaseDir{ nullptr };
 
-		LPDIRECT3DDEVICE9 m_pDevice = nullptr;
+		LPDIRECT3DDEVICE9 m_pDevice{ nullptr };
 
-		LPDIRECT3DVERTEXBUFFER9 m_pVertexBuffer = nullptr;
-		LPDIRECT3DINDEXBUFFER9 m_pIndexBuffer = nullptr;
-		LPDIRECT3DTEXTURE9 m_pTexture = nullptr;
+		LPDIRECT3DVERTEXBUFFER9 m_pVertexBuffer{ nullptr };
+		LPDIRECT3DINDEXBUFFER9 m_pIndexBuffer{ nullptr };
+		LPDIRECT3DTEXTURE9 m_pTexture{ nullptr };
 
 		VECTOR<SVertexImage> m_Vertices;
 		VECTOR<SIndex3> m_Indices;
 
-		D3DXVECTOR2 m_Size{ 0, 0 };
-		D3DXVECTOR2 m_ScaledSize{ 0, 0 };
+		D3DXVECTOR2 m_Size{};
+		D3DXVECTOR2 m_ScaledSize{};
 		D3DXVECTOR2 m_VisibleRange{ VISIBLE_RANGE_NOT_SET, VISIBLE_RANGE_NOT_SET };
-		D3DXVECTOR2 m_AtlasSize{ 0, 0 };
-		D3DXVECTOR2 m_OffsetInAtlas{ 0, 0 };
+		D3DXVECTOR2 m_AtlasSize{};
+		D3DXVECTOR2 m_OffsetInAtlas{};
 
-		D3DXVECTOR2 m_Position{ 0, 0 };
+		D3DXVECTOR2 m_Position{};
 		D3DXVECTOR2 m_Scale{ 1.0f, 1.0f };
 
-		SBoundingBox m_BoundingBox;
-		D3DXVECTOR2 m_BoundingBoxExtraSize{ 0, 0 };
 		JWLine m_BoundingBoxLine;
-		DWORD m_BoundingBoxColor = DEFAULT_BOUNDINGBOX_COLOR;
+		SBoundingBox m_BoundingBox;
+		D3DXVECTOR2 m_BoundingBoxExtraSize{};
+		DWORD m_BoundingBoxColor{ DEFAULT_BOUNDINGBOX_COLOR };
 
-		bool m_bUseStaticTexture = false;
+		bool m_bUseStaticTexture{ false };
 	};
 };

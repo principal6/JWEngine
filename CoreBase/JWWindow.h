@@ -6,24 +6,21 @@ namespace JWENGINE
 {
 	struct SWindowData
 	{
-		int WindowWidth;
-		int WindowHeight;
-		float WindowHalfWidth;
-		float WindowHalfHeight;
-		POINT ScreenSize;
-
-		SWindowData() : WindowWidth(0), WindowHeight(0), WindowHalfWidth(0), WindowHalfHeight(0), ScreenSize{0, 0} {};
+		int WindowWidth{};
+		int WindowHeight{};
+		float WindowHalfWidth{};
+		float WindowHalfHeight{};
+		POINT ScreenSize{};
 	};
 
 	class JWWindow final
 	{
 	public:
-		JWWindow();
-		~JWWindow() {};
+		JWWindow() {};
+		~JWWindow();
 
 		void CreateGameWindow(const SWindowCreationData& WindowCreationData);
 		void CreateGUIWindow(const SWindowCreationData& WindowCreationData);
-		void Destroy() noexcept;
 		
 		void SetWindowCaption(const WSTRING& Caption) noexcept;
 		void SetBackgroundColor(D3DCOLOR color) noexcept;
@@ -68,20 +65,20 @@ namespace JWENGINE
 		void UpdateRenderRect() noexcept;
 
 	private:
-		HINSTANCE m_hInstance;
-		HWND m_hWnd;
-		RECT m_Rect;
-		mutable RECT m_RenderRect;
+		HINSTANCE m_hInstance{ nullptr };
+		HWND m_hWnd{ nullptr };
+		RECT m_Rect{};
+		mutable RECT m_RenderRect{};
 		SWindowData m_WindowData;
 		SWindowInputState m_WindowInputState;
 
-		LPDIRECT3D9 m_pD3D;
-		LPDIRECT3DDEVICE9 m_pDevice;
-		D3DPRESENT_PARAMETERS m_D3DPP;
-		D3DCOLOR m_BGColor;
+		LPDIRECT3D9 m_pD3D{ nullptr };
+		LPDIRECT3DDEVICE9 m_pDevice{ nullptr };
+		D3DPRESENT_PARAMETERS m_D3DPP{};
+		D3DCOLOR m_BGColor{ D3DCOLOR_XRGB(0, 0, 0) };
 
-		OPENFILENAMEW m_OFN;
-		wchar_t m_FileName[MAX_FILE_LEN];
-		wchar_t m_FileTitle[MAX_FILE_LEN];
+		OPENFILENAMEW m_OFN{};
+		wchar_t m_FileName[MAX_FILE_LEN]{};
+		wchar_t m_FileTitle[MAX_FILE_LEN]{};
 	};
 };

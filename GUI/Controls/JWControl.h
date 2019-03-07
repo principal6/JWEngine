@@ -325,10 +325,9 @@ namespace JWENGINE
 		virtual void WindowIMEInput(const SGUIIMEInputInfo& IMEInfo) {};
 
 	protected:
-		const SGUIWindowSharedData* m_pSharedData;
+		const SGUIWindowSharedData* m_pSharedData{ nullptr };
 
-		// Owning pointer
-		UNIQUE_PTR<JWLine> m_pBorderLine{};
+		JWLine m_pBorderLine;
 
 		// Observing pointer
 		JWScrollBar* m_pAttachedScrollBar{ nullptr };
@@ -336,10 +335,10 @@ namespace JWENGINE
 
 		EControlType m_ControlType{ EControlType::Invalid };
 		EControlState m_ControlState{ EControlState::Normal };
-		RECT m_ControlRect{ 0, 0, 0, 0 };
-		D3DXVECTOR2 m_Position{ 0, 0 };
-		D3DXVECTOR2 m_AbsolutePosition{ 0, 0 };
-		D3DXVECTOR2 m_Size{ 0, 0 };
+		RECT m_ControlRect{};
+		D3DXVECTOR2 m_Position{};
+		D3DXVECTOR2 m_AbsolutePosition{};
+		D3DXVECTOR2 m_Size{};
 
 		D3DVIEWPORT9 m_OriginalViewport{};
 		D3DVIEWPORT9 m_ControlViewport{};
@@ -352,7 +351,7 @@ namespace JWENGINE
 		DWORD m_FontColor{ DEFAULT_COLOR_FONT };
 		EHorizontalAlignment m_HorizontalAlignment{ EHorizontalAlignment::Left };
 		EVerticalAlignment m_VerticalAlignment{ EVerticalAlignment::Top };
-		D3DXVECTOR2 m_CalculatedTextPosition{ 0, 0 };
+		D3DXVECTOR2 m_CalculatedTextPosition{};
 
 		bool m_bShouldDrawBorder{ false };
 		bool m_bShouldUseViewport{ true };

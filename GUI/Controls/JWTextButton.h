@@ -27,7 +27,7 @@ namespace JWENGINE
 		void KillFocus() noexcept override;
 
 	private:
-		UNIQUE_PTR<JWImage> m_pBackground{};
+		JWImage m_Background;
 
 		bool m_bShouleUseToggleSelection{ false };
 		bool m_bToggleState{ false };

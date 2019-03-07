@@ -20,11 +20,11 @@ namespace JWENGINE
 		auto GetCheckState() const noexcept->bool override;
 
 	private:
-		UNIQUE_PTR<JWImage> m_pBackground{};
-		UNIQUE_PTR<JWImage> m_pCheckImage{};
+		JWImage m_Background;
+		JWImage m_CheckImage;
 
-		D3DXVECTOR2 m_ButtonImageOffset{ 0, 0 };
-		D3DXVECTOR2 m_OffsetInAtlas{ 0, 0 };
+		D3DXVECTOR2 m_ButtonImageOffset{};
+		D3DXVECTOR2 m_OffsetInAtlas{};
 
 		bool m_bChecked{ false };
 	};

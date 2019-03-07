@@ -30,37 +30,33 @@ namespace JWENGINE
 		WSTRING TileSheetName;
 		WSTRING MoveSheetName;
 
-		int MapRows;
-		int MapCols;
-		int TileSize;
-		int TileSheetRows;
-		int TileSheetCols;
-		D3DXVECTOR2 MapSize;
-		D3DXVECTOR2 TileSheetSize;
-		D3DXVECTOR2 MoveSheetSize;
-
-		SMapInfo() : MapRows(0), MapCols(0), TileSize(0), TileSheetRows(0), TileSheetCols(0),
-			MapSize(0, 0), TileSheetSize(0, 0), MoveSheetSize(0, 0) {};
+		int MapRows{};
+		int MapCols{};
+		int TileSize{};
+		int TileSheetRows{};
+		int TileSheetCols{};
+		D3DXVECTOR2 MapSize{};
+		D3DXVECTOR2 TileSheetSize{};
+		D3DXVECTOR2 MoveSheetSize{};
 	};
 
 	struct SMapData
 	{
-		int TileID;
-		int MoveID;
+		int TileID{};
+		int MoveID{};
 
-		SMapData() : TileID(0), MoveID(0) {};
-		SMapData(int TILEID, int MOVEID) : TileID(TILEID), MoveID(MOVEID) {};
+		SMapData() {};
+		SMapData(int _TileID, int _MoveID) : TileID(_TileID), MoveID(_MoveID) {};
 	};
 
 	class JWMap final : protected JWImage
 	{
 	public:
 		JWMap();
-		~JWMap() {};
+		~JWMap();
 
 		void Create(const JWWindow& Window, const WSTRING& BaseDir) override;
-		void Destroy() noexcept override;
-
+		
 		void CreateMap(const SMapInfo* InPtr_Info) noexcept;
 		void LoadMap(const WSTRING& FileName) noexcept;
 		void SaveMap(const WSTRING& FileName) noexcept;
@@ -113,28 +109,28 @@ namespace JWENGINE
 		void SetMapFragmentMove(int MoveID, int X, int Y) noexcept;
 
 	private:
-		static const int MAX_LINE_LEN;
-		static const int MAX_TILEID_LEN;
-		static const int MAX_MOVEID_LEN;
-		static const int MOVE_ALPHA;
-		static const int DEF_TILE_SIZE;
-		static const int DEPTH_HELL;
+		static constexpr int MAX_LINE_LEN{ 1024 };
+		static constexpr int MAX_TILEID_LEN{ 3 };
+		static constexpr int MAX_MOVEID_LEN{ 2 };
+		static constexpr int MOVE_ALPHA{ 100 };
+		static constexpr int DEFAULT_TILE_SIZE{ 32 };
+		static constexpr int DEPTH_HELL{ 10 };
 
-		static const wchar_t* MOVE_32;
-		static const wchar_t* MOVE_64;
+		static constexpr wchar_t* MOVE_32{ L"move32.png" };
+		static constexpr wchar_t* MOVE_64{ L"move64.png" };
 
-		EMapMode m_CurrMapMode; // For Map Editor
-		bool m_bMapExist;
+		EMapMode m_CurrMapMode{ EMapMode::TileMode }; // For Map Editor
+		bool m_bMapExist{ false };
 
 		SMapInfo m_MapInfo;
 		VECTOR<SMapData> m_MapData;
 
-		bool m_bMoveTextureLoaded;
-		LPDIRECT3DTEXTURE9 m_pTextureMove;
-		LPDIRECT3DVERTEXBUFFER9 m_pVBMove;
+		bool m_bMoveTextureLoaded{ false };
+		LPDIRECT3DTEXTURE9 m_pTextureMove{ nullptr };
+		LPDIRECT3DVERTEXBUFFER9 m_pVBMove{ nullptr };
 		VECTOR<SVertexImage> m_VertMove;
 
-		D3DXVECTOR2 m_Offset; // For map movement
-		int m_OffsetZeroY; // For map movement (& inversed Y values)
+		D3DXVECTOR2 m_Offset{}; // For map movement
+		int m_OffsetZeroY{}; // For map movement (& inversed Y values)
 	};
 };

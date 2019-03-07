@@ -3,8 +3,18 @@
 
 using namespace JWENGINE;
 
-// Static member variable declaration
-const DWORD JWImage::DEFAULT_BOUNDINGBOX_COLOR = D3DCOLOR_ARGB(255, 0, 150, 50);
+JWImage::~JWImage()
+{
+	m_pJWWindow = nullptr;
+	m_pDevice = nullptr; // Just set to nullptr cuz it's newed in <JWWindow> class
+
+	if (!m_bUseStaticTexture)
+	{
+		JW_RELEASE(m_pTexture);
+	}
+	JW_RELEASE(m_pIndexBuffer);
+	JW_RELEASE(m_pVertexBuffer);
+}
 
 void JWImage::Create(const JWWindow& Window, const WSTRING& BaseDir)
 {
@@ -22,21 +32,6 @@ void JWImage::Create(const JWWindow& Window, const WSTRING& BaseDir)
 	m_BoundingBoxLine.Create(m_pDevice);
 	m_BoundingBoxLine.AddBox(D3DXVECTOR2(0, 0), D3DXVECTOR2(10, 10), m_BoundingBoxColor);
 	m_BoundingBoxLine.AddEnd();
-}
-
-void JWImage::Destroy() noexcept
-{
-	m_pJWWindow = nullptr;
-	m_pDevice = nullptr; // Just set to nullptr cuz it's newed in <JWWindow> class
-
-	m_BoundingBoxLine.Destroy();
-
-	if (!m_bUseStaticTexture)
-	{
-		JW_RELEASE(m_pTexture);
-	}
-	JW_RELEASE(m_pIndexBuffer);
-	JW_RELEASE(m_pVertexBuffer);
 }
 
 PROTECTED void JWImage::ClearVertexAndIndex() noexcept
@@ -173,8 +168,8 @@ void JWImage::SetPosition(const D3DXVECTOR2& Position) noexcept
 
 void JWImage::SetPositionCentered(const D3DXVECTOR2& Position) noexcept
 {
-	m_Position = D3DXVECTOR2(Position.x - (static_cast<float>(m_ScaledSize.x) / 2.0f),
-		Position.y - (static_cast<float>(m_ScaledSize.y) / 2.0f));
+	m_Position = { Position.x - (static_cast<float>(m_ScaledSize.x) / 2.0f),
+		Position.y - (static_cast<float>(m_ScaledSize.y) / 2.0f) };
 
 	UpdateVertexData();
 }

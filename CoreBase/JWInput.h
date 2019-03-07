@@ -13,12 +13,11 @@ namespace JWENGINE
 	class JWInput final
 	{
 	public:
-		JWInput();
-		~JWInput() {};
+		JWInput() {};
+		~JWInput();
 
 		void Create(const HWND hWnd, const HINSTANCE hInstance);
-		void Destroy() noexcept;
-
+		
 		auto OnKeyDown(DWORD DIK_KeyCode) noexcept->bool;
 		auto OnKeyUp(DWORD DIK_KeyCode) const noexcept->bool;
 		auto OnMouseMove() noexcept->const DIMOUSESTATE2;
@@ -36,21 +35,21 @@ namespace JWENGINE
 		void CheckMouseButton(int button) noexcept;
 
 	private:
-		HWND m_hWnd;
+		HWND m_hWnd{ nullptr };
 
-		LPDIRECTINPUT8 m_pDirectInput;
-		LPDIRECTINPUTDEVICE8 m_pKeyboardDevice;
-		LPDIRECTINPUTDEVICE8 m_pMouseDevice;
+		LPDIRECTINPUT8 m_pDirectInput{ nullptr };
+		LPDIRECTINPUTDEVICE8 m_pKeyboardDevice{ nullptr };
+		LPDIRECTINPUTDEVICE8 m_pMouseDevice{ nullptr };
 
-		char m_BufferKeyState[NUM_KEYS];
-		bool m_KeyDown[NUM_KEYS];
-		bool m_KeyUp[NUM_KEYS];
-		DIMOUSESTATE2 m_MouseState;
+		char m_BufferKeyState[NUM_KEYS]{};
+		bool m_KeyDown[NUM_KEYS]{};
+		bool m_KeyUp[NUM_KEYS]{};
+		DIMOUSESTATE2 m_MouseState{};
 
-		int m_MouseX;
-		int m_MouseY;
-		bool m_MouseBtnDown[3];
-		bool m_MouseBtnUp[3];
-		bool m_MouseBtnIdle[3];
+		int m_MouseX{};
+		int m_MouseY{};
+		bool m_MouseBtnDown[3]{};
+		bool m_MouseBtnUp[3]{};
+		bool m_MouseBtnIdle[3]{};
 	};
 };

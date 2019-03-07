@@ -2,17 +2,6 @@
 
 using namespace JWENGINE;
 
-JWGame::JWGame()
-{
-	m_TimerStart = 0;
-	m_TimerSec = 0;
-	m_TimerAnim = 0;
-	m_FPS = 0;
-	m_KeyPressCount = 0;
-	m_KeyToggleCount = 0;
-	m_bDrawBoundingBoxes = false;
-}
-
 void JWGame::Create(const WSTRING& GameName, int Width, int Height)
 {
 	// Set base directory
@@ -104,8 +93,6 @@ void JWGame::Run() noexcept
 			MainLoop();
 		}
 	}
-
-	Destroy();
 }
 
 void JWGame::Shutdown() noexcept
@@ -114,19 +101,6 @@ void JWGame::Shutdown() noexcept
 	{
 		DestroyWindow(m_hMainWnd);
 	}
-}
-
-PRIVATE void JWGame::Destroy() noexcept
-{
-	JW_DESTROY_SMART(m_Text);
-
-	JW_DESTROY_SMART(m_EffectManager);
-	JW_DESTROY_SMART(m_MonsterManager);
-	JW_DESTROY_SMART(m_Sprite);
-	JW_DESTROY_SMART(m_Map);
-	JW_DESTROY_SMART(m_Background);
-	JW_DESTROY_SMART(m_Input);
-	JW_DESTROY_SMART(m_Window);
 }
 
 PRIVATE void JWGame::MainLoop() noexcept
@@ -245,25 +219,25 @@ auto JWGame::SpawnEffect(int EffectID, int Damage) noexcept->JWEffect*
 	return m_EffectManager->Spawn(EffectID, m_Sprite->GetCenterPosition(), m_Sprite->GetDirection(), Damage);
 }
 
-auto JWGame::GetTextObject() noexcept->JWText*
+auto JWGame::GetTextObject() const noexcept->JWText*
 {
 	assert(m_Text);
 	return m_Text.get();
 }
 
-auto JWGame::GetSpriteObject() noexcept->JWLife*
+auto JWGame::GetSpriteObject() const noexcept->JWLife*
 {
 	assert(m_Sprite);
 	return m_Sprite.get();
 }
 
-auto JWGame::GetMonsterManagerObject() noexcept->JWMonsterManager*
+auto JWGame::GetMonsterManagerObject() const noexcept->JWMonsterManager*
 {
 	assert(m_MonsterManager);
 	return m_MonsterManager.get();
 }
 
-auto JWGame::GetEffectManagerObject() noexcept->JWEffect*
+auto JWGame::GetEffectManagerObject() const noexcept->JWEffect*
 {
 	assert(m_EffectManager);
 	return m_EffectManager.get();

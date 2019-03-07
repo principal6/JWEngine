@@ -13,10 +13,9 @@ namespace JWENGINE
 	{
 	public:
 		JWRectangle();
-		virtual ~JWRectangle() {};
+		virtual ~JWRectangle();
 
 		virtual void Create(const JWWindow& Window, const WSTRING& BaseDir, UINT MaxNumBox = 1);
-		virtual void Destroy() noexcept;
 
 		virtual void ClearAllRectangles() noexcept;
 
@@ -35,21 +34,21 @@ namespace JWENGINE
 		virtual void UpdateIndexBuffer();
 
 	protected:
-		static const DWORD DEFAULT_COLOR_RECTANGLE = D3DCOLOR_ARGB(255, 80, 255, 0);
+		static constexpr DWORD DEFAULT_COLOR_RECTANGLE{ D3DCOLOR_ARGB(255, 80, 255, 0) };
 
-		const JWWindow* m_pJWWindow;
+		const JWWindow* m_pJWWindow{ nullptr };
 		WSTRING m_BaseDir;
 		
-		LPDIRECT3DDEVICE9 m_pDevice;
-		LPDIRECT3DVERTEXBUFFER9 m_pVertexBuffer;
-		LPDIRECT3DINDEXBUFFER9 m_pIndexBuffer;
+		LPDIRECT3DDEVICE9 m_pDevice{ nullptr };
+		LPDIRECT3DVERTEXBUFFER9 m_pVertexBuffer{ nullptr };
+		LPDIRECT3DINDEXBUFFER9 m_pIndexBuffer{ nullptr };
 
-		SVertexImage* m_Vertices;
-		SIndex3* m_Indices;
+		SVertexImage* m_Vertices{ nullptr };
+		SIndex3* m_Indices{ nullptr };
 
-		UINT m_MaxNumBox;
-		UINT m_BoxCount;
+		UINT m_MaxNumBox{};
+		UINT m_BoxCount{};
 
-		DWORD m_RectangleColor;
+		DWORD m_RectangleColor{ DEFAULT_COLOR_RECTANGLE };
 	};
 };

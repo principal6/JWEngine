@@ -8,14 +8,13 @@ namespace JWENGINE
 	// *** Forward declaration ***
 	class JWWindow;
 	class JWText;
-	class JWImageBox;
 	// ***
 
 	class JWEdit final : public JWControl
 	{
 	public:
 		JWEdit() {};
-		~JWEdit();
+		~JWEdit() {};
 
 		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 
@@ -56,26 +55,27 @@ namespace JWENGINE
 		void UpdatePaddedViewport() noexcept;
 
 	private:
-		static const DWORD DEFAULT_COLOR_BACKGROUND_EDIT{ DEFAULT_COLOR_ALMOST_BLACK };
-		static const unsigned int DEFAULT_EDIT_PADDING{ 2 };
-		static const size_t DEFAULT_CARET_INTERVAL{ 30 };
+		static constexpr DWORD DEFAULT_COLOR_BACKGROUND_EDIT{ DEFAULT_COLOR_ALMOST_BLACK };
+		static constexpr unsigned int DEFAULT_EDIT_PADDING{ 2 };
+		static constexpr size_t DEFAULT_CARET_INTERVAL{ 30 };
 
-		UNIQUE_PTR<JWImageBox> m_pBackground{};
-		UNIQUE_PTR<JWText> m_pEditText{};
+		UNIQUE_PTR<JWImage> m_pBackground;
+		UNIQUE_PTR<JWText> m_pEditText;
+
 		DWORD m_FontColor{ DEFAULT_COLOR_FONT };
 
 		WSTRING m_Watermark{ DEFAULT_EDIT_WATERMARK };
 		DWORD m_WatermarkColor{ DEFAULT_COLOR_WATERMARK };
 
 		D3DVIEWPORT9 m_PaddedViewport{};
-		D3DXVECTOR2 m_PaddedPosition{ 0, 0 };
-		D3DXVECTOR2 m_PaddedSize{ 0, 0 };
+		D3DXVECTOR2 m_PaddedPosition{};
+		D3DXVECTOR2 m_PaddedSize{};
 
-		size_t m_CaretShowInterval{ 0 };
+		size_t m_CaretShowInterval{};
 
 		bool m_bIMEInput{ false };
 		bool m_bIMECaretCaptured{ false };
-		size_t m_IMECapturedCaret{ 0 };
+		size_t m_IMECapturedCaret{};
 
 		bool m_bUseMultiline{ false };
 		bool m_bShouldGetOnlyNumbers{ false };

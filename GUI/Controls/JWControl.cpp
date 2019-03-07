@@ -25,10 +25,9 @@ void JWControl::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, con
 	m_pSharedData = &SharedData;
 
 	// Craete line for border
-	m_pBorderLine = MAKE_UNIQUE(JWLine)();
-	m_pBorderLine->Create(m_pSharedData->pWindow->GetDevice());
-	m_pBorderLine->AddBox(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), DEFAULT_COLOR_BORDER);
-	m_pBorderLine->AddEnd();
+	m_pBorderLine.Create(m_pSharedData->pWindow->GetDevice());
+	m_pBorderLine.AddBox(D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), DEFAULT_COLOR_BORDER);
+	m_pBorderLine.AddEnd();
 
 	// Update border position and size.
 	UpdateBorderPositionAndSize();
@@ -52,7 +51,7 @@ void JWControl::EndDrawing()
 {
 	if (m_bShouldDrawBorder)
 	{
-		m_pBorderLine->Draw();
+		m_pBorderLine.Draw();
 	}
 
 	if (m_Text.length())
@@ -209,7 +208,7 @@ auto JWControl::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 
 auto JWControl::SetBorderColor(DWORD Color) noexcept->JWControl*
 {
-	m_pBorderLine->SetBoxColor(Color);
+	m_pBorderLine.SetBoxColor(Color);
 	
 	ShouldDrawBorder(true);
 
@@ -220,7 +219,7 @@ auto JWControl::SetBorderColor(DWORD Color) noexcept->JWControl*
 
 auto JWControl::SetBorderColor(DWORD ColorA, DWORD ColorB) noexcept->JWControl*
 {
-	m_pBorderLine->SetBoxColor(ColorA, ColorB);
+	m_pBorderLine.SetBoxColor(ColorA, ColorB);
 
 	m_bBorderColorSet = true;
 
@@ -469,7 +468,7 @@ PROTECTED void JWControl::UpdateBorderPositionAndSize() noexcept
 	border_size.x -= 1.0f;
 	border_size.y -= 1.0f;
 
-	m_pBorderLine->SetBox(border_position, border_size);
+	m_pBorderLine.SetBox(border_position, border_size);
 }
 
 PROTECTED void JWControl::UpdateViewport() noexcept
@@ -548,7 +547,7 @@ void JWControl::Focus() noexcept
 
 	if (!m_bBorderColorSet)
 	{
-		m_pBorderLine->SetBoxColor(DEFAULT_COLOR_BORDER_ACTIVE);
+		m_pBorderLine.SetBoxColor(DEFAULT_COLOR_BORDER_ACTIVE);
 	}
 }
 
@@ -560,7 +559,7 @@ void JWControl::KillFocus() noexcept
 
 	if (!m_bBorderColorSet)
 	{
-		m_pBorderLine->SetBoxColor(DEFAULT_COLOR_BORDER);
+		m_pBorderLine.SetBoxColor(DEFAULT_COLOR_BORDER);
 	}
 }
 

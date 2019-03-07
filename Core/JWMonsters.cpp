@@ -19,14 +19,10 @@ auto JWMonsterType::AddAnimation(const SAnimationData& Value) noexcept->JWMonste
 	JWMonster Class
 -----------------------------------------------------------------------------*/
 
-// Static member variable declaration
-const float JWMonster::OFFSET_Y_HPBAR = 16.0f;
-
-JWMonster::JWMonster()
+JWMonster::~JWMonster()
 {
-	m_HPCurr = 0;
-	m_HPFrame = nullptr;
-	m_HPBar = nullptr;
+	JW_DELETE(m_HPFrame);
+	JW_DELETE(m_HPBar);
 }
 
 auto JWMonster::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)->JWMonster*
@@ -44,12 +40,6 @@ auto JWMonster::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWM
 	m_HPBar->SetAtlasUV(D3DXVECTOR2(0, 10), D3DXVECTOR2(47, 10));
 
 	return this;
-}
-
-void JWMonster::Destroy() noexcept
-{
-	JW_DESTROY(m_HPFrame);
-	JW_DESTROY(m_HPBar);
 }
 
 PRIVATE void JWMonster::SetUIPosition(const D3DXVECTOR2& Position) noexcept
@@ -133,7 +123,22 @@ void JWMonster::Draw() noexcept
 -----------------------------------------------------------------------------*/
 
 // Static member variable declaration
-LPDIRECT3DDEVICE9 JWMonsterManager::m_pDevice;
+LPDIRECT3DDEVICE9 JWMonsterManager::m_pDevice{ nullptr };
+
+JWMonsterManager::~JWMonsterManager()
+{
+	if (m_pInstances.size())
+	{
+		for (auto& iterator : m_pInstances)
+		{
+			JW_DELETE(iterator);
+		}
+	}
+
+	m_pJWWindow = nullptr;
+	m_pDevice = nullptr;
+	m_pMap = nullptr;
+}
 
 void JWMonsterManager::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)
 {
@@ -141,18 +146,6 @@ void JWMonsterManager::Create(const JWWindow& Window, const WSTRING& BaseDir, co
 	m_pDevice = Window.GetDevice();
 	m_pBaseDir = &BaseDir;
 	m_pMap = &Map;
-}
-
-void JWMonsterManager::Destroy() noexcept
-{
-	m_pJWWindow = nullptr;
-	m_pDevice = nullptr;
-	m_pMap = nullptr;
-
-	for (JWMonster& InstanceIterator : m_Instances)
-	{
-		InstanceIterator.Destroy();
-	}
 }
 
 auto JWMonsterManager::AddMonsterType(const JWMonsterType& NewType) noexcept->JWMonsterType*
@@ -168,24 +161,24 @@ auto JWMonsterManager::Spawn(const WSTRING& MonsterName, const D3DXVECTOR2& Glob
 	{
 		if (TypeIterator.m_Name == MonsterName)
 		{
-			JWMonster Temp;
-			Temp.Create(*m_pJWWindow, *m_pBaseDir, *m_pMap);
-			Temp.SetMonsterType(TypeIterator);
-			Temp.MakeLife(TypeIterator.m_TextureFileName, TypeIterator.m_UnitSize, TypeIterator.m_TextureNumCols,
+			JWMonster* temp = new JWMonster();
+			temp->Create(*m_pJWWindow, *m_pBaseDir, *m_pMap);
+			temp->SetMonsterType(TypeIterator);
+			temp->MakeLife(TypeIterator.m_TextureFileName, TypeIterator.m_UnitSize, TypeIterator.m_TextureNumCols,
 				TypeIterator.m_TextureNumRows, 1.0f);
 
 			for (SAnimationData& AnimIterator : TypeIterator.m_AnimData)
 			{
-				Temp.AddAnimation(SAnimationData(AnimIterator.AnimID, AnimIterator.FrameS, AnimIterator.FrameE));
+				temp->AddAnimation(SAnimationData(AnimIterator.AnimID, AnimIterator.FrameS, AnimIterator.FrameE));
 			}
 
-			Temp.SetGlobalPosition(GlobalPosition);
-			Temp.SetAnimation(EAnimationID::Idle);
-			Temp.SetBoundingBox(TypeIterator.m_BoundingBoxExtraSize);
+			temp->SetGlobalPosition(GlobalPosition);
+			temp->SetAnimation(EAnimationID::Idle);
+			temp->SetBoundingBox(TypeIterator.m_BoundingBoxExtraSize);
 
-			m_Instances.push_back(Temp);
+			m_pInstances.push_back(temp);
 
-			return &m_Instances[m_Instances.size() - 1];
+			return m_pInstances[m_pInstances.size() - 1];
 		}
 	}
 	return nullptr;
@@ -193,37 +186,37 @@ auto JWMonsterManager::Spawn(const WSTRING& MonsterName, const D3DXVECTOR2& Glob
 
 void JWMonsterManager::Animate() noexcept
 {
-	for (JWMonster& InstanceIterator : m_Instances)
+	for (auto& InstanceIterator : m_pInstances)
 	{
-		InstanceIterator.Animate();
+		InstanceIterator->Animate();
 	}
 }
 
 void JWMonsterManager::Gravitate() noexcept
 {
-	for (JWMonster& InstanceIterator : m_Instances)
+	for (auto& InstanceIterator : m_pInstances)
 	{
-		InstanceIterator.Gravitate();
+		InstanceIterator->Gravitate();
 	}
 }
 
 void JWMonsterManager::Draw() noexcept
 {
-	for (JWMonster& InstanceIterator : m_Instances)
+	for (auto& InstanceIterator : m_pInstances)
 	{
-		InstanceIterator.Draw();
+		InstanceIterator->Draw();
 	}
 }
 
 void JWMonsterManager::DrawBoundingBox() noexcept
 {
-	for (JWMonster& InstanceIterator : m_Instances)
+	for (auto& InstanceIterator : m_pInstances)
 	{
-		InstanceIterator.DrawBoundingBox();
+		InstanceIterator->DrawBoundingBox();
 	}
 }
 
-auto JWMonsterManager::GetInstancePointer() noexcept->VECTOR<JWMonster>*
+auto JWMonsterManager::GetInstancePointer() noexcept->VECTOR<JWMonster*>*
 {
-	return &m_Instances;
+	return &m_pInstances;
 }

@@ -19,10 +19,11 @@ namespace JWENGINE
 	class JWGame final
 	{
 	public:
-		JWGame();
+		JWGame() {};
 		~JWGame() {};
 
 		void Create(const WSTRING& GameName, int Width, int Height);
+
 		void SetRenderFunction(const PF_RENDER pfRender) noexcept;
 		void SetKeyboardFunction(const PF_KEYBOARD pfKeyboard) noexcept;
 
@@ -42,14 +43,12 @@ namespace JWENGINE
 		auto SpawnMonster(const WSTRING& MonsterName, const D3DXVECTOR2& GlobalPosition) noexcept->JWMonster*;
 		auto SpawnEffect(int EffectID, int Damage) noexcept->JWEffect*;
 
-		auto GetTextObject() noexcept->JWText*;
-		auto GetSpriteObject() noexcept->JWLife*;
-		auto GetMonsterManagerObject() noexcept->JWMonsterManager*;
-		auto GetEffectManagerObject() noexcept->JWEffect*;
+		auto GetTextObject() const noexcept->JWText*;
+		auto GetSpriteObject() const noexcept->JWLife*;
+		auto GetMonsterManagerObject() const noexcept->JWMonsterManager*;
+		auto GetEffectManagerObject() const noexcept->JWEffect*;
 
 	private:
-		void Destroy() noexcept;
-
 		void MainLoop() noexcept;
 		void DetectInput() noexcept;
 
@@ -62,23 +61,23 @@ namespace JWENGINE
 		void DrawAllBase() noexcept;
 
 	private:
-		static const int ANIM_TICK = 70;
-		static const int KEY_TOGGLE_INTERVAL = 15;
-		static const int WINDOW_X = 50;
-		static const int WINDOW_Y = 50;
+		static constexpr int ANIM_TICK{ 70 };
+		static constexpr int KEY_TOGGLE_INTERVAL{ 15 };
+		static constexpr int WINDOW_X{ 50 };
+		static constexpr int WINDOW_Y{ 50 };
 
-		bool m_Keys[NUM_KEYS];
+		bool m_Keys[NUM_KEYS]{};
 
-		ULONGLONG m_TimerStart;
-		ULONGLONG m_TimerSec;
-		ULONGLONG m_TimerAnim;
-		int m_FPS;
-		int m_KeyPressCount;
-		int m_KeyToggleCount;
-		bool m_bDrawBoundingBoxes;
+		ULONGLONG m_TimerStart{};
+		ULONGLONG m_TimerSec{};
+		ULONGLONG m_TimerAnim{};
+		int m_FPS{};
+		int m_KeyPressCount{};
+		int m_KeyToggleCount{};
+		bool m_bDrawBoundingBoxes{ false };
 
-		PF_RENDER m_pfRender;
-		PF_KEYBOARD m_pfKeyboard;
+		PF_RENDER m_pfRender{ nullptr };
+		PF_KEYBOARD m_pfKeyboard{ nullptr };
 
 		UNIQUE_PTR<JWWindow> m_Window;
 		UNIQUE_PTR<JWInput> m_Input;
@@ -90,7 +89,7 @@ namespace JWENGINE
 		UNIQUE_PTR<JWText> m_Text;
 
 		WSTRING m_BaseDir;
-		HWND m_hMainWnd;
-		MSG m_MSG;
+		HWND m_hMainWnd{ nullptr };
+		MSG m_MSG{};
 	};
 };

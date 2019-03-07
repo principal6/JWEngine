@@ -20,7 +20,7 @@ namespace JWENGINE
 		auto GetCheckState() const noexcept->bool override;
 
 	private:
-		UNIQUE_PTR<JWImage> m_pBackground{};
+		JWImage m_Background;
 
 		bool m_bChecked{ false };
 	};

@@ -5,28 +5,9 @@
 using namespace JWENGINE;
 
 // Static member variables declaration
-const D3DXVECTOR2 JWLife::JUMP_POWER = D3DXVECTOR2(0.0f, -14.0f);
-const D3DXVECTOR2 JWLife::GRAVITY = D3DXVECTOR2(0.0f, 0.5f);
-const float JWLife::STRIDE = 5.0f;
-
-JWLife::JWLife()
-{
-	m_SheetRows = 0;
-	m_SheetCols = 0;
-
-	m_AnimDir = EAnimationDirection::Right;
-	m_CurrAnimID = EAnimationID::Idle;
-	m_CurrFrameID = 0;
-	m_bAnimated = false;
-	m_bShouldRepeatAnimation = false;
-
-	m_UnitSize = D3DXVECTOR2(0.0f, 0.0f);
-
-	m_GlobalPosition = D3DXVECTOR2(0.0f, 0.0f);
-	m_GlobalPositionInverse = D3DXVECTOR2(0.0f, 0.0f);
-	m_Velocity = D3DXVECTOR2(0.0f, 0.0f);
-	m_bHitGround = true;
-}
+const D3DXVECTOR2 JWLife::JUMP_POWER{ 0.0f, -14.0f };
+const D3DXVECTOR2 JWLife::GRAVITY{ 0.0f, 0.5f };
+const float JWLife::STRIDE{ 5.0f };
 
 auto JWLife::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)->JWLife*
 {
@@ -352,10 +333,10 @@ void JWLife::Walk(EAnimationDirection Direction) noexcept
 	switch (Direction)
 	{
 	case EAnimationDirection::Left:
-		Velocity = D3DXVECTOR2(-STRIDE, 0);
+		Velocity = { -STRIDE, 0 };
 		break;
 	case EAnimationDirection::Right:
-		Velocity = D3DXVECTOR2(STRIDE, 0);
+		Velocity = { STRIDE, 0 };
 		break;
 	default:
 		break;

@@ -2,18 +2,22 @@
 
 using namespace JWENGINE;
 
-JWInput::JWInput()
+JWInput::~JWInput()
 {
-	m_pDirectInput = nullptr;
-	m_pKeyboardDevice = nullptr;
-	m_pMouseDevice = nullptr;
+	if (m_pMouseDevice)
+	{
+		m_pMouseDevice->Unacquire();
+		m_pMouseDevice->Release();
+		m_pMouseDevice = nullptr;
+	}
+	if (m_pKeyboardDevice)
+	{
+		m_pKeyboardDevice->Unacquire();
+		m_pKeyboardDevice->Release();
+		m_pKeyboardDevice = nullptr;
+	}
 
-	memset(&m_BufferKeyState, 0, sizeof(m_BufferKeyState));
-	memset(&m_KeyDown, false, sizeof(m_KeyDown));
-	memset(&m_KeyUp, false, sizeof(m_KeyUp));
-
-	m_MouseX = 0;
-	m_MouseY = 0;
+	JW_RELEASE(m_pDirectInput);
 }
 
 void JWInput::Create(const HWND hWnd, const HINSTANCE hInstance)
@@ -62,24 +66,6 @@ PRIVATE void JWInput::CreateKeyboardDevice(DWORD dwFlags)
 
 	if (FAILED(m_pKeyboardDevice->Acquire()))
 		THROW_DXINPUT_FAILED;
-}
-
-void JWInput::Destroy() noexcept
-{
-	if (m_pMouseDevice)
-	{
-		m_pMouseDevice->Unacquire();
-		m_pMouseDevice->Release();
-		m_pMouseDevice = nullptr;
-	}
-	if (m_pKeyboardDevice)
-	{
-		m_pKeyboardDevice->Unacquire();
-		m_pKeyboardDevice->Release();
-		m_pKeyboardDevice = nullptr;
-	}
-
-	JW_RELEASE(m_pDirectInput);
 }
 
 auto JWInput::OnKeyDown(DWORD DIK_KeyCode) noexcept->bool

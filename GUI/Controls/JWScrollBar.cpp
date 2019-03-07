@@ -5,8 +5,8 @@
 using namespace JWENGINE;
 
 // Static const
-const D3DXVECTOR2& JWScrollBar::HORIZONTAL_MINIMUM_SIZE{ GUI_BUTTON_SIZE.x * 2, GUI_BUTTON_SIZE.y };
-const D3DXVECTOR2& JWScrollBar::VERTICAL_MINIMUM_SIZE{ GUI_BUTTON_SIZE.x, GUI_BUTTON_SIZE.y * 2 };
+const D3DXVECTOR2 JWScrollBar::HORIZONTAL_MINIMUM_SIZE{ GUI_BUTTON_SIZE.x * 2, GUI_BUTTON_SIZE.y };
+const D3DXVECTOR2 JWScrollBar::VERTICAL_MINIMUM_SIZE{ GUI_BUTTON_SIZE.x, GUI_BUTTON_SIZE.y * 2 };
 
 void JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
@@ -18,30 +18,26 @@ void JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, c
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
-	m_pBackground = MAKE_UNIQUE(JWImage)();
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
+	m_Background.Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_Background.SetColor(DEFAULT_COLOR_NORMAL);
 
-	m_pButtonA = MAKE_UNIQUE(JWImageButton)();
-	m_pButtonA->Create(m_Position, GUI_BUTTON_SIZE, SharedData);
-	m_pButtonA->ShouldBeOffsetByMenuBar(false);
-	m_pButtonA->ShouldDrawBorder(false);
-	m_pButtonA->SetParentControl(this);
+	m_ButtonA.Create(m_Position, GUI_BUTTON_SIZE, SharedData);
+	m_ButtonA.ShouldBeOffsetByMenuBar(false);
+	m_ButtonA.ShouldDrawBorder(false);
+	m_ButtonA.SetParentControl(this);
 
-	m_pButtonB = MAKE_UNIQUE(JWImageButton)();
-	m_pButtonB->Create(m_Position, GUI_BUTTON_SIZE, SharedData);
-	m_pButtonB->ShouldBeOffsetByMenuBar(false);
-	m_pButtonB->ShouldDrawBorder(false);
-	m_pButtonB->SetParentControl(this);
+	m_ButtonB.Create(m_Position, GUI_BUTTON_SIZE, SharedData);
+	m_ButtonB.ShouldBeOffsetByMenuBar(false);
+	m_ButtonB.ShouldDrawBorder(false);
+	m_ButtonB.SetParentControl(this);
 
-	m_pScroller = MAKE_UNIQUE(JWImageButton)();
-	m_pScroller->Create(m_Position, GUI_BUTTON_SIZE, SharedData);
-	m_pScroller->ShouldBeOffsetByMenuBar(false);
-	m_pScroller->ShouldDrawBorder(false);
-	m_pScroller->SetParentControl(this);
-	m_pScroller->SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_WHITE);
-	m_pScroller->SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_WHITE);
-	m_pScroller->SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_WHITE);
+	m_Scroller.Create(m_Position, GUI_BUTTON_SIZE, SharedData);
+	m_Scroller.ShouldBeOffsetByMenuBar(false);
+	m_Scroller.ShouldDrawBorder(false);
+	m_Scroller.SetParentControl(this);
+	m_Scroller.SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_WHITE);
+	m_Scroller.SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_WHITE);
+	m_Scroller.SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_WHITE);
 
 	// Set control's position.
 	// SetSize() must be called in MakeScrollBar()
@@ -57,13 +53,13 @@ auto JWScrollBar::MakeScrollBar(EScrollBarDirection Direction) noexcept->JWContr
 	switch (m_ScrollBarDirection)
 	{
 	case JWENGINE::EScrollBarDirection::Horizontal:
-		m_pButtonA->MakeSystemArrowButton(ESystemArrowDirection::Left);
-		m_pButtonB->MakeSystemArrowButton(ESystemArrowDirection::Right);
+		m_ButtonA.MakeSystemArrowButton(ESystemArrowDirection::Left);
+		m_ButtonB.MakeSystemArrowButton(ESystemArrowDirection::Right);
 		m_ScrollerPosition.x = GUI_BUTTON_SIZE.x;
 		break;
 	case JWENGINE::EScrollBarDirection::Vertical:
-		m_pButtonA->MakeSystemArrowButton(ESystemArrowDirection::Up);
-		m_pButtonB->MakeSystemArrowButton(ESystemArrowDirection::Down);
+		m_ButtonA.MakeSystemArrowButton(ESystemArrowDirection::Up);
+		m_ButtonB.MakeSystemArrowButton(ESystemArrowDirection::Down);
 		m_ScrollerPosition.y = GUI_BUTTON_SIZE.y;
 		break;
 	default:
@@ -84,9 +80,9 @@ PROTECTED void JWScrollBar::UpdateViewport() noexcept
 {
 	JWControl::UpdateViewport();
 
-	m_pButtonA->UpdateViewport();
-	m_pButtonB->UpdateViewport();
-	m_pScroller->UpdateViewport();
+	m_ButtonA.UpdateViewport();
+	m_ButtonB.UpdateViewport();
+	m_Scroller.UpdateViewport();
 }
 
 PROTECTED void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept
@@ -100,11 +96,11 @@ PROTECTED void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, J
 		m_ButtonABPressInterval++;
 	}
 
-	m_pButtonA->UpdateControlState(nullptr, nullptr);
-	m_pButtonB->UpdateControlState(nullptr, nullptr);
+	m_ButtonA.UpdateControlState(nullptr, nullptr);
+	m_ButtonB.UpdateControlState(nullptr, nullptr);
 	
-	EControlState button_a_state = m_pButtonA->GetControlState();
-	EControlState button_b_state = m_pButtonB->GetControlState();
+	EControlState button_a_state = m_ButtonA.GetControlState();
+	EControlState button_b_state = m_ButtonB.GetControlState();
 
 	if ((button_a_state == EControlState::Clicked) || (button_a_state == EControlState::Pressed))
 	{
@@ -146,7 +142,7 @@ PROTECTED void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, J
 			m_ButtonABPressIntervalTick = 5;
 		}
 	}
-	else if (m_pScroller->GetControlState() == EControlState::Pressed)
+	else if (m_Scroller.GetControlState() == EControlState::Pressed)
 	{
 		SetControlState(EControlState::Pressed);
 
@@ -199,13 +195,13 @@ PROTECTED void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, J
 			else
 			{
 				// When the scroller is released.
-				m_pScroller->UpdateControlState(nullptr, nullptr);
+				m_Scroller.UpdateControlState(nullptr, nullptr);
 
 				m_CapturedScrollPosition = 0;
 			}
 		}
 	}
-	else if ((m_ControlState == EControlState::Pressed) && (m_pScroller->GetControlState() == EControlState::Normal)
+	else if ((m_ControlState == EControlState::Pressed) && (m_Scroller.GetControlState() == EControlState::Normal)
 		&& (button_a_state == EControlState::Normal) && (button_b_state == EControlState::Normal))
 	{
 		// Press on the body of the scrollbar => Page scroll
@@ -242,7 +238,7 @@ PROTECTED void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, J
 		// When no button is pressed,
 		// release the scroller
 		m_bScrollerCaptured = false;
-		m_pScroller->UpdateControlState(nullptr, nullptr);
+		m_Scroller.UpdateControlState(nullptr, nullptr);
 
 		m_ButtonABPressInterval = BUTTON_INTERVAL_UPPER_LIMIT;
 	}
@@ -266,12 +262,12 @@ void JWScrollBar::Draw() noexcept
 		break;
 	}
 
-	m_pBackground->Draw();
+	m_Background.Draw();
 
-	m_pScroller->Draw();
+	m_Scroller.Draw();
 
-	m_pButtonA->Draw();
-	m_pButtonB->Draw();
+	m_ButtonA.Draw();
+	m_ButtonB.Draw();
 
 	JWControl::EndDrawing();
 }
@@ -280,7 +276,7 @@ auto JWScrollBar::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
-	m_pBackground->SetPosition(m_Position);
+	m_Background.SetPosition(m_Position);
 
 	UpdateButtonPosition();
 
@@ -307,7 +303,7 @@ auto JWScrollBar::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 
 	JWControl::SetSize(adjusted_size);
 
-	m_pBackground->SetSize(m_Size);
+	m_Background.SetSize(m_Size);
 
 	UpdateButtonPosition();
 	UpdateButtonSize();
@@ -322,12 +318,12 @@ PROTECTED void JWScrollBar::SetControlState(EControlState State) noexcept
 	if (State == EControlState::Normal)
 	{
 		// When mouse is off scrollbar, Buttons must be set to normal state as well
-		m_pButtonA->SetControlState(State);
-		m_pButtonB->SetControlState(State);
+		m_ButtonA.SetControlState(State);
+		m_ButtonB.SetControlState(State);
 
 		if (!m_pSharedData->pWindow->GetWindowInputStatePtr()->MouseLeftPressed)
 		{
-			m_pScroller->SetControlState(State);
+			m_Scroller.SetControlState(State);
 		}
 	}
 }
@@ -382,9 +378,9 @@ auto JWScrollBar::GetScrollPosition() const noexcept->size_t
 
 PRIVATE void JWScrollBar::UpdateButtonSize() noexcept
 {
-	D3DXVECTOR2 ABSize = GUI_BUTTON_SIZE;
-	D3DXVECTOR2 APosition = D3DXVECTOR2(0, 0);
-	D3DXVECTOR2 BPosition = D3DXVECTOR2(0, 0);
+	D3DXVECTOR2 ABSize{ GUI_BUTTON_SIZE };
+	D3DXVECTOR2 APosition{ 0, 0 };
+	D3DXVECTOR2 BPosition{ 0, 0 };
 
 	switch (m_ScrollBarDirection)
 	{
@@ -421,15 +417,15 @@ PRIVATE void JWScrollBar::UpdateButtonSize() noexcept
 		break;
 	}
 
-	m_pButtonA->SetSize(ABSize);
-	m_pButtonB->SetSize(ABSize);
-	m_pScroller->SetSize(m_ScrollerSize);
+	m_ButtonA.SetSize(ABSize);
+	m_ButtonB.SetSize(ABSize);
+	m_Scroller.SetSize(m_ScrollerSize);
 }
 
 PRIVATE void JWScrollBar::UpdateButtonPosition() noexcept
 {
-	D3DXVECTOR2 APosition = D3DXVECTOR2(0, 0);
-	D3DXVECTOR2 BPosition = D3DXVECTOR2(0, 0);
+	D3DXVECTOR2 APosition{ 0, 0 };
+	D3DXVECTOR2 BPosition{ 0, 0 };
 
 	switch (m_ScrollBarDirection)
 	{
@@ -447,9 +443,9 @@ PRIVATE void JWScrollBar::UpdateButtonPosition() noexcept
 		break;
 	}
 
-	m_pButtonA->SetPosition(m_Position);
-	m_pButtonB->SetPosition(BPosition);
-	m_pScroller->SetPosition(m_Position + m_ScrollerPosition);
+	m_ButtonA.SetPosition(m_Position);
+	m_ButtonB.SetPosition(BPosition);
+	m_Scroller.SetPosition(m_Position + m_ScrollerPosition);
 }
 
 PRIVATE void JWScrollBar::MoveScrollerTo(const D3DXVECTOR2& Position) noexcept
@@ -472,7 +468,7 @@ PRIVATE void JWScrollBar::MoveScrollerTo(const D3DXVECTOR2& Position) noexcept
 		break;
 	}
 
-	m_pScroller->SetPosition(m_Position + m_ScrollerPosition);
+	m_Scroller.SetPosition(m_Position + m_ScrollerPosition);
 }
 
 PRIVATE auto JWScrollBar::CalculateScrollerDigitalPosition(const POINT& MousesPosition) const noexcept->size_t

@@ -28,7 +28,7 @@ namespace JWENGINE
 
 	public:
 		JWGUIWindow() {};
-		~JWGUIWindow() {};
+		~JWGUIWindow();
 
 		// Create a texture that will be used in this particular JWGUIWindow.
 		void CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo);
@@ -60,9 +60,6 @@ namespace JWENGINE
 		void Create(const SWindowCreationData& WindowCreationData);
 
 		// This is called in JWGUI (friend class).
-		void Destroy() noexcept;
-
-		// This is called in JWGUI (friend class).
 		void Update(const MSG& Message, const SGUIIMEInputInfo& IMEInfo, VECTOR<HWND>& hWndQuitStack, const HWND ActiveWindowHWND) noexcept;
 
 		// This is called in JWGUI (friend class).
@@ -84,14 +81,14 @@ namespace JWENGINE
 		SGUIWindowSharedData m_SharedData;
 		MSG m_MSG{};
 
-		JWControl* m_pMenuBar = nullptr;
-		bool m_bHasMenuBar = false;
+		JWControl* m_pMenuBar{ nullptr };
+		bool m_bHasMenuBar{ false };
 
-		JWControl* m_pControlWithFocus = nullptr;
+		JWControl* m_pControlWithFocus{ nullptr };
 
 		std::map<WSTRING, size_t> m_ControlsMap;
 		VECTOR<UNIQUE_PTR<JWControl>> m_pControls;
 		
-		bool m_bDestroyed = false;
+		bool m_bDestroyed{ false };
 	};
 };

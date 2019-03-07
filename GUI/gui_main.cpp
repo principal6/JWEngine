@@ -39,11 +39,11 @@ int main()
 		pMainGUIWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(0, 0), D3DXVECTOR2(100, 50), L"textbutton1")
 			->SetText(L"Normal button");
 
-		pMainGUIWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(25, 25), D3DXVECTOR2(100, 50), L"textbutton2")
+		pMainGUIWindow->AddControl(EControlType::TextButton, D3DXVECTOR2(280, 25), D3DXVECTOR2(100, 50), L"textbutton2")
 			->SetText(L"Toggle button")
 			->ShouldUseToggleSelection(true);
 
-		pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(240, 0), D3DXVECTOR2(160, 0), L"scrollbar1")
+		pMainGUIWindow->AddControl(EControlType::ScrollBar, D3DXVECTOR2(160, 0), D3DXVECTOR2(160, 0), L"scrollbar1")
 			->MakeScrollBar(EScrollBarDirection::Horizontal)
 			->SetScrollRange(2, 5)
 			->SetScrollPosition(0);
@@ -59,15 +59,15 @@ int main()
 			->SetBackgroundColor(D3DCOLOR_ARGB(100, 0, 255, 255))
 			->AttachScrollBar(pMainGUIWindow->GetControl(L"scrollbar2"));
 
-		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 200), D3DXVECTOR2(240, 200), L"edit1")
+		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 0), D3DXVECTOR2(240, 180), L"edit1")
 			->ShouldUseMultiline(true)
 			->SetText(L"This is JWEdit-control.\nTest it!\nThird line it is!\nAnd forth this is.")
 			->SetWatermark(L"Edit 1");
 
-		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(0, 400), D3DXVECTOR2(180, 60), L"edit2")
+		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(200, 200), D3DXVECTOR2(180, 60), L"edit2")
 			->SetWatermark(L"Edit 2");
 
-		pMainGUIWindow->AddControl(EControlType::Frame, D3DXVECTOR2(50, 0), D3DXVECTOR2(360, 500), L"frame1")
+		pMainGUIWindow->AddControl(EControlType::Frame, D3DXVECTOR2(50, 0), D3DXVECTOR2(350, 500), L"frame1")
 			->AddChildControl(pMainGUIWindow->GetControl(L"textbutton1"))
 			->AddChildControl(pMainGUIWindow->GetControl(L"textbutton2"))
 			->AddChildControl(pMainGUIWindow->GetControl(L"scrollbar1"))
@@ -78,23 +78,25 @@ int main()
 			->SetBackgroundColor(D3DCOLOR_ARGB(255, 60, 180, 60))
 			->SetBorderColor(D3DCOLOR_ARGB(255, 0, 0, 0));
 
-		pMainGUIWindow->GetControlPointer(L"edit1")->SetPosition(D3DXVECTOR2(50, 50));
+		pMainGUIWindow->GetControlPointer(L"edit1")->SetPosition(D3DXVECTOR2(20, 200));
+		pMainGUIWindow->GetControlPointer(L"edit2")->SetPosition(D3DXVECTOR2(20, 400));
+		
 
-		pMainGUIWindow->AddControl(EControlType::ImageButton, D3DXVECTOR2(420, 0), D3DXVECTOR2(20, 20))
+		pMainGUIWindow->AddControl(EControlType::ImageButton, D3DXVECTOR2(20, 0), D3DXVECTOR2(20, 20), L"imagebutton1")
 			->MakeSystemArrowButton(ESystemArrowDirection::Left);
 
-		pMainGUIWindow->AddControl(EControlType::CheckBox, D3DXVECTOR2(420, 30), D3DXVECTOR2(30, 30));
+		pMainGUIWindow->AddControl(EControlType::CheckBox, D3DXVECTOR2(20, 30), D3DXVECTOR2(30, 30), L"checkbox1");
 
-		pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(420, 70), D3DXVECTOR2(0, 0));
+		pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(20, 70), D3DXVECTOR2(0, 0), L"radiobox1");
 
-		pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(420, 90), D3DXVECTOR2(0, 0));
+		pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(20, 90), D3DXVECTOR2(0, 0), L"radiobox2");
 
 		LPDIRECT3DTEXTURE9 test_texture;
 		D3DXIMAGE_INFO test_texture_info;
 
 		pMainGUIWindow->CreateTexture(L"test_atlas.png", &test_texture, &test_texture_info);
 
-		pMainGUIWindow->AddControl(EControlType::ListBox, D3DXVECTOR2(360, 100), D3DXVECTOR2(200, 90))
+		pMainGUIWindow->AddControl(EControlType::ListBox, D3DXVECTOR2(20, 120), D3DXVECTOR2(200, 90), L"listbox1")
 			->ShouldUseImageItem(true)
 			->SetImageItemTextureAtlas(test_texture, &test_texture_info)
 			->AddListBoxItem(L"1. 안녕하세요?", D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32))
@@ -105,11 +107,21 @@ int main()
 			->AddListBoxItem(L"6. Привет")
 			->AddListBoxItem(L"7. ...");
 
-		pMainGUIWindow->AddControl(EControlType::ImageBox, D3DXVECTOR2(600, 100), D3DXVECTOR2(140, 90))
+		pMainGUIWindow->AddControl(EControlType::ImageBox, D3DXVECTOR2(0, 240), D3DXVECTOR2(140, 100), L"imagebox1")
 			->SetTextureAtlas(test_texture, &test_texture_info)
 			->SetAtlasUV(D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32))
 			->SetSize(D3DXVECTOR2(100, 20));
-		
+
+		pMainGUIWindow->AddControl(EControlType::Frame, D3DXVECTOR2(410, 0), D3DXVECTOR2(300, 500), L"frame2")
+			->AddChildControl(pMainGUIWindow->GetControl(L"imagebutton1"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"checkbox1"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"radiobox1"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"radiobox2"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"listbox1"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"imagebox1"))
+			->SetBackgroundColor(D3DCOLOR_ARGB(255, 60, 180, 120))
+			->SetBorderColor(D3DCOLOR_ARGB(255, 0, 0, 0));
+
 		myGUI.SetMainLoopFunction(MainLoop);
 
 		myGUI.Run();
@@ -127,7 +139,7 @@ int main()
 void MainLoop()
 {
 	THandleItem clicked_subitem = THandleItem_Null;
-
+	
 	if ((clicked_subitem = pMainGUIWindow->GetControl(L"menubar").OnSubItemClick()) != THandleItem_Null)
 	{
 		if ((clicked_subitem == mb_file_new) && (!pDialogueNewMap))
@@ -143,7 +155,7 @@ void MainLoop()
 			MessageBoxA(nullptr, "만든이: 김장원 (헤수스 김)", "JW 엔진", MB_OK);
 		}
 	}
-
+	
 	if (pDialogueNewMap)
 	{
 		if (pDialogueNewMap->GetControl(L"btn_close").OnMouseCliked())
@@ -151,7 +163,7 @@ void MainLoop()
 			WSTRING text;
 			pDialogueNewMap->GetControl(L"edit_name").GetText(text);
 			std::wcout << text.c_str() << std::endl;
-			
+
 			myGUI.DestroyGUIWindow(pDialogueNewMap);
 		}
 	}
@@ -159,7 +171,7 @@ void MainLoop()
 
 void ShowDialogueNewMap()
 {
-	SWindowCreationData myWindowData = SWindowCreationData(L"New map", 100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK, EWindowStyle::DlgFrame);
+	SWindowCreationData myWindowData = SWindowCreationData(L"New map", 100, 100, 300, 200, DEFAULT_COLOR_LESS_BLACK, EWindowStyle::OverlappedWindow);
 
 	myGUI.AddGUIWindow(myWindowData, pDialogueNewMap);
 
@@ -186,6 +198,7 @@ void ShowDialogueNewMap()
 	pDialogueNewMap->AddControl(EControlType::Edit, D3DXVECTOR2(edit_offset_x, 60), D3DXVECTOR2(160, 20), L"edit_name")
 		->SetWatermark(L"맵 이름을 입력하세요.");
 
+	
 	pDialogueNewMap->AddControl(EControlType::Edit, D3DXVECTOR2(edit_offset_x, 90), D3DXVECTOR2(160, 20), L"edit_x_size")
 		->ShouldUseNumberInputsOnly(true)
 		->SetWatermark(L"맵의 가로 크기");

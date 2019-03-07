@@ -5,20 +5,18 @@ using namespace JWENGINE;
 
 JWRectangle::JWRectangle()
 {
+	DeleteVertexAndIndex();
+}
+
+JWRectangle::~JWRectangle()
+{
 	m_pJWWindow = nullptr;
-	m_pDevice = nullptr;
-
-	m_pVertexBuffer = nullptr;
-	m_pIndexBuffer = nullptr;
-
-	m_Vertices = nullptr;
-	m_Indices = nullptr;
-
-	m_MaxNumBox = 0;
-	m_BoxCount = 0;
-	m_RectangleColor = DEFAULT_COLOR_RECTANGLE;
+	m_pDevice = nullptr; // Just set to nullptr cuz it's newed in <JWWindow> class
 
 	DeleteVertexAndIndex();
+
+	JW_RELEASE(m_pIndexBuffer);
+	JW_RELEASE(m_pVertexBuffer);
 }
 
 void JWRectangle::Create(const JWWindow& Window, const WSTRING& BaseDir, UINT MaxNumBox)
@@ -37,17 +35,6 @@ void JWRectangle::Create(const JWWindow& Window, const WSTRING& BaseDir, UINT Ma
 	CreateIndexBuffer();
 	UpdateVertexBuffer();
 	UpdateIndexBuffer();
-}
-
-void JWRectangle::Destroy() noexcept
-{
-	m_pJWWindow = nullptr;
-	m_pDevice = nullptr; // Just set to nullptr cuz it's newed in <JWWindow> class
-
-	DeleteVertexAndIndex();
-
-	JW_RELEASE(m_pIndexBuffer);
-	JW_RELEASE(m_pVertexBuffer);
 }
 
 PRIVATE void JWRectangle::DeleteVertexAndIndex() noexcept

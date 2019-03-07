@@ -31,13 +31,14 @@ namespace JWENGINE
 		static SGUIIMEInputInfo ms_IMEInfo;
 		static VECTOR<HWND> ms_hWndQuitStack;
 
-		bool m_bIsGUIRunning = false;
+		bool m_bIsGUIRunning{ false };
 
 		MSG m_MSG{};
 
-		PF_MAINLOOP m_pfMainLoop = nullptr;
+		PF_MAINLOOP m_pfMainLoop{ nullptr };
 
-		JWGUIWindow* m_pMainGUIWindow = nullptr;
+		JWGUIWindow* m_pMainGUIWindow{ nullptr };
+
 		TLinkedList<JWGUIWindow**> m_ppGUIWindows;
 	};
 };

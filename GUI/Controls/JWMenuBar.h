@@ -45,18 +45,21 @@ namespace JWENGINE
 		void UnselectMenuBarItem() noexcept;
 
 	private:
-		static const BYTE DEFUALT_ALPHA_BACKGROUND_MENUBAR{ 255 };
-		static const DWORD DEFAULT_COLOR_BACKGROUND_MENUBAR{ DEFAULT_COLOR_NORMAL };
-		static const int DEFAULT_MENUBAR_HEIGHT{ 24 };
-		static const int DEFAULT_MENUBAR_ITEM_PADDING{ 10 };
-		static const D3DXVECTOR2& BLANK_SUBITEMBOX_SIZE;
-		static const THandleItem MENU_ITEM_THANDLE_BASE{ 10000 };
+		static constexpr BYTE DEFUALT_ALPHA_BACKGROUND_MENUBAR{ 255 };
+		static constexpr DWORD DEFAULT_COLOR_BACKGROUND_MENUBAR{ DEFAULT_COLOR_NORMAL };
+		static constexpr int DEFAULT_MENUBAR_HEIGHT{ 24 };
+		static constexpr int DEFAULT_MENUBAR_ITEM_PADDING{ 10 };
+		static constexpr float testa{ 100.0f };
+		static constexpr float testb{ 100.0f };
+		static constexpr THandleItem MENU_ITEM_THANDLE_BASE{ 10000 };
 
 		// This means that the total count of sub items of each item should be less than 100.
-		static const THandleItem MENU_ITEM_THANDLE_STRIDE{ 100 };
+		static constexpr THandleItem MENU_ITEM_THANDLE_STRIDE{ 100 };
+
+		static const D3DXVECTOR2 BLANK_SUBITEMBOX_SIZE;
 
 		// MenuBar's non-button region.
-		UNIQUE_PTR<JWImageBox> m_pNonButtonRegion{};
+		UNIQUE_PTR<JWImageBox> m_pNonButtonRegion;
 
 		VECTOR<UNIQUE_PTR<MenuItem>> m_pItems;
 		VECTOR<UNIQUE_PTR<MenuSubItemBox>> m_pSubItemBoxes;

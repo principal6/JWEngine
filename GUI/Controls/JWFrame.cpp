@@ -12,10 +12,9 @@ void JWFrame::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const
 	m_ControlType = EControlType::Frame;
 
 	// Create a JWImageBox for background.
-	m_pBackground = MAKE_UNIQUE(JWImage)();
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pBackground->SetPosition(m_Position);
-	m_pBackground->SetSize(m_Size);
+	m_Background.Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_Background.SetPosition(m_Position);
+	m_Background.SetSize(m_Size);
 
 	// Set control's position and size.
 	SetPosition(Position);
@@ -36,16 +35,21 @@ auto JWFrame::AddChildControl(JWControl& ChildControl) noexcept->JWControl*
 		}
 	}
 
-	ChildControl.ShouldBeOffsetByMenuBar(false);
-	ChildControl.ShouldBeOffsetByParent(true);
-	ChildControl.SetParentControl(this);
+	if (!ChildControl.HasParentControl())
+	{
+		// If the control already has parent, we must not adopt it!
 
-	ChildControl.SetPosition(ChildControl.GetAbsolutePosition());
+		ChildControl.ShouldBeOffsetByMenuBar(false);
+		ChildControl.ShouldBeOffsetByParent(true);
+		ChildControl.SetParentControl(this);
 
-	// This is required to clip child control's viewport IAW/ the parent(JWFrame) control's viewport.
-	ChildControl.UpdateViewport();
+		ChildControl.SetPosition(ChildControl.GetAbsolutePosition());
 
-	m_pChildControls.push_back(&ChildControl);
+		// This is required to clip child control's viewport IAW/ the parent(JWFrame) control's viewport.
+		ChildControl.UpdateViewport();
+
+		m_pChildControls.push_back(&ChildControl);
+	}
 
 	return this;
 }
@@ -90,15 +94,15 @@ void JWFrame::Draw() noexcept
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
-		m_pBackground->SetColor(m_Color_Normal);
+		m_Background.SetColor(m_Color_Normal);
 		break;
 	case JWENGINE::Hover:
 		// [DEBUG]
-		//m_pBackground->SetColor(m_Color_Hover);
+		//m_Background.SetColor(m_Color_Hover);
 		break;
 	case JWENGINE::Pressed:
 		// [DEBUG]
-		//m_pBackground->SetColor(m_Color_Pressed);
+		//m_Background.SetColor(m_Color_Pressed);
 		break;
 	case JWENGINE::Clicked:
 		break;
@@ -106,7 +110,7 @@ void JWFrame::Draw() noexcept
 		break;
 	}
 
-	m_pBackground->Draw();
+	m_Background.Draw();
 
 	if (m_pChildControls.size())
 	{
@@ -123,7 +127,7 @@ auto JWFrame::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
-	m_pBackground->SetPosition(m_Position);
+	m_Background.SetPosition(m_Position);
 
 	return this;
 }
@@ -140,7 +144,7 @@ auto JWFrame::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 		}
 	}
 
-	m_pBackground->SetSize(m_Size);
+	m_Background.SetSize(m_Size);
 
 	return this;
 }

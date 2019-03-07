@@ -3,16 +3,6 @@
 
 using namespace JWENGINE;
 
-// Static member variables declaration
-const int JWMap::MAX_LINE_LEN = 1024;
-const int JWMap::MAX_TILEID_LEN = 3;
-const int JWMap::MAX_MOVEID_LEN = 2;
-const int JWMap::MOVE_ALPHA = 100;
-const int JWMap::DEF_TILE_SIZE = 32;
-const int JWMap::DEPTH_HELL = 10;
-const wchar_t* JWMap::MOVE_32 = L"move32.png";
-const wchar_t* JWMap::MOVE_64 = L"move64.png";
-
 /*-----------------------------------------------------------------------------
 	Static method declaration
 -----------------------------------------------------------------------------*/
@@ -38,7 +28,7 @@ auto JWMap::ConvertIDtoUV(int ID, int TileSize, const D3DXVECTOR2& SheetSize) no
 
 auto JWMap::ConvertIDToXY(int ID, int Cols) noexcept->D3DXVECTOR2
 {
-	D3DXVECTOR2 Result = D3DXVECTOR2(0, 0);
+	D3DXVECTOR2 Result{ 0, 0 };
 
 	Result.x = static_cast<float>(ID % Cols);
 	Result.y = static_cast<float>(ID / Cols);
@@ -86,19 +76,13 @@ auto JWMap::ConvertPositionToXY(const D3DXVECTOR2& Position, const D3DXVECTOR2& 
 -----------------------------------------------------------------------------*/
 JWMap::JWMap()
 {
-	m_CurrMapMode = EMapMode::TileMode;
-	m_bMapExist = false;
+	m_MapInfo.TileSize = DEFAULT_TILE_SIZE;
+}
 
-	m_MapInfo.TileSize = DEF_TILE_SIZE;
-	m_MapInfo.TileSheetSize = D3DXVECTOR2(0, 0);
-	m_MapInfo.MoveSheetSize = D3DXVECTOR2(0, 0);
-
-	m_bMoveTextureLoaded = false;
-	m_pTextureMove = nullptr;
-	m_pVBMove = nullptr;
-
-	m_Offset = D3DXVECTOR2(0, 0);
-	m_OffsetZeroY = 0;
+JWMap::~JWMap()
+{
+	JW_RELEASE(m_pTextureMove);
+	JW_RELEASE(m_pVBMove);
 }
 
 void JWMap::Create(const JWWindow& Window, const WSTRING& BaseDir)
@@ -116,14 +100,6 @@ PRIVATE void JWMap::ClearAllData() noexcept
 
 	m_VertMove.clear();
 	m_MapData.clear();
-}
-
-void JWMap::Destroy() noexcept
-{
-	JW_RELEASE(m_pTextureMove);
-	JW_RELEASE(m_pVBMove);
-
-	JWImage::Destroy();
 }
 
 void JWMap::CreateMap(const SMapInfo* InPtr_Info) noexcept

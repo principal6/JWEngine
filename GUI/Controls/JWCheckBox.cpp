@@ -17,16 +17,14 @@ void JWCheckBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, co
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
-	m_pBackground = MAKE_UNIQUE(JWImage)();
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pBackground->SetColor(DEFAULT_COLOR_ALMOST_WHITE);
-	m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
+	m_Background.Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_Background.SetColor(DEFAULT_COLOR_ALMOST_WHITE);
+	m_Background.SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 
-	m_pCheckImage = MAKE_UNIQUE(JWImage)();
-	m_pCheckImage->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pCheckImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
-	m_pCheckImage->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
-	m_pCheckImage->SetAtlasUV(D3DXVECTOR2(0, GUI_BUTTON_SIZE.y * 2), GUI_BUTTON_SIZE);
+	m_CheckImage.Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_CheckImage.SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
+	m_CheckImage.SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
+	m_CheckImage.SetAtlasUV(D3DXVECTOR2(0, GUI_BUTTON_SIZE.y * 2), GUI_BUTTON_SIZE);
 
 	// Set control's position and size.
 	SetPosition(Position);
@@ -53,12 +51,12 @@ void JWCheckBox::Draw() noexcept
 	}
 
 	// Draw background image.
-	m_pBackground->Draw();
+	m_Background.Draw();
 
 	// Draw check image if it's checked.
 	if (m_bChecked)
 	{
-		m_pCheckImage->Draw();
+		m_CheckImage.Draw();
 	}
 
 	JWControl::EndDrawing();
@@ -68,8 +66,8 @@ auto JWCheckBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 	
-	m_pBackground->SetPosition(m_Position);
-	m_pCheckImage->SetPosition(m_Position + m_ButtonImageOffset);
+	m_Background.SetPosition(m_Position);
+	m_CheckImage.SetPosition(m_Position + m_ButtonImageOffset);
 
 	return this;
 }
@@ -86,8 +84,8 @@ auto JWCheckBox::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 
 	JWControl::SetSize(adjusted_size);
 
-	m_pBackground->SetSize(m_Size);
-	m_pCheckImage->SetPosition(m_Position + m_ButtonImageOffset);
+	m_Background.SetSize(m_Size);
+	m_CheckImage.SetPosition(m_Position + m_ButtonImageOffset);
 
 	return this;
 }

@@ -25,9 +25,9 @@ namespace JWENGINE
 		auto SetBackgroundColor(DWORD Color) noexcept->JWControl* override;
 
 	private:
-		UNIQUE_PTR<JWImage> m_pBackground{};
-		UNIQUE_PTR<JWImage> m_pImage{};
+		JWImage m_Background;
+		JWImage m_Image;
 
-		D3DXVECTOR2 m_OffsetInAtlas{ 0, 0 };
+		D3DXVECTOR2 m_OffsetInAtlas{};
 	};
 };

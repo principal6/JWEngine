@@ -5,14 +5,22 @@
 
 using namespace JWENGINE;
 
-JWEffect::JWEffect()
+JWEffect::~JWEffect()
 {
-	m_TextureAtlasCols = 0;
-	m_TextureAtlasRows = 0;
-	m_InstanceCount = 0;
-	m_pFisrtInstance = nullptr;
-	m_pLastInstance = nullptr;
-}	
+	if (m_pFisrtInstance)
+	{
+		EffectInstanceData* curr = m_pFisrtInstance;
+		EffectInstanceData* next = m_pFisrtInstance->GetNext();
+		delete curr;
+
+		while (next)
+		{
+			curr = next;
+			next = curr->GetNext();
+			delete curr;
+		}
+	}
+}
 
 auto JWEffect::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)->JWEffect*
 {
@@ -46,25 +54,6 @@ void JWEffect::CreateIndexBuffer()
 	{
 		return;
 	}
-}
-
-void JWEffect::Destroy() noexcept
-{
-	if (m_pFisrtInstance)
-	{
-		EffectInstanceData* curr = m_pFisrtInstance;
-		EffectInstanceData* next = m_pFisrtInstance->GetNext();
-		delete curr;
-
-		while (next)
-		{
-			curr = next;
-			next = curr->GetNext();
-			delete curr;
-		}
-	}
-
-	JWImage::Destroy();
 }
 
 auto JWEffect::SetTextureAtlas(const WSTRING& FileName, int numCols, int numRows)->JWEffect*
@@ -306,7 +295,7 @@ void JWEffect::CheckCollisionWithMonsters(JWMonsterManager* pMonsters)
 
 	while (iterator)
 	{
-		VECTOR<JWMonster>* pInstances = pMonsters->GetInstancePointer();
+		VECTOR<JWMonster*>* pInstances = pMonsters->GetInstancePointer();
 
 		// We are gonna do hit test for all monster instances
 		for (int i = 0; i < pInstances->size(); i++)
@@ -319,7 +308,7 @@ void JWEffect::CheckCollisionWithMonsters(JWMonsterManager* pMonsters)
 			D3DXVECTOR2 tBBEFFPS = tBBEfffect.PositionOffset;
 			D3DXVECTOR2 tBBEFFPE = tBBEfffect.PositionOffset + tBBEfffect.Size;
 			
-			SBoundingBox tBBMonster = (*pInstances)[i].GetBoundingBox();
+			SBoundingBox tBBMonster = (*pInstances)[i]->GetBoundingBox();
 			D3DXVECTOR2 tBBMONPS = tBBMonster.PositionOffset;
 			D3DXVECTOR2 tBBMONPE = tBBMonster.PositionOffset + tBBMonster.Size;
 
@@ -329,7 +318,7 @@ void JWEffect::CheckCollisionWithMonsters(JWMonsterManager* pMonsters)
 				if ((tBBEFFPS.y <= tBBMONPE.y) && (tBBEFFPE.y >= tBBMONPS.y))
 				{
 					bCollision = true;
-					(*pInstances)[i].Damage(iterator->GetDamage());
+					(*pInstances)[i]->Damage(iterator->GetDamage());
 				}
 			}
 		}
@@ -350,5 +339,4 @@ void JWEffect::CheckCollisionWithMonsters(JWMonsterManager* pMonsters)
 		if (iterator)
 			iterator = iterator->GetNext();
 	}
-
 }

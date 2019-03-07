@@ -24,16 +24,16 @@ namespace JWENGINE
 		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
 
 	private:
-		UNIQUE_PTR<JWImage> m_pBackground;
-		UNIQUE_PTR<JWImage> m_pButtonImage;
+		JWImage m_Background;
+		JWImage m_ButtonImage;
 
-		D3DXVECTOR2 m_ButtonImagePositionOffset{ 0, 0 };
+		D3DXVECTOR2 m_ButtonImagePositionOffset{};
 		bool m_bHorzFlip{ false };
 		bool m_bVertFlip{ false };
 
-		D3DXVECTOR2 m_ButtonSizeInTexture{ 0, 0 };
-		D3DXVECTOR2 m_NormalOffset{ 0, 0 };
-		D3DXVECTOR2 m_HoverOffset{ 0, 0 };
-		D3DXVECTOR2 m_PressedOffset{ 0, 0 };
+		D3DXVECTOR2 m_ButtonSizeInTexture{};
+		D3DXVECTOR2 m_NormalOffset{};
+		D3DXVECTOR2 m_HoverOffset{};
+		D3DXVECTOR2 m_PressedOffset{};
 	};
 };

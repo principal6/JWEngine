@@ -19,14 +19,12 @@ void JWImageButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size,
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
-	m_pBackground = MAKE_UNIQUE(JWImage)();
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pBackground->SetColor(DEFAULT_COLOR_NORMAL);
-	m_pBackground->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
+	m_Background.Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_Background.SetColor(DEFAULT_COLOR_NORMAL);
+	m_Background.SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 
-	m_pButtonImage = MAKE_UNIQUE(JWImage)();
-	m_pButtonImage->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pButtonImage->SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
+	m_ButtonImage.Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_ButtonImage.SetBoundingBoxXRGB(DEFAULT_COLOR_BORDER);
 
 	// Set control's position and size.
 	SetPosition(Position);
@@ -36,7 +34,7 @@ void JWImageButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size,
 auto JWImageButton::MakeImageButton(const WSTRING& TextureAtlasFileName, const D3DXVECTOR2& ButtonSizeInTexture, const D3DXVECTOR2& NormalOffset,
 	const D3DXVECTOR2& HoverOffset, const D3DXVECTOR2& PressedOffset) noexcept->JWControl*
 {
-	m_pButtonImage->SetTexture(TextureAtlasFileName);
+	m_ButtonImage.SetTexture(TextureAtlasFileName);
 
 	m_ButtonSizeInTexture = ButtonSizeInTexture;
 
@@ -71,13 +69,13 @@ auto JWImageButton::MakeSystemArrowButton(ESystemArrowDirection Direction) noexc
 		break;
 	}
 	
-	m_pButtonImage->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
+	m_ButtonImage.SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
 
 	m_ButtonSizeInTexture = GUI_BUTTON_SIZE;
 
-	m_NormalOffset = D3DXVECTOR2(0, AtlasYOffset);
-	m_HoverOffset = D3DXVECTOR2(GUI_BUTTON_SIZE.x, AtlasYOffset);
-	m_PressedOffset = D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, AtlasYOffset);
+	m_NormalOffset = { 0, AtlasYOffset };
+	m_HoverOffset = { GUI_BUTTON_SIZE.x, AtlasYOffset };
+	m_PressedOffset = { GUI_BUTTON_SIZE.x * 2, AtlasYOffset };
 
 	SetSize(m_Size);
 
@@ -91,16 +89,16 @@ void JWImageButton::Draw() noexcept
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
-		m_pBackground->SetColor(m_Color_Normal);
-		m_pButtonImage->SetAtlasUV(m_NormalOffset, m_ButtonSizeInTexture);
+		m_Background.SetColor(m_Color_Normal);
+		m_ButtonImage.SetAtlasUV(m_NormalOffset, m_ButtonSizeInTexture);
 		break;
 	case JWENGINE::Hover:
-		m_pBackground->SetColor(m_Color_Hover);
-		m_pButtonImage->SetAtlasUV(m_HoverOffset, m_ButtonSizeInTexture);
+		m_Background.SetColor(m_Color_Hover);
+		m_ButtonImage.SetAtlasUV(m_HoverOffset, m_ButtonSizeInTexture);
 		break;
 	case JWENGINE::Pressed:
-		m_pBackground->SetColor(m_Color_Pressed);
-		m_pButtonImage->SetAtlasUV(m_PressedOffset, m_ButtonSizeInTexture);
+		m_Background.SetColor(m_Color_Pressed);
+		m_ButtonImage.SetAtlasUV(m_PressedOffset, m_ButtonSizeInTexture);
 		break;
 	case JWENGINE::Clicked:
 		break;
@@ -110,16 +108,16 @@ void JWImageButton::Draw() noexcept
 
 	if (m_bHorzFlip)
 	{
-		m_pButtonImage->FlipHorizontal();
+		m_ButtonImage.FlipHorizontal();
 	}
 	else if (m_bVertFlip)
 	{
-		m_pButtonImage->FlipVertical();
+		m_ButtonImage.FlipVertical();
 	}
 
-	m_pBackground->Draw();
+	m_Background.Draw();
 
-	m_pButtonImage->Draw();
+	m_ButtonImage.Draw();
 
 	JWControl::EndDrawing();
 }
@@ -128,15 +126,8 @@ auto JWImageButton::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl
 {
 	JWControl::SetPosition(Position);
 
-	if (m_pBackground)
-	{
-		m_pBackground->SetPosition(m_Position);
-	}
-	
-	if (m_pButtonImage)
-	{
-		m_pButtonImage->SetPosition(m_Position + m_ButtonImagePositionOffset);
-	}
+	m_Background.SetPosition(m_Position);
+	m_ButtonImage.SetPosition(m_Position + m_ButtonImagePositionOffset);
 
 	return this;
 }
@@ -152,15 +143,8 @@ auto JWImageButton::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 
 	JWControl::SetSize(adjusted_size);
 
-	if (m_pBackground)
-	{
-		m_pBackground->SetSize(m_Size);
-	}
-
-	if (m_pButtonImage)
-	{
-		m_pButtonImage->SetPosition(m_Position + m_ButtonImagePositionOffset);
-	}
+	m_Background.SetSize(m_Size);
+	m_ButtonImage.SetPosition(m_Position + m_ButtonImagePositionOffset);
 
 	return this;
 }

@@ -2,6 +2,14 @@
 
 using namespace JWENGINE;
 
+JWGUIWindow::~JWGUIWindow()
+{
+	JW_RELEASE(m_SharedData.Texture_GUI);
+
+	JW_DELETE(m_SharedData.pText);
+	JW_DELETE(m_SharedData.pWindow);
+}
+
 PROTECTED void JWGUIWindow::Create(const SWindowCreationData& WindowCreationData)
 {
 	// Set the pointer to this JWGUIWindow.
@@ -44,13 +52,6 @@ void JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppT
 	{
 		THROW_CREATION_FAILED;
 	}
-}
-
-PROTECTED void JWGUIWindow::Destroy() noexcept
-{
-	JW_DESTROY(m_SharedData.pText);
-	JW_RELEASE(m_SharedData.Texture_GUI);
-	JW_DESTROY(m_SharedData.pWindow);
 }
 
 auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName)->JWControl*

@@ -16,9 +16,8 @@ void JWRadioBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, co
 	// Set default alignment
 	SetTextAlignment(EHorizontalAlignment::Center, EVerticalAlignment::Middle);
 
-	m_pBackground = MAKE_UNIQUE(JWImage)();
-	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
-	m_pBackground->SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
+	m_Background.Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
+	m_Background.SetTexture(m_pSharedData->Texture_GUI, &m_pSharedData->Texture_GUI_Info);
 
 	// Set control's position and size.
 	// @warning: 'D3DXVECTOR2 Size' is not used, but 'GUI_BUTTON_SIZE'.
@@ -47,14 +46,14 @@ void JWRadioBox::Draw() noexcept
 
 	if (m_bChecked)
 	{
-		m_pBackground->SetAtlasUV(D3DXVECTOR2(GUI_BUTTON_SIZE.x, GUI_BUTTON_SIZE.y * 2), GUI_BUTTON_SIZE);
+		m_Background.SetAtlasUV(D3DXVECTOR2(GUI_BUTTON_SIZE.x, GUI_BUTTON_SIZE.y * 2), GUI_BUTTON_SIZE);
 	}
 	else
 	{
-		m_pBackground->SetAtlasUV(D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, GUI_BUTTON_SIZE.y * 2), GUI_BUTTON_SIZE);
+		m_Background.SetAtlasUV(D3DXVECTOR2(GUI_BUTTON_SIZE.x * 2, GUI_BUTTON_SIZE.y * 2), GUI_BUTTON_SIZE);
 	}
 
-	m_pBackground->Draw();
+	m_Background.Draw();
 
 	JWControl::EndDrawing();
 }
@@ -63,7 +62,7 @@ auto JWRadioBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
 	JWControl::SetPosition(Position);
 
-	m_pBackground->SetPosition(m_Position);
+	m_Background.SetPosition(m_Position);
 
 	return this;
 }

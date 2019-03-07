@@ -6,11 +6,6 @@
 
 using namespace JWENGINE;
 
-JWEdit::~JWEdit()
-{
-	m_pEditText->Destroy();
-}
-
 void JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
 	JWControl::Create(Position, Size, SharedData);
@@ -27,10 +22,8 @@ void JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const 
 	m_Color_Pressed = DEFAULT_COLOR_BACKGROUND_EDIT;
 
 	// Create a JWImageBox for background.
-	m_pBackground = MAKE_UNIQUE(JWImageBox)();
-	m_pBackground->Create(m_Position, m_Size, SharedData);
-	m_pBackground->ShouldBeOffsetByMenuBar(false);
-	m_pBackground->SetParentControl(this);
+	m_pBackground = MAKE_UNIQUE(JWImage)();
+	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
 
 	// Create non-instant JWText for JWEdit control.
 	m_pEditText = MAKE_UNIQUE(JWText)();
@@ -49,13 +42,13 @@ void JWEdit::Draw() noexcept
 	switch (m_ControlState)
 	{
 	case JWENGINE::Normal:
-		m_pBackground->SetBackgroundColor(m_Color_Normal);
+		m_pBackground->SetColor(m_Color_Normal);
 		break;
 	case JWENGINE::Hover:
-		m_pBackground->SetBackgroundColor(m_Color_Hover);
+		m_pBackground->SetColor(m_Color_Hover);
 		break;
 	case JWENGINE::Pressed:
-		m_pBackground->SetBackgroundColor(m_Color_Pressed);
+		m_pBackground->SetColor(m_Color_Pressed);
 		break;
 	case JWENGINE::Clicked:
 		break;
@@ -231,8 +224,6 @@ PROTECTED void JWEdit::UpdateViewport() noexcept
 	JWControl::UpdateViewport();
 
 	UpdatePaddedViewport();
-
-	m_pBackground->UpdateViewport();
 }
 
 PROTECTED void JWEdit::WindowMouseDown() noexcept
