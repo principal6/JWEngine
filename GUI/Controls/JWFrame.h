@@ -25,9 +25,18 @@ namespace JWENGINE
 
 		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
+		auto SetFrameConnector(JWControl& Connector, bool IsBasisFrame) noexcept->JWControl* override;
+
+		void SetPositionFromInside(const D3DXVECTOR2& Position) noexcept override;
+		void SetSizeFromInside(const D3DXVECTOR2& Size) noexcept override;
+
 	private:
 		JWImage m_Background;
-
+		
 		VECTOR<JWControl*> m_pChildControls;
+
+		JWControl* m_pFrameConnector{ nullptr };
+
+		bool m_IsBasisFrame{ false };
 	};
 };

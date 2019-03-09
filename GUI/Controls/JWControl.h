@@ -29,6 +29,7 @@ namespace JWENGINE
 		MenuBar,
 		ImageBox,
 		Frame,
+		FrameConnector,
 	};
 
 	enum EControlState
@@ -49,9 +50,18 @@ namespace JWENGINE
 
 	enum class EScrollBarDirection
 	{
+		Invalid,
+
 		Horizontal,
 		Vertical,
+	};
+
+	enum class EFrameConnectorType
+	{
 		Invalid,
+
+		Horizontal,
+		Vertical,
 	};
 
 	static inline auto Static_IsMouseInRECT(const POINT& Position, const RECT& Rect)->bool
@@ -80,9 +90,10 @@ namespace JWENGINE
 
 	class JWControl
 	{
-	friend class JWFrame;
-	friend class JWTextButton;
 	friend class JWGUIWindow;
+	friend class JWTextButton;
+	friend class JWFrame;
+	friend class JWFrameConnector;
 
 	public:
 		JWControl() {};
@@ -102,6 +113,14 @@ namespace JWENGINE
 
 		// [JWScrollBar] Decide the direction (horizontal/vertical) of the JWScrollBar.
 		virtual auto MakeScrollBar(EScrollBarDirection Direction)->JWControl* { return this; };
+
+		// [JWFrameConnector]
+		// @warning: the right frame's position and size will be adjusted IAW/ the left frame's.
+		virtual auto MakeVerticalConnector(JWControl& LeftFrame, JWControl& RightFrame)->JWControl* { return this; };
+
+		// [JWFrameConnector]
+		// @warning: the down frame's position and size will be adjusted IAW/ the up frame's.
+		virtual auto MakeHorizontalConnector(JWControl& UpFrame, JWControl& DownFrame)->JWControl* { return this; };
 
 
 		/*
@@ -283,6 +302,9 @@ namespace JWENGINE
 		// [JWFrame]
 		virtual auto AddChildControl(JWControl& ChildControl)->JWControl* { return this; };
 
+		// [JWFrameConnector]
+		virtual auto GetFrameConnectorType() const noexcept->EFrameConnectorType { return EFrameConnectorType::Invalid; };
+
 	protected:
 		// Calculate RECT of this control.
 		virtual void CalculateControlRect() noexcept;
@@ -300,12 +322,23 @@ namespace JWENGINE
 		virtual void UpdateViewport() noexcept;
 		virtual void UpdateChildViewport(D3DVIEWPORT9& Viewport);
 
+		// [JWFrameConnector]
+		virtual void UpdateFrameConectorPositionAndSize() noexcept {};
+
 		/*
 		** Setter functions.
 		*/
 		virtual void SetControlState(EControlState State) noexcept;
 		virtual void SetControlStateColor(EControlState State, DWORD Color) noexcept;
 
+		// [JWFrame <- JWFrameConnector]
+		virtual auto SetFrameConnector(JWControl& Connector, bool IsBasisFrame) noexcept->JWControl* { return this; };
+
+		// [JWFrame]
+		virtual void SetPositionFromInside(const D3DXVECTOR2& Position) noexcept {};
+
+		// [JWFrame]
+		virtual void SetSizeFromInside(const D3DXVECTOR2& Size) noexcept {};
 
 		/*
 		** Focus-related functions

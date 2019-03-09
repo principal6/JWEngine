@@ -94,6 +94,9 @@
     <ClInclude Include="Controls\JWFrame.h">
       <Filter>GUI\Controls</Filter>
     </ClInclude>
+    <ClInclude Include="Controls\JWFrameConnector.h">
+      <Filter>GUI\Controls</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWImage.cpp">
@@ -161,6 +164,9 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="Controls\JWFrame.cpp">
+      <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\JWFrameConnector.cpp">
       <Filter>GUI\Controls</Filter>
     </ClCompile>
   </ItemGroup>

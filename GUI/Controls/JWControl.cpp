@@ -51,6 +51,11 @@ void JWControl::EndDrawing()
 {
 	if (m_bShouldDrawBorder)
 	{
+		if (m_bShouldUseViewport)
+		{
+			m_pSharedData->pWindow->GetDevice()->SetViewport(&m_ControlViewport);
+		}
+
 		m_pBorderLine.Draw();
 	}
 

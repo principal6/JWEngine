@@ -54,6 +54,15 @@ auto JWFrame::AddChildControl(JWControl& ChildControl) noexcept->JWControl*
 	return this;
 }
 
+PROTECTED auto JWFrame::SetFrameConnector(JWControl& Connector, bool IsBasisFrame) noexcept->JWControl*
+{
+	m_pFrameConnector = &Connector;
+
+	m_IsBasisFrame = IsBasisFrame;
+
+	return this;
+}
+
 PROTECTED void JWFrame::UpdateViewport() noexcept
 {
 	JWControl::UpdateViewport();
@@ -125,14 +134,76 @@ void JWFrame::Draw() noexcept
 
 auto JWFrame::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
-	JWControl::SetPosition(Position);
+	if (m_pFrameConnector)
+	{
+		if (m_IsBasisFrame)
+		{
+			SetPositionFromInside(Position);
 
-	m_Background.SetPosition(m_Position);
+			m_pFrameConnector->UpdateFrameConectorPositionAndSize();
+		}
+	}
+	else
+	{
+		SetPositionFromInside(Position);
+	}
 
 	return this;
 }
 
+PROTECTED void JWFrame::SetPositionFromInside(const D3DXVECTOR2& Position) noexcept
+{
+	JWControl::SetPosition(Position);
+
+	if (m_pChildControls.size())
+	{
+		for (auto iterator : m_pChildControls)
+		{
+			iterator->SetPosition(iterator->GetAbsolutePosition());
+		}
+	}
+
+	m_Background.SetPosition(m_Position);
+}
+
 auto JWFrame::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+{
+	if (m_pFrameConnector)
+	{
+		if (m_IsBasisFrame)
+		{
+			SetSizeFromInside(Size);
+		}
+		else
+		{
+			D3DXVECTOR2 new_size = m_pFrameConnector->GetSize();
+
+			switch (m_pFrameConnector->GetFrameConnectorType())
+			{
+			case EFrameConnectorType::Horizontal:
+				new_size.y = Size.y;
+				break;
+			case EFrameConnectorType::Vertical:
+				new_size.x = Size.x;
+				break;
+			default:
+				break;
+			}
+
+			SetSizeFromInside(new_size);
+		}
+
+		m_pFrameConnector->UpdateFrameConectorPositionAndSize();
+	}
+	else
+	{
+		SetSizeFromInside(Size);
+	}
+
+	return this;
+}
+
+PROTECTED void JWFrame::SetSizeFromInside(const D3DXVECTOR2& Size) noexcept
 {
 	JWControl::SetSize(Size);
 
@@ -145,6 +216,4 @@ auto JWFrame::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 	}
 
 	m_Background.SetSize(m_Size);
-
-	return this;
 }

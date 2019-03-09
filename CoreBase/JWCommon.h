@@ -301,7 +301,7 @@ namespace JWENGINE
 		}
 	};
 
-	inline static void ConvertFrameIDIntoUV(int FrameID, POINT SpriteSize, POINT SheetSize, int NumCols, int NumRows, STextureUV* UV)
+	inline void ConvertFrameIDIntoUV(int FrameID, POINT SpriteSize, POINT SheetSize, int NumCols, int NumRows, STextureUV* UV)
 	{
 		int FrameXPos = FrameID % NumCols;
 		int FrameYPos = FrameID / NumCols;
@@ -312,7 +312,7 @@ namespace JWENGINE
 		UV->v2 = UV->v1 + (static_cast<float>(SpriteSize.y) / static_cast<float>(SheetSize.y));
 	}
 
-	inline static void ConvertFrameIDIntoUV(int FrameID, D3DXVECTOR2 UnitSize, D3DXVECTOR2 SheetSize, int NumCols, int NumRows,
+	inline void ConvertFrameIDIntoUV(int FrameID, D3DXVECTOR2 UnitSize, D3DXVECTOR2 SheetSize, int NumCols, int NumRows,
 		STextureUV* UV)
 	{
 		int FrameXPos = FrameID % NumCols;
@@ -364,20 +364,26 @@ namespace JWENGINE
 
 	inline auto GetColorXRGB(DWORD Color)->DWORD { return ((Color << 8) >> 8); }
 
-	inline auto ConvertIntToWSTRING(int In)->WSTRING
+	inline auto ConvertIntToWSTRING(int value)->WSTRING
 	{
-		WSTRING Result;
-
 		wchar_t temp[MAX_FILE_LEN]{};
-		_itow_s(In, temp, 10);
-		Result = temp;
+		swprintf_s(temp, L"%d", value);
+		//_itow_s(value, temp, 10);
 
-		return Result;
+		return WSTRING(temp);
+	}
+
+	inline auto ConvertFloatToWSTRING(float value)->WSTRING
+	{
+		wchar_t temp[MAX_FILE_LEN]{};
+		swprintf_s(temp, L"%f", value);
+		
+		return WSTRING(temp);
 	}
 
 	// Template function
 	template <typename T>
-	static void Swap(T& v1, T& v2)
+	inline void Swap(T& v1, T& v2)
 	{
 		T temp = v1;
 		v1 = v2;
@@ -385,14 +391,14 @@ namespace JWENGINE
 	}
 
 	template <typename T>
-	static void SwapPointer(T*& v1, T*& v2)
+	inline void SwapPointer(T*& v1, T*& v2)
 	{
 		T* temp = v1;
 		v1 = v2;
 		v2 = temp;
 	}
 
-	static void SIZE_T_MINUS(size_t& var, const size_t value)
+	inline void SIZE_T_MINUS(size_t& var, const size_t value)
 	{
 		if (var >= value)
 		{
@@ -400,7 +406,7 @@ namespace JWENGINE
 		}
 	}
 
-	static void SIZE_T_PLUS(size_t& var, const size_t value, const size_t& upper_limit)
+	inline void SIZE_T_PLUS(size_t& var, const size_t value, const size_t& upper_limit)
 	{
 		if (var + value <= upper_limit)
 		{
@@ -440,6 +446,11 @@ namespace JWENGINE
 		delete[] temp;
 		temp = nullptr;
 		return Result;
+	}
+
+	inline void LOG_DEBUG(WSTRING wide_string)
+	{
+		std::wcout << wide_string.c_str() << std::endl;
 	}
 
 	/** EXCEPTION HANDLERS */

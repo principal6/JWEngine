@@ -138,6 +138,7 @@
     <ClInclude Include="Controls\JWControl.h" />
     <ClInclude Include="Controls\JWEdit.h" />
     <ClInclude Include="Controls\JWFrame.h" />
+    <ClInclude Include="Controls\JWFrameConnector.h" />
     <ClInclude Include="Controls\JWImageBox.h" />
     <ClInclude Include="Controls\JWImageButton.h" />
     <ClInclude Include="Controls\JWLabel.h" />
@@ -162,6 +163,7 @@
     <ClCompile Include="Controls\JWControl.cpp" />
     <ClCompile Include="Controls\JWEdit.cpp" />
     <ClCompile Include="Controls\JWFrame.cpp" />
+    <ClCompile Include="Controls\JWFrameConnector.cpp" />
     <ClCompile Include="Controls\JWImageBox.cpp" />
     <ClCompile Include="Controls\JWImageButton.cpp" />
     <ClCompile Include="Controls\JWLabel.cpp" />

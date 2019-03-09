@@ -67,7 +67,7 @@ int main()
 		pMainGUIWindow->AddControl(EControlType::Edit, D3DXVECTOR2(200, 200), D3DXVECTOR2(180, 60), L"edit2")
 			->SetWatermark(L"Edit 2");
 
-		pMainGUIWindow->AddControl(EControlType::Frame, D3DXVECTOR2(50, 0), D3DXVECTOR2(350, 500), L"frame1")
+		pMainGUIWindow->AddControl(EControlType::Frame, D3DXVECTOR2(50, 20), D3DXVECTOR2(350, 400), L"frame1")
 			->AddChildControl(pMainGUIWindow->GetControl(L"textbutton1"))
 			->AddChildControl(pMainGUIWindow->GetControl(L"textbutton2"))
 			->AddChildControl(pMainGUIWindow->GetControl(L"scrollbar1"))
@@ -78,8 +78,8 @@ int main()
 			->SetBackgroundColor(D3DCOLOR_ARGB(255, 60, 180, 60))
 			->SetBorderColor(D3DCOLOR_ARGB(255, 0, 0, 0));
 
-		pMainGUIWindow->GetControl(L"edit1").SetPosition(D3DXVECTOR2(20, 200));
-		pMainGUIWindow->GetControl(L"edit2").SetPosition(D3DXVECTOR2(20, 400));
+		pMainGUIWindow->GetControl(L"edit1").SetPosition(D3DXVECTOR2(20, 150));
+		pMainGUIWindow->GetControl(L"edit2").SetPosition(D3DXVECTOR2(20, 350));
 
 		pMainGUIWindow->AddControl(EControlType::ImageButton, D3DXVECTOR2(20, 0), D3DXVECTOR2(20, 20), L"imagebutton1")
 			->MakeSystemArrowButton(ESystemArrowDirection::Left);
@@ -111,7 +111,7 @@ int main()
 			->SetAtlasUV(D3DXVECTOR2(0, 64), D3DXVECTOR2(32, 32))
 			->SetSize(D3DXVECTOR2(100, 20));
 
-		pMainGUIWindow->AddControl(EControlType::Frame, D3DXVECTOR2(410, 0), D3DXVECTOR2(300, 500), L"frame2")
+		pMainGUIWindow->AddControl(EControlType::Frame, D3DXVECTOR2(80, 20), D3DXVECTOR2(300, 500), L"frame2")
 			->AddChildControl(pMainGUIWindow->GetControl(L"imagebutton1"))
 			->AddChildControl(pMainGUIWindow->GetControl(L"checkbox1"))
 			->AddChildControl(pMainGUIWindow->GetControl(L"radiobox1"))
@@ -120,6 +120,14 @@ int main()
 			->AddChildControl(pMainGUIWindow->GetControl(L"imagebox1"))
 			->SetBackgroundColor(D3DCOLOR_ARGB(255, 60, 180, 120))
 			->SetBorderColor(D3DCOLOR_ARGB(255, 0, 0, 0));
+
+		pMainGUIWindow->AddControl(EControlType::FrameConnector, D3DXVECTOR2(0, 0), D3DXVECTOR2(50, 50), L"frameconnector1")
+			->MakeVerticalConnector(pMainGUIWindow->GetControl(L"frame1"), pMainGUIWindow->GetControl(L"frame2"))
+			//->MakeHorizontalConnector(pMainGUIWindow->GetControl(L"frame1"), pMainGUIWindow->GetControl(L"frame2"))
+			->SetSize(D3DXVECTOR2(10, 10));
+		
+		pMainGUIWindow->GetControl(L"frame1").SetPosition(D3DXVECTOR2(0, 0));
+		pMainGUIWindow->GetControl(L"frame2").SetSize(D3DXVECTOR2(200, 50));
 
 		myGUI.SetMainLoopFunction(MainLoop);
 

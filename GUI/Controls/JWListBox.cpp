@@ -101,8 +101,8 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 	auto* p_new_item_background = m_pItemBackground[m_pItemBackground.size() - 1].get();
 
 	p_new_item_background->Create(item_position_offset, item_size, *m_pSharedData);
-	p_new_item_background->ShouldBeOffsetByMenuBar(false);
 	p_new_item_background->SetParentControl(this);
+	p_new_item_background->ShouldBeOffsetByMenuBar(false);
 	if (m_bShouleUseToggleSelection)
 	{
 		// IF,
@@ -135,11 +135,11 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 	WSTRING adjusted_text = L" " + Text;
 	
 	p_new_text_item->Create(text_item_position, text_item_size, *m_pSharedData);
-	p_new_text_item->ShouldBeOffsetByMenuBar(false);
 	p_new_text_item->SetParentControl(this);
 	p_new_text_item->SetText(adjusted_text);
 	p_new_text_item->SetTextVerticalAlignment(EVerticalAlignment::Middle);
 	p_new_text_item->SetBackgroundColor(D3DCOLOR_ARGB(0, 0, 0, 0));
+	p_new_text_item->ShouldBeOffsetByMenuBar(false);
 
 
 	/*
@@ -218,6 +218,8 @@ PRIVATE void JWListBox::UpdateScrollBarPositionAndSize()
 PROTECTED void JWListBox::UpdateViewport() noexcept
 {
 	JWControl::UpdateViewport();
+
+	m_pBackground->UpdateViewport();
 
 	if (m_ItemInfo.size())
 	{

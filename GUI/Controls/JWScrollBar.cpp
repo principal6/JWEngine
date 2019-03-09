@@ -22,22 +22,22 @@ void JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, c
 	m_Background.SetColor(DEFAULT_COLOR_NORMAL);
 
 	m_ButtonA.Create(m_Position, GUI_BUTTON_SIZE, SharedData);
+	m_ButtonA.SetParentControl(this);
 	m_ButtonA.ShouldBeOffsetByMenuBar(false);
 	m_ButtonA.ShouldDrawBorder(false);
-	m_ButtonA.SetParentControl(this);
 
 	m_ButtonB.Create(m_Position, GUI_BUTTON_SIZE, SharedData);
+	m_ButtonB.SetParentControl(this);
 	m_ButtonB.ShouldBeOffsetByMenuBar(false);
 	m_ButtonB.ShouldDrawBorder(false);
-	m_ButtonB.SetParentControl(this);
 
 	m_Scroller.Create(m_Position, GUI_BUTTON_SIZE, SharedData);
-	m_Scroller.ShouldBeOffsetByMenuBar(false);
-	m_Scroller.ShouldDrawBorder(false);
 	m_Scroller.SetParentControl(this);
 	m_Scroller.SetControlStateColor(EControlState::Normal, DEFAULT_COLOR_LESS_WHITE);
 	m_Scroller.SetControlStateColor(EControlState::Hover, DEFAULT_COLOR_ALMOST_WHITE);
 	m_Scroller.SetControlStateColor(EControlState::Pressed, DEFAULT_COLOR_WHITE);
+	m_Scroller.ShouldBeOffsetByMenuBar(false);
+	m_Scroller.ShouldDrawBorder(false);
 
 	// Set control's position.
 	// SetSize() must be called in MakeScrollBar()
@@ -66,7 +66,7 @@ auto JWScrollBar::MakeScrollBar(EScrollBarDirection Direction) noexcept->JWContr
 		break;
 	}
 
-	// @warning: SetPosition with m_PositionAbsolute in order not to do a duplicate offset.
+	// @warning: SetPosition with m_AbsolutePosition in order not to do duplicate offset.
 	SetPosition(m_AbsolutePosition);
 	SetSize(m_Size);
 	

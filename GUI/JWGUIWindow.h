@@ -16,6 +16,7 @@
 #include "Controls/JWMenuBar.h"
 #include "Controls/JWImageBox.h"
 #include "Controls/JWFrame.h"
+#include "Controls/JWFrameConnector.h"
 
 namespace JWENGINE
 {

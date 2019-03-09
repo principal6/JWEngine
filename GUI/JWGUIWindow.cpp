@@ -123,6 +123,9 @@ auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, con
 	case JWENGINE::Frame:
 		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWFrame)());
 		break;
+	case JWENGINE::FrameConnector:
+		m_pControls.push_back(MAKE_UNIQUE_AND_MOVE(JWFrameConnector)());
+		break;
 	default:
 		break;
 	}
