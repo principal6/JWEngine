@@ -5,12 +5,9 @@ using namespace JWENGINE;
 JWGUIWindow::~JWGUIWindow()
 {
 	JW_RELEASE(m_SharedData.Texture_GUI);
-
-	JW_DELETE(m_SharedData.pText);
-	JW_DELETE(m_SharedData.pWindow);
 }
 
-PROTECTED void JWGUIWindow::Create(const SWindowCreationData& WindowCreationData)
+PROTECTED void JWGUIWindow::Create(const SWindowCreationData& WindowCreationData) noexcept
 {
 	// Set the pointer to this JWGUIWindow.
 	m_SharedData.pGUIWindow = this;
@@ -18,7 +15,7 @@ PROTECTED void JWGUIWindow::Create(const SWindowCreationData& WindowCreationData
 	// Create JWWindow(win32 api window).
 	if (!m_SharedData.pWindow)
 	{
-		m_SharedData.pWindow = new JWWindow;
+		m_SharedData.pWindow = MAKE_UNIQUE(JWWindow)();
 		m_SharedData.pWindow->CreateGUIWindow(WindowCreationData);
 	}
 
@@ -36,11 +33,11 @@ PROTECTED void JWGUIWindow::Create(const SWindowCreationData& WindowCreationData
 	CreateTexture(GUI_TEXTURE_FILENAME, &m_SharedData.Texture_GUI, &m_SharedData.Texture_GUI_Info);
 
 	// Create JWFont object that will be shared in every control.
-	m_SharedData.pText = new JWText;
+	m_SharedData.pText = MAKE_UNIQUE(JWText)();
 	m_SharedData.pText->CreateInstantText(*m_SharedData.pWindow, m_SharedData.BaseDir);
 }
 
-void JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo)
+void JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo) noexcept
 {
 	WSTRING texture_filename;
 	texture_filename = m_SharedData.BaseDir;
@@ -50,40 +47,41 @@ void JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppT
 	if (FAILED(D3DXCreateTextureFromFileExW(m_SharedData.pWindow->GetDevice(), texture_filename.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
 		D3DX_DEFAULT, D3DX_DEFAULT, 0, pInfo, nullptr, ppTexture)))
 	{
-		assert(true);
+		assert(false);
 	}
 }
 
-auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName)->JWControl*
+auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName) noexcept->JWControl*
 {
 	D3DXVECTOR2 adjusted_position = Position;
-	WSTRING automatic_control_name = ControlName;
+	WSTRING control_name = ControlName;
 
-	if (!automatic_control_name.length())
+	if (!control_name.length())
 	{
-		automatic_control_name = L"control";
-		automatic_control_name += ConvertIntToWSTRING(static_cast<int>(m_pControls.size() - 1));
+		// IF,
+		// 'ControlName' is not specified,
+		// automatically create a name for the control.
+
+		control_name = L"control";
+		control_name += ConvertIntToWSTRING(static_cast<int>(m_pControls.size() - 1));
 	}
 
 	// Check duplicate control name.
 	if (m_ControlsMap.size())
 	{
-		auto already_exist = m_ControlsMap.find(automatic_control_name);
+		auto already_exist = m_ControlsMap.find(control_name);
 
 		if (already_exist != m_ControlsMap.end())
 		{
 			// This control name already exists in the controls map.
-			THROW_NAME_COLLISION(automatic_control_name.c_str());
+			assert(false);
 		}
 	}
 
 	if (m_bHasMenuBar)
 	{
-		if (Type == EControlType::MenuBar)
-		{
-			// If JWGUIWindow already has a menubar, you can't add another one.
-			THROW_DUPLICATE_CREATION;
-		}
+		// If JWGUIWindow already has a menubar, you can't add another one.
+		assert(Type != EControlType::MenuBar);
 	}
 
 	switch (Type)
@@ -132,7 +130,7 @@ auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, con
 
 	m_pControls[m_pControls.size() - 1]->Create(adjusted_position, Size, m_SharedData);
 
-	m_ControlsMap.insert(MAKE_PAIR(automatic_control_name, m_pControls.size() - 1));
+	m_ControlsMap.insert(MAKE_PAIR(control_name, m_pControls.size() - 1));
 
 	return m_pControls[m_pControls.size() - 1].get();
 }

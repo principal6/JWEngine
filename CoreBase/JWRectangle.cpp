@@ -3,17 +3,10 @@
 
 using namespace JWENGINE;
 
-JWRectangle::JWRectangle()
-{
-	DeleteVertexAndIndex();
-}
-
 JWRectangle::~JWRectangle()
 {
 	m_pJWWindow = nullptr;
 	m_pDevice = nullptr; // Just set to nullptr cuz it's newed in <JWWindow> class
-
-	DeleteVertexAndIndex();
 
 	JW_RELEASE(m_pIndexBuffer);
 	JW_RELEASE(m_pVertexBuffer);
@@ -29,30 +22,18 @@ void JWRectangle::Create(const JWWindow& Window, const WSTRING& BaseDir, UINT Ma
 	m_MaxNumBox = MaxNumBox;
 	m_MaxNumBox = max(m_MaxNumBox, 1);
 
-	DeleteVertexAndIndex();
-
 	CreateVertexBuffer();
 	CreateIndexBuffer();
 	UpdateVertexBuffer();
 	UpdateIndexBuffer();
 }
 
-PRIVATE void JWRectangle::DeleteVertexAndIndex() noexcept
-{
-	JW_DELETE_ARRAY(m_Vertices);
-	JW_DELETE_ARRAY(m_Indices);
-}
-
 PRIVATE void JWRectangle::CreateVertexBuffer() noexcept
 {
-	if (!m_Vertices)
+	m_Vertices.clear();
+	for (size_t i = 0; i < m_MaxNumBox * 4; i++)
 	{
-		m_Vertices = new SVertexImage[m_MaxNumBox * 4];
-
-		for (size_t i = 0; i < m_MaxNumBox * 4; i++)
-		{
-			m_Vertices[i] = SVertexImage(0, 0, m_RectangleColor);
-		}
+		m_Vertices.push_back(SVertexImage(0, 0, m_RectangleColor));
 	}
 
 	int vertex_size = sizeof(SVertexImage) * m_MaxNumBox * 4;
@@ -64,15 +45,11 @@ PRIVATE void JWRectangle::CreateVertexBuffer() noexcept
 
 PRIVATE void JWRectangle::CreateIndexBuffer() noexcept
 {
-	if (!m_Indices)
+	m_Indices.clear();
+	for (size_t iterator = 0; iterator < m_MaxNumBox; iterator++)
 	{
-		m_Indices = new SIndex3[m_MaxNumBox * 2];
-
-		for (size_t iterator = 0; iterator < m_MaxNumBox; iterator++)
-		{
-			m_Indices[iterator * 2] = SIndex3(iterator * 4, iterator * 4 + 1, iterator * 4 + 3);
-			m_Indices[iterator * 2 + 1] = SIndex3(iterator * 4, iterator * 4 + 3, iterator * 4 + 2);
-		}
+		m_Indices.push_back(SIndex3(iterator * 4, iterator * 4 + 1, iterator * 4 + 3));
+		m_Indices.push_back(SIndex3(iterator * 4, iterator * 4 + 3, iterator * 4 + 2));
 	}
 
 	int index_size = sizeof(SIndex3) * m_MaxNumBox * 2;
@@ -84,7 +61,7 @@ PRIVATE void JWRectangle::CreateIndexBuffer() noexcept
 
 PRIVATE void JWRectangle::UpdateVertexBuffer() noexcept
 {
-	if (m_Vertices)
+	if (m_Vertices.size())
 	{
 		int vertex_size = sizeof(SVertexImage) * m_MaxNumBox * 4;
 		void* pVertices;
@@ -98,7 +75,7 @@ PRIVATE void JWRectangle::UpdateVertexBuffer() noexcept
 
 PRIVATE void JWRectangle::UpdateIndexBuffer() noexcept
 {
-	if (m_Indices)
+	if (m_Indices.size())
 	{
 		int index_size = sizeof(SIndex3) * m_MaxNumBox * 2;
 		void* pIndices;

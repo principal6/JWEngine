@@ -24,11 +24,15 @@ int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
+	SWindowCreationData myWindowData = SWindowCreationData(L"JWGUI Test", 0, 100, 800, 600, DEFAULT_COLOR_LESS_BLACK, EWindowStyle::OverlappedWindow);
+	myGUI.Create(myWindowData, pMainGUIWindow);
+
+	LPDIRECT3DTEXTURE9 test_texture;
+	D3DXIMAGE_INFO test_texture_info;
+	pMainGUIWindow->CreateTexture(L"test_atlas.png", &test_texture, &test_texture_info);
+
 	try
 	{
-		SWindowCreationData myWindowData = SWindowCreationData(L"JWGUI Test", 0, 100, 800, 600, DEFAULT_COLOR_LESS_BLACK, EWindowStyle::OverlappedWindow);
-		myGUI.Create(myWindowData, pMainGUIWindow);
-
 		pMainGUIWindow->AddControl(EControlType::MenuBar, D3DXVECTOR2(0, 0), D3DXVECTOR2(0, 0), L"menubar");
 		THandleItem mb_file = pMainGUIWindow->GetControl(L"menubar").AddMenuBarItem(L"파일");
 		mb_file_new = pMainGUIWindow->GetControl(L"menubar").AddMenuBarSubItem(mb_file, L"새로 만들기");
@@ -89,11 +93,6 @@ int main()
 		pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(20, 70), D3DXVECTOR2(0, 0), L"radiobox1");
 
 		pMainGUIWindow->AddControl(EControlType::RadioBox, D3DXVECTOR2(20, 90), D3DXVECTOR2(0, 0), L"radiobox2");
-
-		LPDIRECT3DTEXTURE9 test_texture;
-		D3DXIMAGE_INFO test_texture_info;
-
-		pMainGUIWindow->CreateTexture(L"test_atlas.png", &test_texture, &test_texture_info);
 
 		pMainGUIWindow->AddControl(EControlType::ListBox, D3DXVECTOR2(20, 120), D3DXVECTOR2(200, 90), L"listbox1")
 			->ShouldUseImageItem(true)

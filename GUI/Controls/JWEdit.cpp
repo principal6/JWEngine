@@ -519,11 +519,13 @@ PRIVATE void JWEdit::InsertCharacter(wchar_t Char) noexcept
 
 	m_Text = m_Text.substr(0, curr_caret_sel_position) + Char + m_Text.substr(curr_caret_sel_position);
 
+	/*
 	WSTRING inserted_string;
 	inserted_string += Char;
 	m_pEditText->InsertInNonInstantText(inserted_string);
+	*/
 
-	//m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
+	m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
 
 	m_pEditText->MoveCaretToRight();
 

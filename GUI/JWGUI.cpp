@@ -10,7 +10,7 @@ VECTOR<HWND> JWGUI::ms_hWndQuitStack;
 LRESULT CALLBACK JWENGINE::GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
 	// Handle to the context for the Input Method Manager(IMM), which is needed for Input Method Editor(IME)
-	HIMC hIMC = nullptr;
+	HIMC hIMC{ nullptr };
 
 	switch (Message)
 	{
@@ -54,54 +54,42 @@ LRESULT CALLBACK JWENGINE::GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam,
 	return(DefWindowProc(hWnd, Message, wParam, lParam));
 }
 
-void JWGUI::Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow)
+void JWGUI::Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow) noexcept
 {
-	OutPtrMainGUIWindow = new JWGUIWindow;
+	m_pGUIWindows.push_back(MAKE_UNIQUE_AND_MOVE(JWGUIWindow)());
+	m_ppGUIWindows.push_back(&OutPtrMainGUIWindow);
+
+	OutPtrMainGUIWindow = m_pGUIWindows[m_pGUIWindows.size() - 1].get();
 	WindowCreationData.proc = GUIWindowProc;
 	OutPtrMainGUIWindow->Create(WindowCreationData);
-	m_ppGUIWindows.push_back(&OutPtrMainGUIWindow);
 }
 
-void JWGUI::Destroy() noexcept
+void JWGUI::AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrGUIWindow) noexcept
 {
-	if (m_ppGUIWindows.size())
-	{
-		for (auto iterator : m_ppGUIWindows)
-		{
-			JW_DELETE(*iterator);
-			iterator = nullptr;
-		}
-	}
-}
+	m_pGUIWindows.push_back(MAKE_UNIQUE_AND_MOVE(JWGUIWindow)());
+	m_ppGUIWindows.push_back(&OutPtrGUIWindow);
 
-void JWGUI::AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrGUIWindow)
-{
-	OutPtrGUIWindow = new JWGUIWindow;
+	OutPtrGUIWindow = m_pGUIWindows[m_pGUIWindows.size() - 1].get();
 	WindowCreationData.proc = GUIWindowProc;
 	OutPtrGUIWindow->Create(WindowCreationData);
-
-	m_ppGUIWindows.push_back(&OutPtrGUIWindow);
 }
 
 void JWGUI::DestroyGUIWindow(const JWGUIWindow* pGUIWindow) noexcept
 {
-	if (m_ppGUIWindows.size())
+	if (m_pGUIWindows.size())
 	{
-		size_t iterator_window_index = 0;
+		size_t iterator_window_index{};
 
-		for (auto& iterator : m_ppGUIWindows)
+		for (auto& iterator : m_pGUIWindows)
 		{
-			if ((*iterator) == pGUIWindow)
+			if (iterator.get() == pGUIWindow)
 			{
-				JW_DELETE(*iterator);
-				iterator = nullptr;
+				EraseGUIWindow(iterator_window_index);
 				break;
 			}
 
 			iterator_window_index++;
 		}
-
-		m_ppGUIWindows.erase(iterator_window_index);
 	}
 }
 
@@ -112,9 +100,11 @@ void JWGUI::SetMainLoopFunction(const PF_MAINLOOP pfMainLoop) noexcept
 
 void JWGUI::Run() noexcept
 {
-	bool b_gui_window_destroyed = false;
-	size_t destroyed_gui_window_index = 0;
-	size_t iterator_index = 0;
+	HWND hwnd_active{ nullptr };
+
+	bool b_gui_window_destroyed{ false };
+	size_t destroyed_gui_window_index{};
+	size_t iterator_index{};
 
 	m_bIsGUIRunning = true;
 
@@ -129,45 +119,45 @@ void JWGUI::Run() noexcept
 			DispatchMessage(&m_MSG);
 		}
 
-		HWND hActiveWindow = GetActiveWindow();
+		hwnd_active = GetActiveWindow();
 
 		//std::cout << "[DEBUG] ACTIVE WINDOW HWND: " << hActiveWindow << std::endl;
 
 		// Update all JWGUIWindows.
-		if (m_ppGUIWindows.size())
+		if (m_pGUIWindows.size())
 		{
-			for (auto iterator : m_ppGUIWindows)
+			for (auto& iterator : m_pGUIWindows)
 			{
-				(*iterator)->Update(m_MSG, ms_IMEInfo, ms_hWndQuitStack, hActiveWindow);
+				iterator->Update(m_MSG, ms_IMEInfo, ms_hWndQuitStack, hwnd_active);
 			}
 		}
 
 		// Check if a JWGUIWindow is destroyed,
 		// If so, erase it from the dynamic array,
 		// and if not, BeginRender().
-		if (m_ppGUIWindows.size())
+		if (m_pGUIWindows.size())
 		{
 			iterator_index = 0;
-			for (auto iterator : m_ppGUIWindows)
+			for (auto& iterator : m_pGUIWindows)
 			{
-				if ((*iterator)->IsDestroyed())
+				if (iterator->IsDestroyed())
 				{
 					b_gui_window_destroyed = true;
 					destroyed_gui_window_index = iterator_index;
 				}
 					
-				(*iterator)->BeginRender();
+				iterator->BeginRender();
 
 				iterator_index++;
 			}
 		}
 
 		// Draw all the controls in the JWGUIWindow.
-		if (m_ppGUIWindows.size())
+		if (m_pGUIWindows.size())
 		{
-			for (auto iterator : m_ppGUIWindows)
+			for (auto& iterator : m_pGUIWindows)
 			{
-				(*iterator)->DrawAllControls();
+				iterator->DrawAllControls();
 			}
 		}
 
@@ -177,11 +167,11 @@ void JWGUI::Run() noexcept
 			m_pfMainLoop();
 		}
 
-		if (m_ppGUIWindows.size())
+		if (m_pGUIWindows.size())
 		{
-			for (auto iterator : m_ppGUIWindows)
+			for (auto& iterator : m_pGUIWindows)
 			{
-				(*iterator)->EndRender();
+				iterator->EndRender();
 			}
 		}
 
@@ -201,31 +191,48 @@ void JWGUI::Run() noexcept
 				// all JWGUIWindows must be destroyed,
 				// and the program must exit.
 
-				iterator_index = 0;
-				for (auto iterator : m_ppGUIWindows)
-				{
-					JW_DELETE(*m_ppGUIWindows[iterator_index]);
-					m_ppGUIWindows[iterator_index] = nullptr;
-
-					iterator_index++;
-				}
-
-				m_ppGUIWindows.clear();
+				ClearGUIWindow();
 			}
 			else
 			{
-				JW_DELETE(*m_ppGUIWindows[destroyed_gui_window_index]);
-				m_ppGUIWindows[destroyed_gui_window_index] = nullptr;
-
-				m_ppGUIWindows.erase(destroyed_gui_window_index);
+				EraseGUIWindow(destroyed_gui_window_index);
 			}
 		}
 
-		if (!m_ppGUIWindows.size())
+		if (!m_pGUIWindows.size())
 		{
 			m_bIsGUIRunning = false;
 		}
 	}
+}
 
-	Destroy();
+void JWGUI::EraseGUIWindow(size_t index) noexcept
+{
+	if (m_pGUIWindows.size())
+	{
+		m_pGUIWindows.erase(index);
+	}
+
+	if (m_ppGUIWindows.size())
+	{
+		*m_ppGUIWindows[index] = nullptr;
+		m_ppGUIWindows.erase(index);
+	}
+}
+
+void JWGUI::ClearGUIWindow() noexcept
+{
+	if (m_pGUIWindows.size())
+	{
+		m_pGUIWindows.clear();
+	}
+
+	if (m_ppGUIWindows.size())
+	{
+		for (auto& iterator : m_ppGUIWindows)
+		{
+			*iterator = nullptr;
+		}
+		m_ppGUIWindows.clear();
+	}
 }

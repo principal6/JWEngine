@@ -19,19 +19,13 @@ JWText::~JWText()
 	}
 
 	JW_RELEASE(m_InstantVertexData.pBuffer);
-	JW_DELETE_ARRAY(m_InstantVertexData.Vertices);
-
 	JW_RELEASE(m_InstantIndexData.pBuffer);
-	JW_DELETE_ARRAY(m_InstantIndexData.Indices);
 
 	JW_RELEASE(m_NonInstantVertexData.pBuffer);
-	JW_DELETE_ARRAY(m_NonInstantVertexData.Vertices);
-
 	JW_RELEASE(m_NonInstantIndexData.pBuffer);
-	JW_DELETE_ARRAY(m_NonInstantIndexData.Indices);
 }
 
-void JWText::CreateInstantText(const JWWindow& Window, const WSTRING& BaseDir)
+void JWText::CreateInstantText(const JWWindow& Window, const WSTRING& BaseDir) noexcept
 {
 	if (m_pFontTexture)
 	{
@@ -52,7 +46,7 @@ void JWText::CreateInstantText(const JWWindow& Window, const WSTRING& BaseDir)
 	m_bIsInstantText = true;
 }
 
-void JWText::CreateNonInstantText(const JWWindow& Window, const WSTRING& BaseDir, const LPDIRECT3DTEXTURE9 pFontTexture)
+void JWText::CreateNonInstantText(const JWWindow& Window, const WSTRING& BaseDir, const LPDIRECT3DTEXTURE9 pFontTexture) noexcept
 {
 	if (m_pFontTexture)
 	{
@@ -85,7 +79,7 @@ void JWText::CreateNonInstantText(const JWWindow& Window, const WSTRING& BaseDir
 	m_bIsInstantText = false;
 }
 
-PRIVATE void JWText::CreateFontTexture(const WSTRING& FileName_FNT)
+PRIVATE void JWText::CreateFontTexture(const WSTRING& FileName_FNT) noexcept
 {
 	if (m_pFontTexture)
 	{
@@ -120,11 +114,11 @@ PRIVATE void JWText::CreateFontTexture(const WSTRING& FileName_FNT)
 	if (FAILED(D3DXCreateTextureFromFileExW(m_pDevice, new_file_name.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
 		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &m_pFontTexture)))
 	{
-		assert(true);
+		assert(false);
 	}
 }
 
-PRIVATE void JWText::CreateInstantTextBuffers()
+PRIVATE void JWText::CreateInstantTextBuffers() noexcept
 {
 	if (m_InstantVertexData.pBuffer)
 	{
@@ -132,33 +126,21 @@ PRIVATE void JWText::CreateInstantTextBuffers()
 		return;
 	}
 
-	// Set maximum size
-	m_InstantVertexData.VertexSize = MAX_INSTANT_TEXT_VERTEX_SIZE;
-	m_InstantIndexData.IndexSize = MAX_INSTANT_TEXT_INDEX_SIZE;
-
 	// Make rectangles for characters with maximum characters' count
-	if (!m_InstantVertexData.Vertices)
+	m_InstantVertexData.Vertices.clear();
+	for (size_t iterator = 0; iterator < MAX_INSTANT_TEXT_LENGTH; iterator++)
 	{
-		m_InstantVertexData.Vertices = new SVertexImage[m_InstantVertexData.VertexSize];
-
-		for (size_t iterator = 0; iterator < MAX_INSTANT_TEXT_LENGTH; iterator++)
-		{
-			m_InstantVertexData.Vertices[iterator * 4] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0);
-			m_InstantVertexData.Vertices[iterator * 4 + 1] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0);
-			m_InstantVertexData.Vertices[iterator * 4 + 2] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1);
-			m_InstantVertexData.Vertices[iterator * 4 + 3] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1);
-		}
+		m_InstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0));
+		m_InstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0));
+		m_InstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1));
+		m_InstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1));
 	}
 
-	if (!m_InstantIndexData.Indices)
+	m_InstantIndexData.Indices.clear();
+	for (size_t iterator = 0; iterator < MAX_INSTANT_TEXT_LENGTH; iterator++)
 	{
-		m_InstantIndexData.Indices = new SIndex3[m_InstantIndexData.IndexSize];
-
-		for (size_t iterator = 0; iterator < MAX_INSTANT_TEXT_LENGTH; iterator++)
-		{
-			m_InstantIndexData.Indices[iterator * 2] = SIndex3(iterator * 4, iterator * 4 + 1, iterator * 4 + 3);
-			m_InstantIndexData.Indices[iterator * 2 + 1] = SIndex3(iterator * 4, iterator * 4 + 3, iterator * 4 + 2);
-		}
+		m_InstantIndexData.Indices.push_back(SIndex3(iterator * 4, iterator * 4 + 1, iterator * 4 + 3));
+		m_InstantIndexData.Indices.push_back(SIndex3(iterator * 4, iterator * 4 + 3, iterator * 4 + 2));
 	}
 
 	CreateVertexBuffer(&m_InstantVertexData);
@@ -167,7 +149,7 @@ PRIVATE void JWText::CreateInstantTextBuffers()
 	UpdateIndexBuffer(&m_InstantIndexData);
 }
 
-PRIVATE void JWText::CreateNonInstantTextBuffers()
+PRIVATE void JWText::CreateNonInstantTextBuffers() noexcept
 {
 	if (m_NonInstantVertexData.pBuffer)
 	{
@@ -185,33 +167,21 @@ PRIVATE void JWText::CreateNonInstantTextBuffers()
 	UINT max_line_count = (ScreenHeight / FullSize) + 1;
 	UINT max_character_total_count = max_character_count_in_line * max_line_count;
 
-	// Set maximum size
-	m_NonInstantVertexData.VertexSize = max_character_total_count * 4;
-	m_NonInstantIndexData.IndexSize = max_character_total_count * 2;
-
 	// Make rectangles for characters with maximum characters' count
-	if (!m_NonInstantVertexData.Vertices)
+	m_NonInstantVertexData.Vertices.clear();
+	for (size_t iterator = 0; iterator < max_character_total_count; iterator++)
 	{
-		m_NonInstantVertexData.Vertices = new SVertexImage[m_NonInstantVertexData.VertexSize];
-
-		for (size_t iterator = 0; iterator < max_character_total_count; iterator++)
-		{
-			m_NonInstantVertexData.Vertices[iterator * 4] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0);
-			m_NonInstantVertexData.Vertices[iterator * 4 + 1] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0);
-			m_NonInstantVertexData.Vertices[iterator * 4 + 2] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1);
-			m_NonInstantVertexData.Vertices[iterator * 4 + 3] = SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1);
-		}
+		m_NonInstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0));
+		m_NonInstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0));
+		m_NonInstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1));
+		m_NonInstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1));
 	}
 
-	if (!m_NonInstantIndexData.Indices)
+	m_NonInstantIndexData.Indices.clear();
+	for (size_t iterator = 0; iterator < max_character_total_count; iterator++)
 	{
-		m_NonInstantIndexData.Indices = new SIndex3[m_NonInstantIndexData.IndexSize];
-
-		for (size_t iterator = 0; iterator < max_character_total_count; iterator++)
-		{
-			m_NonInstantIndexData.Indices[iterator * 2] = SIndex3(iterator * 4, iterator * 4 + 1, iterator * 4 + 3);
-			m_NonInstantIndexData.Indices[iterator * 2 + 1] = SIndex3(iterator * 4, iterator * 4 + 3, iterator * 4 + 2);
-		}
+		m_NonInstantIndexData.Indices.push_back(SIndex3(iterator * 4, iterator * 4 + 1, iterator * 4 + 3));
+		m_NonInstantIndexData.Indices.push_back(SIndex3(iterator * 4, iterator * 4 + 3, iterator * 4 + 2));
 	}
 
 	CreateVertexBuffer(&m_NonInstantVertexData);
@@ -222,47 +192,45 @@ PRIVATE void JWText::CreateNonInstantTextBuffers()
 	m_bIsInstantText = true;
 }
 
-PRIVATE void JWText::CreateVertexBuffer(SVertexData* pVertexData)
+PRIVATE void JWText::CreateVertexBuffer(SVertexData* pVertexData) noexcept
 {
-	int vertex_size_in_byte = sizeof(SVertexImage) * pVertexData->VertexSize;
-	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size_in_byte, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &pVertexData->pBuffer, nullptr)))
+	pVertexData->SizeInByte = static_cast<int>(sizeof(SVertexImage) * pVertexData->Vertices.size());
+	if (FAILED(m_pDevice->CreateVertexBuffer(pVertexData->SizeInByte, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &pVertexData->pBuffer, nullptr)))
 	{
 		assert(&pVertexData->pBuffer);
 	}
 }
 
-PRIVATE void JWText::CreateIndexBuffer(SIndexData* pIndexData)
+PRIVATE void JWText::CreateIndexBuffer(SIndexData* pIndexData) noexcept
 {
-	int index_size_in_byte = sizeof(SIndex3) * pIndexData->IndexSize;
-	if (FAILED(m_pDevice->CreateIndexBuffer(index_size_in_byte, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &pIndexData->pBuffer, nullptr)))
+	pIndexData->SizeInByte = static_cast<int>(sizeof(SIndex3) * pIndexData->Indices.size());
+	if (FAILED(m_pDevice->CreateIndexBuffer(pIndexData->SizeInByte, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &pIndexData->pBuffer, nullptr)))
 	{
 		assert(&pIndexData->pBuffer);
 	}
 }
 
-PRIVATE void JWText::UpdateVertexBuffer(SVertexData* pVertexData)
+PRIVATE void JWText::UpdateVertexBuffer(SVertexData* pVertexData) noexcept
 {
-	if (pVertexData->Vertices)
+	if (pVertexData->SizeInByte)
 	{
-		int temp_vertex_size = sizeof(SVertexImage) * pVertexData->VertexSize;
 		void* pVertices;
-		if (SUCCEEDED(pVertexData->pBuffer->Lock(0, temp_vertex_size, (void**)&pVertices, 0)))
+		if (SUCCEEDED(pVertexData->pBuffer->Lock(0, pVertexData->SizeInByte, (void**)&pVertices, 0)))
 		{
-			memcpy(pVertices, &pVertexData->Vertices[0], temp_vertex_size);
+			memcpy(pVertices, &pVertexData->Vertices[0], pVertexData->SizeInByte);
 			pVertexData->pBuffer->Unlock();
 		}
 	}
 }
 
-PRIVATE void JWText::UpdateIndexBuffer(SIndexData* pIndexData)
+PRIVATE void JWText::UpdateIndexBuffer(SIndexData* pIndexData) noexcept
 {
-	if (pIndexData->Indices)
+	if (pIndexData->SizeInByte)
 	{
-		int temp_index_size = sizeof(SIndex3) * pIndexData->IndexSize;
 		void* pIndices;
-		if (SUCCEEDED(pIndexData->pBuffer->Lock(0, temp_index_size, (void **)&pIndices, 0)))
+		if (SUCCEEDED(pIndexData->pBuffer->Lock(0, pIndexData->SizeInByte, (void **)&pIndices, 0)))
 		{
-			memcpy(pIndices, &pIndexData->Indices[0], temp_index_size);
+			memcpy(pIndices, &pIndexData->Indices[0], pIndexData->SizeInByte);
 			pIndexData->pBuffer->Unlock();
 		}
 	}
@@ -453,13 +421,11 @@ void JWText::InsertInNonInstantText(const WSTRING& String) noexcept
 PRIVATE void JWText::UpdateNonInstantTextVisibleVertices() noexcept
 {
 	// Clear the vertex buffer's uv data & set font color.
-	
-	for (size_t iterator = 0; iterator < m_NonInstantVertexData.VertexSize; iterator++)
+	for (auto& iterator: m_NonInstantVertexData.Vertices)
 	{
-		m_NonInstantVertexData.Vertices[iterator].u = 0;
-		m_NonInstantVertexData.Vertices[iterator].v = 0;
-
-		m_NonInstantVertexData.Vertices[iterator].color = m_NonInstantTextColor;
+		iterator.u = 0;
+		iterator.v = 0;
+		iterator.color = m_NonInstantTextColor;
 	}
 
 	// Set vertex data (but only for the visible glyphs).
@@ -469,32 +435,30 @@ PRIVATE void JWText::UpdateNonInstantTextVisibleVertices() noexcept
 	float constraint_top = m_ConstraintPosition.y - m_NonInstantTextOffset.y;
 	float constraint_bottom = constraint_top + m_ConstraintSize.y;
 
-	for (size_t iterator_glyph = 0; iterator_glyph < m_NonInstantTextGlyphInfo.size(); iterator_glyph++)
+	for (const auto& iterator_glyph : m_NonInstantTextGlyphInfo)
 	{
-		const SGlyphInfo& glyph = m_NonInstantTextGlyphInfo[iterator_glyph];
-
 		// Bottom constraint
-		if (glyph.top > constraint_bottom)
+		if (iterator_glyph.top > constraint_bottom)
 		{
 			break;
 		}
 
 		// Top constraint
-		if (glyph.top + glyph.height >= constraint_top)
+		if (iterator_glyph.top + iterator_glyph.height >= constraint_top)
 		{
 			// Set u, v values
-			u1 = static_cast<float>(ms_FontData.Chars[glyph.chars_id].X) / static_cast<float>(ms_FontData.Common.ScaleW);
-			u2 = u1 + static_cast<float>(ms_FontData.Chars[glyph.chars_id].Width) / static_cast<float>(ms_FontData.Common.ScaleW);
+			u1 = static_cast<float>(ms_FontData.Chars[iterator_glyph.chars_id].X) / static_cast<float>(ms_FontData.Common.ScaleW);
+			u2 = u1 + static_cast<float>(ms_FontData.Chars[iterator_glyph.chars_id].Width) / static_cast<float>(ms_FontData.Common.ScaleW);
 
-			v1 = static_cast<float>(ms_FontData.Chars[glyph.chars_id].Y) / static_cast<float>(ms_FontData.Common.ScaleH);
-			v2 = v1 + static_cast<float>(ms_FontData.Chars[glyph.chars_id].Height) / static_cast<float>(ms_FontData.Common.ScaleH);
+			v1 = static_cast<float>(ms_FontData.Chars[iterator_glyph.chars_id].Y) / static_cast<float>(ms_FontData.Common.ScaleH);
+			v2 = v1 + static_cast<float>(ms_FontData.Chars[iterator_glyph.chars_id].Height) / static_cast<float>(ms_FontData.Common.ScaleH);
 
 			// Set x, y values
-			x1 = m_NonInstantTextOffset.x + glyph.left;
-			x2 = x1 + glyph.width;
+			x1 = m_NonInstantTextOffset.x + iterator_glyph.left;
+			x2 = x1 + iterator_glyph.width;
 
-			y1 = m_NonInstantTextOffset.y + glyph.drawing_top;
-			y2 = y1 + glyph.height;
+			y1 = m_NonInstantTextOffset.y + iterator_glyph.drawing_top;
+			y2 = y1 + iterator_glyph.height;
 
 			// Side constraints
 			if ((x2 >= m_ConstraintPosition.x) && (x1 <= m_ConstraintPosition.x + m_ConstraintSize.x))
@@ -562,7 +526,8 @@ void JWText::DrawNonInstantText() const noexcept
 	m_pDevice->SetIndices(m_NonInstantIndexData.pBuffer);
 
 	// Draw-call.
-	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_NonInstantVertexData.VertexSize, 0, m_NonInstantIndexData.IndexSize);
+	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, static_cast<int>(m_NonInstantVertexData.Vertices.size()),
+		0, static_cast<int>(m_NonInstantIndexData.Indices.size()));
 
 	// Set texture to nullptr.
 	m_pDevice->SetTexture(0, nullptr);
@@ -678,7 +643,8 @@ void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2& Position
 	m_pDevice->SetIndices(m_InstantIndexData.pBuffer);
 
 	// Draw-call.
-	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_InstantVertexData.VertexSize, 0, m_InstantIndexData.IndexSize);
+	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, static_cast<int>(m_InstantVertexData.Vertices.size()),
+		0, static_cast<int>(m_InstantIndexData.Indices.size()));
 
 	// Set texture to nullptr.
 	m_pDevice->SetTexture(0, nullptr);

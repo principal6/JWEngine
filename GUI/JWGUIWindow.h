@@ -32,10 +32,10 @@ namespace JWENGINE
 		~JWGUIWindow();
 
 		// Create a texture that will be used in this particular JWGUIWindow.
-		void CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo);
+		void CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppTexture, D3DXIMAGE_INFO* pInfo) noexcept;
 
 		// Add a control instance to this JWGUIWindow.
-		auto AddControl(EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName = L"")->JWControl*;
+		auto AddControl(EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName = L"") noexcept->JWControl*;
 
 		// Get the reference of the control instance that this JWGUIWindow has.
 		auto GetControl(const WSTRING& ControlName)->JWControl&;
@@ -55,7 +55,7 @@ namespace JWENGINE
 
 	protected:
 		// This is called in JWGUI (friend class).
-		void Create(const SWindowCreationData& WindowCreationData);
+		void Create(const SWindowCreationData& WindowCreationData) noexcept;
 
 		// This is called in JWGUI (friend class).
 		void Update(const MSG& Message, const SGUIIMEInputInfo& IMEInfo, VECTOR<HWND>& hWndQuitStack, const HWND ActiveWindowHWND) noexcept;

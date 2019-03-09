@@ -30,7 +30,7 @@ JWWindow::~JWWindow()
 	JW_RELEASE(m_pD3D);
 }
 
-void JWWindow::CreateGameWindow(const SWindowCreationData& WindowCreationData)
+void JWWindow::CreateGameWindow(const SWindowCreationData& WindowCreationData) noexcept
 {
 	// Set DirectX clear color
 	m_BGColor = WindowCreationData.color_background;
@@ -52,7 +52,7 @@ void JWWindow::CreateGameWindow(const SWindowCreationData& WindowCreationData)
 	}
 }
 
-void JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)
+void JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData) noexcept
 {
 	// Set DirectX clear color
 	m_BGColor = WindowCreationData.color_background;

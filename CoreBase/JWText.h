@@ -17,15 +17,15 @@ namespace JWENGINE
 	struct SVertexData
 	{
 		LPDIRECT3DVERTEXBUFFER9 pBuffer{ nullptr };
-		SVertexImage* Vertices{ nullptr };
-		UINT VertexSize{};
+		VECTOR<SVertexImage> Vertices;
+		UINT SizeInByte{};
 	};
 
 	struct SIndexData
 	{
 		LPDIRECT3DINDEXBUFFER9 pBuffer{ nullptr };
-		SIndex3* Indices{ nullptr };
-		UINT IndexSize{};
+		VECTOR<SIndex3> Indices;
+		UINT SizeInByte{};
 	};
 
 	struct SGlyphInfo
@@ -62,12 +62,12 @@ namespace JWENGINE
 
 		// Create instant-text JWText.
 		// A 'JWGUIWindow' must have one instant-text JWText for its controls.
-		void CreateInstantText(const JWWindow& Window, const WSTRING& BaseDir);
+		void CreateInstantText(const JWWindow& Window, const WSTRING& BaseDir) noexcept;
 
 		// Create non-instant-text JWText.
 		// A 'JWEdit' control must call this function when it's being created.
 		// To fill in the third paramater(pFontTexture), call GetFontTexturePtr() of the JWGUIWindow-shared JWText object.
-		void CreateNonInstantText(const JWWindow& Window, const WSTRING& BaseDir, const LPDIRECT3DTEXTURE9 pFontTexture);
+		void CreateNonInstantText(const JWWindow& Window, const WSTRING& BaseDir, const LPDIRECT3DTEXTURE9 pFontTexture) noexcept;
 
 		// Call this function when first set the text, or when the JWEdit control is resized or repositioned.
 		void SetNonInstantText(const WSTRING& Text, const D3DXVECTOR2& Position, const D3DXVECTOR2& AreaSize) noexcept;
@@ -129,20 +129,20 @@ namespace JWENGINE
 
 	private:
 		// @warning: the font texture must be created only once per JWGUIWindow (i.e. per D3D device).
-		void CreateFontTexture(const WSTRING& FileName_FNT);
+		void CreateFontTexture(const WSTRING& FileName_FNT) noexcept;
 
 		// Create vertex and index buffers for instant text with limited length (MAX_INSTANT_TEXT_LENGTH).
 		// @warning: this function is called in CreateFontTexture().
-		void CreateInstantTextBuffers();
+		void CreateInstantTextBuffers() noexcept;
 
 		// Create vertex and index buffers for non-instant text with limited length
 		// (the length is computed to be the maximum, in accordance with screen's size and font's size.)
-		void CreateNonInstantTextBuffers();
+		void CreateNonInstantTextBuffers() noexcept;
 
-		void CreateVertexBuffer(SVertexData* pVertexData);
-		void CreateIndexBuffer(SIndexData* pIndexData);
-		void UpdateVertexBuffer(SVertexData* pVertexData);
-		void UpdateIndexBuffer(SIndexData* pIndexData);
+		void CreateVertexBuffer(SVertexData* pVertexData) noexcept;
+		void CreateIndexBuffer(SIndexData* pIndexData) noexcept;
+		void UpdateVertexBuffer(SVertexData* pVertexData) noexcept;
+		void UpdateIndexBuffer(SIndexData* pIndexData) noexcept;
 
 		void UpdateNonInstantTextVisibleVertices() noexcept;
 		void UpdateCaret() noexcept;

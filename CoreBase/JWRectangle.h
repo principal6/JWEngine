@@ -12,7 +12,7 @@ namespace JWENGINE
 	class JWRectangle
 	{
 	public:
-		JWRectangle();
+		JWRectangle() {};
 		virtual ~JWRectangle();
 
 		virtual void Create(const JWWindow& Window, const WSTRING& BaseDir, UINT MaxNumBox = 1) noexcept;
@@ -26,8 +26,6 @@ namespace JWENGINE
 		virtual void SetRectangleColor(DWORD Color) noexcept;
 		
 	protected:
-		virtual void DeleteVertexAndIndex() noexcept;
-
 		virtual void CreateVertexBuffer() noexcept;
 		virtual void CreateIndexBuffer() noexcept;
 		virtual void UpdateVertexBuffer() noexcept;
@@ -43,8 +41,8 @@ namespace JWENGINE
 		LPDIRECT3DVERTEXBUFFER9 m_pVertexBuffer{ nullptr };
 		LPDIRECT3DINDEXBUFFER9 m_pIndexBuffer{ nullptr };
 
-		SVertexImage* m_Vertices{ nullptr };
-		SIndex3* m_Indices{ nullptr };
+		VECTOR<SVertexImage> m_Vertices;
+		VECTOR<SIndex3> m_Indices;
 
 		UINT m_MaxNumBox{};
 		UINT m_BoxCount{};

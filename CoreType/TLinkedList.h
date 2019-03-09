@@ -168,7 +168,7 @@ namespace JWENGINE
 							SLinkedListNode<T>* new_node = new SLinkedListNode<T>;
 							new_node->ptr_prev = iterator_node_prev;
 							new_node->ptr_next = nullptr;
-							new_node->data = value;
+							new_node->data = std::move(value);
 
 							// Set ptr_next of the prev node.
 							iterator_node_prev->ptr_next = new_node;
@@ -182,7 +182,7 @@ namespace JWENGINE
 							SLinkedListNode<T>* new_node = new SLinkedListNode<T>;
 							new_node->ptr_prev = nullptr;
 							new_node->ptr_next = m_pHead;
-							new_node->data = value;
+							new_node->data = std::move(value);
 
 							// Set ptr_prev of the next node.
 							// There's no ptr_prev setting, because this is the head node.
@@ -199,7 +199,7 @@ namespace JWENGINE
 							SLinkedListNode<T>* new_node = new SLinkedListNode<T>;
 							new_node->ptr_prev = iterator_node->ptr_prev;
 							new_node->ptr_next = iterator_node;
-							new_node->data = value;
+							new_node->data = std::move(value);
 
 							// Set ptr_next and ptr_prev of the adjacent nodes.
 							new_node->ptr_prev->ptr_next = new_node;
@@ -228,7 +228,7 @@ namespace JWENGINE
 				// The index value must be 0,
 				// because this is the first data in the linked list.
 				m_pHead = new SLinkedListNode<T>;
-				m_pHead->data = value;
+				m_pHead->data = std::move(value);
 			}
 
 			// insert() always increases the size.

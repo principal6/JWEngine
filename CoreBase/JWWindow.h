@@ -19,8 +19,8 @@ namespace JWENGINE
 		JWWindow() {};
 		~JWWindow();
 
-		void CreateGameWindow(const SWindowCreationData& WindowCreationData);
-		void CreateGUIWindow(const SWindowCreationData& WindowCreationData);
+		void CreateGameWindow(const SWindowCreationData& WindowCreationData) noexcept;
+		void CreateGUIWindow(const SWindowCreationData& WindowCreationData) noexcept;
 		
 		void SetWindowCaption(const WSTRING& Caption) noexcept;
 		void SetBackgroundColor(D3DCOLOR color) noexcept;

@@ -13,10 +13,9 @@ namespace JWENGINE
 		JWGUI() {};
 		~JWGUI() {};
 
-		void Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow);
-		void Destroy() noexcept;
+		void Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow) noexcept;
 
-		void AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrGUIWindow);
+		void AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrGUIWindow) noexcept;
 
 		void DestroyGUIWindow(const JWGUIWindow* pGUIWindow) noexcept;
 
@@ -26,6 +25,9 @@ namespace JWENGINE
 
 	private:
 		friend LRESULT CALLBACK GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
+
+		void EraseGUIWindow(size_t index) noexcept;
+		void ClearGUIWindow() noexcept;
 
 	private:
 		static SGUIIMEInputInfo ms_IMEInfo;
@@ -37,8 +39,11 @@ namespace JWENGINE
 
 		PF_MAINLOOP m_pfMainLoop{ nullptr };
 
-		JWGUIWindow* m_pMainGUIWindow{ nullptr };
+		TLinkedList<UNIQUE_PTR<JWGUIWindow>> m_pGUIWindows;
 
+		// This is required to keep track of
+		// the outter pointers to the instance of JWGUIWindows
+		// in order to make them nullptr when JWGUIWindows are destroyed.
 		TLinkedList<JWGUIWindow**> m_ppGUIWindows;
 	};
 };

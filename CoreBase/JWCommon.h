@@ -85,32 +85,32 @@ namespace JWENGINE
 
 	static constexpr int MAX_RETRY_COUNT_TEXTURE_CREATION = 3;
 
-	static const wchar_t GUI_TEXTURE_FILENAME[] = L"jwgui_button.png";
-	static const D3DXVECTOR2& GUI_BUTTON_SIZE{ 15.0f, 15.0f };
+	static constexpr wchar_t GUI_TEXTURE_FILENAME[] = L"jwgui_button.png";
+	static const D3DXVECTOR2 GUI_BUTTON_SIZE{ 15.0f, 15.0f };
 
-	const wchar_t ASSET_DIR[] = L"\\Asset\\";
-	const wchar_t DEFAULT_FONT[] = L"dotumche12all.fnt";
+	static constexpr wchar_t ASSET_DIR[] = L"\\Asset\\";
+	static constexpr wchar_t DEFAULT_FONT[] = L"dotumche12all.fnt";
 
-	static const DWORD D3DFVF_TEXTURE = D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1;
-	static const DWORD D3DFVF_LINE = D3DFVF_XYZRHW | D3DFVF_DIFFUSE;
+	static constexpr DWORD D3DFVF_TEXTURE = D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1;
+	static constexpr DWORD D3DFVF_LINE = D3DFVF_XYZRHW | D3DFVF_DIFFUSE;
 
-	static const DWORD DEFAULT_COLOR_BLACK = D3DCOLOR_XRGB(0, 0, 0);
-	static const DWORD DEFAULT_COLOR_ALMOST_BLACK = D3DCOLOR_XRGB(35, 35, 35);
-	static const DWORD DEFAULT_COLOR_LESS_BLACK = D3DCOLOR_XRGB(70, 70, 70);
-	static const DWORD DEFAULT_COLOR_NORMAL = D3DCOLOR_XRGB(105, 105, 105);
-	static const DWORD DEFAULT_COLOR_HOVER = D3DCOLOR_XRGB(140, 140, 140);
-	static const DWORD DEFAULT_COLOR_PRESSED = D3DCOLOR_XRGB(80, 80, 255);
-	static const DWORD DEFAULT_COLOR_DARK_HIGHLIGHT = D3DCOLOR_XRGB(20, 20, 160);
-	static const DWORD DEFAULT_COLOR_BORDER = DEFAULT_COLOR_HOVER;
-	static const DWORD DEFAULT_COLOR_BORDER_ACTIVE = DEFAULT_COLOR_DARK_HIGHLIGHT;
-	static const DWORD DEFAULT_COLOR_LESS_WHITE = D3DCOLOR_XRGB(185, 185, 185);
-	static const DWORD DEFAULT_COLOR_ALMOST_WHITE = D3DCOLOR_XRGB(220, 220, 220);
-	static const DWORD DEFAULT_COLOR_WHITE = D3DCOLOR_XRGB(255, 255, 255);
+	static constexpr DWORD DEFAULT_COLOR_BLACK = D3DCOLOR_XRGB(0, 0, 0);
+	static constexpr DWORD DEFAULT_COLOR_ALMOST_BLACK = D3DCOLOR_XRGB(35, 35, 35);
+	static constexpr DWORD DEFAULT_COLOR_LESS_BLACK = D3DCOLOR_XRGB(70, 70, 70);
+	static constexpr DWORD DEFAULT_COLOR_NORMAL = D3DCOLOR_XRGB(105, 105, 105);
+	static constexpr DWORD DEFAULT_COLOR_HOVER = D3DCOLOR_XRGB(140, 140, 140);
+	static constexpr DWORD DEFAULT_COLOR_PRESSED = D3DCOLOR_XRGB(80, 80, 255);
+	static constexpr DWORD DEFAULT_COLOR_DARK_HIGHLIGHT = D3DCOLOR_XRGB(20, 20, 160);
+	static constexpr DWORD DEFAULT_COLOR_BORDER = DEFAULT_COLOR_HOVER;
+	static constexpr DWORD DEFAULT_COLOR_BORDER_ACTIVE = DEFAULT_COLOR_DARK_HIGHLIGHT;
+	static constexpr DWORD DEFAULT_COLOR_LESS_WHITE = D3DCOLOR_XRGB(185, 185, 185);
+	static constexpr DWORD DEFAULT_COLOR_ALMOST_WHITE = D3DCOLOR_XRGB(220, 220, 220);
+	static constexpr DWORD DEFAULT_COLOR_WHITE = D3DCOLOR_XRGB(255, 255, 255);
 
-	static const DWORD DEFAULT_COLOR_FONT = DEFAULT_COLOR_WHITE;
-	static const DWORD DEFAULT_COLOR_WATERMARK = DEFAULT_COLOR_LESS_WHITE;
+	static constexpr DWORD DEFAULT_COLOR_FONT = DEFAULT_COLOR_WHITE;
+	static constexpr DWORD DEFAULT_COLOR_WATERMARK = DEFAULT_COLOR_LESS_WHITE;
 
-	static const wchar_t DEFAULT_EDIT_WATERMARK[] = L"JWEdit Control";
+	static constexpr wchar_t DEFAULT_EDIT_WATERMARK[] = L"JWEdit Control";
 
 	enum class EHorizontalAlignment
 	{
@@ -146,86 +146,6 @@ namespace JWENGINE
 		Effect,
 	};
 
-	struct SWindowInputState
-	{
-		// True while the left button is pressed.
-		bool MouseLeftPressed = false;
-
-		// True only when the left button is pressed for the first time.
-		bool MouseLeftFirstPressed = false;
-
-		bool MouseLeftReleased = false;
-		bool MouseRightPressed = false;
-		bool MouseRightReleased = false;
-		bool ControlPressed = false;
-		bool AltPressed = false;
-		bool ShiftPressed = false;
-		POINT MousePosition{};
-		POINT MouseDownPosition{};
-		POINT MouseMovedPosition{};
-		int MouseWheeled = 0;
-
-		SWindowInputState() {};
-	};
-
-	struct SAnimationData
-	{
-		EAnimationID AnimID = EAnimationID::Idle;
-		int FrameS = 0;
-		int FrameE = 0;
-		bool bForceCycle = false;
-		bool bSetStartFrameEverytime = false;
-
-		SAnimationData() {};
-		SAnimationData(EAnimationID _AnimID, int StartFrame, int EndFrame, bool ForceCycle = false,
-			bool SetStartFrameEverytime = false) :
-			AnimID(_AnimID), FrameS(StartFrame), FrameE(EndFrame), bForceCycle(ForceCycle),
-			bSetStartFrameEverytime(SetStartFrameEverytime) {};
-	};
-
-	struct SVertexImage
-	{
-		FLOAT x = 0;
-		FLOAT y = 0;
-		FLOAT z = 0;
-		FLOAT rhw = 0;
-		DWORD color = 0xFFFFFFFF;
-		FLOAT u = 0;
-		FLOAT v = 0;
-
-		SVertexImage() {};
-		SVertexImage(float _x, float _y, float _u, float _v) :
-			x(_x), y(_y), z(0), rhw(1), color(0xFFFFFFFF), u(_u), v(_v) {};
-		SVertexImage(float _x, float _y, DWORD _color) :
-			x(_x), y(_y), z(0), rhw(1), color(_color), u(0), v(0) {};
-		SVertexImage(float _x, float _y, DWORD _color, float _u, float _v) :
-			x(_x), y(_y), z(0), rhw(1), color(_color), u(_u), v(_v) {};
-		SVertexImage(float _x, float _y, float _z, float _rhw, DWORD _color, float _u, float _v) :
-			x(_x), y(_y), z(_z), rhw(_rhw), color(_color), u(_u), v(_v) {};
-	};
-
-	struct SIndex3
-	{
-		WORD _0 = 0;
-		WORD _1 = 0;
-		WORD _2 = 0;
-
-		SIndex3() {};
-		SIndex3(int ID0, int ID1, int ID2) : _0(ID0), _1(ID1), _2(ID2) {};
-		SIndex3(size_t ID0, size_t ID1, size_t ID2) : _0(static_cast<WORD>(ID0)), _1(static_cast<WORD>(ID1)), _2(static_cast<WORD>(ID2)) {};
-	};
-
-	struct STextureUV
-	{
-		float u1 = 0;
-		float u2 = 0;
-		float v1 = 0;
-		float v2 = 0;
-
-		STextureUV() {};
-		STextureUV(float U1, float U2, float V1, float V2) : u1(U1), u2(U2), v1(V1), v2(V2) {};
-	};
-
 	enum class EWindowStyle : DWORD
 	{
 		Overlapped = WS_OVERLAPPED,
@@ -256,16 +176,92 @@ namespace JWENGINE
 
 	DEFINE_ENUM_FLAG_OPERATORS(EWindowStyle);
 
+	struct SWindowInputState
+	{
+		// True while the left button is pressed.
+		bool MouseLeftPressed{ false };
+
+		// True only when the left button is pressed for the first time.
+		bool MouseLeftFirstPressed{ false };
+
+		bool MouseLeftReleased{ false };
+		bool MouseRightPressed{ false };
+		bool MouseRightReleased{ false };
+		bool ControlPressed{ false };
+		bool AltPressed{ false };
+		bool ShiftPressed{ false };
+		POINT MousePosition{};
+		POINT MouseDownPosition{};
+		POINT MouseMovedPosition{};
+		int MouseWheeled{};
+	};
+
+	struct SAnimationData
+	{
+		EAnimationID AnimID{ EAnimationID::Idle };
+		int FrameS{};
+		int FrameE{};
+		bool bForceCycle{ false };
+		bool bSetStartFrameEverytime{ false };
+
+		SAnimationData() {};
+		SAnimationData(EAnimationID _AnimID, int StartFrame, int EndFrame, bool ForceCycle = false, bool SetStartFrameEverytime = false) :
+			AnimID(_AnimID), FrameS(StartFrame), FrameE(EndFrame), bForceCycle(ForceCycle), bSetStartFrameEverytime(SetStartFrameEverytime) {};
+	};
+
+	struct SVertexImage
+	{
+		FLOAT x{};
+		FLOAT y{};
+		FLOAT z{ 0 };
+		FLOAT rhw{ 1 };
+		DWORD color{ 0xFFFFFFFF };
+		FLOAT u{};
+		FLOAT v{};
+
+		SVertexImage() {};
+		SVertexImage(float _x, float _y, float _u, float _v) :
+			x(_x), y(_y), u(_u), v(_v) {};
+		SVertexImage(float _x, float _y, DWORD _color) :
+			x(_x), y(_y), color(_color) {};
+		SVertexImage(float _x, float _y, DWORD _color, float _u, float _v) :
+			x(_x), y(_y), color(_color), u(_u), v(_v) {};
+		SVertexImage(float _x, float _y, float _z, float _rhw, DWORD _color, float _u, float _v) :
+			x(_x), y(_y), z(_z), rhw(_rhw), color(_color), u(_u), v(_v) {};
+	};
+
+	struct SIndex3
+	{
+		WORD _0{};
+		WORD _1{};
+		WORD _2{};
+
+		SIndex3() {};
+		SIndex3(int ID0, int ID1, int ID2) : _0(ID0), _1(ID1), _2(ID2) {};
+		SIndex3(size_t ID0, size_t ID1, size_t ID2) : _0(static_cast<WORD>(ID0)), _1(static_cast<WORD>(ID1)), _2(static_cast<WORD>(ID2)) {};
+	};
+
+	struct STextureUV
+	{
+		float u1{};
+		float u2{};
+		float v1{};
+		float v2{};
+
+		STextureUV() {};
+		STextureUV(float U1, float U2, float V1, float V2) : u1(U1), u2(U2), v1(V1), v2(V2) {};
+	};
+
 	struct SWindowCreationData
 	{
 		WSTRING caption;
-		int x = 0;
-		int y = 0;
-		unsigned int width = 0;
-		unsigned int height = 0;
-		DWORD color_background = 0xFFFFFFFF;
-		WNDPROC proc = nullptr;
-		EWindowStyle window_style = EWindowStyle::OverlappedWindow;
+		int x{};
+		int y{};
+		unsigned int width{};
+		unsigned int height{};
+		DWORD color_background{ 0xFFFFFFFF };
+		WNDPROC proc{ nullptr };
+		EWindowStyle window_style{ EWindowStyle::OverlappedWindow };
 		
 		SWindowCreationData() : width(300), height(200) {};
 		SWindowCreationData(WSTRING _caption, int _x, int _y, unsigned int _width, unsigned int _height, DWORD _color_background,
@@ -277,11 +273,11 @@ namespace JWENGINE
 	// This structure contains data that will be shared in a JWGUIWindow.
 	struct SGUIWindowSharedData
 	{
-		JWGUIWindow* pGUIWindow = nullptr;
-		JWWindow* pWindow = nullptr;
-		JWText* pText = nullptr;
+		JWGUIWindow* pGUIWindow{ nullptr };
+		UNIQUE_PTR<JWWindow> pWindow;
+		UNIQUE_PTR<JWText> pText;
 		WSTRING BaseDir;
-		LPDIRECT3DTEXTURE9 Texture_GUI = nullptr;
+		LPDIRECT3DTEXTURE9 Texture_GUI{ nullptr };
 		D3DXIMAGE_INFO Texture_GUI_Info{};
 	};
 
@@ -414,6 +410,11 @@ namespace JWENGINE
 		}
 	}
 
+	inline void LOG_DEBUG(WSTRING wide_string)
+	{
+		std::wcout << wide_string.c_str() << std::endl;
+	}
+
 	static auto WstringToString(WSTRING Source)->STRING
 	{
 		STRING Result;
@@ -448,11 +449,6 @@ namespace JWENGINE
 		return Result;
 	}
 
-	inline void LOG_DEBUG(WSTRING wide_string)
-	{
-		std::wcout << wide_string.c_str() << std::endl;
-	}
-
 	/** EXCEPTION HANDLERS */
 	class exception_base : public std::exception
 	{
@@ -485,33 +481,6 @@ namespace JWENGINE
 		}
 	};
 
-	class duplicate_creation : public exception_base
-	{
-	public:
-		duplicate_creation(const char* function_name, const std::type_info& type_id) noexcept : exception_base(function_name, type_id)
-		{
-			m_error_content += "duplicate creation>";
-		}
-	};
-
-	class name_collision : public exception_base
-	{
-	public:
-		name_collision(const char* function_name, const std::type_info& type_id, const wchar_t* name) noexcept : exception_base(function_name, type_id)
-		{
-			m_error_content += "name already exists> ";
-
-			m_name = L"\'";
-			m_name += name;
-			m_name += L"\'";
-
-			m_error_content += WstringToString(m_name);
-		}
-
-	private:
-		std::wstring m_name;
-	};
-
 	class not_found : public exception_base
 	{
 	public:
@@ -526,13 +495,11 @@ namespace JWENGINE
 	public:
 		dxinput_failed(const char* function_name, const std::type_info& type_id) noexcept : exception_base(function_name, type_id)
 		{
-			m_error_content += "directx input failed>";
+			m_error_content += "directx-input-related function failed>";
 		}
 	};
 
 	#define THROW_CREATION_FAILED throw creation_failed(__func__, typeid(this))
-	#define THROW_DUPLICATE_CREATION throw duplicate_creation(__func__, typeid(this))
-	#define THROW_NAME_COLLISION(wchar_name) throw name_collision(__func__, typeid(this), wchar_name)	
 	#define THROW_NOT_FOUND throw not_found(__func__, typeid(this))
 	#define THROW_DXINPUT_FAILED throw dxinput_failed(__func__, typeid(this))
 };
