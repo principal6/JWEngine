@@ -128,15 +128,11 @@ PRIVATE void JWText::CreateInstantTextBuffers() noexcept
 
 	// Make rectangles for characters with maximum characters' count
 	m_InstantVertexData.Vertices.clear();
-	for (size_t iterator = 0; iterator < MAX_INSTANT_TEXT_LENGTH; iterator++)
-	{
-		m_InstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0));
-		m_InstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0));
-		m_InstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1));
-		m_InstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1));
-	}
+	m_InstantVertexData.Vertices.reserve(MAX_INSTANT_TEXT_LENGTH * 4);
+	m_InstantVertexData.Vertices.resize(MAX_INSTANT_TEXT_LENGTH * 4);
 
 	m_InstantIndexData.Indices.clear();
+	m_InstantIndexData.Indices.reserve(MAX_INSTANT_TEXT_LENGTH * 2);
 	for (size_t iterator = 0; iterator < MAX_INSTANT_TEXT_LENGTH; iterator++)
 	{
 		m_InstantIndexData.Indices.push_back(SIndex3(iterator * 4, iterator * 4 + 1, iterator * 4 + 3));
@@ -169,15 +165,11 @@ PRIVATE void JWText::CreateNonInstantTextBuffers() noexcept
 
 	// Make rectangles for characters with maximum characters' count
 	m_NonInstantVertexData.Vertices.clear();
-	for (size_t iterator = 0; iterator < max_character_total_count; iterator++)
-	{
-		m_NonInstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 0));
-		m_NonInstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 0));
-		m_NonInstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 0, 1));
-		m_NonInstantVertexData.Vertices.push_back(SVertexImage(0, 0, DEFAULT_COLOR_FONT, 1, 1));
-	}
+	m_NonInstantVertexData.Vertices.reserve(max_character_total_count * 4);
+	m_NonInstantVertexData.Vertices.resize(max_character_total_count * 4);
 
 	m_NonInstantIndexData.Indices.clear();
+	m_NonInstantIndexData.Indices.reserve(max_character_total_count * 2);
 	for (size_t iterator = 0; iterator < max_character_total_count; iterator++)
 	{
 		m_NonInstantIndexData.Indices.push_back(SIndex3(iterator * 4, iterator * 4 + 1, iterator * 4 + 3));

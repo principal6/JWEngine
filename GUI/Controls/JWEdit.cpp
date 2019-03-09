@@ -8,6 +8,8 @@ using namespace JWENGINE;
 
 void JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept
 {
+	JWPerformanceTester tester{__func__};
+
 	JWControl::Create(Position, Size, SharedData);
 
 	// Set control type.
@@ -25,14 +27,22 @@ void JWEdit::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const 
 	m_pBackground = MAKE_UNIQUE(JWImage)();
 	m_pBackground->Create(*m_pSharedData->pWindow, m_pSharedData->BaseDir);
 
+
 	// Create non-instant JWText for JWEdit control.
+	tester.EndAndStart(" MAKE_UNIQUE(JWText)");
 	m_pEditText = MAKE_UNIQUE(JWText)();
+
+	tester.EndAndStart(" CreateNonInstantText()");
 	m_pEditText->CreateNonInstantText(*m_pSharedData->pWindow, m_pSharedData->BaseDir, m_pSharedData->pText->GetFontTexturePtr());
+
+	tester.EndAndStart(" SetNonInstantText()");
 	m_pEditText->SetNonInstantText(L"", m_PaddedPosition, m_PaddedSize);
 
 	// Set control's position and size.
 	SetPosition(Position);
 	SetSize(Size);
+
+	tester.End();
 }
 
 void JWEdit::Draw() noexcept

@@ -175,7 +175,7 @@ void MainLoop()
 		{
 			WSTRING text;
 			pDialogueNewMap->GetControl(L"edit_name").GetText(text);
-			std::wcout << text.c_str() << std::endl;
+			LOG_DEBUG(text);
 
 			myGUI.DestroyGUIWindow(pDialogueNewMap);
 		}
@@ -210,7 +210,6 @@ void ShowDialogueNewMap()
 
 	pDialogueNewMap->AddControl(EControlType::Edit, D3DXVECTOR2(edit_offset_x, 60), D3DXVECTOR2(160, 20), L"edit_name")
 		->SetWatermark(L"맵 이름을 입력하세요.");
-
 	
 	pDialogueNewMap->AddControl(EControlType::Edit, D3DXVECTOR2(edit_offset_x, 90), D3DXVECTOR2(160, 20), L"edit_x_size")
 		->ShouldUseNumberInputsOnly(true)

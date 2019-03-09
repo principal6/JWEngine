@@ -410,7 +410,7 @@ PROTECTED void JWControl::UpdateControlState(JWControl** ppControlWithMouse, JWC
 				current_scroll_position -= (p_input_state->MouseWheeled / WHEEL_DELTA);
 				current_scroll_position = max(current_scroll_position, 0);
 
-				m_pAttachedScrollBar->SetScrollPosition(current_scroll_position);
+				m_pAttachedScrollBar->SetScrollPosition(static_cast<size_t>(current_scroll_position));
 
 				m_pAttachedScrollBar->SetControlState(EControlState::Hover);
 			}

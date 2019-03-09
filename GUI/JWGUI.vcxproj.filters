@@ -97,6 +97,12 @@
     <ClInclude Include="Controls\JWFrameConnector.h">
       <Filter>GUI\Controls</Filter>
     </ClInclude>
+    <ClInclude Include="..\CoreBase\JWCommonBase.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CoreBase\JWPerformanceTester.h">
+      <Filter>CoreBase</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CoreBase\JWImage.cpp">
@@ -168,6 +174,9 @@
     </ClCompile>
     <ClCompile Include="Controls\JWFrameConnector.cpp">
       <Filter>GUI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CoreBase\JWPerformanceTester.cpp">
+      <Filter>CoreBase</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

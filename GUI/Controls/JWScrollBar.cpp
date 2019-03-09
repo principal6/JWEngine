@@ -190,7 +190,7 @@ PROTECTED void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, J
 				new_scroll_position = max(new_scroll_position, 0);
 				new_scroll_position = min(new_scroll_position, static_cast<long long>(m_ScrollMax));
 
-				SetScrollPosition(new_scroll_position);
+				SetScrollPosition(static_cast<size_t>(new_scroll_position));
 			}
 			else
 			{
@@ -229,7 +229,7 @@ PROTECTED void JWScrollBar::UpdateControlState(JWControl** ppControlWithMouse, J
 		long long new_scroll_position = m_ScrollPosition + scroll_stride;
 		new_scroll_position = max(new_scroll_position, 0);
 
-		SetScrollPosition(new_scroll_position);
+		SetScrollPosition(static_cast<size_t>(new_scroll_position));
 
 		return;
 	}

@@ -98,7 +98,7 @@ PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Ca
 	m_Rect = { X, Y, X + Width, Y + Height };
 	AdjustWindowRect(&m_Rect, (DWORD)WindowStyle, false);
 
-	if ((m_hWnd = CreateWindowW(Name, Caption, (DWORD)WindowStyle, m_Rect.left, m_Rect.top,
+	if ((m_hWnd = CreateWindow(Name, Caption, (DWORD)WindowStyle, m_Rect.left, m_Rect.top,
 		m_Rect.right - m_Rect.left, m_Rect.bottom - m_Rect.top, hWndParent, (HMENU)nullptr, m_hInstance, nullptr)) == nullptr)
 	{
 		THROW_CREATION_FAILED;
