@@ -25,7 +25,7 @@ namespace JWENGINE
 		JWImage() {};
 		virtual ~JWImage();
 
-		virtual void Create(const JWWindow& Window, const WSTRING& BaseDir);
+		virtual void Create(const JWWindow& Window, const WSTRING& BaseDir) noexcept;
 
 		virtual void Draw() noexcept;
 		virtual void DrawBoundingBox() noexcept;
@@ -33,11 +33,11 @@ namespace JWENGINE
 		virtual void FlipHorizontal() noexcept;
 		virtual void FlipVertical() noexcept;
 
+		virtual void SetTexture(const WSTRING& FileName) noexcept;
+		virtual void SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo) noexcept;
 		virtual void SetPosition(const D3DXVECTOR2& Position) noexcept;
 		virtual void SetPositionCentered(const D3DXVECTOR2& Position) noexcept;
 		virtual void SetSize(const D3DXVECTOR2& Size) noexcept;
-		virtual void SetTexture(const WSTRING& FileName);
-		virtual void SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo) noexcept;
 		virtual auto SetColor(DWORD Color) noexcept->JWImage*;
 		virtual auto SetAlpha(BYTE Alpha) noexcept->JWImage*;
 		virtual auto SetXRGB(DWORD XRGB) noexcept->JWImage*;
@@ -60,10 +60,10 @@ namespace JWENGINE
 	protected:
 		virtual void ClearVertexAndIndex() noexcept;
 
-		virtual void CreateVertexBuffer();
-		virtual void CreateIndexBuffer();
-		virtual void UpdateVertexBuffer();
-		virtual void UpdateIndexBuffer();
+		virtual void CreateVertexBuffer() noexcept;
+		virtual void CreateIndexBuffer() noexcept;
+		virtual void UpdateVertexBuffer() noexcept;
+		virtual void UpdateIndexBuffer() noexcept;
 
 		virtual void UpdateVertexData() noexcept;
 		virtual void UpdateVertexData(const STextureUV& UV) noexcept;

@@ -55,7 +55,7 @@ namespace JWENGINE
 		JWMap();
 		~JWMap();
 
-		void Create(const JWWindow& Window, const WSTRING& BaseDir) override;
+		void Create(const JWWindow& Window, const WSTRING& BaseDir) noexcept override;
 		
 		void CreateMap(const SMapInfo* InPtr_Info) noexcept;
 		void LoadMap(const WSTRING& FileName) noexcept;
@@ -99,8 +99,8 @@ namespace JWENGINE
 		void GetMapDataForSave(WSTRING* OutPtr_STRING) const noexcept; // For saving maps
 		void GetMapDataPartForSave(int DataID, wchar_t* OutPtr_wchar, int Size) const noexcept; // For saving maps
 
-		void CreateVertexBufferMove(); // IndexBuffer is not needed because they are the same
-		void UpdateVertexBufferMove();
+		void CreateVertexBufferMove() noexcept; // IndexBuffer is not needed because they are the same
+		void UpdateVertexBufferMove() noexcept;
 
 		auto IsMovableTile(int MapID, EMapDirection Direction) const noexcept->bool;
 		auto GetMapTileBoundary(int MapID, EMapDirection Direction) const noexcept->float;

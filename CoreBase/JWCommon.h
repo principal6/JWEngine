@@ -83,6 +83,8 @@ namespace JWENGINE
 
 	static constexpr int MAX_UNIT_COUNT = 100;
 
+	static constexpr int MAX_RETRY_COUNT_TEXTURE_CREATION = 3;
+
 	static const wchar_t GUI_TEXTURE_FILENAME[] = L"jwgui_button.png";
 	static const D3DXVECTOR2& GUI_BUTTON_SIZE{ 15.0f, 15.0f };
 
@@ -499,24 +501,6 @@ namespace JWENGINE
 		std::wstring m_name;
 	};
 
-	class nullptr_assigned : public exception_base
-	{
-	public:
-		nullptr_assigned(const char* function_name, const std::type_info& type_id) noexcept : exception_base(function_name, type_id)
-		{
-			m_error_content += "null pointer assigned>";
-		}
-	};
-
-	class nullptr_accessed : public exception_base
-	{
-	public:
-		nullptr_accessed(const char* function_name, const std::type_info& type_id) noexcept : exception_base(function_name, type_id)
-		{
-			m_error_content += "null pointer accessed>";
-		}
-	};
-
 	class not_found : public exception_base
 	{
 	public:
@@ -537,8 +521,7 @@ namespace JWENGINE
 
 	#define THROW_CREATION_FAILED throw creation_failed(__func__, typeid(this))
 	#define THROW_DUPLICATE_CREATION throw duplicate_creation(__func__, typeid(this))
-	#define THROW_NULLPTR_ACCESSED throw nullptr_accessed(__func__, typeid(this))
+	#define THROW_NAME_COLLISION(wchar_name) throw name_collision(__func__, typeid(this), wchar_name)	
 	#define THROW_NOT_FOUND throw not_found(__func__, typeid(this))
 	#define THROW_DXINPUT_FAILED throw dxinput_failed(__func__, typeid(this))
-	#define THROW_NAME_COLLISION(wchar_name) throw name_collision(__func__, typeid(this), wchar_name)
 };

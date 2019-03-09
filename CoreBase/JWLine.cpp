@@ -10,7 +10,7 @@ JWLine::~JWLine()
 	JW_RELEASE(m_pVertexBuffer);
 }
 
-void JWLine::Create(const LPDIRECT3DDEVICE9 pDevice)
+void JWLine::Create(const LPDIRECT3DDEVICE9 pDevice) noexcept
 {
 	m_pDevice = pDevice;
 }
@@ -23,25 +23,25 @@ void JWLine::CreateMax(const LPDIRECT3DDEVICE9 pDevice) noexcept
 	CreateIndexBufferMax();
 }
 
-PRIVATE void JWLine::CreateVertexBufferMax()
+PRIVATE void JWLine::CreateVertexBufferMax() noexcept
 {
 	JW_RELEASE(m_pVertexBuffer);
 
 	int vertex_size = sizeof(SVertexLine) * MAX_UNIT_COUNT * 8;
 	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 	{
-		THROW_CREATION_FAILED;
+		assert(m_pVertexBuffer);
 	}
 }
 
-PRIVATE void JWLine::CreateIndexBufferMax()
+PRIVATE void JWLine::CreateIndexBufferMax() noexcept
 {
 	JW_RELEASE(m_pIndexBuffer);
 
 	int index_size = sizeof(SIndex2) * MAX_UNIT_COUNT * 4;
 	if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 	{
-		THROW_CREATION_FAILED;
+		assert(m_pIndexBuffer);
 	}
 }
 
@@ -70,26 +70,26 @@ void JWLine::AddEnd() noexcept
 	UpdateIndexBuffer();
 }
 
-PRIVATE void JWLine::CreateVertexBuffer()
+PRIVATE void JWLine::CreateVertexBuffer() noexcept
 {
 	if (!m_pVertexBuffer)
 	{
 		int vertex_size = sizeof(SVertexLine) * static_cast<int>(m_Vertices.size());
 		if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 		{
-			THROW_CREATION_FAILED;
+			assert(m_pVertexBuffer);
 		}
 	}
 }
 
-PRIVATE void JWLine::CreateIndexBuffer()
+PRIVATE void JWLine::CreateIndexBuffer() noexcept
 {
 	if (!m_pIndexBuffer)
 	{
 		int index_size = sizeof(SIndex2) * static_cast<int>(m_Indices.size());
 		if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 		{
-			THROW_CREATION_FAILED;
+			assert(m_pIndexBuffer);
 		}
 	}
 }
@@ -100,7 +100,7 @@ void JWLine::ClearVertexAndIndex() noexcept
 	m_Indices.clear();
 }
 
-PRIVATE void JWLine::UpdateVertexBuffer()
+PRIVATE void JWLine::UpdateVertexBuffer() noexcept
 {
 	if (m_Vertices.size())
 	{
@@ -114,7 +114,7 @@ PRIVATE void JWLine::UpdateVertexBuffer()
 	}
 }
 
-PRIVATE void JWLine::UpdateIndexBuffer()
+PRIVATE void JWLine::UpdateIndexBuffer() noexcept
 {
 	if (m_Indices.size())
 	{

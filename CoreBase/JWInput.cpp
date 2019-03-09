@@ -28,14 +28,28 @@ void JWInput::Create(const HWND hWnd, const HINSTANCE hInstance)
 	memset(m_MouseBtnUp, false, sizeof(m_MouseBtnUp));
 	memset(m_MouseBtnIdle, true, sizeof(m_MouseBtnIdle));
 
-	if (FAILED(DirectInput8Create(hInstance, DIRECTINPUT_VERSION,
-		IID_IDirectInput8, (void **)&m_pDirectInput, nullptr)))
+	if (FAILED(DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&m_pDirectInput, nullptr)))
 	{
 		THROW_CREATION_FAILED;
 	}
 
-	CreateMouseDevice(DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
-	CreateKeyboardDevice(DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
+	try
+	{
+		CreateMouseDevice(DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
+		CreateKeyboardDevice(DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
+	}
+	catch (creation_failed& e)
+	{
+		std::cout << e.what() << std::endl;
+
+		abort();
+	}
+	catch (dxinput_failed& e)
+	{
+		std::cout << e.what() << std::endl;
+
+		abort();
+	}
 }
 
 PRIVATE void JWInput::CreateMouseDevice(DWORD dwFlags)

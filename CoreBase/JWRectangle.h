@@ -15,7 +15,7 @@ namespace JWENGINE
 		JWRectangle();
 		virtual ~JWRectangle();
 
-		virtual void Create(const JWWindow& Window, const WSTRING& BaseDir, UINT MaxNumBox = 1);
+		virtual void Create(const JWWindow& Window, const WSTRING& BaseDir, UINT MaxNumBox = 1) noexcept;
 
 		virtual void ClearAllRectangles() noexcept;
 
@@ -28,10 +28,10 @@ namespace JWENGINE
 	protected:
 		virtual void DeleteVertexAndIndex() noexcept;
 
-		virtual void CreateVertexBuffer();
-		virtual void CreateIndexBuffer();
-		virtual void UpdateVertexBuffer();
-		virtual void UpdateIndexBuffer();
+		virtual void CreateVertexBuffer() noexcept;
+		virtual void CreateIndexBuffer() noexcept;
+		virtual void UpdateVertexBuffer() noexcept;
+		virtual void UpdateIndexBuffer() noexcept;
 
 	protected:
 		static constexpr DWORD DEFAULT_COLOR_RECTANGLE{ D3DCOLOR_ARGB(255, 80, 255, 0) };

@@ -78,9 +78,8 @@ int main()
 			->SetBackgroundColor(D3DCOLOR_ARGB(255, 60, 180, 60))
 			->SetBorderColor(D3DCOLOR_ARGB(255, 0, 0, 0));
 
-		pMainGUIWindow->GetControlPointer(L"edit1")->SetPosition(D3DXVECTOR2(20, 200));
-		pMainGUIWindow->GetControlPointer(L"edit2")->SetPosition(D3DXVECTOR2(20, 400));
-		
+		pMainGUIWindow->GetControl(L"edit1").SetPosition(D3DXVECTOR2(20, 200));
+		pMainGUIWindow->GetControl(L"edit2").SetPosition(D3DXVECTOR2(20, 400));
 
 		pMainGUIWindow->AddControl(EControlType::ImageButton, D3DXVECTOR2(20, 0), D3DXVECTOR2(20, 20), L"imagebutton1")
 			->MakeSystemArrowButton(ESystemArrowDirection::Left);

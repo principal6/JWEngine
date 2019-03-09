@@ -23,7 +23,16 @@ void JWGame::Create(const WSTRING& GameName, int Width, int Height)
 
 	// Create input device
 	m_Input = MAKE_UNIQUE(JWInput)();
-	m_Input->Create(m_Window->GethWnd(), m_Window->GethInstance());
+	try
+	{
+		m_Input->Create(m_Window->GethWnd(), m_Window->GethInstance());
+	}
+	catch (creation_failed& e)
+	{
+		std::cout << e.what() << std::endl;
+
+		abort();
+	}
 
 	// Create font object
 	m_Text = MAKE_UNIQUE(JWText)();

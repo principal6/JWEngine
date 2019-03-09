@@ -87,12 +87,12 @@ namespace JWENGINE
 		JWEffect() {};
 		~JWEffect();
 
-		auto Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)->JWEffect*;
+		auto Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map) noexcept->JWEffect*;
 
 		auto SetTextureAtlas(const WSTRING& FileName, int numCols, int numRows)->JWEffect*;
 
 		auto AddEffectType(const EEffectType Type, const SAnimationData& Data, const D3DXVECTOR2& SpawnOffset, const D3DXVECTOR2& BBSize,
-			int Delay, int RepeatCount = 1)->JWEffect*;
+			int Delay, int RepeatCount = 1) noexcept->JWEffect*;
 
 		auto Spawn(int EffectTypeID, const D3DXVECTOR2& Pos, const EAnimationDirection Dir, int Damage)->JWEffect*;
 
@@ -102,8 +102,8 @@ namespace JWENGINE
 		void CheckCollisionWithMonsters(JWMonsterManager* pMonsters);
 
 	private:
-		void CreateVertexBuffer() override;
-		void CreateIndexBuffer() override;
+		void CreateVertexBuffer() noexcept override;
+		void CreateIndexBuffer() noexcept override;
 		void Unspawn(EffectInstanceData* pInstance);
 		void Update();
 

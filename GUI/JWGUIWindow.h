@@ -39,9 +39,6 @@ namespace JWENGINE
 		// Get the reference of the control instance that this JWGUIWindow has.
 		auto GetControl(const WSTRING& ControlName)->JWControl&;
 
-		// Get the pointer of the control instance that this JWGUIWindow has.
-		auto GetControlPointer(const WSTRING& ControlName)->JWControl*;
-
 		auto GetSharedDataPtr() const noexcept->const SGUIWindowSharedData*;
 
 		// Return true if this JWGUIWindow is destroyed.

@@ -50,7 +50,7 @@ void JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppT
 	if (FAILED(D3DXCreateTextureFromFileExW(m_SharedData.pWindow->GetDevice(), texture_filename.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
 		D3DX_DEFAULT, D3DX_DEFAULT, 0, pInfo, nullptr, ppTexture)))
 	{
-		THROW_CREATION_FAILED;
+		assert(true);
 	}
 }
 
@@ -143,24 +143,6 @@ auto JWGUIWindow::GetControl(const WSTRING& ControlName)->JWControl&
 		if (found_control != m_ControlsMap.end())
 		{
 			return *m_pControls[found_control->second];
-		}
-		else
-		{
-			THROW_NOT_FOUND;
-		}
-	}
-	THROW_NOT_FOUND;
-}
-
-auto JWGUIWindow::GetControlPointer(const WSTRING& ControlName)->JWControl*
-{
-	if (m_ControlsMap.size())
-	{
-		auto found_control = m_ControlsMap.find(ControlName);
-
-		if (found_control != m_ControlsMap.end())
-		{
-			return m_pControls[found_control->second].get();
 		}
 		else
 		{

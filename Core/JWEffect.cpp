@@ -22,7 +22,7 @@ JWEffect::~JWEffect()
 	}
 }
 
-auto JWEffect::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map)->JWEffect*
+auto JWEffect::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMap& Map) noexcept->JWEffect*
 {
 	JWImage::Create(Window, BaseDir);
 
@@ -38,21 +38,21 @@ auto JWEffect::Create(const JWWindow& Window, const WSTRING& BaseDir, const JWMa
 	return this;
 }
 
-void JWEffect::CreateVertexBuffer()
+void JWEffect::CreateVertexBuffer() noexcept
 {
 	int rVertSize = sizeof(SVertexImage) * MAX_UNIT_COUNT * 4;
 	if (FAILED(m_pDevice->CreateVertexBuffer(rVertSize, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 	{
-		return;
+		assert(m_pVertexBuffer);
 	}
 }
 
-void JWEffect::CreateIndexBuffer()
+void JWEffect::CreateIndexBuffer() noexcept
 {
 	int rIndSize = sizeof(SIndex3) * MAX_UNIT_COUNT * 2;
 	if (FAILED(m_pDevice->CreateIndexBuffer(rIndSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 	{
-		return;
+		assert(m_pIndexBuffer);
 	}
 }
 
@@ -69,7 +69,7 @@ auto JWEffect::SetTextureAtlas(const WSTRING& FileName, int numCols, int numRows
 }
 
 auto JWEffect::AddEffectType(const EEffectType Type, const SAnimationData& Data, const D3DXVECTOR2& SpawnOffset, const D3DXVECTOR2& BBSize,
-	int Delay, int RepeatCount)->JWEffect*
+	int Delay, int RepeatCount) noexcept->JWEffect*
 {
 	// Add this new effect type to the vector array
 	m_TypeData.push_back(EffectTypeData(Type, Data, SpawnOffset, BBSize, Delay, RepeatCount));

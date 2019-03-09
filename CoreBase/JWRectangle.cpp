@@ -19,7 +19,7 @@ JWRectangle::~JWRectangle()
 	JW_RELEASE(m_pVertexBuffer);
 }
 
-void JWRectangle::Create(const JWWindow& Window, const WSTRING& BaseDir, UINT MaxNumBox)
+void JWRectangle::Create(const JWWindow& Window, const WSTRING& BaseDir, UINT MaxNumBox) noexcept
 {
 	m_pJWWindow = &Window;
 	m_pDevice = Window.GetDevice();
@@ -43,7 +43,7 @@ PRIVATE void JWRectangle::DeleteVertexAndIndex() noexcept
 	JW_DELETE_ARRAY(m_Indices);
 }
 
-PRIVATE void JWRectangle::CreateVertexBuffer()
+PRIVATE void JWRectangle::CreateVertexBuffer() noexcept
 {
 	if (!m_Vertices)
 	{
@@ -58,11 +58,11 @@ PRIVATE void JWRectangle::CreateVertexBuffer()
 	int vertex_size = sizeof(SVertexImage) * m_MaxNumBox * 4;
 	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 	{
-		THROW_CREATION_FAILED;
+		assert(m_pVertexBuffer);
 	}
 }
 
-PRIVATE void JWRectangle::CreateIndexBuffer()
+PRIVATE void JWRectangle::CreateIndexBuffer() noexcept
 {
 	if (!m_Indices)
 	{
@@ -78,11 +78,11 @@ PRIVATE void JWRectangle::CreateIndexBuffer()
 	int index_size = sizeof(SIndex3) * m_MaxNumBox * 2;
 	if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 	{
-		THROW_CREATION_FAILED;
+		assert(m_pIndexBuffer);
 	}
 }
 
-PRIVATE void JWRectangle::UpdateVertexBuffer()
+PRIVATE void JWRectangle::UpdateVertexBuffer() noexcept
 {
 	if (m_Vertices)
 	{
@@ -96,7 +96,7 @@ PRIVATE void JWRectangle::UpdateVertexBuffer()
 	}
 }
 
-PRIVATE void JWRectangle::UpdateIndexBuffer()
+PRIVATE void JWRectangle::UpdateIndexBuffer() noexcept
 {
 	if (m_Indices)
 	{

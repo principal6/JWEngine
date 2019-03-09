@@ -35,7 +35,8 @@ void JWText::CreateInstantText(const JWWindow& Window, const WSTRING& BaseDir)
 {
 	if (m_pFontTexture)
 	{
-		THROW_DUPLICATE_CREATION;
+		// Avoid duplicate creation.
+		return;
 	}
 
 	m_pJWWindow = &Window;
@@ -55,7 +56,8 @@ void JWText::CreateNonInstantText(const JWWindow& Window, const WSTRING& BaseDir
 {
 	if (m_pFontTexture)
 	{
-		THROW_DUPLICATE_CREATION;
+		// Avoid duplicate creation.
+		return;
 	}
 
 	m_pJWWindow = &Window;
@@ -87,7 +89,8 @@ PRIVATE void JWText::CreateFontTexture(const WSTRING& FileName_FNT)
 {
 	if (m_pFontTexture)
 	{
-		THROW_DUPLICATE_CREATION;
+		// Avoid duplicate creation.
+		return;
 	}
 
 	// Set file name to Parse FNT file.
@@ -116,14 +119,17 @@ PRIVATE void JWText::CreateFontTexture(const WSTRING& FileName_FNT)
 	// Craete texture without color key
 	if (FAILED(D3DXCreateTextureFromFileExW(m_pDevice, new_file_name.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
 		D3DX_DEFAULT, D3DX_DEFAULT, 0, nullptr, nullptr, &m_pFontTexture)))
-		THROW_CREATION_FAILED;
+	{
+		assert(true);
+	}
 }
 
 PRIVATE void JWText::CreateInstantTextBuffers()
 {
 	if (m_InstantVertexData.pBuffer)
 	{
-		THROW_DUPLICATE_CREATION;
+		// Avoid duplicate creation.
+		return;
 	}
 
 	// Set maximum size
@@ -165,7 +171,8 @@ PRIVATE void JWText::CreateNonInstantTextBuffers()
 {
 	if (m_NonInstantVertexData.pBuffer)
 	{
-		THROW_DUPLICATE_CREATION;
+		// Avoid duplicate creation.
+		return;
 	}
 
 	UINT ScreenWidth = m_pJWWindow->GetWindowData()->ScreenSize.x;
@@ -220,7 +227,7 @@ PRIVATE void JWText::CreateVertexBuffer(SVertexData* pVertexData)
 	int vertex_size_in_byte = sizeof(SVertexImage) * pVertexData->VertexSize;
 	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size_in_byte, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &pVertexData->pBuffer, nullptr)))
 	{
-		THROW_CREATION_FAILED;
+		assert(&pVertexData->pBuffer);
 	}
 }
 
@@ -229,7 +236,7 @@ PRIVATE void JWText::CreateIndexBuffer(SIndexData* pIndexData)
 	int index_size_in_byte = sizeof(SIndex3) * pIndexData->IndexSize;
 	if (FAILED(m_pDevice->CreateIndexBuffer(index_size_in_byte, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &pIndexData->pBuffer, nullptr)))
 	{
-		THROW_CREATION_FAILED;
+		assert(&pIndexData->pBuffer);
 	}
 }
 
@@ -245,10 +252,6 @@ PRIVATE void JWText::UpdateVertexBuffer(SVertexData* pVertexData)
 			pVertexData->pBuffer->Unlock();
 		}
 	}
-	else
-	{
-		THROW_NULLPTR_ACCESSED;
-	}
 }
 
 PRIVATE void JWText::UpdateIndexBuffer(SIndexData* pIndexData)
@@ -262,10 +265,6 @@ PRIVATE void JWText::UpdateIndexBuffer(SIndexData* pIndexData)
 			memcpy(pIndices, &pIndexData->Indices[0], temp_index_size);
 			pIndexData->pBuffer->Unlock();
 		}
-	}
-	else
-	{
-		THROW_NULLPTR_ACCESSED;
 	}
 }
 
@@ -824,6 +823,7 @@ PRIVATE void JWText::SetNonInstantTextGlyph(SGlyphInfo* pCurrInfo, SGlyphInfo* p
 	{
 		// This is NOT the first character of the text.
 		pCurrInfo->left = pPrevInfo->left + ms_FontData.Chars[pPrevInfo->chars_id].XAdvance;
+		pCurrInfo->top = pPrevInfo->top;
 	}
 
 	// Check previous '\n'.

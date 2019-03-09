@@ -16,7 +16,7 @@ JWImage::~JWImage()
 	JW_RELEASE(m_pVertexBuffer);
 }
 
-void JWImage::Create(const JWWindow& Window, const WSTRING& BaseDir)
+void JWImage::Create(const JWWindow& Window, const WSTRING& BaseDir) noexcept
 {
 	m_pJWWindow = &Window;
 	m_pDevice = Window.GetDevice();
@@ -40,7 +40,7 @@ PROTECTED void JWImage::ClearVertexAndIndex() noexcept
 	m_Indices.clear();
 }
 
-PROTECTED void JWImage::CreateVertexBuffer()
+PROTECTED void JWImage::CreateVertexBuffer() noexcept
 {
 	if (m_Vertices.size() == 0)
 	{
@@ -53,11 +53,11 @@ PROTECTED void JWImage::CreateVertexBuffer()
 	int vertex_size = sizeof(SVertexImage) * static_cast<int>(m_Vertices.size());
 	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVertexBuffer, nullptr)))
 	{
-		THROW_CREATION_FAILED;
+		assert(m_pVertexBuffer);
 	}
 }
 
-PROTECTED void JWImage::CreateIndexBuffer()
+PROTECTED void JWImage::CreateIndexBuffer() noexcept
 {
 	if (m_Indices.size() == 0)
 	{
@@ -68,11 +68,11 @@ PROTECTED void JWImage::CreateIndexBuffer()
 	int index_size = sizeof(SIndex3) * static_cast<int>(m_Indices.size());
 	if (FAILED(m_pDevice->CreateIndexBuffer(index_size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, nullptr)))
 	{
-		THROW_CREATION_FAILED;
+		assert(m_pIndexBuffer);
 	}
 }
 
-PROTECTED void JWImage::UpdateVertexBuffer()
+PROTECTED void JWImage::UpdateVertexBuffer() noexcept
 {
 	if (m_Vertices.size())
 	{
@@ -86,7 +86,7 @@ PROTECTED void JWImage::UpdateVertexBuffer()
 	}
 }
 
-PROTECTED void JWImage::UpdateIndexBuffer()
+PROTECTED void JWImage::UpdateIndexBuffer() noexcept
 {
 	if (m_Indices.size())
 	{
@@ -186,7 +186,7 @@ void JWImage::SetSize(const D3DXVECTOR2& Size) noexcept
 	UpdateVertexData();
 }
 
-void JWImage::SetTexture(const WSTRING& FileName)
+void JWImage::SetTexture(const WSTRING& FileName) noexcept
 {
 	JW_RELEASE(m_pTexture);
 
@@ -196,26 +196,29 @@ void JWImage::SetTexture(const WSTRING& FileName)
 	NewFileName += FileName;
 
 	D3DXIMAGE_INFO tImageInfo;
-	if (FAILED(D3DXCreateTextureFromFileExW(m_pDevice, NewFileName.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
+	if (SUCCEEDED(D3DXCreateTextureFromFileExW(m_pDevice, NewFileName.c_str(), 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
 		D3DX_DEFAULT, D3DX_DEFAULT, 0, &tImageInfo, nullptr, &m_pTexture)))
 	{
-		THROW_CREATION_FAILED;
+		m_Size.x = static_cast<float>(tImageInfo.Width);
+		m_Size.y = static_cast<float>(tImageInfo.Height);
+
+		// Entire texture size (will never be changed unless the texture itself changes)
+		m_AtlasSize = m_Size;
+
+		m_ScaledSize.x = m_Size.x * m_Scale.x;
+		m_ScaledSize.y = m_Size.y * m_Scale.y;
+
+		UpdateVertexData();
 	}
 
-	m_Size.x = static_cast<float>(tImageInfo.Width);
-	m_Size.y = static_cast<float>(tImageInfo.Height);
-
-	// Entire texture size (will never be changed unless the texture itself changes)
-	m_AtlasSize = m_Size;
-
-	m_ScaledSize.x = m_Size.x * m_Scale.x;
-	m_ScaledSize.y = m_Size.y * m_Scale.y;
-
-	UpdateVertexData();
+	assert(m_pTexture);
 }
 
 void JWImage::SetTexture(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo) noexcept
 {
+	assert(pTexture);
+	assert(pInfo);
+
 	m_bUseStaticTexture = true;
 
 	if (m_pTexture)

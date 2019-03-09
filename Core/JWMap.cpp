@@ -85,7 +85,7 @@ JWMap::~JWMap()
 	JW_RELEASE(m_pVBMove);
 }
 
-void JWMap::Create(const JWWindow& Window, const WSTRING& BaseDir)
+void JWMap::Create(const JWWindow& Window, const WSTRING& BaseDir) noexcept
 {
 	m_pJWWindow = &Window;
 	m_pDevice = Window.GetDevice();
@@ -461,16 +461,16 @@ PRIVATE void JWMap::AddEnd() noexcept
 	SetGlobalPosition(D3DXVECTOR2(0, 0));
 }
 
-PRIVATE void JWMap::CreateVertexBufferMove()
+PRIVATE void JWMap::CreateVertexBufferMove() noexcept
 {
 	int vertex_size = sizeof(SVertexImage) * static_cast<int>(m_VertMove.size());
 	if (FAILED(m_pDevice->CreateVertexBuffer(vertex_size, 0, D3DFVF_TEXTURE, D3DPOOL_MANAGED, &m_pVBMove, nullptr)))
 	{
-		THROW_CREATION_FAILED;
+		assert(m_pVBMove);
 	}
 }
 
-PRIVATE void JWMap::UpdateVertexBufferMove()
+PRIVATE void JWMap::UpdateVertexBufferMove() noexcept
 {
 	if (m_VertMove.size())
 	{

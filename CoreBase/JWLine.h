@@ -32,7 +32,7 @@ namespace JWENGINE
 		JWLine() {};
 		~JWLine();
 
-		void Create(const LPDIRECT3DDEVICE9 pDevice);
+		void Create(const LPDIRECT3DDEVICE9 pDevice) noexcept;
 		void CreateMax(const LPDIRECT3DDEVICE9 pDevice) noexcept;
 
 		// @warning: We must call AddEnd() after finishing adding lines.
@@ -58,13 +58,13 @@ namespace JWENGINE
 		void SetEntireXRGB(DWORD Color) noexcept;
 
 	private:
-		void CreateVertexBuffer();
-		void CreateIndexBuffer();
-		void UpdateVertexBuffer();
-		void UpdateIndexBuffer();
+		void CreateVertexBuffer() noexcept;
+		void CreateIndexBuffer() noexcept;
+		void UpdateVertexBuffer() noexcept;
+		void UpdateIndexBuffer() noexcept;
 
-		void CreateVertexBufferMax();
-		void CreateIndexBufferMax();
+		void CreateVertexBufferMax() noexcept;
+		void CreateIndexBufferMax() noexcept;
 
 	private:
 		LPDIRECT3DDEVICE9 m_pDevice{ nullptr };

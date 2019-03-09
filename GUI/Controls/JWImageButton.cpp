@@ -32,10 +32,10 @@ void JWImageButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size,
 }
 
 auto JWImageButton::MakeImageButton(const WSTRING& TextureAtlasFileName, const D3DXVECTOR2& ButtonSizeInTexture, const D3DXVECTOR2& NormalOffset,
-	const D3DXVECTOR2& HoverOffset, const D3DXVECTOR2& PressedOffset) noexcept->JWControl*
+	const D3DXVECTOR2& HoverOffset, const D3DXVECTOR2& PressedOffset)->JWControl*
 {
 	m_ButtonImage.SetTexture(TextureAtlasFileName);
-
+	
 	m_ButtonSizeInTexture = ButtonSizeInTexture;
 
 	m_NormalOffset = NormalOffset;

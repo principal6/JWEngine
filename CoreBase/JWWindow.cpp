@@ -35,12 +35,21 @@ void JWWindow::CreateGameWindow(const SWindowCreationData& WindowCreationData)
 	// Set DirectX clear color
 	m_BGColor = WindowCreationData.color_background;
 
-	CreateWINAPIWindow(L"Game", WindowCreationData.caption.c_str(),
-		WindowCreationData.x, WindowCreationData.y,
-		WindowCreationData.width, WindowCreationData.height,
-		EWindowStyle::OverlappedWindow, m_BGColor, BaseWindowProc);
+	try
+	{
+		CreateWINAPIWindow(L"Game", WindowCreationData.caption.c_str(),
+			WindowCreationData.x, WindowCreationData.y,
+			WindowCreationData.width, WindowCreationData.height,
+			EWindowStyle::OverlappedWindow, m_BGColor, BaseWindowProc);
 
-	InitializeDirectX();
+		InitializeDirectX();
+	}
+	catch (creation_failed& e)
+	{
+		std::cout << e.what() << std::endl;
+
+		abort();
+	}
 }
 
 void JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)
@@ -48,12 +57,21 @@ void JWWindow::CreateGUIWindow(const SWindowCreationData& WindowCreationData)
 	// Set DirectX clear color
 	m_BGColor = WindowCreationData.color_background;
 
-	CreateWINAPIWindow(L"GUI", WindowCreationData.caption.c_str(),
-		WindowCreationData.x, WindowCreationData.y,
-		WindowCreationData.width, WindowCreationData.height,
-		WindowCreationData.window_style, WindowCreationData.color_background, WindowCreationData.proc);
+	try
+	{
+		CreateWINAPIWindow(L"GUI", WindowCreationData.caption.c_str(),
+			WindowCreationData.x, WindowCreationData.y,
+			WindowCreationData.width, WindowCreationData.height,
+			WindowCreationData.window_style, WindowCreationData.color_background, WindowCreationData.proc);
 
-	InitializeDirectX();
+		InitializeDirectX();
+	}
+	catch (creation_failed& e)
+	{
+		std::cout << e.what() << std::endl;
+
+		abort();
+	}
 }
 
 PRIVATE auto JWWindow::CreateWINAPIWindow(const wchar_t* Name, const wchar_t* Caption, int X, int Y, int Width, int Height,
