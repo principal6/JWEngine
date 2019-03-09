@@ -27,8 +27,8 @@ namespace JWENGINE
 
 		auto SetFrameConnector(JWControl& Connector, bool IsBasisFrame) noexcept->JWControl* override;
 
-		void SetPositionFromInside(const D3DXVECTOR2& Position) noexcept override;
-		void SetSizeFromInside(const D3DXVECTOR2& Size) noexcept override;
+		void SetFramePositionFromInside(const D3DXVECTOR2& Position) noexcept override;
+		void SetFrameSizeFromInside(const D3DXVECTOR2& Size) noexcept override;
 
 	private:
 		JWImage m_Background;

@@ -335,10 +335,10 @@ namespace JWENGINE
 		virtual auto SetFrameConnector(JWControl& Connector, bool IsBasisFrame) noexcept->JWControl* { return this; };
 
 		// [JWFrame]
-		virtual void SetPositionFromInside(const D3DXVECTOR2& Position) noexcept {};
+		virtual void SetFramePositionFromInside(const D3DXVECTOR2& Position) noexcept {};
 
 		// [JWFrame]
-		virtual void SetSizeFromInside(const D3DXVECTOR2& Size) noexcept {};
+		virtual void SetFrameSizeFromInside(const D3DXVECTOR2& Size) noexcept {};
 
 		/*
 		** Focus-related functions

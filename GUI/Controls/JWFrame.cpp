@@ -138,20 +138,20 @@ auto JWFrame::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 	{
 		if (m_IsBasisFrame)
 		{
-			SetPositionFromInside(Position);
+			SetFramePositionFromInside(Position);
 
 			m_pFrameConnector->UpdateFrameConectorPositionAndSize();
 		}
 	}
 	else
 	{
-		SetPositionFromInside(Position);
+		SetFramePositionFromInside(Position);
 	}
 
 	return this;
 }
 
-PROTECTED void JWFrame::SetPositionFromInside(const D3DXVECTOR2& Position) noexcept
+PROTECTED void JWFrame::SetFramePositionFromInside(const D3DXVECTOR2& Position) noexcept
 {
 	JWControl::SetPosition(Position);
 
@@ -172,7 +172,7 @@ auto JWFrame::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 	{
 		if (m_IsBasisFrame)
 		{
-			SetSizeFromInside(Size);
+			SetFrameSizeFromInside(Size);
 		}
 		else
 		{
@@ -190,20 +190,20 @@ auto JWFrame::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 				break;
 			}
 
-			SetSizeFromInside(new_size);
+			SetFrameSizeFromInside(new_size);
 		}
 
 		m_pFrameConnector->UpdateFrameConectorPositionAndSize();
 	}
 	else
 	{
-		SetSizeFromInside(Size);
+		SetFrameSizeFromInside(Size);
 	}
 
 	return this;
 }
 
-PROTECTED void JWFrame::SetSizeFromInside(const D3DXVECTOR2& Size) noexcept
+PROTECTED void JWFrame::SetFrameSizeFromInside(const D3DXVECTOR2& Size) noexcept
 {
 	JWControl::SetSize(Size);
 

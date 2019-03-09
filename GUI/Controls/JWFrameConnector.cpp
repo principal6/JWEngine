@@ -232,11 +232,11 @@ PROTECTED void JWFrameConnector::UpdateFrameConectorPositionAndSize() noexcept
 		// Set frame B's position and size.
 		B_position = connector_position;
 		B_position.y += m_Size.y;
-		m_pFrameB->SetPositionFromInside(B_position);
+		m_pFrameB->SetFramePositionFromInside(B_position);
 
 		B_size = m_pFrameB->GetSize();
 		B_size.x = A_size.x;
-		m_pFrameB->SetSizeFromInside(B_size);
+		m_pFrameB->SetFrameSizeFromInside(B_size);
 
 		break;
 	case JWENGINE::EFrameConnectorType::Vertical:
@@ -256,11 +256,11 @@ PROTECTED void JWFrameConnector::UpdateFrameConectorPositionAndSize() noexcept
 		// Set frame B's position and size.
 		B_position = connector_position;
 		B_position.x += m_Size.x;
-		m_pFrameB->SetPositionFromInside(B_position);
+		m_pFrameB->SetFramePositionFromInside(B_position);
 
 		B_size = m_pFrameB->GetSize();
 		B_size.y = A_size.y;
-		m_pFrameB->SetSizeFromInside(B_size);
+		m_pFrameB->SetFrameSizeFromInside(B_size);
 
 		break;
 	default:
