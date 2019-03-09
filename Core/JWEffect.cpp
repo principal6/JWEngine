@@ -230,7 +230,7 @@ void JWEffect::Update()
 	m_InstanceCount = iterator_n;
 
 	// On each update, the delay counts -= 1
-	for (int& iterator : m_DelayCounts)
+	for (auto& iterator : m_DelayCounts)
 	{
 		if (iterator > 0)
 			iterator--;

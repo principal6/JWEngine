@@ -586,7 +586,7 @@ void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2& Position
 	// Check if the text contains '\n',
 	// and if it does, clip the text.
 	size_t iterator_character = 0;
-	for (const wchar_t& Char : SingleLineText)
+	for (const auto& Char : SingleLineText)
 	{
 		if (Char == L'\n')
 		{
@@ -628,7 +628,7 @@ void JWText::DrawInstantText(WSTRING SingleLineText, const D3DXVECTOR2& Position
 	SGlyphInfo curr_char_info;
 	SGlyphInfo prev_char_info;
 	prev_char_info.left = offset_position.x;
-	for (const wchar_t& Char : SingleLineText)
+	for (const auto& Char : SingleLineText)
 	{
 		curr_char_info.chars_id = GetCharsIDFromCharacter(Char);
 		curr_char_info.top = offset_position.y;
@@ -872,7 +872,7 @@ PRIVATE auto JWText::GetLineWidth(const WSTRING* pLineText) const noexcept->floa
 	size_t iterator_character = 0;
 	size_t chars_id = 0;
 	float width = 0;
-	for (const wchar_t& Char : *pLineText)
+	for (const auto& Char : *pLineText)
 	{
 		chars_id = GetCharsIDFromCharacter(Char);
 		width += ms_FontData.Chars[chars_id].XAdvance;

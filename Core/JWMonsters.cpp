@@ -157,24 +157,24 @@ auto JWMonsterManager::AddMonsterType(const JWMonsterType& NewType) noexcept->JW
 
 auto JWMonsterManager::Spawn(const WSTRING& MonsterName, const D3DXVECTOR2& GlobalPosition) noexcept->JWMonster*
 {
-	for (JWMonsterType& TypeIterator : m_Types)
+	for (auto& iterator_type : m_Types)
 	{
-		if (TypeIterator.m_Name == MonsterName)
+		if (iterator_type.m_Name == MonsterName)
 		{
 			JWMonster* temp = new JWMonster();
 			temp->Create(*m_pJWWindow, *m_pBaseDir, *m_pMap);
-			temp->SetMonsterType(TypeIterator);
-			temp->MakeLife(TypeIterator.m_TextureFileName, TypeIterator.m_UnitSize, TypeIterator.m_TextureNumCols,
-				TypeIterator.m_TextureNumRows, 1.0f);
+			temp->SetMonsterType(iterator_type);
+			temp->MakeLife(iterator_type.m_TextureFileName, iterator_type.m_UnitSize, iterator_type.m_TextureNumCols,
+				iterator_type.m_TextureNumRows, 1.0f);
 
-			for (SAnimationData& AnimIterator : TypeIterator.m_AnimData)
+			for (auto& iterator_animation : iterator_type.m_AnimData)
 			{
-				temp->AddAnimation(SAnimationData(AnimIterator.AnimID, AnimIterator.FrameS, AnimIterator.FrameE));
+				temp->AddAnimation(SAnimationData(iterator_animation.AnimID, iterator_animation.FrameS, iterator_animation.FrameE));
 			}
 
 			temp->SetGlobalPosition(GlobalPosition);
 			temp->SetAnimation(EAnimationID::Idle);
-			temp->SetBoundingBox(TypeIterator.m_BoundingBoxExtraSize);
+			temp->SetBoundingBox(iterator_type.m_BoundingBoxExtraSize);
 
 			m_pInstances.push_back(temp);
 

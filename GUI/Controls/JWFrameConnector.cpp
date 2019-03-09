@@ -273,6 +273,8 @@ PROTECTED void JWFrameConnector::UpdateFrameConectorPositionAndSize() noexcept
 
 auto JWFrameConnector::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 {
+	UpdateFrameConectorPositionAndSize();
+
 	return this;
 }
 

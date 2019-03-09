@@ -248,7 +248,7 @@ auto JWImage::SetColor(DWORD Color) noexcept->JWImage*
 {
 	if (m_Vertices.size())
 	{
-		for (SVertexImage& iterator : m_Vertices)
+		for (auto& iterator : m_Vertices)
 		{
 			iterator.color = Color;
 		}
@@ -262,7 +262,7 @@ auto JWImage::SetAlpha(BYTE Alpha) noexcept->JWImage*
 {
 	if (m_Vertices.size())
 	{
-		for (SVertexImage& iterator : m_Vertices)
+		for (auto& iterator : m_Vertices)
 		{
 			SetColorAlpha(&iterator.color, Alpha);
 		}
@@ -276,7 +276,7 @@ auto JWImage::SetXRGB(DWORD XRGB) noexcept->JWImage*
 {
 	if(m_Vertices.size())
 	{
-		for (SVertexImage& iterator : m_Vertices)
+		for (auto& iterator : m_Vertices)
 		{
 			SetColorXRGB(&iterator.color, XRGB);
 		}

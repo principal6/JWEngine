@@ -18,7 +18,7 @@ THandleItem mb_file_open = THandleItem_Null;
 THandleItem mb_help_info = THandleItem_Null;
 
 // TODO: THandleItem to structure?? (To safely handle these)
-// Add FrameConnector(Verical & Horizontal)
+// Add resizable property to JWFrame.
 
 int main()
 {
@@ -128,6 +128,13 @@ int main()
 		
 		pMainGUIWindow->GetControl(L"frame1").SetPosition(D3DXVECTOR2(0, 0));
 		pMainGUIWindow->GetControl(L"frame2").SetSize(D3DXVECTOR2(200, 50));
+
+		pMainGUIWindow->AddControl(EControlType::Frame, D3DXVECTOR2(80, 20), D3DXVECTOR2(600, 500), L"frame3_outter")
+			->AddChildControl(pMainGUIWindow->GetControl(L"frame1"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"frame2"))
+			->AddChildControl(pMainGUIWindow->GetControl(L"frameconnector1"))
+			->SetBackgroundColor(D3DCOLOR_ARGB(255, 255, 255, 120))
+			->SetBorderColor(D3DCOLOR_ARGB(255, 255, 255, 255));
 
 		myGUI.SetMainLoopFunction(MainLoop);
 

@@ -66,7 +66,7 @@ void JWGUI::Destroy() noexcept
 {
 	if (m_ppGUIWindows.size())
 	{
-		for (JWGUIWindow** iterator : m_ppGUIWindows)
+		for (auto iterator : m_ppGUIWindows)
 		{
 			JW_DELETE(*iterator);
 			iterator = nullptr;
@@ -136,7 +136,7 @@ void JWGUI::Run() noexcept
 		// Update all JWGUIWindows.
 		if (m_ppGUIWindows.size())
 		{
-			for (JWGUIWindow** iterator : m_ppGUIWindows)
+			for (auto iterator : m_ppGUIWindows)
 			{
 				(*iterator)->Update(m_MSG, ms_IMEInfo, ms_hWndQuitStack, hActiveWindow);
 			}
@@ -148,7 +148,7 @@ void JWGUI::Run() noexcept
 		if (m_ppGUIWindows.size())
 		{
 			iterator_index = 0;
-			for (JWGUIWindow** iterator : m_ppGUIWindows)
+			for (auto iterator : m_ppGUIWindows)
 			{
 				if ((*iterator)->IsDestroyed())
 				{
@@ -165,7 +165,7 @@ void JWGUI::Run() noexcept
 		// Draw all the controls in the JWGUIWindow.
 		if (m_ppGUIWindows.size())
 		{
-			for (JWGUIWindow** iterator : m_ppGUIWindows)
+			for (auto iterator : m_ppGUIWindows)
 			{
 				(*iterator)->DrawAllControls();
 			}
@@ -179,7 +179,7 @@ void JWGUI::Run() noexcept
 
 		if (m_ppGUIWindows.size())
 		{
-			for (JWGUIWindow** iterator : m_ppGUIWindows)
+			for (auto iterator : m_ppGUIWindows)
 			{
 				(*iterator)->EndRender();
 			}
@@ -202,7 +202,7 @@ void JWGUI::Run() noexcept
 				// and the program must exit.
 
 				iterator_index = 0;
-				for (JWGUIWindow** iterator : m_ppGUIWindows)
+				for (auto iterator : m_ppGUIWindows)
 				{
 					JW_DELETE(*m_ppGUIWindows[iterator_index]);
 					m_ppGUIWindows[iterator_index] = nullptr;

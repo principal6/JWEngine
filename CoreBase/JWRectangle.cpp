@@ -49,7 +49,7 @@ PRIVATE void JWRectangle::CreateVertexBuffer() noexcept
 	{
 		m_Vertices = new SVertexImage[m_MaxNumBox * 4];
 
-		for (UINT i = 0; i < m_MaxNumBox * 4; i++)
+		for (size_t i = 0; i < m_MaxNumBox * 4; i++)
 		{
 			m_Vertices[i] = SVertexImage(0, 0, m_RectangleColor);
 		}
@@ -114,7 +114,7 @@ void JWRectangle::ClearAllRectangles() noexcept
 {
 	m_BoxCount = 0;
 
-	for (UINT i = 0; i < m_MaxNumBox * 4; i++)
+	for (size_t i = 0; i < m_MaxNumBox * 4; i++)
 	{
 		m_Vertices[i] = SVertexImage(0, 0, m_RectangleColor);
 	}

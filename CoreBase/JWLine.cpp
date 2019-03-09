@@ -208,7 +208,7 @@ void JWLine::SetEntireAlpha(BYTE Alpha) noexcept
 {
 	if (m_Vertices.size())
 	{
-		for (SVertexLine& iterator : m_Vertices)
+		for (auto& iterator : m_Vertices)
 		{
 			SetColorAlpha(&iterator.color, Alpha);
 		}
@@ -220,7 +220,7 @@ void JWLine::SetEntireXRGB(DWORD Color) noexcept
 {
 	if (m_Vertices.size())
 	{
-		for (SVertexLine& iterator : m_Vertices)
+		for (auto& iterator : m_Vertices)
 		{
 			SetColorXRGB(&iterator.color, Color);
 		}
