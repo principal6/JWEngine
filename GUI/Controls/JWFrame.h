@@ -25,6 +25,7 @@ namespace JWENGINE
 
 		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
+		// This function is called in JWFrameConnector class.
 		auto SetFrameConnector(JWControl& Connector, bool IsBasisFrame) noexcept->JWControl& override;
 
 		void SetFramePositionFromInside(const D3DXVECTOR2& Position) noexcept override;

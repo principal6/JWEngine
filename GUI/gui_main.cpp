@@ -16,7 +16,7 @@ THandleItem mb_file_open = THandleItem_Null;
 THandleItem mb_help_info = THandleItem_Null;
 
 // TODO: THandleItem to structure?? (To safely handle these)
-// Add resizable property to JWFrame.
+// Add thick border control that can be attached to any other controls.
 
 int main()
 {
