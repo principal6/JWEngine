@@ -16,14 +16,14 @@ namespace JWENGINE
 
 		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 
-		auto MakeScrollBar(EScrollBarDirection Direction) noexcept->JWControl* override;
+		auto MakeScrollBar(EScrollBarDirection Direction) noexcept->JWControl& override;
 
 		void Draw() noexcept override;
 
-		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
-		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
-		auto SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount) noexcept->JWControl* override;
-		auto SetScrollPosition(size_t Position) noexcept->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl& override;
+		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl& override;
+		auto SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount) noexcept->JWControl& override;
+		auto SetScrollPosition(size_t Position) noexcept->JWControl& override;
 
 		auto GetScrollRange() const noexcept->size_t override;
 		auto GetScrollPosition() const noexcept->size_t override;

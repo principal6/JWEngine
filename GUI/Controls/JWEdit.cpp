@@ -115,7 +115,7 @@ void JWEdit::Draw() noexcept
 	JWControl::EndDrawing();
 }
 
-auto JWEdit::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
+auto JWEdit::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl&
 {
 	JWControl::SetPosition(Position);
 
@@ -125,10 +125,10 @@ auto JWEdit::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 
 	SetText(m_Text);
 
-	return this;
+	return *this;
 }
 
-auto JWEdit::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+auto JWEdit::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl&
 {
 	D3DXVECTOR2 adjusted_size = Size;
 
@@ -143,10 +143,10 @@ auto JWEdit::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 
 	SetText(m_Text);
 
-	return this;
+	return *this;
 }
 
-auto JWEdit::SetText(const WSTRING& Text) noexcept->JWControl*
+auto JWEdit::SetText(const WSTRING& Text) noexcept->JWControl&
 {
 	WSTRING new_text = Text;
 
@@ -170,30 +170,30 @@ auto JWEdit::SetText(const WSTRING& Text) noexcept->JWControl*
 
 	m_pEditText->SetNonInstantText(m_Text, m_PaddedPosition, m_PaddedSize);
 
-	return this;
+	return *this;
 }
 
-auto JWEdit::SetFontColor(DWORD Color) noexcept->JWControl*
+auto JWEdit::SetFontColor(DWORD Color) noexcept->JWControl&
 {
 	m_FontColor = Color;
 
 	m_pEditText->SetNonInstantTextColor(m_FontColor);
 
-	return this;
+	return *this;
 }
 
-auto JWEdit::SetWatermark(const WSTRING& Text) noexcept->JWControl*
+auto JWEdit::SetWatermark(const WSTRING& Text) noexcept->JWControl&
 {
 	m_Watermark = Text;
 
-	return this;
+	return *this;
 }
 
-auto JWEdit::SetWatermarkColor(DWORD Color) noexcept->JWControl*
+auto JWEdit::SetWatermarkColor(DWORD Color) noexcept->JWControl&
 {
 	m_WatermarkColor = Color;
 
-	return this;
+	return *this;
 }
 
 void JWEdit::Focus() noexcept
@@ -203,7 +203,7 @@ void JWEdit::Focus() noexcept
 	m_CaretShowInterval = 0;
 }
 
-auto JWEdit::ShouldUseMultiline(bool Value) noexcept->JWControl*
+auto JWEdit::ShouldUseMultiline(bool Value) noexcept->JWControl&
 {
 	m_bUseMultiline = Value;
 
@@ -212,21 +212,21 @@ auto JWEdit::ShouldUseMultiline(bool Value) noexcept->JWControl*
 		m_pEditText->ShouldUseAutomaticLineBreak(true);
 	}
 
-	return this;
+	return *this;
 }
 
-auto JWEdit::ShouldUseAutomaticLineBreak(bool Value) noexcept->JWControl*
+auto JWEdit::ShouldUseAutomaticLineBreak(bool Value) noexcept->JWControl&
 {
 	m_pEditText->ShouldUseAutomaticLineBreak(Value);
 
-	return this;
+	return *this;
 }
 
-auto JWEdit::ShouldUseNumberInputsOnly(bool Value) noexcept->JWControl*
+auto JWEdit::ShouldUseNumberInputsOnly(bool Value) noexcept->JWControl&
 {
 	m_bShouldGetOnlyNumbers = Value;
 
-	return this;
+	return *this;
 }
 
 PROTECTED void JWEdit::UpdateViewport() noexcept

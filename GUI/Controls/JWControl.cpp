@@ -73,31 +73,31 @@ void JWControl::EndDrawing()
 	}
 }
 
-auto JWControl::SetText(const WSTRING& Text) noexcept->JWControl*
+auto JWControl::SetText(const WSTRING& Text) noexcept->JWControl&
 {
 	m_Text = Text;
 
 	SetTextAlignment(m_HorizontalAlignment, m_VerticalAlignment);
 
-	return this;
+	return *this;
 }
 
-auto JWControl::GetText(WSTRING& OutText) noexcept->JWControl*
+auto JWControl::GetText(WSTRING& OutText) noexcept->JWControl&
 {
 	OutText = m_Text;
 
-	return this;
+	return *this;
 }
 
-auto JWControl::SetTextAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment) noexcept->JWControl*
+auto JWControl::SetTextAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment) noexcept->JWControl&
 {
 	SetTextHorizontalAlignment(HorizontalAlignment);
 	SetTextVerticalAlignment(VerticalAlignment);
 
-	return this;
+	return *this;
 }
 
-auto JWControl::SetTextHorizontalAlignment(EHorizontalAlignment Alignment) noexcept->JWControl*
+auto JWControl::SetTextHorizontalAlignment(EHorizontalAlignment Alignment) noexcept->JWControl&
 {
 	m_HorizontalAlignment = Alignment;
 
@@ -116,10 +116,10 @@ auto JWControl::SetTextHorizontalAlignment(EHorizontalAlignment Alignment) noexc
 		break;
 	}
 
-	return this;
+	return *this;
 }
 
-auto JWControl::SetTextVerticalAlignment(EVerticalAlignment Alignment) noexcept->JWControl*
+auto JWControl::SetTextVerticalAlignment(EVerticalAlignment Alignment) noexcept->JWControl&
 {
 	m_VerticalAlignment = Alignment;
 
@@ -138,17 +138,17 @@ auto JWControl::SetTextVerticalAlignment(EVerticalAlignment Alignment) noexcept-
 		break;
 	}
 
-	return this;
+	return *this;
 }
 
-auto JWControl::SetFontColor(DWORD Color) noexcept->JWControl*
+auto JWControl::SetFontColor(DWORD Color) noexcept->JWControl&
 {
 	m_FontColor = Color;
 
-	return this;
+	return *this;
 }
 
-auto JWControl::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
+auto JWControl::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl&
 {
 	m_AbsolutePosition = Position;
 
@@ -186,10 +186,10 @@ auto JWControl::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 
 	UpdateViewport();
 
-	return this;
+	return *this;
 }
 
-auto JWControl::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+auto JWControl::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl&
 {
 	D3DXVECTOR2 adjusted_size = Size;
 
@@ -208,10 +208,10 @@ auto JWControl::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 
 	UpdateViewport();
 
-	return this;
+	return *this;
 }
 
-auto JWControl::SetBorderColor(DWORD Color) noexcept->JWControl*
+auto JWControl::SetBorderColor(DWORD Color) noexcept->JWControl&
 {
 	m_pBorderLine.SetBoxColor(Color);
 	
@@ -219,25 +219,25 @@ auto JWControl::SetBorderColor(DWORD Color) noexcept->JWControl*
 
 	m_bBorderColorSet = true;
 
-	return this;
+	return *this;
 }
 
-auto JWControl::SetBorderColor(DWORD ColorA, DWORD ColorB) noexcept->JWControl*
+auto JWControl::SetBorderColor(DWORD ColorA, DWORD ColorB) noexcept->JWControl&
 {
 	m_pBorderLine.SetBoxColor(ColorA, ColorB);
 
 	m_bBorderColorSet = true;
 
-	return this;
+	return *this;
 }
 
-auto JWControl::SetBackgroundColor(DWORD Color) noexcept->JWControl*
+auto JWControl::SetBackgroundColor(DWORD Color) noexcept->JWControl&
 {
 	m_Color_Normal = Color;
 	m_Color_Hover = Color;
 	m_Color_Pressed = Color;
 
-	return this;
+	return *this;
 }
 
 auto JWControl::GetPosition() const noexcept->const D3DXVECTOR2
@@ -265,11 +265,11 @@ auto JWControl::GetControlState() const noexcept->EControlState
 	return m_ControlState;
 }
 
-auto JWControl::SetParentControl(JWControl* pParentControl) noexcept->JWControl*
+auto JWControl::SetParentControl(JWControl* pParentControl) noexcept->JWControl&
 {
 	m_pParentControl = pParentControl;
 
-	return this;
+	return *this;
 }
 
 auto JWControl::HasParentControl() noexcept->bool
@@ -437,17 +437,17 @@ PROTECTED void JWControl::UpdateControlState(JWControl** ppControlWithMouse, JWC
 	}
 }
 
-auto JWControl::AttachScrollBar(const JWControl& ScrollBar)->JWControl*
+auto JWControl::AttachScrollBar(const JWControl& ScrollBar)->JWControl&
 {
 	if (this == &ScrollBar)
 	{
 		// You can't attach yourself!
-		return this;
+		return *this;
 	}
 	else if (ScrollBar.GetControlType() != EControlType::ScrollBar)
 	{
 		// Only scroll-bars can be attached.
-		return this;
+		return *this;
 	}
 	else
 	{
@@ -455,14 +455,14 @@ auto JWControl::AttachScrollBar(const JWControl& ScrollBar)->JWControl*
 		m_pAttachedScrollBar = static_cast<JWScrollBar*>(p_scrollbar_control);
 	}
 
-	return this;
+	return *this;
 }
 
-auto JWControl::DetachScrollBar() noexcept->JWControl*
+auto JWControl::DetachScrollBar() noexcept->JWControl&
 {
 	m_pAttachedScrollBar = nullptr;
 
-	return this;
+	return *this;
 }
 
 PROTECTED void JWControl::UpdateBorderPositionAndSize() noexcept
@@ -568,36 +568,36 @@ void JWControl::KillFocus() noexcept
 	}
 }
 
-auto JWControl::ShouldDrawBorder(bool Value) noexcept->JWControl*
+auto JWControl::ShouldDrawBorder(bool Value) noexcept->JWControl&
 {
 	m_bShouldDrawBorder = Value;
 
-	return this;
+	return *this;
 }
 
-auto JWControl::ShouldUseViewport(bool Value) noexcept->JWControl*
+auto JWControl::ShouldUseViewport(bool Value) noexcept->JWControl&
 {
 	m_bShouldUseViewport = Value;
 
-	return this;
+	return *this;
 }
 
-auto JWControl::ShouldBeOffsetByMenuBar(bool Value) noexcept->JWControl*
+auto JWControl::ShouldBeOffsetByMenuBar(bool Value) noexcept->JWControl&
 {
 	m_bShouldBeOffsetByMenuBar = Value;
 
 	SetPosition(m_AbsolutePosition);
 	SetSize(m_Size);
 
-	return this;
+	return *this;
 }
 
-auto JWControl::ShouldBeOffsetByParent(bool Value) noexcept->JWControl*
+auto JWControl::ShouldBeOffsetByParent(bool Value) noexcept->JWControl&
 {
 	m_bShouldBeOffsetByParent = Value;
 
 	SetPosition(m_AbsolutePosition);
 	SetSize(m_Size);
 
-	return this;
+	return *this;
 }

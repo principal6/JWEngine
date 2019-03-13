@@ -21,7 +21,7 @@ void JWFrame::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const
 	SetSize(Size);
 }
 
-auto JWFrame::AddChildControl(JWControl& ChildControl) noexcept->JWControl*
+auto JWFrame::AddChildControl(JWControl& ChildControl) noexcept->JWControl&
 {
 	if (m_pChildControls.size())
 	{
@@ -30,7 +30,7 @@ auto JWFrame::AddChildControl(JWControl& ChildControl) noexcept->JWControl*
 			if (iterator == &ChildControl)
 			{
 				// This control is already adopted!!
-				return this;
+				return *this;
 			}
 		}
 	}
@@ -51,16 +51,16 @@ auto JWFrame::AddChildControl(JWControl& ChildControl) noexcept->JWControl*
 		m_pChildControls.push_back(&ChildControl);
 	}
 
-	return this;
+	return *this;
 }
 
-PROTECTED auto JWFrame::SetFrameConnector(JWControl& Connector, bool IsBasisFrame) noexcept->JWControl*
+PROTECTED auto JWFrame::SetFrameConnector(JWControl& Connector, bool IsBasisFrame) noexcept->JWControl&
 {
 	m_pFrameConnector = &Connector;
 
 	m_IsBasisFrame = IsBasisFrame;
 
-	return this;
+	return *this;
 }
 
 PROTECTED void JWFrame::UpdateViewport() noexcept
@@ -132,7 +132,7 @@ void JWFrame::Draw() noexcept
 	JWControl::EndDrawing();
 }
 
-auto JWFrame::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
+auto JWFrame::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl&
 {
 	if (m_pFrameConnector)
 	{
@@ -148,7 +148,7 @@ auto JWFrame::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 		SetFramePositionFromInside(Position);
 	}
 
-	return this;
+	return *this;
 }
 
 PROTECTED void JWFrame::SetFramePositionFromInside(const D3DXVECTOR2& Position) noexcept
@@ -166,7 +166,7 @@ PROTECTED void JWFrame::SetFramePositionFromInside(const D3DXVECTOR2& Position) 
 	m_Background.SetPosition(m_Position);
 }
 
-auto JWFrame::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+auto JWFrame::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl&
 {
 	if (m_pFrameConnector)
 	{
@@ -200,7 +200,7 @@ auto JWFrame::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 		SetFrameSizeFromInside(Size);
 	}
 
-	return this;
+	return *this;
 }
 
 PROTECTED void JWFrame::SetFrameSizeFromInside(const D3DXVECTOR2& Size) noexcept

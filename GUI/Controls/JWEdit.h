@@ -20,18 +20,18 @@ namespace JWENGINE
 
 		void Draw() noexcept override;
 
-		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
-		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
-		auto SetText(const WSTRING& Text) noexcept->JWControl* override;
-		auto SetFontColor(DWORD Color) noexcept->JWControl* override;
-		auto SetWatermark(const WSTRING& Text) noexcept->JWControl* override;
-		auto SetWatermarkColor(DWORD Color) noexcept->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl& override;
+		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl& override;
+		auto SetText(const WSTRING& Text) noexcept->JWControl& override;
+		auto SetFontColor(DWORD Color) noexcept->JWControl& override;
+		auto SetWatermark(const WSTRING& Text) noexcept->JWControl& override;
+		auto SetWatermarkColor(DWORD Color) noexcept->JWControl& override;
 
 		void Focus() noexcept override;
 
-		auto ShouldUseMultiline(bool Value) noexcept->JWControl* override;
-		auto ShouldUseAutomaticLineBreak(bool Value) noexcept->JWControl* override;
-		auto ShouldUseNumberInputsOnly(bool Value) noexcept->JWControl* override;
+		auto ShouldUseMultiline(bool Value) noexcept->JWControl& override;
+		auto ShouldUseAutomaticLineBreak(bool Value) noexcept->JWControl& override;
+		auto ShouldUseNumberInputsOnly(bool Value) noexcept->JWControl& override;
 		
 	protected:
 		// Must be overridden.

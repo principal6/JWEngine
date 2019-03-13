@@ -19,10 +19,10 @@ namespace JWENGINE
 
 		void Draw() noexcept override;
 
-		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
-		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl& override;
+		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl& override;
 
-		auto ShouldUseToggleSelection(bool Value) noexcept->JWControl* override;
+		auto ShouldUseToggleSelection(bool Value) noexcept->JWControl& override;
 
 		void KillFocus() noexcept override;
 

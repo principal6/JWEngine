@@ -53,20 +53,20 @@ void JWLabel::Draw() noexcept
 	JWControl::EndDrawing();
 }
 
-auto JWLabel::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
+auto JWLabel::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl&
 {
 	JWControl::SetPosition(Position);
 
 	m_Background.SetPosition(m_Position);
 
-	return this;
+	return *this;
 }
 
-auto JWLabel::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+auto JWLabel::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl&
 {
 	JWControl::SetSize(Size);
 
 	m_Background.SetSize(m_Size);
 
-	return this;
+	return *this;
 }

@@ -27,7 +27,7 @@ namespace JWENGINE
 
 		void Draw() noexcept override;
 
-		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
+		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl& override;
 
 		auto OnSubItemClick() noexcept->THandleItem override;
 

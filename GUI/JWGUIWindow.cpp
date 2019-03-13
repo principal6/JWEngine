@@ -51,7 +51,7 @@ void JWGUIWindow::CreateTexture(const WSTRING& Filename, LPDIRECT3DTEXTURE9* ppT
 	}
 }
 
-auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName) noexcept->JWControl*
+auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const WSTRING& ControlName) noexcept->JWControl&
 {
 	D3DXVECTOR2 adjusted_position = Position;
 	WSTRING control_name = ControlName;
@@ -132,7 +132,7 @@ auto JWGUIWindow::AddControl(EControlType Type, const D3DXVECTOR2& Position, con
 
 	m_ControlsMap.insert(MAKE_PAIR(control_name, m_pControls.size() - 1));
 
-	return m_pControls[m_pControls.size() - 1].get();
+	return *m_pControls[m_pControls.size() - 1].get();
 }
 
 auto JWGUIWindow::GetControl(const WSTRING& ControlName)->JWControl&

@@ -54,43 +54,89 @@ LRESULT CALLBACK JWENGINE::GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam,
 	return(DefWindowProc(hWnd, Message, wParam, lParam));
 }
 
-void JWGUI::Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow) noexcept
+void JWGUI::CreateMainWindow(SWindowCreationData& WindowCreationData) noexcept
 {
-	m_pGUIWindows.push_back(MAKE_UNIQUE_AND_MOVE(JWGUIWindow)());
-	m_ppGUIWindows.push_back(&OutPtrMainGUIWindow);
+	m_IsMainWindowCreated = true;
 
-	OutPtrMainGUIWindow = m_pGUIWindows[m_pGUIWindows.size() - 1].get();
-	WindowCreationData.proc = GUIWindowProc;
-	OutPtrMainGUIWindow->Create(WindowCreationData);
+	CreateAdditionalWindow(WindowCreationData);
 }
 
-void JWGUI::AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrGUIWindow) noexcept
+PRIVATE void JWGUI::AssertValidObject() const noexcept
 {
-	m_pGUIWindows.push_back(MAKE_UNIQUE_AND_MOVE(JWGUIWindow)());
-	m_ppGUIWindows.push_back(&OutPtrGUIWindow);
-
-	OutPtrGUIWindow = m_pGUIWindows[m_pGUIWindows.size() - 1].get();
-	WindowCreationData.proc = GUIWindowProc;
-	OutPtrGUIWindow->Create(WindowCreationData);
-}
-
-void JWGUI::DestroyGUIWindow(const JWGUIWindow* pGUIWindow) noexcept
-{
-	if (m_pGUIWindows.size())
+	if (!m_IsMainWindowCreated)
 	{
-		size_t iterator_window_index{};
+		// @warning:
+		// You must call CreateMainWindow()
+		// before calling any other functions
+		// in order to make this JWGUI a valid object.
 
-		for (auto& iterator : m_pGUIWindows)
-		{
-			if (iterator.get() == pGUIWindow)
-			{
-				EraseGUIWindow(iterator_window_index);
-				break;
-			}
-
-			iterator_window_index++;
-		}
+		assert(false);
 	}
+}
+
+void JWGUI::CreateAdditionalWindow(SWindowCreationData& WindowCreationData) noexcept
+{
+	AssertValidObject();
+
+	m_pGUIWindows.push_back(MAKE_UNIQUE_AND_MOVE(JWGUIWindow)());
+
+	WindowCreationData.proc = GUIWindowProc;
+	m_pGUIWindows[m_pGUIWindows.size() - 1]->Create(WindowCreationData);
+}
+
+void JWGUI::DestroyAdditionalWindow(size_t AdditionalWindowIndex) noexcept
+{
+	AssertValidObject();
+
+	size_t iterator_window_index{};
+
+	for (auto& iterator : m_pGUIWindows)
+	{
+		if (iterator_window_index == AdditionalWindowIndex + 1)
+		{
+			EraseGUIWindow(iterator_window_index);
+			break;
+		}
+
+		iterator_window_index++;
+	}
+}
+
+auto JWGUI::IsAdditionalWindowAlive(size_t AdditionalWindowIndex) const->bool
+{
+	AssertValidObject();
+
+	if (AdditionalWindowIndex + 1 <= m_pGUIWindows.size() - 1)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+auto JWGUI::MainWindow() const->JWGUIWindow&
+{
+	AssertValidObject();
+	
+	return *m_pGUIWindows[0].get();
+}
+
+auto JWGUI::AdditionalWindow(size_t AdditionalWindowIndex) const->JWGUIWindow&
+{
+	AssertValidObject();
+
+	if (AdditionalWindowIndex > m_pGUIWindows.size() - 2)
+	{
+		AdditionalWindowIndex = m_pGUIWindows.size() - 1;
+	}
+	else
+	{
+		++AdditionalWindowIndex;
+	}
+
+	return *m_pGUIWindows[AdditionalWindowIndex].get();
 }
 
 void JWGUI::SetMainLoopFunction(const PF_MAINLOOP pfMainLoop) noexcept
@@ -100,15 +146,17 @@ void JWGUI::SetMainLoopFunction(const PF_MAINLOOP pfMainLoop) noexcept
 
 void JWGUI::Run() noexcept
 {
+	AssertValidObject();
+
 	HWND hwnd_active{ nullptr };
 
 	bool b_gui_window_destroyed{ false };
 	size_t destroyed_gui_window_index{};
 	size_t iterator_index{};
 
-	m_bIsGUIRunning = true;
+	m_IsGUIRunning = true;
 
-	while (m_bIsGUIRunning)
+	while (m_IsGUIRunning)
 	{
 		b_gui_window_destroyed = false;
 		destroyed_gui_window_index = 0;
@@ -201,38 +249,23 @@ void JWGUI::Run() noexcept
 
 		if (!m_pGUIWindows.size())
 		{
-			m_bIsGUIRunning = false;
+			m_IsGUIRunning = false;
 		}
 	}
 }
 
-void JWGUI::EraseGUIWindow(size_t index) noexcept
+PRIVATE void JWGUI::EraseGUIWindow(size_t index) noexcept
 {
 	if (m_pGUIWindows.size())
 	{
 		m_pGUIWindows.erase(index);
 	}
-
-	if (m_ppGUIWindows.size())
-	{
-		*m_ppGUIWindows[index] = nullptr;
-		m_ppGUIWindows.erase(index);
-	}
 }
 
-void JWGUI::ClearGUIWindow() noexcept
+PRIVATE void JWGUI::ClearGUIWindow() noexcept
 {
 	if (m_pGUIWindows.size())
 	{
 		m_pGUIWindows.clear();
-	}
-
-	if (m_ppGUIWindows.size())
-	{
-		for (auto& iterator : m_ppGUIWindows)
-		{
-			*iterator = nullptr;
-		}
-		m_ppGUIWindows.clear();
 	}
 }

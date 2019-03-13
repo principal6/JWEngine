@@ -210,13 +210,13 @@ void JWMenuBar::Draw() noexcept
 	JWControl::EndDrawing();
 }
 
-auto JWMenuBar::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+auto JWMenuBar::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl&
 {
 	JWControl::SetSize(Size);
 
 	m_pNonButtonRegion->SetSize(m_Size);
 
-	return this;
+	return *this;
 }
 
 auto JWMenuBar::OnSubItemClick() noexcept->THandleItem

@@ -133,29 +133,29 @@ void JWTextButton::Draw() noexcept
 	JWControl::EndDrawing();
 }
 
-auto JWTextButton::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
+auto JWTextButton::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl&
 {
 	JWControl::SetPosition(Position);
 
 	m_Background.SetPosition(m_Position);
 
-	return this;
+	return *this;
 }
 
-auto JWTextButton::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+auto JWTextButton::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl&
 {
 	JWControl::SetSize(Size);
 
 	m_Background.SetSize(m_Size);
 
-	return this;
+	return *this;
 }
 
-auto JWTextButton::ShouldUseToggleSelection(bool Value) noexcept->JWControl*
+auto JWTextButton::ShouldUseToggleSelection(bool Value) noexcept->JWControl&
 {
 	m_bShouleUseToggleSelection = Value;
 
-	return this;
+	return *this;
 }
 
 void JWTextButton::KillFocus() noexcept

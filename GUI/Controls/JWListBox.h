@@ -24,17 +24,17 @@ namespace JWENGINE
 
 		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 
-		auto SetMinimumItemHeight(float Value) noexcept->JWControl* override;
-		auto SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo) noexcept->JWControl* override;
+		auto SetMinimumItemHeight(float Value) noexcept->JWControl& override;
+		auto SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo) noexcept->JWControl& override;
 
 		auto AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInAtlas = D3DXVECTOR2(0, 0),
-			const D3DXVECTOR2& SizeInAtlas = D3DXVECTOR2(0, 0))->JWControl* override;
+			const D3DXVECTOR2& SizeInAtlas = D3DXVECTOR2(0, 0))->JWControl& override;
 
 		void Draw() noexcept override;
 
-		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
-		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
-		auto SetBackgroundColor(DWORD Color) noexcept->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl& override;
+		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl& override;
+		auto SetBackgroundColor(DWORD Color) noexcept->JWControl& override;
 
 		auto GetListBoxItemCount() const noexcept->size_t override;
 
@@ -43,9 +43,9 @@ namespace JWENGINE
 
 		auto GetSelectedItemIndex() const noexcept->TIndex override;
 
-		auto ShouldUseAutomaticScrollBar(bool Value) noexcept->JWControl* override;
-		auto ShouldUseToggleSelection(bool Value) noexcept->JWControl* override;
-		auto ShouldUseImageItem(bool Value) noexcept->JWControl* override;
+		auto ShouldUseAutomaticScrollBar(bool Value) noexcept->JWControl& override;
+		auto ShouldUseToggleSelection(bool Value) noexcept->JWControl& override;
+		auto ShouldUseImageItem(bool Value) noexcept->JWControl& override;
 
 	protected:
 		// Must be overridden.

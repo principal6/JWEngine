@@ -16,8 +16,8 @@ namespace JWENGINE
 
 		void Draw() noexcept override;
 
-		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
-		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl& override;
+		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl& override;
 
 	private:
 		static constexpr BYTE DEFUALT_ALPHA_BACKGROUND_LABEL{ 255 };

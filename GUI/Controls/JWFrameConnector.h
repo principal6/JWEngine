@@ -15,18 +15,18 @@ namespace JWENGINE
 		// @warning: 'Position' will be ignored in JWFrameConnector's Create()
 		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 
-		auto MakeVerticalConnector(JWControl& LeftFrame, JWControl& RightFrame)->JWControl* override;
+		auto MakeVerticalConnector(JWControl& LeftFrame, JWControl& RightFrame)->JWControl& override;
 
-		auto MakeHorizontalConnector(JWControl& UpFrame, JWControl& DownFrame)->JWControl* override;
+		auto MakeHorizontalConnector(JWControl& UpFrame, JWControl& DownFrame)->JWControl& override;
 
 		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
 		void Draw() noexcept override;
 
 		// @warning: JWFrameConnector must make SetPosition meaningless!
-		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl& override;
 
-		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
+		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl& override;
 
 		auto GetFrameConnectorType() const noexcept->EFrameConnectorType override;
 

@@ -12,12 +12,12 @@ namespace JWENGINE
 
 		void Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, const SGUIWindowSharedData& SharedData) noexcept override;
 
-		auto AddChildControl(JWControl& ChildControl) noexcept->JWControl* override;
+		auto AddChildControl(JWControl& ChildControl) noexcept->JWControl& override;
 
 		void Draw() noexcept override;
 
-		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl* override;
-		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl* override;
+		auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl& override;
+		auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl& override;
 
 	protected:
 		// Must be overridden.
@@ -25,7 +25,7 @@ namespace JWENGINE
 
 		void UpdateControlState(JWControl** ppControlWithMouse, JWControl** ppControlWithFocus) noexcept override;
 
-		auto SetFrameConnector(JWControl& Connector, bool IsBasisFrame) noexcept->JWControl* override;
+		auto SetFrameConnector(JWControl& Connector, bool IsBasisFrame) noexcept->JWControl& override;
 
 		void SetFramePositionFromInside(const D3DXVECTOR2& Position) noexcept override;
 		void SetFrameSizeFromInside(const D3DXVECTOR2& Size) noexcept override;

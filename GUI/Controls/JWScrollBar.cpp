@@ -46,7 +46,7 @@ void JWScrollBar::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, c
 	SetPosition(Position);
 }
 
-auto JWScrollBar::MakeScrollBar(EScrollBarDirection Direction) noexcept->JWControl*
+auto JWScrollBar::MakeScrollBar(EScrollBarDirection Direction) noexcept->JWControl&
 {
 	m_ScrollBarDirection = Direction;
 
@@ -73,7 +73,7 @@ auto JWScrollBar::MakeScrollBar(EScrollBarDirection Direction) noexcept->JWContr
 	UpdateButtonPosition();
 	UpdateButtonSize();
 
-	return this;
+	return *this;
 }
 
 PROTECTED void JWScrollBar::UpdateViewport() noexcept
@@ -272,7 +272,7 @@ void JWScrollBar::Draw() noexcept
 	JWControl::EndDrawing();
 }
 
-auto JWScrollBar::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
+auto JWScrollBar::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl&
 {
 	JWControl::SetPosition(Position);
 
@@ -280,10 +280,10 @@ auto JWScrollBar::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 
 	UpdateButtonPosition();
 
-	return this;
+	return *this;
 }
 
-auto JWScrollBar::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+auto JWScrollBar::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl&
 {
 	D3DXVECTOR2 adjusted_size = Size;
 
@@ -308,7 +308,7 @@ auto JWScrollBar::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 	UpdateButtonPosition();
 	UpdateButtonSize();
 
-	return this;
+	return *this;
 }
 
 PROTECTED void JWScrollBar::SetControlState(EControlState State) noexcept
@@ -328,7 +328,7 @@ PROTECTED void JWScrollBar::SetControlState(EControlState State) noexcept
 	}
 }
 
-auto JWScrollBar::SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount) noexcept->JWControl*
+auto JWScrollBar::SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount) noexcept->JWControl&
 {
 	m_VisibleUnitCount = VisibleUnitCount;
 	m_TotalUnitCount = TotalUnitCount;
@@ -338,10 +338,10 @@ auto JWScrollBar::SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount)
 	UpdateButtonSize();
 	UpdateButtonPosition();
 
-	return this;
+	return *this;
 }
 
-auto JWScrollBar::SetScrollPosition(size_t Position) noexcept->JWControl*
+auto JWScrollBar::SetScrollPosition(size_t Position) noexcept->JWControl&
 {
 	Position = min(Position, m_ScrollMax);
 	
@@ -363,7 +363,7 @@ auto JWScrollBar::SetScrollPosition(size_t Position) noexcept->JWControl*
 		break;
 	}
 
-	return this;
+	return *this;
 }
 
 auto JWScrollBar::GetScrollRange() const noexcept->size_t

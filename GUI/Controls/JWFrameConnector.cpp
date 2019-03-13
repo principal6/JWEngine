@@ -25,14 +25,14 @@ void JWFrameConnector::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Si
 	SetSize(Size);
 }
 
-auto JWFrameConnector::MakeVerticalConnector(JWControl& LeftFrame, JWControl& RightFrame)->JWControl*
+auto JWFrameConnector::MakeVerticalConnector(JWControl& LeftFrame, JWControl& RightFrame)->JWControl&
 {
 	if (&LeftFrame == &RightFrame)
 	{
 		// You must connect two different frames!
 		LOG_DEBUG(L"[FAILED] JWFrameConnector->MakeVerticalConnector() - You must connect two different frames.");
 
-		return this;
+		return *this;
 	}
 
 	m_pFrameA = &LeftFrame;
@@ -45,10 +45,10 @@ auto JWFrameConnector::MakeVerticalConnector(JWControl& LeftFrame, JWControl& Ri
 
 	UpdateFrameConectorPositionAndSize();
 
-	return this;
+	return *this;
 }
 
-auto JWFrameConnector::MakeHorizontalConnector(JWControl& UpFrame, JWControl& DownFrame)->JWControl*
+auto JWFrameConnector::MakeHorizontalConnector(JWControl& UpFrame, JWControl& DownFrame)->JWControl&
 {
 	m_pFrameA = &UpFrame;
 	m_pFrameB = &DownFrame;
@@ -60,7 +60,7 @@ auto JWFrameConnector::MakeHorizontalConnector(JWControl& UpFrame, JWControl& Do
 
 	UpdateFrameConectorPositionAndSize();
 
-	return this;
+	return *this;
 }
 
 PROTECTED void JWFrameConnector::SetSizableCursor() noexcept
@@ -271,14 +271,14 @@ PROTECTED void JWFrameConnector::UpdateFrameConectorPositionAndSize() noexcept
 	m_Background.SetSize(m_Size);
 }
 
-auto JWFrameConnector::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
+auto JWFrameConnector::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl&
 {
 	UpdateFrameConectorPositionAndSize();
 
-	return this;
+	return *this;
 }
 
-auto JWFrameConnector::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+auto JWFrameConnector::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl&
 {
 	D3DXVECTOR2 new_size = Size;
 
@@ -300,7 +300,7 @@ auto JWFrameConnector::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 
 	UpdateFrameConectorPositionAndSize();
 
-	return this;
+	return *this;
 }
 
 auto JWFrameConnector::GetFrameConnectorType() const noexcept->EFrameConnectorType

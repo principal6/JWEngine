@@ -33,23 +33,23 @@ void JWListBox::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size, con
 	SetSize(Size);
 }
 
-auto JWListBox::SetMinimumItemHeight(float Value) noexcept->JWControl*
+auto JWListBox::SetMinimumItemHeight(float Value) noexcept->JWControl&
 {
 	m_MinimumItemHeight = Value;
 	m_MinimumItemHeight = max(m_MinimumItemHeight, MINIMUM_ITEM_HEIGHT);
 
-	return this;
+	return *this;
 }
 
-auto JWListBox::SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo) noexcept->JWControl*
+auto JWListBox::SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo) noexcept->JWControl&
 {
 	m_pTextureForImageItem = pTexture;
 	m_pTextureForImageItemInfo = pInfo;
 
-	return this;
+	return *this;
 }
 
-auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& SizeInAtlas)->JWControl*
+auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& SizeInAtlas)->JWControl&
 {
 	// Get this new item's index.
 	size_t item_index = m_pTextItems.size();
@@ -162,7 +162,7 @@ auto JWListBox::AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInA
 
 	UpdateViewport();
 
-	return this;
+	return *this;
 }
 
 PRIVATE void JWListBox::UpdateAutomaticScrollBar() noexcept
@@ -420,16 +420,16 @@ void JWListBox::Draw() noexcept
 	JWControl::EndDrawing();
 }
 
-auto JWListBox::SetBackgroundColor(DWORD Color) noexcept->JWControl*
+auto JWListBox::SetBackgroundColor(DWORD Color) noexcept->JWControl&
 {
 	JWControl::SetBackgroundColor(Color);
 
 	m_pBackground->SetBackgroundColor(Color);
 
-	return this;
+	return *this;
 }
 
-auto JWListBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
+auto JWListBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl&
 {
 	JWControl::SetPosition(Position);
 
@@ -439,10 +439,10 @@ auto JWListBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
 
 	UpdateItemsPosition();
 
-	return this;
+	return *this;
 }
 
-auto JWListBox::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+auto JWListBox::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl&
 {
 	JWControl::SetSize(Size);
 
@@ -452,7 +452,7 @@ auto JWListBox::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 
 	UpdateItemsPosition();
 
-	return this;
+	return *this;
 }
 
 auto JWListBox::GetListBoxItemCount() const noexcept->size_t
@@ -481,14 +481,14 @@ auto JWListBox::GetSelectedItemIndex() const noexcept->TIndex
 	return m_SelectedItemIndex;
 }
 
-auto JWListBox::ShouldUseAutomaticScrollBar(bool Value) noexcept->JWControl*
+auto JWListBox::ShouldUseAutomaticScrollBar(bool Value) noexcept->JWControl&
 {
 	m_bShouldUseAutomaticScrollBar = Value;
 
-	return this;
+	return *this;
 }
 
-auto JWListBox::ShouldUseToggleSelection(bool Value) noexcept->JWControl*
+auto JWListBox::ShouldUseToggleSelection(bool Value) noexcept->JWControl&
 {
 	m_bShouleUseToggleSelection = Value;
 
@@ -517,14 +517,14 @@ auto JWListBox::ShouldUseToggleSelection(bool Value) noexcept->JWControl*
 		}
 	}
 	
-	return this;
+	return *this;
 }
 
-auto JWListBox::ShouldUseImageItem(bool Value) noexcept->JWControl*
+auto JWListBox::ShouldUseImageItem(bool Value) noexcept->JWControl&
 {
 	m_bUseImageItems = Value;
 
-	return this;
+	return *this;
 }
 
 PRIVATE void JWListBox::SetToggleSelectionColor(JWImageBox* pItemBackground) noexcept

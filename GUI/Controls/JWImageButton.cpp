@@ -32,7 +32,7 @@ void JWImageButton::Create(const D3DXVECTOR2& Position, const D3DXVECTOR2& Size,
 }
 
 auto JWImageButton::MakeImageButton(const WSTRING& TextureAtlasFileName, const D3DXVECTOR2& ButtonSizeInTexture, const D3DXVECTOR2& NormalOffset,
-	const D3DXVECTOR2& HoverOffset, const D3DXVECTOR2& PressedOffset)->JWControl*
+	const D3DXVECTOR2& HoverOffset, const D3DXVECTOR2& PressedOffset)->JWControl&
 {
 	m_ButtonImage.SetTexture(TextureAtlasFileName);
 	
@@ -44,10 +44,10 @@ auto JWImageButton::MakeImageButton(const WSTRING& TextureAtlasFileName, const D
 
 	SetSize(m_Size);
 
-	return this;
+	return *this;
 }
 
-auto JWImageButton::MakeSystemArrowButton(ESystemArrowDirection Direction) noexcept->JWControl*
+auto JWImageButton::MakeSystemArrowButton(ESystemArrowDirection Direction) noexcept->JWControl&
 {
 	float AtlasYOffset = 0;
 
@@ -79,7 +79,7 @@ auto JWImageButton::MakeSystemArrowButton(ESystemArrowDirection Direction) noexc
 
 	SetSize(m_Size);
 
-	return this;
+	return *this;
 }
 
 void JWImageButton::Draw() noexcept
@@ -122,17 +122,17 @@ void JWImageButton::Draw() noexcept
 	JWControl::EndDrawing();
 }
 
-auto JWImageButton::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
+auto JWImageButton::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl&
 {
 	JWControl::SetPosition(Position);
 
 	m_Background.SetPosition(m_Position);
 	m_ButtonImage.SetPosition(m_Position + m_ButtonImagePositionOffset);
 
-	return this;
+	return *this;
 }
 
-auto JWImageButton::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+auto JWImageButton::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl&
 {
 	D3DXVECTOR2 adjusted_size = Size;
 	adjusted_size.x = max(adjusted_size.x, m_ButtonSizeInTexture.x);
@@ -146,5 +146,5 @@ auto JWImageButton::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 	m_Background.SetSize(m_Size);
 	m_ButtonImage.SetPosition(m_Position + m_ButtonImagePositionOffset);
 
-	return this;
+	return *this;
 }

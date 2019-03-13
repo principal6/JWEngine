@@ -13,11 +13,15 @@ namespace JWENGINE
 		JWGUI() {};
 		~JWGUI() {};
 
-		void Create(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrMainGUIWindow) noexcept;
+		void CreateMainWindow(SWindowCreationData& WindowCreationData) noexcept;
 
-		void AddGUIWindow(SWindowCreationData& WindowCreationData, JWGUIWindow*& OutPtrGUIWindow) noexcept;
+		void CreateAdditionalWindow(SWindowCreationData& WindowCreationData) noexcept;
+		void DestroyAdditionalWindow(size_t AdditionalWindowIndex) noexcept;
 
-		void DestroyGUIWindow(const JWGUIWindow* pGUIWindow) noexcept;
+		auto IsAdditionalWindowAlive(size_t AdditionalWindowIndex) const->bool;
+
+		auto MainWindow() const->JWGUIWindow&;
+		auto AdditionalWindow(size_t AdditionalWindowIndex = SIZE_T_MAX) const->JWGUIWindow&;
 
 		void SetMainLoopFunction(const PF_MAINLOOP pfMainLoop) noexcept;
 
@@ -26,6 +30,8 @@ namespace JWENGINE
 	private:
 		friend LRESULT CALLBACK GUIWindowProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
+		void AssertValidObject() const noexcept;
+
 		void EraseGUIWindow(size_t index) noexcept;
 		void ClearGUIWindow() noexcept;
 
@@ -33,17 +39,13 @@ namespace JWENGINE
 		static SGUIIMEInputInfo ms_IMEInfo;
 		static VECTOR<HWND> ms_hWndQuitStack;
 
-		bool m_bIsGUIRunning{ false };
+		bool m_IsMainWindowCreated{ false };
+		bool m_IsGUIRunning{ false };
 
 		MSG m_MSG{};
 
 		PF_MAINLOOP m_pfMainLoop{ nullptr };
 
 		TLinkedList<UNIQUE_PTR<JWGUIWindow>> m_pGUIWindows;
-
-		// This is required to keep track of
-		// the outter pointers to the instance of JWGUIWindows
-		// in order to make them nullptr when JWGUIWindows are destroyed.
-		TLinkedList<JWGUIWindow**> m_ppGUIWindows;
 	};
 };

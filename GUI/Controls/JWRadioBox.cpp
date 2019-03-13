@@ -58,20 +58,20 @@ void JWRadioBox::Draw() noexcept
 	JWControl::EndDrawing();
 }
 
-auto JWRadioBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
+auto JWRadioBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl&
 {
 	JWControl::SetPosition(Position);
 
 	m_Background.SetPosition(m_Position);
 
-	return this;
+	return *this;
 }
 
-auto JWRadioBox::SetCheckState(bool Value) noexcept->JWControl*
+auto JWRadioBox::SetCheckState(bool Value) noexcept->JWControl&
 {
 	m_bChecked = Value;
 
-	return this;
+	return *this;
 }
 
 auto JWRadioBox::GetCheckState() const noexcept->bool

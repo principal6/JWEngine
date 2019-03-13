@@ -106,21 +106,21 @@ namespace JWENGINE
 		*/
 		// [JWImageButton] Make a normal JWImageButton.
 		virtual auto MakeImageButton(const WSTRING& TextureAtlasFileName, const D3DXVECTOR2& ButtonSizeInTexture, const D3DXVECTOR2& NormalOffset,
-			const D3DXVECTOR2& HoverOffset, const D3DXVECTOR2& PressedOffset)->JWControl* { return this; };
+			const D3DXVECTOR2& HoverOffset, const D3DXVECTOR2& PressedOffset)->JWControl& { return *this; };
 
 		// [JWImageButton] Make a system arrow JWImageButton.
-		virtual auto MakeSystemArrowButton(ESystemArrowDirection Direction)->JWControl* { return this; };
+		virtual auto MakeSystemArrowButton(ESystemArrowDirection Direction)->JWControl& { return *this; };
 
 		// [JWScrollBar] Decide the direction (horizontal/vertical) of the JWScrollBar.
-		virtual auto MakeScrollBar(EScrollBarDirection Direction)->JWControl* { return this; };
+		virtual auto MakeScrollBar(EScrollBarDirection Direction)->JWControl& { return *this; };
 
 		// [JWFrameConnector]
 		// @warning: the right frame's position and size will be adjusted IAW/ the left frame's.
-		virtual auto MakeVerticalConnector(JWControl& LeftFrame, JWControl& RightFrame)->JWControl* { return this; };
+		virtual auto MakeVerticalConnector(JWControl& LeftFrame, JWControl& RightFrame)->JWControl& { return *this; };
 
 		// [JWFrameConnector]
 		// @warning: the down frame's position and size will be adjusted IAW/ the up frame's.
-		virtual auto MakeHorizontalConnector(JWControl& UpFrame, JWControl& DownFrame)->JWControl* { return this; };
+		virtual auto MakeHorizontalConnector(JWControl& UpFrame, JWControl& DownFrame)->JWControl& { return *this; };
 
 
 		/*
@@ -140,22 +140,22 @@ namespace JWENGINE
 		/*
 		** Text(font)-related functions
 		*/
-		virtual auto SetText(const WSTRING& Text) noexcept->JWControl*;
-		virtual auto GetText(WSTRING& OutText) noexcept->JWControl*;
-		virtual auto SetTextAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment) noexcept->JWControl*;
-		virtual auto SetTextHorizontalAlignment(EHorizontalAlignment Alignment) noexcept->JWControl*;
-		virtual auto SetTextVerticalAlignment(EVerticalAlignment Alignment) noexcept->JWControl*;
-		virtual auto SetFontColor(DWORD Color) noexcept->JWControl*;
+		virtual auto SetText(const WSTRING& Text) noexcept->JWControl&;
+		virtual auto GetText(WSTRING& OutText) noexcept->JWControl&;
+		virtual auto SetTextAlignment(EHorizontalAlignment HorizontalAlignment, EVerticalAlignment VerticalAlignment) noexcept->JWControl&;
+		virtual auto SetTextHorizontalAlignment(EHorizontalAlignment Alignment) noexcept->JWControl&;
+		virtual auto SetTextVerticalAlignment(EVerticalAlignment Alignment) noexcept->JWControl&;
+		virtual auto SetFontColor(DWORD Color) noexcept->JWControl&;
 
 
 		/*
 		** Setter functions.
 		*/
-		virtual auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*;
-		virtual auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*;
-		virtual auto SetBorderColor(DWORD Color) noexcept->JWControl*;
-		virtual auto SetBorderColor(DWORD ColorA, DWORD ColorB) noexcept->JWControl*;
-		virtual auto SetBackgroundColor(DWORD Color) noexcept->JWControl*;
+		virtual auto SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl&;
+		virtual auto SetSize(const D3DXVECTOR2& Size) noexcept->JWControl&;
+		virtual auto SetBorderColor(DWORD Color) noexcept->JWControl&;
+		virtual auto SetBorderColor(DWORD ColorA, DWORD ColorB) noexcept->JWControl&;
+		virtual auto SetBackgroundColor(DWORD Color) noexcept->JWControl&;
 
 
 		/*
@@ -171,7 +171,7 @@ namespace JWENGINE
 		/*
 		** Parent Control
 		*/
-		virtual auto SetParentControl(JWControl* pParentControl) noexcept->JWControl*;
+		virtual auto SetParentControl(JWControl* pParentControl) noexcept->JWControl&;
 		virtual auto HasParentControl() noexcept->bool;
 
 
@@ -193,25 +193,25 @@ namespace JWENGINE
 		*/
 		// Attach a JWScrollBar to this control.
 		// @warning: if pScrollBar is not a pointer to a JWScrollBar, this function won't work.
-		virtual auto AttachScrollBar(const JWControl& ScrollBar)->JWControl*;
+		virtual auto AttachScrollBar(const JWControl& ScrollBar)->JWControl&;
 
 		// Detach the formerly attached JWScrollBar.
-		virtual auto DetachScrollBar() noexcept->JWControl*;
+		virtual auto DetachScrollBar() noexcept->JWControl&;
 
 
 		/*
 		** Property setter/getter
 		** Property setter functions return 'this' pointer.
 		*/
-		virtual auto ShouldDrawBorder(bool Value) noexcept->JWControl*;
+		virtual auto ShouldDrawBorder(bool Value) noexcept->JWControl&;
 
 		// @warning: this function is used only for debugging purpose.
 		// do not use this to implement a new functionality of the control.
-		virtual auto ShouldUseViewport(bool Value) noexcept->JWControl*;
+		virtual auto ShouldUseViewport(bool Value) noexcept->JWControl&;
 		
-		virtual auto ShouldBeOffsetByMenuBar(bool Value) noexcept->JWControl*;
+		virtual auto ShouldBeOffsetByMenuBar(bool Value) noexcept->JWControl&;
 
-		virtual auto ShouldBeOffsetByParent(bool Value) noexcept->JWControl*;
+		virtual auto ShouldBeOffsetByParent(bool Value) noexcept->JWControl&;
 
 
 		/*
@@ -223,22 +223,22 @@ namespace JWENGINE
 		virtual auto OnSubItemClick()->THandleItem { return THandleItem_Null; };
 
 		// [JWImageBox]
-		virtual auto SetTextureAtlas(const LPDIRECT3DTEXTURE9 pTextureAtlas, const D3DXIMAGE_INFO* pTextureAtlasInfo)->JWControl* { return this; };
+		virtual auto SetTextureAtlas(const LPDIRECT3DTEXTURE9 pTextureAtlas, const D3DXIMAGE_INFO* pTextureAtlasInfo)->JWControl& { return *this; };
 
 		// [JWImageBox]
-		virtual auto SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size)->JWControl* { return this; };
+		virtual auto SetAtlasUV(const D3DXVECTOR2& OffsetInAtlas, const D3DXVECTOR2& Size)->JWControl& { return *this; };
 
 		// [JWCheckBox] | [JWRadioBox]
-		virtual auto SetCheckState(bool Value)->JWControl* { return this; };
+		virtual auto SetCheckState(bool Value)->JWControl& { return *this; };
 
 		// [JWCheckBox] | [JWRadioBox]
 		virtual auto GetCheckState() const->bool { return true; };
 		
 		// [JWScrollBar]
-		virtual auto SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount)->JWControl* { return this; };
+		virtual auto SetScrollRange(size_t VisibleUnitCount, size_t TotalUnitCount)->JWControl& { return *this; };
 
 		// [JWScrollBar]
-		virtual auto SetScrollPosition(size_t Position)->JWControl* { return this; };
+		virtual auto SetScrollPosition(size_t Position)->JWControl& { return *this; };
 
 		// [JWScrollBar]
 		virtual auto GetScrollRange() const->size_t { return 0; };
@@ -247,38 +247,38 @@ namespace JWENGINE
 		virtual auto GetScrollPosition() const->size_t { return 0; };
 
 		// [JWEdit]
-		virtual auto ShouldUseMultiline(bool Value)->JWControl* { return this; };
+		virtual auto ShouldUseMultiline(bool Value)->JWControl& { return *this; };
 
 		// [JWEdit]
-		virtual auto ShouldUseAutomaticLineBreak(bool Value)->JWControl* { return this; };
+		virtual auto ShouldUseAutomaticLineBreak(bool Value)->JWControl& { return *this; };
 
 		// [JWEdit]
-		virtual auto ShouldUseNumberInputsOnly(bool Value)->JWControl* { return this; };
+		virtual auto ShouldUseNumberInputsOnly(bool Value)->JWControl& { return *this; };
 
 		// [JWEdit]
-		virtual auto SetWatermark(const WSTRING& Text)->JWControl* { return this; };
+		virtual auto SetWatermark(const WSTRING& Text)->JWControl& { return *this; };
 
 		// [JWEdit]
-		virtual auto SetWatermarkColor(DWORD Color)->JWControl* { return this; };
+		virtual auto SetWatermarkColor(DWORD Color)->JWControl& { return *this; };
 
 		// [JWListBox]
-		virtual auto ShouldUseAutomaticScrollBar(bool Value)->JWControl* { return this; };
+		virtual auto ShouldUseAutomaticScrollBar(bool Value)->JWControl& { return *this; };
 
 		// [JWListBox] / [JWTextButton]
-		virtual auto ShouldUseToggleSelection(bool Value)->JWControl* { return this; };
+		virtual auto ShouldUseToggleSelection(bool Value)->JWControl& { return *this; };
 
 		// [JWListBox]
-		virtual auto ShouldUseImageItem(bool Value)->JWControl* { return this; };
+		virtual auto ShouldUseImageItem(bool Value)->JWControl& { return *this; };
 
 		// [JWListBox]
-		virtual auto SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo)->JWControl* { return this; };
+		virtual auto SetImageItemTextureAtlas(const LPDIRECT3DTEXTURE9 pTexture, const D3DXIMAGE_INFO* pInfo)->JWControl& { return *this; };
 
 		// [JWListBox]
 		virtual auto AddListBoxItem(const WSTRING& Text, const D3DXVECTOR2& OffsetInAtlas = D3DXVECTOR2(0, 0),
-			const D3DXVECTOR2& SizeInAtlas = D3DXVECTOR2(0, 0))->JWControl* { return this; };
+			const D3DXVECTOR2& SizeInAtlas = D3DXVECTOR2(0, 0))->JWControl& { return *this; };
 
 		// [JWListBox]
-		virtual auto SetMinimumItemHeight(float Value)->JWControl* { return this; };
+		virtual auto SetMinimumItemHeight(float Value)->JWControl& { return *this; };
 
 		// [JWListBox]
 		virtual auto GetListBoxItemCount() const->size_t { return 0; };
@@ -300,7 +300,7 @@ namespace JWENGINE
 		virtual auto AddMenuBarSubItem(THandleItem hItem, const WSTRING& Text)->THandleItem { return THandleItem_Null; };
 
 		// [JWFrame]
-		virtual auto AddChildControl(JWControl& ChildControl)->JWControl* { return this; };
+		virtual auto AddChildControl(JWControl& ChildControl)->JWControl& { return *this; };
 
 		// [JWFrameConnector]
 		virtual auto GetFrameConnectorType() const noexcept->EFrameConnectorType { return EFrameConnectorType::Invalid; };
@@ -332,7 +332,7 @@ namespace JWENGINE
 		virtual void SetControlStateColor(EControlState State, DWORD Color) noexcept;
 
 		// [JWFrame <- JWFrameConnector]
-		virtual auto SetFrameConnector(JWControl& Connector, bool IsBasisFrame) noexcept->JWControl* { return this; };
+		virtual auto SetFrameConnector(JWControl& Connector, bool IsBasisFrame) noexcept->JWControl& { return *this; };
 
 		// [JWFrame]
 		virtual void SetFramePositionFromInside(const D3DXVECTOR2& Position) noexcept {};

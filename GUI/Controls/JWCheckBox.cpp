@@ -62,17 +62,17 @@ void JWCheckBox::Draw() noexcept
 	JWControl::EndDrawing();
 }
 
-auto JWCheckBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl*
+auto JWCheckBox::SetPosition(const D3DXVECTOR2& Position) noexcept->JWControl&
 {
 	JWControl::SetPosition(Position);
 	
 	m_Background.SetPosition(m_Position);
 	m_CheckImage.SetPosition(m_Position + m_ButtonImageOffset);
 
-	return this;
+	return *this;
 }
 
-auto JWCheckBox::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
+auto JWCheckBox::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl&
 {
 	D3DXVECTOR2 adjusted_size = Size;
 
@@ -87,14 +87,14 @@ auto JWCheckBox::SetSize(const D3DXVECTOR2& Size) noexcept->JWControl*
 	m_Background.SetSize(m_Size);
 	m_CheckImage.SetPosition(m_Position + m_ButtonImageOffset);
 
-	return this;
+	return *this;
 }
 
-auto JWCheckBox::SetCheckState(bool Value) noexcept->JWControl*
+auto JWCheckBox::SetCheckState(bool Value) noexcept->JWControl&
 {
 	m_bChecked = Value;
 
-	return this;
+	return *this;
 }
 
 auto JWCheckBox::GetCheckState() const noexcept->bool
