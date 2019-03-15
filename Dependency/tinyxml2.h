@@ -519,7 +519,7 @@ public:
 };
 
 // WARNING: must match XMLDocument::_errorNames[]
-enum XMLEError {
+enum XMLError {
     XML_SUCCESS = 0,
     XML_NO_ATTRIBUTE,
     XML_WRONG_ATTRIBUTE_TYPE,
@@ -1193,17 +1193,17 @@ public:
     	in the provided parameter. The function will return XML_SUCCESS on success,
     	and XML_WRONG_ATTRIBUTE_TYPE if the conversion is not successful.
     */
-    XMLEError QueryIntValue( int* value ) const;
+    XMLError QueryIntValue( int* value ) const;
     /// See QueryIntValue
-    XMLEError QueryUnsignedValue( unsigned int* value ) const;
+    XMLError QueryUnsignedValue( unsigned int* value ) const;
 	/// See QueryIntValue
-	XMLEError QueryInt64Value(int64_t* value) const;
+	XMLError QueryInt64Value(int64_t* value) const;
 	/// See QueryIntValue
-    XMLEError QueryBoolValue( bool* value ) const;
+    XMLError QueryBoolValue( bool* value ) const;
     /// See QueryIntValue
-    XMLEError QueryDoubleValue( double* value ) const;
+    XMLError QueryDoubleValue( double* value ) const;
     /// See QueryIntValue
-    XMLEError QueryFloatValue( float* value ) const;
+    XMLError QueryFloatValue( float* value ) const;
 
     /// Set the attribute to a string value.
     void SetAttribute( const char* value );
@@ -1321,7 +1321,7 @@ public:
     	QueryIntAttribute( "foo", &value );		// if "foo" isn't found, value will still be 10
     	@endverbatim
     */
-    XMLEError QueryIntAttribute( const char* name, int* value ) const				{
+    XMLError QueryIntAttribute( const char* name, int* value ) const				{
         const XMLAttribute* a = FindAttribute( name );
         if ( !a ) {
             return XML_NO_ATTRIBUTE;
@@ -1330,7 +1330,7 @@ public:
     }
 
 	/// See QueryIntAttribute()
-    XMLEError QueryUnsignedAttribute( const char* name, unsigned int* value ) const	{
+    XMLError QueryUnsignedAttribute( const char* name, unsigned int* value ) const	{
         const XMLAttribute* a = FindAttribute( name );
         if ( !a ) {
             return XML_NO_ATTRIBUTE;
@@ -1339,7 +1339,7 @@ public:
     }
 
 	/// See QueryIntAttribute()
-	XMLEError QueryInt64Attribute(const char* name, int64_t* value) const {
+	XMLError QueryInt64Attribute(const char* name, int64_t* value) const {
 		const XMLAttribute* a = FindAttribute(name);
 		if (!a) {
 			return XML_NO_ATTRIBUTE;
@@ -1348,7 +1348,7 @@ public:
 	}
 
 	/// See QueryIntAttribute()
-    XMLEError QueryBoolAttribute( const char* name, bool* value ) const				{
+    XMLError QueryBoolAttribute( const char* name, bool* value ) const				{
         const XMLAttribute* a = FindAttribute( name );
         if ( !a ) {
             return XML_NO_ATTRIBUTE;
@@ -1356,7 +1356,7 @@ public:
         return a->QueryBoolValue( value );
     }
     /// See QueryIntAttribute()
-    XMLEError QueryDoubleAttribute( const char* name, double* value ) const			{
+    XMLError QueryDoubleAttribute( const char* name, double* value ) const			{
         const XMLAttribute* a = FindAttribute( name );
         if ( !a ) {
             return XML_NO_ATTRIBUTE;
@@ -1364,7 +1364,7 @@ public:
         return a->QueryDoubleValue( value );
     }
     /// See QueryIntAttribute()
-    XMLEError QueryFloatAttribute( const char* name, float* value ) const			{
+    XMLError QueryFloatAttribute( const char* name, float* value ) const			{
         const XMLAttribute* a = FindAttribute( name );
         if ( !a ) {
             return XML_NO_ATTRIBUTE;
@@ -1373,7 +1373,7 @@ public:
     }
 
 	/// See QueryIntAttribute()
-	XMLEError QueryStringAttribute(const char* name, const char** value) const {
+	XMLError QueryStringAttribute(const char* name, const char** value) const {
 		const XMLAttribute* a = FindAttribute(name);
 		if (!a) {
 			return XML_NO_ATTRIBUTE;
@@ -1401,27 +1401,27 @@ public:
     	QueryAttribute( "foo", &value );		// if "foo" isn't found, value will still be 10
     	@endverbatim
     */
-	XMLEError QueryAttribute( const char* name, int* value ) const {
+	XMLError QueryAttribute( const char* name, int* value ) const {
 		return QueryIntAttribute( name, value );
 	}
 
-	XMLEError QueryAttribute( const char* name, unsigned int* value ) const {
+	XMLError QueryAttribute( const char* name, unsigned int* value ) const {
 		return QueryUnsignedAttribute( name, value );
 	}
 
-	XMLEError QueryAttribute(const char* name, int64_t* value) const {
+	XMLError QueryAttribute(const char* name, int64_t* value) const {
 		return QueryInt64Attribute(name, value);
 	}
 
-	XMLEError QueryAttribute( const char* name, bool* value ) const {
+	XMLError QueryAttribute( const char* name, bool* value ) const {
 		return QueryBoolAttribute( name, value );
 	}
 
-	XMLEError QueryAttribute( const char* name, double* value ) const {
+	XMLError QueryAttribute( const char* name, double* value ) const {
 		return QueryDoubleAttribute( name, value );
 	}
 
-	XMLEError QueryAttribute( const char* name, float* value ) const {
+	XMLError QueryAttribute( const char* name, float* value ) const {
 		return QueryFloatAttribute( name, value );
 	}
 
@@ -1579,17 +1579,17 @@ public:
     			 to the requested type, and XML_NO_TEXT_NODE if there is no child text to query.
 
     */
-    XMLEError QueryIntText( int* ival ) const;
+    XMLError QueryIntText( int* ival ) const;
     /// See QueryIntText()
-    XMLEError QueryUnsignedText( unsigned* uval ) const;
+    XMLError QueryUnsignedText( unsigned* uval ) const;
 	/// See QueryIntText()
-	XMLEError QueryInt64Text(int64_t* uval) const;
+	XMLError QueryInt64Text(int64_t* uval) const;
 	/// See QueryIntText()
-    XMLEError QueryBoolText( bool* bval ) const;
+    XMLError QueryBoolText( bool* bval ) const;
     /// See QueryIntText()
-    XMLEError QueryDoubleText( double* dval ) const;
+    XMLError QueryDoubleText( double* dval ) const;
     /// See QueryIntText()
-    XMLEError QueryFloatText( float* fval ) const;
+    XMLError QueryFloatText( float* fval ) const;
 
 	int IntText(int defaultValue = 0) const;
 
@@ -1684,14 +1684,14 @@ public:
     	specified, TinyXML-2 will assume 'xml' points to a
     	null terminated string.
     */
-    XMLEError Parse( const char* xml, size_t nBytes=(size_t)(-1) );
+    XMLError Parse( const char* xml, size_t nBytes=(size_t)(-1) );
 
     /**
     	Load an XML file from disk.
     	Returns XML_SUCCESS (0) on success, or
     	an errorID.
     */
-    XMLEError LoadFile( const char* filename );
+    XMLError LoadFile( const char* filename );
 
     /**
     	Load an XML file from disk. You are responsible
@@ -1704,14 +1704,14 @@ public:
     	Returns XML_SUCCESS (0) on success, or
     	an errorID.
     */
-    XMLEError LoadFile( FILE* );
+    XMLError LoadFile( FILE* );
 
     /**
     	Save the XML file to disk.
     	Returns XML_SUCCESS (0) on success, or
     	an errorID.
     */
-    XMLEError SaveFile( const char* filename, bool compact = false );
+    XMLError SaveFile( const char* filename, bool compact = false );
 
     /**
     	Save the XML file to disk. You are responsible
@@ -1720,7 +1720,7 @@ public:
     	Returns XML_SUCCESS (0) on success, or
     	an errorID.
     */
-    XMLEError SaveFile( FILE* fp, bool compact = false );
+    XMLError SaveFile( FILE* fp, bool compact = false );
 
     bool ProcessEntities() const		{
         return _processEntities;
@@ -1820,11 +1820,11 @@ public:
         return _errorID != XML_SUCCESS;
     }
     /// Return the errorID.
-    XMLEError  EErrorID() const {
+    XMLError  EErrorID() const {
         return _errorID;
     }
 	const char* EErrorName() const;
-    static const char* EErrorIDToName(XMLEError errorID);
+    static const char* EErrorIDToName(XMLError errorID);
 
     /** Returns a "long form" error description. A hopefully helpful
         diagnostic with location, line number, and/or additional info.
@@ -1871,7 +1871,7 @@ private:
 
     bool			_writeBOM;
     bool			_processEntities;
-    XMLEError		_errorID;
+    XMLError		_errorID;
     Whitespace		_whitespaceMode;
     mutable StrPair	_errorStr;
     int             _errorLineNum;
@@ -1895,7 +1895,7 @@ private:
 
     void Parse();
 
-    void SetEError( XMLEError error, int lineNum, const char* format, ... );
+    void SetEError( XMLError error, int lineNum, const char* format, ... );
 
 	// Something of an obvious security hole, once it was discovered.
 	// Either an ill-formed XML or an excessively deep one can overflow

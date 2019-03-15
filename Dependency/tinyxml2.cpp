@@ -1387,7 +1387,7 @@ void XMLAttribute::SetName( const char* n )
 }
 
 
-XMLEError XMLAttribute::QueryIntValue( int* value ) const
+XMLError XMLAttribute::QueryIntValue( int* value ) const
 {
     if ( XMLUtil::ToInt( Value(), value )) {
         return XML_SUCCESS;
@@ -1396,7 +1396,7 @@ XMLEError XMLAttribute::QueryIntValue( int* value ) const
 }
 
 
-XMLEError XMLAttribute::QueryUnsignedValue( unsigned int* value ) const
+XMLError XMLAttribute::QueryUnsignedValue( unsigned int* value ) const
 {
     if ( XMLUtil::ToUnsigned( Value(), value )) {
         return XML_SUCCESS;
@@ -1405,7 +1405,7 @@ XMLEError XMLAttribute::QueryUnsignedValue( unsigned int* value ) const
 }
 
 
-XMLEError XMLAttribute::QueryInt64Value(int64_t* value) const
+XMLError XMLAttribute::QueryInt64Value(int64_t* value) const
 {
 	if (XMLUtil::ToInt64(Value(), value)) {
 		return XML_SUCCESS;
@@ -1414,7 +1414,7 @@ XMLEError XMLAttribute::QueryInt64Value(int64_t* value) const
 }
 
 
-XMLEError XMLAttribute::QueryBoolValue( bool* value ) const
+XMLError XMLAttribute::QueryBoolValue( bool* value ) const
 {
     if ( XMLUtil::ToBool( Value(), value )) {
         return XML_SUCCESS;
@@ -1423,7 +1423,7 @@ XMLEError XMLAttribute::QueryBoolValue( bool* value ) const
 }
 
 
-XMLEError XMLAttribute::QueryFloatValue( float* value ) const
+XMLError XMLAttribute::QueryFloatValue( float* value ) const
 {
     if ( XMLUtil::ToFloat( Value(), value )) {
         return XML_SUCCESS;
@@ -1432,7 +1432,7 @@ XMLEError XMLAttribute::QueryFloatValue( float* value ) const
 }
 
 
-XMLEError XMLAttribute::QueryDoubleValue( double* value ) const
+XMLError XMLAttribute::QueryDoubleValue( double* value ) const
 {
     if ( XMLUtil::ToDouble( Value(), value )) {
         return XML_SUCCESS;
@@ -1645,7 +1645,7 @@ void XMLElement::SetText( double v )
 }
 
 
-XMLEError XMLElement::QueryIntText( int* ival ) const
+XMLError XMLElement::QueryIntText( int* ival ) const
 {
     if ( FirstChild() && FirstChild()->ToText() ) {
         const char* t = FirstChild()->Value();
@@ -1658,7 +1658,7 @@ XMLEError XMLElement::QueryIntText( int* ival ) const
 }
 
 
-XMLEError XMLElement::QueryUnsignedText( unsigned* uval ) const
+XMLError XMLElement::QueryUnsignedText( unsigned* uval ) const
 {
     if ( FirstChild() && FirstChild()->ToText() ) {
         const char* t = FirstChild()->Value();
@@ -1671,7 +1671,7 @@ XMLEError XMLElement::QueryUnsignedText( unsigned* uval ) const
 }
 
 
-XMLEError XMLElement::QueryInt64Text(int64_t* ival) const
+XMLError XMLElement::QueryInt64Text(int64_t* ival) const
 {
 	if (FirstChild() && FirstChild()->ToText()) {
 		const char* t = FirstChild()->Value();
@@ -1684,7 +1684,7 @@ XMLEError XMLElement::QueryInt64Text(int64_t* ival) const
 }
 
 
-XMLEError XMLElement::QueryBoolText( bool* bval ) const
+XMLError XMLElement::QueryBoolText( bool* bval ) const
 {
     if ( FirstChild() && FirstChild()->ToText() ) {
         const char* t = FirstChild()->Value();
@@ -1697,7 +1697,7 @@ XMLEError XMLElement::QueryBoolText( bool* bval ) const
 }
 
 
-XMLEError XMLElement::QueryDoubleText( double* dval ) const
+XMLError XMLElement::QueryDoubleText( double* dval ) const
 {
     if ( FirstChild() && FirstChild()->ToText() ) {
         const char* t = FirstChild()->Value();
@@ -1710,7 +1710,7 @@ XMLEError XMLElement::QueryDoubleText( double* dval ) const
 }
 
 
-XMLEError XMLElement::QueryFloatText( float* fval ) const
+XMLError XMLElement::QueryFloatText( float* fval ) const
 {
     if ( FirstChild() && FirstChild()->ToText() ) {
         const char* t = FirstChild()->Value();
@@ -1979,7 +1979,7 @@ bool XMLElement::Accept( XMLVisitor* visitor ) const
 
 // --------- XMLDocument ----------- //
 
-// Warning: List must match 'enum XMLEError'
+// Warning: List must match 'enum XMLError'
 const char* XMLDocument::_errorNames[XML_ERROR_COUNT] = {
     "XML_SUCCESS",
     "XML_NO_ATTRIBUTE",
@@ -2164,7 +2164,7 @@ void XMLDocument::DeleteNode( XMLNode* node )	{
 }
 
 
-XMLEError XMLDocument::LoadFile( const char* filename )
+XMLError XMLDocument::LoadFile( const char* filename )
 {
     if ( !filename ) {
         TIXMLASSERT( false );
@@ -2206,7 +2206,7 @@ struct LongFitsIntoSizeTMinusOne<false> {
     }
 };
 
-XMLEError XMLDocument::LoadFile( FILE* fp )
+XMLError XMLDocument::LoadFile( FILE* fp )
 {
     Clear();
 
@@ -2252,7 +2252,7 @@ XMLEError XMLDocument::LoadFile( FILE* fp )
 }
 
 
-XMLEError XMLDocument::SaveFile( const char* filename, bool compact )
+XMLError XMLDocument::SaveFile( const char* filename, bool compact )
 {
     if ( !filename ) {
         TIXMLASSERT( false );
@@ -2271,7 +2271,7 @@ XMLEError XMLDocument::SaveFile( const char* filename, bool compact )
 }
 
 
-XMLEError XMLDocument::SaveFile( FILE* fp, bool compact )
+XMLError XMLDocument::SaveFile( FILE* fp, bool compact )
 {
     // Clear any error from the last save, otherwise it will get reported
     // for *this* call.
@@ -2282,7 +2282,7 @@ XMLEError XMLDocument::SaveFile( FILE* fp, bool compact )
 }
 
 
-XMLEError XMLDocument::Parse( const char* p, size_t len )
+XMLError XMLDocument::Parse( const char* p, size_t len )
 {
     Clear();
 
@@ -2325,7 +2325,7 @@ void XMLDocument::Print( XMLPrinter* streamer ) const
 }
 
 
-void XMLDocument::SetEError( XMLEError error, int lineNum, const char* format, ... )
+void XMLDocument::SetEError( XMLError error, int lineNum, const char* format, ... )
 {
     TIXMLASSERT( error >= 0 && error < XML_ERROR_COUNT );
     _errorID = error;
@@ -2353,7 +2353,7 @@ void XMLDocument::SetEError( XMLEError error, int lineNum, const char* format, .
 }
 
 
-/*static*/ const char* XMLDocument::EErrorIDToName(XMLEError errorID)
+/*static*/ const char* XMLDocument::EErrorIDToName(XMLError errorID)
 {
 	TIXMLASSERT( errorID >= 0 && errorID < XML_ERROR_COUNT );
     const char* errorName = _errorNames[errorID];

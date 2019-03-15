@@ -44,8 +44,8 @@ auto JWBMFontParser::Parse(const WSTRING& FileName) noexcept->bool
 
 	//@warning: Without "tinyxml2::" here, XMLDocument can be ambiguous because of <msxml.h> in Windows Kits
 	tinyxml2::XMLDocument tempXMLDoc;
-
-	if (tempXMLDoc.LoadFile(WstringToString(FileName).c_str()) == tinyxml2::XMLEError::XML_SUCCESS)
+	
+	if (tempXMLDoc.LoadFile(WstringToString(FileName).c_str()) == tinyxml2::XMLError::XML_SUCCESS)
 	{
 		const XMLElement* tempElementRoot = tempXMLDoc.FirstChildElement("font");
 
